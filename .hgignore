@@ -1,0 +1,6 @@
+syntax: glob
+e2e
+node_modules
+package-lock.json
+.editorconfig
+.gitignore
