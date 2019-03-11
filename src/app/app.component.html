@@ -1,86 +1,22 @@
 <!--The content below is only a placeholder and can be replaced.-->
-<div class="ui-g ui-fluid">
-  <div class="ui-g-12 ui-md-4">
-    <h3>Basic</h3>
-    <p-calendar [(ngModel)]="date1"></p-calendar>
-  </div>
-
-  <div class="ui-g-12 ui-md-4">
-    <h3>Spanish</h3>
-    <p-calendar [(ngModel)]="date2" [locale]="es" dateFormat="dd/mm/yy"></p-calendar>
-  </div>
-
-  <div class="ui-g-12 ui-md-4">
-    <h3>Icon</h3>
-    <p-calendar [(ngModel)]="date3" [showIcon]="true"></p-calendar>
-  </div>
-
-  <div class="ui-g-12 ui-md-4">
-    <h3>Min-Max</h3>
-    <p-calendar [(ngModel)]="date4" [minDate]="minDate" [maxDate]="maxDate" [readonlyInput]="true"></p-calendar>
-  </div>
-
-  <div class="ui-g-12 ui-md-4">
-    <h3>Disable Days</h3>
-    <p-calendar [(ngModel)]="date5" tabindex="0" [disabledDates]="invalidDates" [disabledDays]="[0,6]"
-      [readonlyInput]="true"></p-calendar>
-  </div>
-
-  <div class="ui-g-12 ui-md-4">
-    <h3>Navigators</h3>
-    <p-calendar [(ngModel)]="date6" [monthNavigator]="true" [yearNavigator]="true" yearRange="2000:2030"></p-calendar>
-  </div>
-
-  <div class="ui-g-12 ui-md-4">
-    <h3>Time</h3>
-    <p-calendar [(ngModel)]="date7" [showTime]="true"></p-calendar>
-  </div>
-
-  <div class="ui-g-12 ui-md-4">
-    <h3>Time Only </h3>
-    <p-calendar [(ngModel)]="date8" [timeOnly]="true"></p-calendar>
-  </div>
-
-  <div class="ui-g-12 ui-md-4">
-    <h3>Multiple </h3>
-    <p-calendar [(ngModel)]="dates" selectionMode="multiple" [readonlyInput]="true"></p-calendar>
-  </div>
-
-  <div class="ui-g-12 ui-md-4">
-    <h3>Range</h3>
-    <p-calendar [(ngModel)]="rangeDates" selectionMode="range" [readonlyInput]="true"></p-calendar>
-  </div>
-
-  <div class="ui-g-12 ui-md-4">
-    <h3>Button Bar</h3>
-    <p-calendar [(ngModel)]="date9" showButtonBar="true"></p-calendar>
-  </div>
-
-  <div class="ui-g-12 ui-md-4">
-    <h3>Date Template</h3>
-    <p-calendar [(ngModel)]="date11">
-      <ng-template pTemplate="date" let-date>
-        <span [ngStyle]="{backgroundColor: (date.day < 21 && date.day > 10) ? '#81C784' : 'inherit'}"
-          style="border-radius:50%;padding: .25em;width: 1.75em; height:1.75em; display:block;">{{date.day}}</span>
-      </ng-template>
-    </p-calendar>
-  </div>
-
-  <div class="ui-g-12 ui-md-4">
-    <h3>Multiple Months</h3>
-    <p-calendar [(ngModel)]="date11" [numberOfMonths]="3"></p-calendar>
-  </div>
-
-  <div class="ui-g-12 ui-md-4">
-    <h3>Month Picker</h3>
-    <p-calendar [(ngModel)]="date12" view="month" dateFormat="mm/yy" [yearNavigator]="true" yearRange="2000:2030">
-    </p-calendar>
-  </div>
-
-  <div class="ui-g-12 ui-md-4">
-    <h3>Touch UI</h3>
-    <p-calendar [(ngModel)]="date13" [touchUI]="true"></p-calendar>
-  </div>
+<div style="text-align:center">
+  <h1>
+    Welcome to {{ title }}!
+  </h1>
+  <img width="300" alt="Angular Logo"
+    src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNTAgMjUwIj4KICAgIDxwYXRoIGZpbGw9IiNERDAwMzEiIGQ9Ik0xMjUgMzBMMzEuOSA2My4ybDE0LjIgMTIzLjFMMTI1IDIzMGw3OC45LTQzLjcgMTQuMi0xMjMuMXoiIC8+CiAgICA8cGF0aCBmaWxsPSIjQzMwMDJGIiBkPSJNMTI1IDMwdjIyLjItLjFWMjMwbDc4LjktNDMuNyAxNC4yLTEyMy4xTDEyNSAzMHoiIC8+CiAgICA8cGF0aCAgZmlsbD0iI0ZGRkZGRiIgZD0iTTEyNSA1Mi4xTDY2LjggMTgyLjZoMjEuN2wxMS43LTI5LjJoNDkuNGwxMS43IDI5LjJIMTgzTDEyNSA1Mi4xem0xNyA4My4zaC0zNGwxNy00MC45IDE3IDQwLjl6IiAvPgogIDwvc3ZnPg==">
 </div>
+<h2>Here are some links to help you start: </h2>
+<ul>
+  <li>
+    <h2><a target="_blank" rel="noopener" href="https://angular.io/tutorial">Tour of Heroes</a></h2>
+  </li>
+  <li>
+    <h2><a target="_blank" rel="noopener" href="https://angular.io/cli">CLI Documentation</a></h2>
+  </li>
+  <li>
+    <h2><a target="_blank" rel="noopener" href="https://blog.angular.io/">Angular blog</a></h2>
+  </li>
+</ul>
 
 <router-outlet></router-outlet>
