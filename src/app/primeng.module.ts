@@ -1,12 +1,17 @@
-import { NgModule } from '@angular/core';
+import { NgModule } from "@angular/core";
+import { DynamicDialogModule } from "primeng/components/dynamicdialog/dynamicdialog";
+import { ButtonModule } from "primeng/button";
+
 
 @NgModule({
     declarations: [],
     imports: [
-
+        DynamicDialogModule,
+        ButtonModule
     ],
-    exports: []
+    exports: [
+        DynamicDialogModule,
+        ButtonModule
+    ]
 })
-export class PrimengModule {
-
-}
+export class PrimengModule { }

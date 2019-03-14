@@ -1,0 +1,54 @@
+.box {
+    background-color: #cce4f7;
+    text-align: center;
+    //height: 100%;
+    display: flex;
+    flex: 1;
+}
+
+.slider{
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 15px;
+    cursor: w-resize;
+    text-align: center;
+    justify-content: center;
+}
+.slider > div{
+    border: dotted 1px grey;
+    width: 3px;
+    border-top: none;
+    border-bottom: none;
+    height: 100%;
+    display: inline-block;
+}
+
+.content-left{
+    /*position: relative;*/
+    display: flex;
+    flex-direction: column;
+}
+.content-right{
+    padding-left: 23px;
+    /*overflow-y: auto;*/
+    display: flex;
+    flex-direction: column;
+}
+
+.d-flex{
+    display: flex;
+}
+
+.box-upper {
+    //height: 100%;
+    //width: 100%;
+    display: flex;
+    flex: 1;
+    position: relative;
+}
+:host {
+    width: 100%;
+    display: flex;
+}

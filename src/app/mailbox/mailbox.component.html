@@ -1,0 +1,26 @@
+<div class="p-grid p-nogutter box-upper">
+  <!-- Left side -->
+  <div
+    #leftSide
+    class="p-col content-left"
+    style="background-color: yellow">
+    <div class="box">
+        <app-mail-list></app-mail-list>
+    </div>
+  </div>
+
+  <div *ngIf="rightSideVisible" class="p-offset-7 d-inline-block slider d-flex" #slider>
+    <div></div>
+  </div>
+
+  <!-- Right side -->
+  <div
+    #rightSide
+    class="p-col p-sm-12 content-right d-flex"
+    *ngIf="rightSideVisible"
+    style="background-color: yellow">
+    <div class="box">2
+
+    </div>
+  </div>
+</div>
