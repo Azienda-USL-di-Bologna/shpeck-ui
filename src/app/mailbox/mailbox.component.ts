@@ -77,32 +77,18 @@ export class MailboxComponent implements OnInit, AfterViewInit, AfterViewChecked
     const that = this;
     this.rightSlider.nativeElement.onmousedown = function (event: MouseEvent) {
       event.preventDefault();
-      // const totalX = that.rightSide.nativeElement.offsetWidth + that.mailFolder.nativeElement.offsetWidth;
-      const totalX = that.mailContainer.nativeElement.offsetWidth;
+      const totalX = that.rightSide.nativeElement.offsetWidth;
+      const offsetLeftSide = event.clientX - that.mailList.nativeElement.offsetWidth;
       document.onmouseup = function() {
         document.onmousemove = null;
-        console.log("that.slider.nativeElement.onmouseup");
-       /*  that.impostazioniService.setRightSideOffsetWidth(parseInt(that.rightSide.nativeElement.style.width, 10));
-        that.loggedUser.setImpostazioniApplicazione(that.loginService, that.impostazioniService.getImpostazioniVisualizzazione()); */
         document.onmouseup = null;
       };
 
       document.onmousemove = function(e: MouseEvent) {
         e.preventDefault();
-        const rx = totalX - e.clientX + that.CR7; // e.clientX non comincia dall'estremo della pagina ma lascia 32px che sfasano il conteggio
-        if (!(e.clientX <= that.MIN_X_LEFT_SIDE)) {
-          if (!(totalX - e.clientX <= that.MIN_X_RIGHT_SIDE)) {
-            const rxPercent = rx * 100 / totalX;
-            that.mailDetail.nativeElement.style.width = rxPercent + "%";
-            that.mailList.nativeElement.style.width = 100 - rxPercent + "%";
-            that.rightSlider.nativeElement.style.marginLeft = 100 - rxPercent + "%";
-
-            //const rxPercentSlider = rx * 100 / totalX;
-            //that.rightSide.nativeElement.style.width = rxPercent + "%";
-            //that.rightSlider.nativeElement.style.marginLeft = 100 - rxPercentSlider + "%";
-
-          }
-        }
+        const xLeft = e.clientX - offsetLeftSide;
+        that.mailList.nativeElement.style.width =  xLeft * 100 / totalX + "%";
+        that.mailList.nativeElement.style.flex = "none";
       };
     };
   }

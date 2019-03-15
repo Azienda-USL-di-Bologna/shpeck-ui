@@ -12,31 +12,21 @@
     </div>
 
   <!-- Right side -->
-    <div #rightSide class="content-right" style="background-color:chartreuse">
+    <div #rightSide class="content-right d-flex" style="background-color:chartreuse">
 
-      <div #mailList class="mail-list" style="background-color:cyan">
+      <div #mailList class="d-flex flex-1" style="background-color:cyan">
 
         mail-list
       </div>
 
-      <div *ngIf="rightSideVisible" class="p-offset-6 slider" #rightSlider>
+      <div *ngIf="rightSideVisible" class="new-slider text-center" #rightSlider>
           <div></div>
       </div>
 
-        <div #mailDetail class="mail-detail-container" style="background-color:gold">
-          <div class="mail-detail">mail-detail</div>
-            
-        </div>
-
-
-  <!--     
-      <div #rightSide class="content-right d-flex" *ngIf="rightSideVisible" style="background-color: yellow">
-        <div class="box">
-            <app-mail-list></app-mail-list>
-            <app-mail-detail></app-mail-detail>
-        </div>
-      </div> -->
-
+      <div #mailDetail class="d-flex flex-1" style="background-color:gold">
+        <div class="mail-detail">mail-detail</div>
+          
+      </div>
     </div>
   </div>
 </div>
