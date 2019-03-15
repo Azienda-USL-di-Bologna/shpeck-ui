@@ -1,4 +1,4 @@
-import { Component, OnInit, ViewChild, ElementRef, AfterViewInit, AfterViewChecked } from "@angular/core";
+import { Component, OnInit, ViewChild, ElementRef, AfterViewInit, AfterViewChecked, OnChanges, HostListener } from "@angular/core";
 
 @Component({
   selector: "app-mailbox",
@@ -6,11 +6,13 @@ import { Component, OnInit, ViewChild, ElementRef, AfterViewInit, AfterViewCheck
   styleUrls: ["./mailbox.component.scss"],
 
 })
-export class MailboxComponent implements OnInit, AfterViewInit, AfterViewChecked {
+export class MailboxComponent implements OnInit, AfterViewInit, AfterViewChecked, OnChanges {
 
-  @ViewChild("leftSide") private leftSide: ElementRef;
+  // @ViewChild("leftSide") private leftSide: ElementRef;
+  @ViewChild("mailFolder") private mailFolder: ElementRef;
   @ViewChild("rightSide") private rightSide: ElementRef;
-  @ViewChild("slider") private slider: ElementRef;
+  @ViewChild("mailList") private mailList: ElementRef;
+  @ViewChild("rightSlider") private rightSlider: ElementRef;
 
   public rightSideVisible: boolean;
   public flexGridClass = "p-col-8";
@@ -27,10 +29,15 @@ export class MailboxComponent implements OnInit, AfterViewInit, AfterViewChecked
 
 
   ngOnInit() {
+    // this.setLook();
   }
 
   ngAfterViewInit() {
     this.setLook();
+  }
+
+  ngOnChanges() {
+    //this.setLook();
   }
 
   ngAfterViewChecked() {
@@ -38,6 +45,11 @@ export class MailboxComponent implements OnInit, AfterViewInit, AfterViewChecked
       this.setLook();
       this.enableSetLookCall = false;
     }
+  }
+
+  @HostListener("window:resize", ["$event"])
+  onResize(event: any) {
+    //this.setLook();
   }
 
   toggleRightSide() {
@@ -54,15 +66,17 @@ export class MailboxComponent implements OnInit, AfterViewInit, AfterViewChecked
 
   private setLook(): void {
     this.setResponsiveSlider();
-    this.rightSide.nativeElement.style.width = "30%";
-    this.slider.nativeElement.style.marginLeft = "70%";
+    // this.rightSide.nativeElement.style.width = "30%";
+    //this.rightSlider.nativeElement.style.marginLeft = this.mailFolder.nativeElement.clientWidth + this.mailList.nativeElement.clientWidth + "px" ;
+    //this.rightSlider.nativeElement.style.left =  "0px" ;
+    // this.rightSlider.nativeElement.style.marginLeft = "200px" ;
   }
 
   private setResponsiveSlider(): void {
     const that = this;
-    this.slider.nativeElement.onmousedown = function (event: MouseEvent) {
+    this.rightSlider.nativeElement.onmousedown = function (event: MouseEvent) {
       event.preventDefault();
-      const totalX = that.rightSide.nativeElement.offsetWidth + that.leftSide.nativeElement.offsetWidth;
+      const totalX = that.rightSide.nativeElement.offsetWidth + that.mailFolder.nativeElement.offsetWidth;
       document.onmouseup = function() {
         document.onmousemove = null;
         console.log("that.slider.nativeElement.onmouseup");
@@ -78,7 +92,7 @@ export class MailboxComponent implements OnInit, AfterViewInit, AfterViewChecked
           if (!(totalX - e.clientX <= that.MIN_X_RIGHT_SIDE)) {
             const rxPercent = rx * 100 / totalX;
             that.rightSide.nativeElement.style.width = rxPercent + "%";
-            that.slider.nativeElement.style.marginLeft = 100 - rxPercent + "%";
+            that.rightSlider.nativeElement.style.marginLeft = 1 - rxPercent + "";
           }
         }
       };

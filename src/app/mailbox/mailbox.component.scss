@@ -1,3 +1,10 @@
+.container {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    //flex-basis: 20%;
+}
+
 .box {
     background-color: #cce4f7;
     text-align: center;
@@ -5,6 +12,15 @@
     display: flex;
     flex: 1;
 }
+
+.buttons-bar {
+    height: 50px;
+    display: block;
+    //flex-grow: 0.05;
+    //flex-basis: 1%;
+    // flex-shrink: 1;
+    width: 100%;
+  }
 
 .slider{
     position: absolute;
@@ -27,14 +43,17 @@
 
 .content-left{
     /*position: relative;*/
-    display: flex;
-    flex-direction: column;
+    display: block;
+    width: 200px;
+    //flex-direction: column;
 }
 .content-right{
-    padding-left: 23px;
-    /*overflow-y: auto;*/
+    //padding-left: 23px;
+    // overflow-y: auto;
+    position: relative;
     display: flex;
-    flex-direction: column;
+    flex: 1;
+    flex-direction: row;
 }
 
 .d-flex{
@@ -47,7 +66,25 @@
     display: flex;
     flex: 1;
     position: relative;
+    flex-direction: row;
 }
+
+.mail-list {
+    display: flex;
+    flex: 1;
+    //padding-right: 20px
+}
+.mail-detail-container {
+    display: flex;
+    width: 10%;
+    flex: 1;
+    //adding-left: 25px;
+}
+
+.mail-detail {
+    padding-left: 15px;
+}
+
 :host {
     width: 100%;
     display: flex;

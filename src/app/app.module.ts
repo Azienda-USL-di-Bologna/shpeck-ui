@@ -16,13 +16,15 @@ import { loginModuleConfig } from "./config/module-config";
 
 import { PrimengPluginModule } from "@bds/primeng-plugin";
 import { DialogService } from "primeng/api";
+import { MailFoldersComponent } from "./mailbox/mail-folders/mail-folders.component";
 
 @NgModule({
   declarations: [
     AppComponent,
     MailboxComponent,
     MailListComponent,
-    MailDetailComponent
+    MailDetailComponent,
+    MailFoldersComponent
   ],
   imports: [
     BrowserModule,

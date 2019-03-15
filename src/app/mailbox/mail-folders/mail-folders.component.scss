@@ -1,0 +1,14 @@
+.flex-container{
+    display: flex;
+    flex: 1;
+    flex-direction: column;
+}
+
+.d-flex{
+    display: flex;
+}
+
+:host {
+    width: 100%;
+    display: flex;
+}
