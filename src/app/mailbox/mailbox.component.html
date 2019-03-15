@@ -3,40 +3,40 @@
   <div class="buttons-bar" style="background-color: sandybrown">
 
   </div>
-  <div class="box-upper p-col" style="background-color: yellow">
+  <div #mailContainer class="box-upper p-col" style="background-color: yellow">
 
-  <!-- Left side -->
-  <div #mailFolder class="content-left" style="background-color:crimson">
-        mail-folders
-      <!-- <app-mail-folders></app-mail-folders> -->
-  </div>
-
-<!-- Right side -->
-  <div #rightSide class="content-right" style="background-color:chartreuse">
-
-    <div #mailList class="mail-list" style="background-color:cyan">
-
-      mail-list
+    <!-- Left side -->
+    <div #mailFolder class="content-left" style="background-color:crimson">
+          mail-folders
+        <!-- <app-mail-folders></app-mail-folders> -->
     </div>
 
-    <div *ngIf="rightSideVisible" class="p-offset-6 slider" #rightSlider>
-        <div></div>
+  <!-- Right side -->
+    <div #rightSide class="content-right" style="background-color:chartreuse">
+
+      <div #mailList class="mail-list" style="background-color:cyan">
+
+        mail-list
+      </div>
+
+      <div *ngIf="rightSideVisible" class="p-offset-6 slider" #rightSlider>
+          <div></div>
+      </div>
+
+        <div #mailDetail class="mail-detail-container" style="background-color:gold">
+          <div class="mail-detail">mail-detail</div>
+            
+        </div>
+
+
+  <!--     
+      <div #rightSide class="content-right d-flex" *ngIf="rightSideVisible" style="background-color: yellow">
+        <div class="box">
+            <app-mail-list></app-mail-list>
+            <app-mail-detail></app-mail-detail>
+        </div>
+      </div> -->
+
     </div>
-
-      <div #mailDetail class="mail-detail-container" style="background-color:gold">
-        <div class="mail-detail">mail-detail</div>
-          
-      </div>
-
-
-<!--     
-    <div #rightSide class="content-right d-flex" *ngIf="rightSideVisible" style="background-color: yellow">
-      <div class="box">
-          <app-mail-list></app-mail-list>
-          <app-mail-detail></app-mail-detail>
-      </div>
-    </div> -->
-
-  </div>
   </div>
 </div>

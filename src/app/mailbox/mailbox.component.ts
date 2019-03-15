@@ -11,16 +11,17 @@ export class MailboxComponent implements OnInit, AfterViewInit, AfterViewChecked
   // @ViewChild("leftSide") private leftSide: ElementRef;
   @ViewChild("mailFolder") private mailFolder: ElementRef;
   @ViewChild("rightSide") private rightSide: ElementRef;
+  @ViewChild("mailContainer") private mailContainer: ElementRef;
   @ViewChild("mailList") private mailList: ElementRef;
+  @ViewChild("mailDetail") private mailDetail: ElementRef;
   @ViewChild("rightSlider") private rightSlider: ElementRef;
-
   public rightSideVisible: boolean;
   public flexGridClass = "p-col-8";
 
   private enableSetLookCall = false;
   private MIN_X_LEFT_SIDE: number = 570;
   private MIN_X_RIGHT_SIDE: number = 225;
-  private CR7 = 7;
+  private CR7 = 103;
 
   constructor() {
 
@@ -76,7 +77,8 @@ export class MailboxComponent implements OnInit, AfterViewInit, AfterViewChecked
     const that = this;
     this.rightSlider.nativeElement.onmousedown = function (event: MouseEvent) {
       event.preventDefault();
-      const totalX = that.rightSide.nativeElement.offsetWidth + that.mailFolder.nativeElement.offsetWidth;
+      // const totalX = that.rightSide.nativeElement.offsetWidth + that.mailFolder.nativeElement.offsetWidth;
+      const totalX = that.mailContainer.nativeElement.offsetWidth;
       document.onmouseup = function() {
         document.onmousemove = null;
         console.log("that.slider.nativeElement.onmouseup");
@@ -91,8 +93,14 @@ export class MailboxComponent implements OnInit, AfterViewInit, AfterViewChecked
         if (!(e.clientX <= that.MIN_X_LEFT_SIDE)) {
           if (!(totalX - e.clientX <= that.MIN_X_RIGHT_SIDE)) {
             const rxPercent = rx * 100 / totalX;
-            that.rightSide.nativeElement.style.width = rxPercent + "%";
-            that.rightSlider.nativeElement.style.marginLeft = 1 - rxPercent + "";
+            that.mailDetail.nativeElement.style.width = rxPercent + "%";
+            that.mailList.nativeElement.style.width = 100 - rxPercent + "%";
+            that.rightSlider.nativeElement.style.marginLeft = 100 - rxPercent + "%";
+
+            //const rxPercentSlider = rx * 100 / totalX;
+            //that.rightSide.nativeElement.style.width = rxPercent + "%";
+            //that.rightSlider.nativeElement.style.marginLeft = 100 - rxPercentSlider + "%";
+
           }
         }
       };
