@@ -22,7 +22,7 @@
     width: 100%;
   }
 
-.slider{
+.oldslider{
     position: absolute;
     left: 0;
     top: 0;
@@ -32,7 +32,7 @@
     text-align: center;
     justify-content: center;
 }
-.slider > div{
+.oldslider > div{
     border: dotted 1px grey;
     width: 3px;
     border-top: none;
@@ -40,10 +40,11 @@
     height: 100%;
     display: inline-block;
 }
-.new-slider{
+.slider{
+    cursor: w-resize;
     width: 15px;
 }
-.new-slider >  div{
+.slider >  div{
     border: dotted 1px grey;
     width: 3px;
     border-top: none;
@@ -55,6 +56,7 @@
     /*position: relative;*/
     display: block;
     width: 200px;
+    padding: 5px
     //flex-direction: column;
 }
 .content-right{
@@ -74,32 +76,26 @@
     display: flex;
 }
 
-.box-upper {
+.mail-container {
     //height: 100%;
     //width: 100%;
     display: flex;
     flex: 1;
     position: relative;
     flex-direction: row;
+    margin-top: 5px;
 }
 
 .mail-list {
-    display: inline-block;
-    //flex: 1;
-    //padding-right: 20px
-    width: 50%;
-    height: 100%;
-}
-.mail-detail-container {
-    display: inline-block;
-    width: 50%;
-    height: 100%;
-    //flex: 1;
-    padding-left: 25px;
+    display: flex;
+    flex: 1;
+    padding: 5px;
 }
 
 .mail-detail {
-    // padding-left: 15px;
+    display: flex;
+    flex: 1;
+    padding: 5px;
 }
 
 :host {

@@ -15,12 +15,15 @@ export class MailboxComponent implements OnInit, AfterViewInit, AfterViewChecked
   @ViewChild("mailList") private mailList: ElementRef;
   @ViewChild("mailDetail") private mailDetail: ElementRef;
   @ViewChild("rightSlider") private rightSlider: ElementRef;
+  @ViewChild("leftSlider") private leftSlider: ElementRef;
   public rightSideVisible: boolean;
   public flexGridClass = "p-col-8";
 
   private enableSetLookCall = false;
-  private MIN_X_LEFT_SIDE: number = 570;
-  private MIN_X_RIGHT_SIDE: number = 225;
+  private MIN_X_MAIL_FOLDER: number = 5;
+  private MAX_X_MAIL_FOLDER: number = 50;
+  private MIN_X_RIGHTSIDE: number = 10;
+  private MAX_X_RIGHTSIDE: number = 90;
   private CR7 = 103;
 
   constructor() {
@@ -66,14 +69,14 @@ export class MailboxComponent implements OnInit, AfterViewInit, AfterViewChecked
   }
 
   private setLook(): void {
-    this.setResponsiveSlider();
+    this.setResponsiveSliders();
     // this.rightSide.nativeElement.style.width = "30%";
-    //this.rightSlider.nativeElement.style.marginLeft = this.mailFolder.nativeElement.clientWidth + this.mailList.nativeElement.clientWidth + "px" ;
-    //this.rightSlider.nativeElement.style.left =  "0px" ;
+    // this.rightSlider.nativeElement.style.marginLeft = this.mailFolder.nativeElement.clientWidth + this.mailList.nativeElement.clientWidth + "px" ;
+    // this.rightSlider.nativeElement.style.left =  "0px" ;
     // this.rightSlider.nativeElement.style.marginLeft = "200px" ;
   }
 
-  private setResponsiveSlider(): void {
+  private setResponsiveSliders(): void {
     const that = this;
     this.rightSlider.nativeElement.onmousedown = function (event: MouseEvent) {
       event.preventDefault();
@@ -87,10 +90,33 @@ export class MailboxComponent implements OnInit, AfterViewInit, AfterViewChecked
       document.onmousemove = function(e: MouseEvent) {
         e.preventDefault();
         const xLeft = e.clientX - offsetLeftSide;
-        that.mailList.nativeElement.style.width =  xLeft * 100 / totalX + "%";
-        that.mailList.nativeElement.style.flex = "none";
+        const mailListWidth = xLeft * 100 / totalX;
+        if (mailListWidth >= that.MIN_X_RIGHTSIDE && mailListWidth < that.MAX_X_RIGHTSIDE) {
+          that.mailList.nativeElement.style.width =  mailListWidth + "%";
+          that.mailList.nativeElement.style.flex = "none";
+        }
       };
     };
+
+    this.leftSlider.nativeElement.onmousedown = function (event: MouseEvent) {
+      event.preventDefault();
+      const totalX = that.mailContainer.nativeElement.offsetWidth;
+      const offsetLeftSide = event.clientX - that.mailFolder.nativeElement.offsetWidth;
+      document.onmouseup = function() {
+        document.onmousemove = null;
+        document.onmouseup = null;
+      };
+      document.onmousemove = function(e: MouseEvent) {
+        e.preventDefault();
+        const xLeft = e.clientX - offsetLeftSide;
+        const mailFolderWidth = xLeft * 100 / totalX;
+        if (mailFolderWidth >= that.MIN_X_MAIL_FOLDER && mailFolderWidth < that.MAX_X_MAIL_FOLDER) {
+          that.mailFolder.nativeElement.style.width =  mailFolderWidth + "%";
+        }
+      };
+    };
+
+
   }
 
 
