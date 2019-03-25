@@ -1,14 +1,13 @@
-<div class="p-col container" style="background-color: blue">
+<div class="p-col container p-nogutter">
    
   <div class="buttons-bar" style="background-color: sandybrown">
 
   </div>
-  <div #mailContainer class="mail-container p-col" style="background-color: yellow">
+  <div #mailContainer class="mail-container p-col">
 
     <!-- Left side -->
-    <div #mailFolder class="content-left" style="background-color:crimson">
-          mail-folders
-        <!-- <app-mail-folders></app-mail-folders> -->
+    <div #mailFolder class="content-left">
+        <app-mail-folders></app-mail-folders>
     </div>
 
     <div #leftSlider class="slider text-center">
@@ -19,7 +18,7 @@
     <div #rightSide class="content-right d-flex" style="background-color:chartreuse">
 
       <div #mailList class="mail-list" style="background-color:cyan">
-        mail-list
+        <app-mail-list></app-mail-list>
       </div>
 
       <div #rightSlider *ngIf="rightSideVisible" class="slider text-center">

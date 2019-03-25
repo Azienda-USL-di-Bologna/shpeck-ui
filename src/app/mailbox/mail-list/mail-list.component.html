@@ -1,14 +1,42 @@
-<div class="flex-1 flex-direction-col" style="background-color: skyblue">
-  <!-- <div class="p-col-12 buttons-bar" style="background-color: sandybrown">   </div>-->
+<!-- <div class="flex-1 flex-direction-col" style="background-color: skyblue">
+  aaaaaaaaaaaa
 
+</div> -->
 
-  <!-- <div class="flex-1 strech-row">
-      <div class="p-col-3 d-flex" style="background-color: skyblue">
-
-      </div>
-      <div class="p-col-9 d-flex" style="background-color:silver">
-
-      </div>
-  </div> -->
-
-</div>
+<p-virtualScroller [value]="mails" scrollHeight="500px" [itemSize]="150">
+    <p-header>
+        <div class="ui-g">
+            <div class="ui-g-6 sort-container">
+                <p-dropdown [options]="sortOptions" [(ngModel)]="sortKey" placeholder="Sort By" (onChange)="onSortChange()" [style]="{'min-width':'140px'}"></p-dropdown>
+            </div>
+            <div class="ui-g-6 title-container">
+                List of Mails
+            </div>
+        </div>
+    </p-header>
+    <ng-template let-car pTemplate="item" let-i="index">
+        <div class="ui-g car-item">
+            <div class="ui-g-12 ui-md-2">
+                <div style="font-size: 24px; text-align: center; padding-top: 48px">{{i}}</div>
+            </div>
+            <div class="ui-g-12 ui-md-2">
+                <img src="assets/showcase/images/demo/car/{{car?.brand}}.png">
+            </div>
+            <div class="ui-g-12 ui-md-8">
+                <div class="ui-g">
+                    <div class="ui-g-2 ui-sm-6">Vin: </div>
+                    <div class="ui-g-10 ui-sm-6">{{car?.vin}}</div>
+        
+                    <div class="ui-g-2 ui-sm-6">Year: </div>
+                    <div class="ui-g-10 ui-sm-6">{{car?.year}}</div>
+        
+                    <div class="ui-g-2 ui-sm-6">Brand: </div>
+                    <div class="ui-g-10 ui-sm-6">{{car?.brand}}</div>
+        
+                    <div class="ui-g-2 ui-sm-6">Color: </div>
+                    <div class="ui-g-10 ui-sm-6">{{car?.color}}</div>
+                </div>
+            </div>
+        </div>
+    </ng-template>
+</p-virtualScroller>

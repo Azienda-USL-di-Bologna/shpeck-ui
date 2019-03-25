@@ -1,3 +1,5 @@
+import { NextSdrEntityConfiguration } from "@nfa/next-sdr";
+import { EntitiesConfiguration } from "@nfa/next-sdr";
 
 
 export const LOCALHOST_PORT = "10005";
@@ -21,7 +23,7 @@ export enum BaseUrlType {
 }
 
 export const BaseUrls: Map<BaseUrlType, string> = new Map<BaseUrlType, string>([
-    [BaseUrlType.Shpeck,  "/internauta-api/resources/shpeck"],
+    [BaseUrlType.Shpeck,  "/internauta-api/resources/pecgw"],
     [BaseUrlType.ShpeckCommonParameters,  "/internauta-api/resources/shpeck/getShpeckCommonParameters"],
     [BaseUrlType.Baborg, "/internauta-api/resources/baborg"],
     [BaseUrlType.Configurazione, "/internauta-api/resources/configurazione"],
@@ -57,3 +59,13 @@ export function getInternautaUrl(type: BaseUrlType): string {
 
     return out;
 }
+
+export const ENTITIES_CONFIGURATION: EntitiesConfiguration = {
+    tag: {
+        path: "tag",
+        standardProjections: {},
+        customProjections: {},
+        collectionResourceRel: "tag",
+        keyName: "id",
+    }
+};

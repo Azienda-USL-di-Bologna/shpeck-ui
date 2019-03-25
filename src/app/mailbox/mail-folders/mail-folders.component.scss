@@ -8,6 +8,41 @@
     display: flex;
 }
 
+.aaa > div{
+    top: 50%;
+}
+
+// :host .tree-style-box.body.ui-tree {
+//     cursor: e-resize !important;
+//     color: blueviolet !important;
+//     font-size: xx-large !important;
+//     border: none!important;
+//     background-color: blue !important;
+// }
+
+// .tree-style-container p-tree {
+//     font-size: 14px !important;
+//     border: none !important;
+// }
+
+::ng-deep .tree-style, ::ng-deep .ui-tree-container {
+    font-size: 13px !important;
+    border: none !important;
+    padding: 0 !important;
+}
+
+// ::ng-deep .ui-tree-container {
+//     padding: 0 !important;
+// }
+
+::ng-deep .tree-node-style {
+    font-size: 12px !important;
+}
+
+// ::ng-deep .pi-folder:before {
+//     content: none;
+// }
+
 :host {
     width: 100%;
     display: flex;

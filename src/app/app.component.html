@@ -2,9 +2,9 @@
 <div class="p-grid p-nogutter page-wrapper"> <!---->
   <!-- <app-header class="p-col-12 ui-g-nopad custom-header" style="align-items:center"></app-header> -->
   <div class="full-width">
-    <prp-header class="ui-g-nopad custom-header" [addToRight]="headerTemplate" [appName]="'Babel Internauta'"></prp-header>
+    <prp-header class="ui-g-nopad custom-header" logoPath="assets/images/logo.png" [addToRight]="headerTemplate" [appName]="'Babel Internauta'"></prp-header>
       <ng-template #headerTemplate>
-        <prp-header-features [params]="headerFeaturesParams" [addToMenu]="addToMenu"></prp-header-features>
+        <prp-header-features [params]="headerFeaturesConfig" [addToMenu]="addToMenu"></prp-header-features>
     </ng-template>
   </div>
   <div class="content-wrapper ui-fluid ">

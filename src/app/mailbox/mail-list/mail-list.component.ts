@@ -1,11 +1,16 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit } from "@angular/core";
+import {VirtualScrollerModule} from "primeng/virtualscroller";
 
 @Component({
-  selector: 'app-mail-list',
-  templateUrl: './mail-list.component.html',
-  styleUrls: ['./mail-list.component.scss']
+  selector: "app-mail-list",
+  templateUrl: "./mail-list.component.html",
+  styleUrls: ["./mail-list.component.scss"]
 })
 export class MailListComponent implements OnInit {
+
+public sortOptions = {};
+public sortKey = {};
+public mails: Message = [];
 
   constructor() { }
 
