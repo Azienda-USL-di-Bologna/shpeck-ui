@@ -6,3 +6,4 @@ package-lock.json
 .gitignore
 dist
 yarn.lock
+yarn-error.log

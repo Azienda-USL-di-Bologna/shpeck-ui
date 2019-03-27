@@ -1,7 +1,3 @@
-import { NextSdrEntityConfiguration } from "@nfa/next-sdr";
-import { EntitiesConfiguration } from "@nfa/next-sdr";
-
-
 export const LOCALHOST_PORT = "10005";
 export const INTIMUS_LOCALHOST_PORT = "1339";
 export const LOCALHOST_PDD_PORT = "8080";
@@ -59,13 +55,3 @@ export function getInternautaUrl(type: BaseUrlType): string {
 
     return out;
 }
-
-export const ENTITIES_CONFIGURATION: EntitiesConfiguration = {
-    tag: {
-        path: "tag",
-        standardProjections: {},
-        customProjections: {},
-        collectionResourceRel: "tag",
-        keyName: "id",
-    }
-};
