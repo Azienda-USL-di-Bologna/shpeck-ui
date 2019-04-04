@@ -1,4 +1,4 @@
-import { Component, OnInit, ViewEncapsulation } from "@angular/core";
+import { Component, OnInit, ViewEncapsulation, Output, EventEmitter } from "@angular/core";
 import { FilterDefinition, FiltersAndSorts, SortDefinition, SORT_MODES, FILTER_TYPES } from "@nfa/next-sdr";
 import { TagService } from "src/app/services/tag.service";
 import { Tag, Pec, ENTITIES_STRUCTURE } from "@bds/ng-internauta-model";
@@ -13,26 +13,9 @@ import { PecService } from "src/app/services/pec.service";
 export class MailFoldersComponent implements OnInit {
 // export class MailFoldersComponent implements OnInit {
 
-public mailfolders  = [
-  // {
-  //     "label": "mail@pec.it",
-  //     "data": "Documents Folder",
-  //     "expandedIcon": "pi pi-folder-open",
-  //     "collapsedIcon": "pi pi-folder",
-  //     "children": [{
-  //             "label": "Posta in arrivo",
-  //             "data": "Work Folder",
-  //             "expandedIcon": "pi pi-folder-open",
-  //             "collapsedIcon": "pi pi-folder"
-  //         },
-  //         {
-  //             "label": "Posta in uscita",
-  //             "data": "Home Folder",
-  //             "expandedIcon": "pi pi-folder-open",
-  //             "collapsedIcon": "pi pi-folder"
-  //         }]
-  // }
-];
+  public mailfolders  = [];
+
+  @Output("tagEmitter") private tagEmitter: EventEmitter<number> = new EventEmitter();
 
   constructor(private tagService: TagService, private pecService: PecService) { }
 
@@ -62,7 +45,8 @@ public mailfolders  = [
       for (const tag of pec.tagList) {
         children.push({
           "label": tag.description,
-          "data": "Work Folder",
+          "data": tag.id,
+          "nodeType": "tag",
           "expandedIcon": "pi pi-folder-open",
           "collapsedIcon": "pi pi-folder",
           "styleClass": "tree-node-style"
@@ -71,11 +55,17 @@ public mailfolders  = [
     }
     return {
       "label": pec.indirizzo,
-      "data": "Documents Folder",
+      "data": pec.id,
+      "nodeType": "pec",
       "expandedIcon": "pi pi-folder-open",
       "collapsedIcon": "pi pi-folder",
       "children": children
     };
   }
 
+  public handleNodeSelect(event: any) {
+    if (event.node.nodeType === "tag") {
+      this.tagEmitter.emit(event.node.data);
+    }
+  }
 }

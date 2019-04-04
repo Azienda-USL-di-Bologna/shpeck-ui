@@ -4,7 +4,8 @@ import { ButtonModule } from "primeng/button";
 import {TreeModule} from "primeng/tree";
 import {DataScrollerModule} from "primeng/datascroller";
 import { VirtualScrollerModule } from "primeng/virtualscroller";
-import { DropdownModule } from "primeng/primeng";
+import { DropdownModule, CalendarModule, TooltipModule } from "primeng/primeng";
+import { TableModule } from "primeng/table";
 import { AccordionModule } from "primeng/accordion";
 
 @NgModule({
@@ -16,6 +17,9 @@ import { AccordionModule } from "primeng/accordion";
         DataScrollerModule,
         VirtualScrollerModule,
         AccordionModule,
+        TableModule,
+        CalendarModule,
+        TooltipModule,
         DropdownModule
     ],
     exports: [
@@ -25,6 +29,9 @@ import { AccordionModule } from "primeng/accordion";
         DataScrollerModule,
         VirtualScrollerModule,
         AccordionModule,
+        TableModule,
+        CalendarModule,
+        TooltipModule,
         DropdownModule
     ]
 })

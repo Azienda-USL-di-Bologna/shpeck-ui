@@ -1,6 +1,8 @@
 <p-tree #mytree
   styleClass = "tree-style"
-  [value]="mailfolders">
+  [value]="mailfolders"
+  selectionMode = "single"
+  (onNodeSelect)="handleNodeSelect($event)">
 </p-tree>
 
 

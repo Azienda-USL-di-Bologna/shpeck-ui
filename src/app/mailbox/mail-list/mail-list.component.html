@@ -3,40 +3,58 @@
 
 </div> -->
 
-<p-virtualScroller [value]="mails" scrollHeight="500px" [itemSize]="150">
-    <p-header>
-        <div class="ui-g">
-            <div class="ui-g-6 sort-container">
-                <p-dropdown [options]="sortOptions" [(ngModel)]="sortKey" placeholder="Sort By" (onChange)="onSortChange()" [style]="{'min-width':'140px'}"></p-dropdown>
-            </div>
-            <div class="ui-g-6 title-container">
-                List of Mails
-            </div>
-        </div>
-    </p-header>
-    <ng-template let-car pTemplate="item" let-i="index">
-        <div class="ui-g car-item">
-            <div class="ui-g-12 ui-md-2">
-                <div style="font-size: 24px; text-align: center; padding-top: 48px">{{i}}</div>
-            </div>
-            <div class="ui-g-12 ui-md-2">
-                <img src="assets/showcase/images/demo/car/{{car?.brand}}.png">
-            </div>
-            <div class="ui-g-12 ui-md-8">
-                <div class="ui-g">
-                    <div class="ui-g-2 ui-sm-6">Vin: </div>
-                    <div class="ui-g-10 ui-sm-6">{{car?.vin}}</div>
-        
-                    <div class="ui-g-2 ui-sm-6">Year: </div>
-                    <div class="ui-g-10 ui-sm-6">{{car?.year}}</div>
-        
-                    <div class="ui-g-2 ui-sm-6">Brand: </div>
-                    <div class="ui-g-10 ui-sm-6">{{car?.brand}}</div>
-        
-                    <div class="ui-g-2 ui-sm-6">Color: </div>
-                    <div class="ui-g-10 ui-sm-6">{{car?.color}}</div>
+<p-table #dt
+    [lazy]="true"
+    (onLazyLoad)="handleEvent('onLazyLoad', $event)"
+    [value]="messages"
+    [columns]="cols"
+    [paginator]="false"
+    [autoLayout]="true"
+    [responsive]="true"
+    [totalRecords]="totalRecords"
+    selectionMode="single"
+    (onRowSelect)="handleEvent('onRowSelect', $event)"
+    [scrollable]="true"
+    [loading]="loading"
+    (keydown.arrowdown)="onKeydownHandlerArrowDown($event)"
+    (keydown.arrowup)="onKeydownHandlerArrowUp($event)"
+    [(contextMenuSelection)]="attivitaSelezionata" [contextMenu]="cm"
+    >
+
+    <!-- <ng-template pTemplate="header" let-columns>
+        <tr>
+            <th [id]="col.field" *ngFor="let col of columns" [style.width]="col.width" [style.minWidth]="col.minWidth" scope="colgroup">
+                <div *ngIf="col.field != undefined && col.field !== 'azione'" [pSortableColumn]="col.field">
+                    {{col.header}}
+                    <p-sortIcon [field]="col.field" ariaLabelAsc="Colonnna {{col.header}}, Ordinamento ascendente" ariaLabelDesc="Colonnna {{col.header}}, Ordinamento discendente">
+                    </p-sortIcon>
                 </div>
-            </div>
-        </div>
+            </th>
+        </tr>
+        <tr>
+            <td *ngFor="let col of columns" [ngSwitch]="col.filterWidget" class="filters-styles" [style.width]="col.width" [style.minWidth]="col.minWidth">
+                <div *ngIf="col.field != undefined && col.field !== 'azione'">
+                    <p-calendar #calGen *ngSwitchCase="'Calendar'" [(ngModel)]="dataRange[col.field]" placeholder="Scegli..." showButtonBar="true"
+                        [locale]="localIt" [showIcon]="false" dateFormat="dd/mm/yy" (onSelect)="onCalendarAction($event, col.field, 'select')"
+                        (onClearClick)="onCalendarAction($event, col.field, 'clear')" (onTodayClick)="onCalendarAction($event, col.field, 'today')"
+                        appendTo="body" selectionMode="range" readonlyInput="true" [pTooltip]="calendarTooltip(col.field)" inputId="CalInput_{{col.field}}">
+                    </p-calendar>
+                    <input *ngSwitchDefault pInputText
+                        attr.aria-label="Colonnna {{col.header}}, Cella filtro"
+                        type="text"
+                        (input)="dt.filter($event.target.value, col.field, col.filterMatchMode)"
+                        #filterInputText>
+                </div>
+            </td>
+
+        </tr>
+    </ng-template> -->
+    <ng-template pTemplate="body" let-rowData let-message>
+        <tr #selRow class="row-class" [pSelectableRow]="rowData" [pContextMenuRow]="rowData" style="height:30px">
+            <td >
+               {{message.subject}}
+            </td>
+        </tr>
     </ng-template>
-</p-virtualScroller>
+
+</p-table>

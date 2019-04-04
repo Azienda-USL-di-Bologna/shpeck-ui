@@ -8,6 +8,8 @@ import { Component, OnInit, ViewChild, ElementRef, AfterViewInit, AfterViewCheck
 })
 export class MailboxComponent implements OnInit, AfterViewInit, AfterViewChecked, OnChanges {
 
+  public idTagSelected: number;
+
   // @ViewChild("leftSide") private leftSide: ElementRef;
   @ViewChild("mailFolder") private mailFolder: ElementRef;
   @ViewChild("rightSide") private rightSide: ElementRef;
@@ -35,6 +37,10 @@ export class MailboxComponent implements OnInit, AfterViewInit, AfterViewChecked
 
   ngOnInit() {
     // this.setLook();
+  }
+
+  public tagSelected(idTag: number) {
+    this.idTagSelected = idTag;
   }
 
   ngAfterViewInit() {
