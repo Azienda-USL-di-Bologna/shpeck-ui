@@ -1,14 +1,30 @@
-<div class="flex-1 flex-direction-col">
-  <div class="p-col-12 buttons-bar" style="background-color: sandybrown">
-
+<div class="detail-container">
+  <h3 class="mail-object">{{eml?.subject}}</h3>
+  <p-accordion [multiple]="true" class="accordion">
+      <p-accordionTab header="Dettagli">
+        <ul class="elenco-dettagli">
+            <li *ngIf="eml?.ricevuta"><span class="li-description">Ricevuta il:</span><span class="li-content">{{eml?.ricevuta}}</span></li>
+            <li *ngIf="eml?.consegnata"><span class="li-description">Consegnata il:</span><span class="li-content">{{eml?.consegnata}}</span></li>
+            <li *ngIf="eml?.sendDate"><span class="li-description">Inviata il:</span><span class="li-content">{{eml?.sendDate}}</span></li>
+            <li *ngIf="eml?.from"><span class="li-description">Da:</span><span class="li-content">{{eml?.from}}</span></li>
+            <li *ngIf="eml?.to"><span class="li-description">A:</span><span class="li-content">{{eml?.to}}</span></li>
+            <li *ngIf="eml?.cc"><span class="li-description">CC:</span><span class="li-content">{{eml?.cc}}</span></li>
+        </ul>
+      </p-accordionTab>
+      <p-accordionTab header="Allegati" [disabled]="eml?.attachments == null">
+        <div class="box-allegati">
+          <div *ngFor="let allegato of eml?.attachments" class="allegato">
+              <i class="pi pi-paperclip icona"></i>
+            <span class="allegato-nome">{{allegato.fileName}}</span>
+            <span class="allegato-size">({{calcolaStringaSize(allegato.size)}})</span>
+            <span class="allegato-scarica" (click)="getEmlAttachment(allegato)">Scarica</span>
+          </div>
+        </div>
+        <div *ngIf="eml?.attachments" class="scarica-tutti" (click)="getAllEmlAttachment()">Scarica tutti gli allegati</div>
+      </p-accordionTab>
+  </p-accordion>
+  <div class="mail-body-box" [ngClass]="{'mail-body-box-no-anteprima' : !eml?.htmlText}">
+    <iframe *ngIf="eml?.htmlText" [srcdoc]="eml?.htmlText | sanitizeHtml" sandbox class="mail-body"></iframe>
+    <div *ngIf="!eml?.htmlText" class="no-anteprima">Anteprima non disponibile.</div>
   </div>
-  <div class="flex-1 strech-row">
-      <div class="p-col-3 d-flex" style="background-color: skyblue">
-
-      </div>
-      <div class="p-col-9 d-flex" style="background-color:silver">
-
-      </div>
-  </div>
-
 </div>

@@ -18,6 +18,7 @@ export class MailboxComponent implements OnInit, AfterViewInit, AfterViewChecked
   @ViewChild("leftSlider") private leftSlider: ElementRef;
   public rightSideVisible: boolean;
   public flexGridClass = "p-col-8";
+  public sliding: boolean = false;
 
   private enableSetLookCall = false;
   private MIN_X_MAIL_FOLDER: number = 5;
@@ -79,10 +80,12 @@ export class MailboxComponent implements OnInit, AfterViewInit, AfterViewChecked
   private setResponsiveSliders(): void {
     const that = this;
     this.rightSlider.nativeElement.onmousedown = function (event: MouseEvent) {
+      that.sliding = true;
       event.preventDefault();
       const totalX = that.rightSide.nativeElement.offsetWidth;
       const offsetLeftSide = event.clientX - that.mailList.nativeElement.offsetWidth;
       document.onmouseup = function() {
+        that.sliding = false;
         document.onmousemove = null;
         document.onmouseup = null;
       };

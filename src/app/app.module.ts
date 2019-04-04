@@ -18,6 +18,7 @@ import { loginModuleConfig } from "./config/module-config";
 import { PrimengPluginModule } from "@bds/primeng-plugin";
 import { DialogService } from "primeng/api";
 import { MailFoldersComponent } from "./mailbox/mail-folders/mail-folders.component";
+import { SanitizeHtmlPipe } from "./utils/sanitize-html-pipe";
 
 @NgModule({
   declarations: [
@@ -25,11 +26,13 @@ import { MailFoldersComponent } from "./mailbox/mail-folders/mail-folders.compon
     MailboxComponent,
     MailListComponent,
     MailDetailComponent,
-    MailFoldersComponent
+    MailFoldersComponent,
+    SanitizeHtmlPipe
   ],
   imports: [
     BrowserModule,
     BrowserAnimationsModule,
+    FormsModule,
     AppRoutingModule,
     PrimengModule,
     PrimengPluginModule,

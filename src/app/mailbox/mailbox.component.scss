@@ -110,12 +110,6 @@
     padding: 5px;
 }
 
-.mail-detail {
-    display: flex;
-    flex: 1;
-    padding: 5px;
-}
-
 :host {
     width: 100%;
     display: flex;
@@ -127,11 +121,18 @@
     text-align: center;
 }
 
-// :host>>>.tree-style-box {
-//     
-//     cursor: e-resize !important;
-//     color: blueviolet !important;
-//     font-size: xx-large !important;
-//     border: none!important;
-//     background-color: blue !important;
-// }
+/* ========= MAIL DETAIL ========== */
+.mail-detail {
+    display: flex;
+    flex: 1;
+    padding: 5px;
+    position: relative;
+}
+.overlap-div {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 100;
+}

@@ -19,7 +19,7 @@ export enum BaseUrlType {
 }
 
 export const BaseUrls: Map<BaseUrlType, string> = new Map<BaseUrlType, string>([
-    [BaseUrlType.Shpeck,  "/internauta-api/resources/pecgw"],
+    [BaseUrlType.Shpeck,  "/internauta-api/resources/shpeck"],
     [BaseUrlType.ShpeckCommonParameters,  "/internauta-api/resources/shpeck/getShpeckCommonParameters"],
     [BaseUrlType.Baborg, "/internauta-api/resources/baborg"],
     [BaseUrlType.Configurazione, "/internauta-api/resources/configurazione"],
@@ -27,6 +27,12 @@ export const BaseUrls: Map<BaseUrlType, string> = new Map<BaseUrlType, string>([
     [BaseUrlType.Login, "/internauta-api/login"],
     [BaseUrlType.Intimus, ""]
 ]);
+
+export const CUSTOM_SERVER_METHODS = {
+    extractMessageData: "extractMessageData",
+    getEmlAttachment: "getEmlAttachment",
+    prova: "prova"
+};
 
 export function getInternautaUrl(type: BaseUrlType): string {
     if (!BaseUrls.has(type)) {

@@ -1,0 +1,100 @@
+/* ============ MAIL LIST CONTAINER ============ */
+:host {
+  display: flex;
+  flex: 1 100%;
+}
+.detail-container {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  min-width: 400px;
+}
+
+/* ============ OGGETTO MAIL ============ */
+.mail-object {
+  /* font-size: 1.5em; */
+  margin: 7px; 
+}
+
+/* ============ ACCORDION ============ */
+::ng-deep body .accordion .ui-accordion .ui-accordion-header a {
+  font-weight: initial;
+}
+
+/* ============ DETTAGLI ============ */
+.elenco-dettagli {
+  padding: 0;
+  margin: 0;
+  list-style-type: none;
+}
+.elenco-dettagli .li-description {
+  font-weight: bolder;
+}
+.elenco-dettagli .li-content {
+  margin-left: 8px;
+}
+
+/* ============ ALLEGATI ============ */
+.box-allegati {
+  display: flex;
+  flex-wrap: wrap;
+  align-content: flex-start;
+}
+.allegato {
+  background-color: rgb(235, 235, 235);
+  border-radius: 5px;
+  margin: 1px 3px;
+  padding: 4px;
+  display: inline-flex;
+}
+.allegato:hover {
+  background-color: rgb(206, 206, 206);
+}
+.icona {
+  align-self: flex-end;
+}
+.allegato-nome {
+  cursor: pointer;
+}
+.allegato-nome:hover {
+  text-decoration: underline;
+}
+.allegato-size {
+  margin-left: 5px;
+  font-size: 11px;
+  align-self: center;
+}
+.allegato-scarica {
+  margin-left: 8px;
+  cursor: pointer;
+  font-size: 12px;
+  text-decoration: underline;
+  align-self: center;
+}
+.scarica-tutti {
+  margin-left: 8px;
+  cursor: pointer;
+  font-size: 12px;
+  text-decoration: underline;
+  margin-top: 3px;
+  width: fit-content;
+}
+.scarica-tutti:hover {
+  font-weight: 700;
+}
+
+/* ============ MAIL BODY ============ */
+.mail-body-box {
+  display: flex;
+  flex-grow: 1;
+  justify-content: stretch;
+  align-items: stretch;
+ /*  position: relative; */
+}
+.mail-body-box-no-anteprima {
+  justify-content: center;
+  align-items: center;
+}
+.mail-body {
+  flex-grow: 1;
+}

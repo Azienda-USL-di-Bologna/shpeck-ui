@@ -15,7 +15,7 @@
     </div>
 
     <!-- Right side -->
-    <div #rightSide class="content-right d-flex" style="background-color:chartreuse">
+    <div #rightSide class="content-right d-flex">
 
       <div #mailList class="mail-list" style="background-color:cyan">
         <app-mail-list></app-mail-list>
@@ -25,9 +25,9 @@
           <div></div>
       </div>
 
-      <div #mailDetail class="mail-detail" style="background-color:gold">
-        <div>mail-detail</div>
-          
+      <div #mailDetail class="mail-detail">
+        <div [ngClass]="{'overlap-div' : sliding}"></div>
+        <app-mail-detail></app-mail-detail>
       </div>
     </div>
   </div>

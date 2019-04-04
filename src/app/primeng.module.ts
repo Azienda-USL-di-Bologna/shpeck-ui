@@ -5,6 +5,7 @@ import {TreeModule} from "primeng/tree";
 import {DataScrollerModule} from "primeng/datascroller";
 import { VirtualScrollerModule } from "primeng/virtualscroller";
 import { DropdownModule } from "primeng/primeng";
+import { AccordionModule } from "primeng/accordion";
 
 @NgModule({
     declarations: [],
@@ -14,6 +15,7 @@ import { DropdownModule } from "primeng/primeng";
         TreeModule,
         DataScrollerModule,
         VirtualScrollerModule,
+        AccordionModule,
         DropdownModule
     ],
     exports: [
@@ -22,6 +24,7 @@ import { DropdownModule } from "primeng/primeng";
         TreeModule,
         DataScrollerModule,
         VirtualScrollerModule,
+        AccordionModule,
         DropdownModule
     ]
 })
