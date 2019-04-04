@@ -36,25 +36,33 @@ export class MailDetailComponent implements OnInit {
     );
   }
 
-  private downLoadFile(data: any, type: string) {
+  private downLoadFile(data: any, type: string, filename: string) {
     const blob = new Blob([data], { type: type});
     const url = window.URL.createObjectURL(blob);
-    const pwa = window.open(url);
+    const anchor = document.createElement("a");
+    anchor.download = filename;
+    anchor.href = url;
+    anchor.click();
+    /* const pwa = window.open(url);
     if (!pwa || pwa.closed || typeof pwa.closed === "undefined") {
         alert("Please disable your Pop-up blocker and try again.");
-    }
+    } */
   }
 
   public getEmlAttachment(allegato: EmlAttachment) {
     this.http.get("http://localhost:10005/internauta-api/resources/shpeck/getEmlAttachment/1/" + allegato.id,
           {responseType: "arraybuffer"})
-          .subscribe(response => this.downLoadFile(response, allegato.mimeType.substr(0, allegato.mimeType.indexOf(";"))));
+          .subscribe(
+            response =>
+            this.downLoadFile(response, allegato.mimeType.substr(0, allegato.mimeType.indexOf(";")), allegato.fileName));
   }
 
   public getAllEmlAttachment() {
     this.http.get("http://localhost:10005/internauta-api/resources/shpeck/get_all_eml_attachment/1",
           {responseType: "blob"})
-          .subscribe(response => this.downLoadFile(response, "application/zip"));
+          .subscribe(
+            response =>
+            this.downLoadFile(response, "application/zip", "allegati.zip"));
   }
 
   public calcolaStringaSize(totalsize: number) {
@@ -80,7 +88,7 @@ export class Eml {
 }
 
 export class EmlAttachment {
-  private fileName: string;
+  public fileName: string;
   private filePath: string;
   public mimeType: string;
   private size: number;
