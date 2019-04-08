@@ -19,6 +19,7 @@ import { PrimengPluginModule } from "@bds/primeng-plugin";
 import { DialogService } from "primeng/api";
 import { MailFoldersComponent } from "./mailbox/mail-folders/mail-folders.component";
 import { SanitizeHtmlPipe } from "./utils/sanitize-html-pipe";
+import { ToolbarComponent } from "./mailbox/toolbar/toolbar.component";
 
 @NgModule({
   declarations: [
@@ -27,7 +28,8 @@ import { SanitizeHtmlPipe } from "./utils/sanitize-html-pipe";
     MailListComponent,
     MailDetailComponent,
     MailFoldersComponent,
-    SanitizeHtmlPipe
+    SanitizeHtmlPipe,
+    ToolbarComponent
   ],
   imports: [
     BrowserModule,

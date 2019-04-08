@@ -1,12 +1,14 @@
 import { NgModule } from "@angular/core";
 import { DynamicDialogModule } from "primeng/components/dynamicdialog/dynamicdialog";
 import { ButtonModule } from "primeng/button";
-import {TreeModule} from "primeng/tree";
-import {DataScrollerModule} from "primeng/datascroller";
+import { TreeModule } from "primeng/tree";
+import { DataScrollerModule } from "primeng/datascroller";
 import { VirtualScrollerModule } from "primeng/virtualscroller";
 import { DropdownModule, CalendarModule, TooltipModule } from "primeng/primeng";
 import { TableModule } from "primeng/table";
 import { AccordionModule } from "primeng/accordion";
+import { ToolbarModule } from "primeng/toolbar";
+import { SplitButtonModule } from "primeng/splitbutton";
 
 @NgModule({
     declarations: [],
@@ -20,7 +22,9 @@ import { AccordionModule } from "primeng/accordion";
         TableModule,
         CalendarModule,
         TooltipModule,
-        DropdownModule
+        DropdownModule,
+        ToolbarModule,
+        SplitButtonModule
     ],
     exports: [
         DynamicDialogModule,
@@ -32,7 +36,9 @@ import { AccordionModule } from "primeng/accordion";
         TableModule,
         CalendarModule,
         TooltipModule,
-        DropdownModule
+        DropdownModule,
+        ToolbarModule,
+        SplitButtonModule
     ]
 })
 export class PrimengModule { }

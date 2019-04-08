@@ -1,0 +1,44 @@
+:host {
+    height: 100%;
+}
+
+:host ::ng-deep button {
+    margin-right: .25em;
+}
+
+.d-flex {
+    display: flex;
+}
+
+.button-new-mail,
+.button-styles {
+    width: auto;
+}
+.button-styles {
+    color: #333333;
+    background-color: #dbdbdb;
+    border: 1px solid #dbdbdb;
+}
+
+.images-pos {
+    position: absolute;
+    top: 15%;
+    left: 5%;
+    width: 21px;
+}
+
+::ng-deep .margin-l-15 > span {
+    margin-left: 15px;
+}
+
+/* :host ::ng-deep .ui-splitbutton {
+    margin-left: .25em;
+}
+:host ::ng-deep .ui-splitbutton button {
+    margin-right: 0;
+}
+
+.a-items-center {
+    align-items: center;
+}
+ */

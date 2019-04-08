@@ -22,10 +22,10 @@ body, .ui-widget {
 // TEMPLATE GENERALE DELL'APPLICAZIONE
 
 /* Accordion, pulsanti di paginazione in "grigione" */
-body .ui-accordion .ui-accordion-header:not(.ui-state-disabled).ui-state-active a, 
-body .ui-accordion .ui-accordion-header:not(.ui-state-disabled).ui-state-active:hover a, 
-body .ui-paginator .ui-paginator-pages .ui-paginator-page.ui-state-active, 
-body .ui-dropdown-panel .ui-dropdown-items .ui-dropdown-item.ui-state-highlight, 
+body .ui-accordion .ui-accordion-header:not(.ui-state-disabled).ui-state-active a,
+body .ui-accordion .ui-accordion-header:not(.ui-state-disabled).ui-state-active:hover a,
+body .ui-paginator .ui-paginator-pages .ui-paginator-page.ui-state-active,
+body .ui-dropdown-panel .ui-dropdown-items .ui-dropdown-item.ui-state-highlight,
 body .ui-dropdown-panel .ui-dropdown-items .ui-dropdown-item-group.ui-state-highlight {
     background-color: #848484;
     border: 1px solid #848484;
