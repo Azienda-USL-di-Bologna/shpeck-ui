@@ -15,9 +15,7 @@
     width: auto;
 }
 .button-styles {
-    color: #333333;
-    background-color: #dbdbdb;
-    border: 1px solid #dbdbdb;
+    border: 1px solid #a6a6a6 !important;
 }
 
 .images-pos {
@@ -29,6 +27,10 @@
 
 ::ng-deep .margin-l-15 > span {
     margin-left: 15px;
+}
+
+::ng-deep .dialog-class {
+    top: 30%;
 }
 
 /* :host ::ng-deep .ui-splitbutton {

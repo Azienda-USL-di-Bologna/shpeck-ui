@@ -21,6 +21,7 @@ import { MailFoldersComponent } from "./mailbox/mail-folders/mail-folders.compon
 import { SanitizeHtmlPipe } from "./utils/sanitize-html-pipe";
 import { ToolbarComponent } from "./mailbox/toolbar/toolbar.component";
 import { SettingsComponent } from "./settings/settings.component";
+import { NewMailComponent } from "./mailbox/new-mail/new-mail.component";
 
 @NgModule({
   declarations: [
@@ -31,7 +32,8 @@ import { SettingsComponent } from "./settings/settings.component";
     MailFoldersComponent,
     SanitizeHtmlPipe,
     ToolbarComponent,
-    SettingsComponent
+    SettingsComponent,
+    NewMailComponent
   ],
   imports: [
     BrowserModule,
@@ -45,6 +47,6 @@ import { SettingsComponent } from "./settings/settings.component";
   ],
   providers: [DialogService, DatePipe],
   bootstrap: [AppComponent],
-  entryComponents: [SettingsComponent]
+  entryComponents: [SettingsComponent, NewMailComponent]
 })
 export class AppModule { }

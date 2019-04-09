@@ -4,7 +4,7 @@ import { NtJwtLoginComponent, NoLoginGuard, RefreshLoggedUserGuard, LoginGuard }
 import { MailboxComponent } from "./mailbox/mailbox.component";
 
 const routes: Routes = [
-  {path: "", redirectTo: "homepage", pathMatch: "full"},
+  {path: "", redirectTo: "mailbox", pathMatch: "full"},
   {path: "login", component: NtJwtLoginComponent, canActivate: [NoLoginGuard], data: {}},
   {path: "mailbox", component: MailboxComponent, canActivate: [RefreshLoggedUserGuard, LoginGuard]}
 ];

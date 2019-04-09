@@ -1,0 +1,90 @@
+<section class="height-100">
+  <div class="height-100">
+    <form #form="ngForm" >
+        <ul class="list-items">
+          <li>
+            <label for="a-addresses" style="padding-right: 9px">A: </label>
+            <span class="ui-fluid flex-1 margin-lr-5">
+                <p-autoComplete
+                  id="a-addresses" [(ngModel)]="countries" [suggestions]="filteredCountriesMultiple"
+                  (completeMethod)="filterCountryMultiple($event)" styleClass="wid100"
+                  [minLength]="1" placeholder="Seleziona contatti..." field="name" [multiple]="true">
+                </p-autoComplete>
+            </span>
+            <span>
+              <button pButton type="button" icon="fa fa-address-book" class="ui-button-rounded"></button>
+            </span>
+          </li>
+          <li>
+            <label for="cc-addresses">CC: </label>
+            <span class="ui-fluid flex-1 margin-lr-5">
+              <p-autoComplete
+                id="cc-addresses" [(ngModel)]="countries" [suggestions]="filteredCountriesMultiple"
+                (completeMethod)="filterCountryMultiple($event)" styleClass="wid100"
+                [minLength]="1" field="name" [multiple]="true">
+              </p-autoComplete>
+            </span>
+            <span>
+              <button pButton type="button" icon="fa fa-address-book" class="ui-button-rounded"></button>
+            </span>
+          </li>
+          <li>
+            <label for="recipients">Destinatari privati: </label>
+            <span class="ui-fluid margin-lr-5">
+              <p-checkbox id="recipients" name="group1" value="New York" inputId="ny"></p-checkbox>
+            </span>
+          </li>
+          <li>
+            <label for="object">Oggetto: </label>
+            <span class="ui-fluid flex-1 margin-l-5">
+                <input id="object" type="text" size="100" pInputText>
+            </span>
+          </li>
+          <li class="flex-dir-col">
+            <label for="attachments">Allegati: </label>
+            <span class="ui-fluid">
+              <p-accordion id="attachments" [multiple]="true" class="accordion">
+                <p-accordionTab header="Allegati" [disabled]="eml?.attachments == null">
+                  <div class="box-allegati">
+                    <div *ngFor="let allegato of eml?.attachments" class="allegato">
+                      <i class="pi pi-paperclip icona"></i>
+                      <span class="allegato-nome">{{allegato.name}}</span>
+                      <span class="allegato-size">{{allegato.code}}</span>
+                      <span class="allegato-scarica">Scarica</span>
+                    </div>
+                  </div>
+                  <div *ngIf="eml?.attachments" class="scarica-tutti">Scarica tutti gli allegati</div>
+                </p-accordionTab>
+              </p-accordion>
+            </span>
+          </li>
+          <li class="flex-dir-col" style="margin: 0">
+            <label for="mail-text">Testo: </label>
+            <span #editor class="ui-fluid d-flex">
+              <p-editor id="mail-text" [(ngModel)]="text1"
+                [style]="{'overflow':'auto', 'word-break': 'break-word', 'height': '333px','max-height': '333px'}">
+              </p-editor>
+            </span>
+          </li>
+
+        </ul>
+    </form>
+    <p-footer class="footer-class">
+      <button
+        type="button" pButton icon="pi pi-save"
+        class="ui-button-raised ui-button-secondary button-styles"
+        label="Salva bozza">
+      </button>
+      <button
+        type="button" pButton icon="pi pi-times"
+        class="ui-button-raised ui-button-secondary button-styles"
+        label="Annulla" >
+      </button>
+      <button
+        type="button" pButton icon="fa fa-paper-plane"
+        class="ui-button-raised ui-button-secondary button-styles"
+        label="Invia">
+      </button>
+    </p-footer>
+  </div>
+</section>

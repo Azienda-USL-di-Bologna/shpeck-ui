@@ -9,7 +9,12 @@ import { TableModule } from "primeng/table";
 import { AccordionModule } from "primeng/accordion";
 import { ToolbarModule } from "primeng/toolbar";
 import { SplitButtonModule } from "primeng/splitbutton";
+import { DialogModule } from "primeng/dialog";
 import { InputSwitchModule } from "primeng/inputswitch";
+import { AutoCompleteModule } from "primeng/autocomplete";
+import { CheckboxModule } from "primeng/checkbox";
+import { InputTextModule } from "primeng/inputtext";
+import { EditorModule } from "primeng/editor";
 
 @NgModule({
     declarations: [],
@@ -26,7 +31,12 @@ import { InputSwitchModule } from "primeng/inputswitch";
         DropdownModule,
         ToolbarModule,
         SplitButtonModule,
-        InputSwitchModule
+        DialogModule,
+        InputSwitchModule,
+        AutoCompleteModule,
+        CheckboxModule,
+        InputTextModule,
+        EditorModule
     ],
     exports: [
         DynamicDialogModule,
@@ -41,7 +51,12 @@ import { InputSwitchModule } from "primeng/inputswitch";
         DropdownModule,
         ToolbarModule,
         SplitButtonModule,
-        InputSwitchModule
+        DialogModule,
+        InputSwitchModule,
+        AutoCompleteModule,
+        CheckboxModule,
+        InputTextModule,
+        EditorModule
     ]
 })
 export class PrimengModule { }

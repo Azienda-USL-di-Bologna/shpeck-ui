@@ -19,3 +19,8 @@
 >>> .content-wrapper > app-mailbox{
     width: 100%
 }
+
+::ng-deep body .ui-dialog .ui-dialog-titlebar, .titolo-popup {
+    background-color: #993366;
+    color: white;
+ }
