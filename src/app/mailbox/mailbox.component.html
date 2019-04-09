@@ -21,11 +21,11 @@
         <app-mail-list [idTag] = "idTagSelected"></app-mail-list>
       </div>
 
-      <div #rightSlider *ngIf="rightSideVisible" class="slider text-center">
+      <div *ngIf="!hideDetail" #rightSlider class="slider text-center">
           <div></div>
       </div>
 
-      <div #mailDetail class="mail-detail">
+      <div *ngIf="!hideDetail" #mailDetail class="mail-detail">
         <div [ngClass]="{'overlap-div' : sliding}"></div>
         <app-mail-detail></app-mail-detail>
       </div>

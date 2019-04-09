@@ -35,6 +35,10 @@
 }
 
 /* ============ ALLEGATI ============ */
+::ng-deep .accordion-allegati .ui-accordion-content-wrapper{
+  max-height: 156px;
+  overflow: auto;
+}
 .box-allegati {
   display: flex;
   flex-wrap: wrap;
@@ -50,9 +54,16 @@
 .allegato:hover {
   background-color: rgb(206, 206, 206);
 }
-.icona {
-  align-self: flex-end;
+::ng-deep .tooltip .ui-tooltip-text {
+  width: fit-content;
 }
+.icona {
+  align-self: center;
+  margin-right: 2px;
+}
+/* .icona-svg {
+  height: 18px;
+} */
 .allegato-nome {
   cursor: pointer;
 }
@@ -71,8 +82,10 @@
   text-decoration: underline;
   align-self: center;
 }
-.scarica-tutti {
+.scarica-tutti-icon {
   margin-left: 8px;
+}
+.scarica-tutti {
   cursor: pointer;
   font-size: 12px;
   text-decoration: underline;
@@ -89,7 +102,6 @@
   flex-grow: 1;
   justify-content: stretch;
   align-items: stretch;
- /*  position: relative; */
 }
 .mail-body-box-no-anteprima {
   justify-content: center;

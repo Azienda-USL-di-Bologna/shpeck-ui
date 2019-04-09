@@ -20,6 +20,7 @@ import { DialogService } from "primeng/api";
 import { MailFoldersComponent } from "./mailbox/mail-folders/mail-folders.component";
 import { SanitizeHtmlPipe } from "./utils/sanitize-html-pipe";
 import { ToolbarComponent } from "./mailbox/toolbar/toolbar.component";
+import { SettingsComponent } from "./settings/settings.component";
 
 @NgModule({
   declarations: [
@@ -29,7 +30,8 @@ import { ToolbarComponent } from "./mailbox/toolbar/toolbar.component";
     MailDetailComponent,
     MailFoldersComponent,
     SanitizeHtmlPipe,
-    ToolbarComponent
+    ToolbarComponent,
+    SettingsComponent
   ],
   imports: [
     BrowserModule,
@@ -42,6 +44,7 @@ import { ToolbarComponent } from "./mailbox/toolbar/toolbar.component";
     NtJwtLoginModule.forRoot(loginModuleConfig)
   ],
   providers: [DialogService, DatePipe],
-  bootstrap: [AppComponent]
+  bootstrap: [AppComponent],
+  entryComponents: [SettingsComponent]
 })
 export class AppModule { }

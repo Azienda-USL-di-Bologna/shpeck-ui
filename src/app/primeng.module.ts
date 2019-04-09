@@ -9,6 +9,7 @@ import { TableModule } from "primeng/table";
 import { AccordionModule } from "primeng/accordion";
 import { ToolbarModule } from "primeng/toolbar";
 import { SplitButtonModule } from "primeng/splitbutton";
+import { InputSwitchModule } from "primeng/inputswitch";
 
 @NgModule({
     declarations: [],
@@ -24,7 +25,8 @@ import { SplitButtonModule } from "primeng/splitbutton";
         TooltipModule,
         DropdownModule,
         ToolbarModule,
-        SplitButtonModule
+        SplitButtonModule,
+        InputSwitchModule
     ],
     exports: [
         DynamicDialogModule,
@@ -38,7 +40,8 @@ import { SplitButtonModule } from "primeng/splitbutton";
         TooltipModule,
         DropdownModule,
         ToolbarModule,
-        SplitButtonModule
+        SplitButtonModule,
+        InputSwitchModule
     ]
 })
 export class PrimengModule { }

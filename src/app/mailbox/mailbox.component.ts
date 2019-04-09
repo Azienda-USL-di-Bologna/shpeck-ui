@@ -1,4 +1,7 @@
 import { Component, OnInit, ViewChild, ElementRef, AfterViewInit, AfterViewChecked, OnChanges, HostListener } from "@angular/core";
+import { Subscription } from "rxjs";
+import { SettingsService } from "../services/settings.service";
+import { AppCustomization } from "src/environments/app-customization";
 
 @Component({
   selector: "app-mailbox",
@@ -21,15 +24,17 @@ export class MailboxComponent implements OnInit, AfterViewInit, AfterViewChecked
   public rightSideVisible: boolean;
   public flexGridClass = "p-col-8";
   public sliding: boolean = false;
+  public hideDetail = false;
 
   private enableSetLookCall = false;
   private MIN_X_MAIL_FOLDER: number = 5;
   private MAX_X_MAIL_FOLDER: number = 50;
   private MIN_X_RIGHTSIDE: number = 10;
-  private MAX_X_RIGHTSIDE: number = 90;
+  private MAX_X_RIGHTSIDE: number = 70;
   private CR7 = 103;
+  private subscriptions: Subscription[] = [];
 
-  constructor() {
+  constructor(private settingsService: SettingsService) {
 
     this.rightSideVisible = true;
   }
@@ -37,6 +42,10 @@ export class MailboxComponent implements OnInit, AfterViewInit, AfterViewChecked
 
   ngOnInit() {
     // this.setLook();
+    this.subscriptions.push(this.settingsService.settingsChangedNotifier$.subscribe(newSettings => {
+      console.log("eccolo quaaaaaaaaa");
+      this.hideDetail = newSettings[AppCustomization.shpeck.hideDetail] === "true";
+    }));
   }
 
   public tagSelected(idTag: number) {
@@ -48,7 +57,7 @@ export class MailboxComponent implements OnInit, AfterViewInit, AfterViewChecked
   }
 
   ngOnChanges() {
-    //this.setLook();
+    // this.setLook();
   }
 
   ngAfterViewChecked() {
@@ -60,10 +69,10 @@ export class MailboxComponent implements OnInit, AfterViewInit, AfterViewChecked
 
   @HostListener("window:resize", ["$event"])
   onResize(event: any) {
-    //this.setLook();
+    // this.setLook();
   }
 
-  toggleRightSide() {
+  /* toggleRightSide() {
     if (!!this.rightSideVisible) {
       this.rightSideVisible = false;
       this.enableSetLookCall = false;
@@ -73,7 +82,7 @@ export class MailboxComponent implements OnInit, AfterViewInit, AfterViewChecked
       this.enableSetLookCall = true;
       this.flexGridClass = "p-col-8";
     }
-  }
+  } */
 
   private setLook(): void {
     this.setResponsiveSliders();
@@ -124,9 +133,5 @@ export class MailboxComponent implements OnInit, AfterViewInit, AfterViewChecked
         }
       };
     };
-
-
   }
-
-
 }

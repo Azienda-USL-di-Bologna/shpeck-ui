@@ -3,9 +3,16 @@
 
 </div> -->
 
+<!-- (onLazyLoad)="handleEvent('onLazyLoad', $event)"
+(keydown.arrowdown)="onKeydownHandlerArrowDown($event)"
+    (keydown.arrowup)="onKeydownHandlerArrowUp($event)"
+[(contextMenuSelection)]="attivitaSelezionata" [contextMenu]="cm" 
+(onRowSelect)="handleEvent('onRowSelect', $event)"
+[loading]="loading"-->
+
 <p-table #dt
     [lazy]="true"
-    (onLazyLoad)="handleEvent('onLazyLoad', $event)"
+    
     [value]="messages"
     [columns]="cols"
     [paginator]="false"
@@ -13,12 +20,11 @@
     [responsive]="true"
     [totalRecords]="totalRecords"
     selectionMode="single"
-    (onRowSelect)="handleEvent('onRowSelect', $event)"
+    
     [scrollable]="true"
-    [loading]="loading"
-    (keydown.arrowdown)="onKeydownHandlerArrowDown($event)"
-    (keydown.arrowup)="onKeydownHandlerArrowUp($event)"
-    [(contextMenuSelection)]="attivitaSelezionata" [contextMenu]="cm"
+    
+    
+    
     >
 
     <!-- <ng-template pTemplate="header" let-columns>

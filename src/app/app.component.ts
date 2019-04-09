@@ -1,8 +1,9 @@
 import { Component, OnInit } from "@angular/core";
-import { MenuItem } from "primeng/api";
+import { MenuItem, DialogService } from "primeng/api";
 import { NtJwtLoginService, UtenteUtilities } from "@bds/nt-jwt-login";
 import { getInternautaUrl, BaseUrlType, MAILBOX_ROUTE } from "src/environments/app-constants";
 import { HeaderFeaturesConfig } from "@bds/primeng-plugin";
+import { SettingsComponent } from "./settings/settings.component";
 
 @Component({
   selector: "app-root",
@@ -16,7 +17,7 @@ export class AppComponent implements OnInit {
 
   private utenteConnesso: UtenteUtilities;
 
-  constructor(private loginService: NtJwtLoginService) {}
+  constructor(private loginService: NtJwtLoginService, public dialogService: DialogService, ) {}
 
   ngOnInit() {
     this.headerFeaturesConfig = new HeaderFeaturesConfig();
@@ -39,11 +40,21 @@ export class AppComponent implements OnInit {
       }
     });
 
-    /* this.addToMenu.push({
-      label: 'Impostazioni',
-      icon: 'pi pi-fw pi-cog slide-icon',
-      command: () => {  }
+    this.addToMenu.push({
+      label: "Impostazioni",
+      icon: "pi pi-fw pi-cog slide-icon",
+      command: () => { this.showSettings(SettingsComponent, "Impostazioni utente", "480px", "200px", null); }
     });
-    this.addToMenu = Object.assign([], this.addToMenu); */
+    this.addToMenu = Object.assign([], this.addToMenu);
+  }
+
+  showSettings(component, header, width, height, data) {
+    const ref = this.dialogService.open(component, {
+      data: data,
+      header: header,
+      width: width,
+      styleClass: "dialog-class",
+      contentStyle: {"max-height": "450px", "min-height": "250px", "overflow": "auto", "height": height, }
+    });
   }
 }
