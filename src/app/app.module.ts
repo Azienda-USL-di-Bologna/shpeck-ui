@@ -36,14 +36,14 @@ import { NewMailComponent } from "./mailbox/new-mail/new-mail.component";
     NewMailComponent
   ],
   imports: [
+    NtJwtLoginModule.forRoot(loginModuleConfig),
     BrowserModule,
     BrowserAnimationsModule,
     FormsModule,
     AppRoutingModule,
     PrimengModule,
     PrimengPluginModule,
-    FormsModule,
-    NtJwtLoginModule.forRoot(loginModuleConfig)
+    FormsModule
   ],
   providers: [DialogService, DatePipe],
   bootstrap: [AppComponent],
