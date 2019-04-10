@@ -7,7 +7,7 @@
 
     <!-- Left side -->
     <div #mailFolder class="content-left">
-        <app-mail-folders (tagEmitter)="tagSelected($event)"></app-mail-folders>
+        <app-mail-folders (idFolderEmitter)="onFolderSelected($event)"></app-mail-folders>
     </div>
 
     <div #leftSlider class="slider text-center">
@@ -18,7 +18,7 @@
     <div #rightSide class="content-right d-flex">
 
       <div #mailList class="mail-list" style="background-color:cyan">
-        <app-mail-list [idTag] = "idTagSelected"></app-mail-list>
+        <app-mail-list [idFolder] = "idFolderSelected"></app-mail-list>
       </div>
 
       <div *ngIf="!hideDetail" #rightSlider class="slider text-center">

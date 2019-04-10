@@ -11,7 +11,7 @@ import { AppCustomization } from "src/environments/app-customization";
 })
 export class MailboxComponent implements OnInit, AfterViewInit, AfterViewChecked, OnChanges {
 
-  public idTagSelected: number;
+  public idFolderSelected: number;
 
   // @ViewChild("leftSide") private leftSide: ElementRef;
   @ViewChild("mailFolder") private mailFolder: ElementRef;
@@ -48,8 +48,8 @@ export class MailboxComponent implements OnInit, AfterViewInit, AfterViewChecked
     }));
   }
 
-  public tagSelected(idTag: number) {
-    this.idTagSelected = idTag;
+  public onFolderSelected(idFolder: number) {
+    this.idFolderSelected = idFolder;
   }
 
   ngAfterViewInit() {

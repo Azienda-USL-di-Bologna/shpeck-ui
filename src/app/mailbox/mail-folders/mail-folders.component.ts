@@ -1,5 +1,5 @@
 import { Component, OnInit, ViewEncapsulation, Output, EventEmitter } from "@angular/core";
-import { FilterDefinition, FiltersAndSorts, SortDefinition, SORT_MODES, FILTER_TYPES } from "@nfa/next-sdr";
+import { FilterDefinition, FiltersAndSorts, SortDefinition, SORT_MODES, FILTER_TYPES, AdditionalDataDefinition } from "@nfa/next-sdr";
 import { TagService } from "src/app/services/tag.service";
 import { Tag, Pec, ENTITIES_STRUCTURE } from "@bds/ng-internauta-model";
 import { PecService } from "src/app/services/pec.service";
@@ -15,12 +15,12 @@ export class MailFoldersComponent implements OnInit {
 
   public mailfolders  = [];
 
-  @Output("tagEmitter") private tagEmitter: EventEmitter<number> = new EventEmitter();
+  @Output("idFolderEmitter") private idFolderEmitter: EventEmitter<number> = new EventEmitter();
 
-  constructor(private tagService: TagService, private pecService: PecService) { }
+  constructor(private pecService: PecService) { }
 
   ngOnInit() {
-    this.pecService.getData(ENTITIES_STRUCTURE.baborg.pec.standardProjections.PecWithTagList, this.buildTagInitialFilterAndSort(), null, null).subscribe(
+    this.pecService.getData(ENTITIES_STRUCTURE.baborg.pec.standardProjections.PecWithFolderList, this.buildFolderInitialFilterAndSort(), null, null).subscribe(
       data => {
         if (data && data.results) {
           for (const pec of data.results) {
@@ -33,20 +33,21 @@ export class MailFoldersComponent implements OnInit {
     );
   }
 
-  private buildTagInitialFilterAndSort(): FiltersAndSorts {
+  private buildFolderInitialFilterAndSort(): FiltersAndSorts {
     const filter = new FiltersAndSorts();
     filter.addSort(new SortDefinition("indirizzo", SORT_MODES.asc));
+    filter.addAdditionalData(new AdditionalDataDefinition("OperationRequested", "FilterPecPerStandardPermissions"));
     return filter;
   }
 
   private buildNode(pec: Pec): any {
     const children = [];
-    if (pec.tagList) {
-      for (const tag of pec.tagList) {
+    if (pec.folderList) {
+      for (const folder of pec.folderList) {
         children.push({
-          "label": tag.description,
-          "data": tag.id,
-          "nodeType": "tag",
+          "label": folder.description,
+          "data": folder.id,
+          "nodeType": "folder",
           "expandedIcon": "pi pi-folder-open",
           "collapsedIcon": "pi pi-folder",
           "styleClass": "tree-node-style"
@@ -64,8 +65,8 @@ export class MailFoldersComponent implements OnInit {
   }
 
   public handleNodeSelect(event: any) {
-    if (event.node.nodeType === "tag") {
-      this.tagEmitter.emit(event.node.data);
+    if (event.node.nodeType === "folder") {
+      this.idFolderEmitter.emit(event.node.data);
     }
   }
 }

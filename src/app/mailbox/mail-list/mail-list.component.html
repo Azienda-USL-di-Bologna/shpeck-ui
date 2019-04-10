@@ -16,7 +16,7 @@
     [value]="messages"
     [columns]="cols"
     [paginator]="false"
-    [autoLayout]="true"
+    [autoLayout]="false"
     [responsive]="true"
     [totalRecords]="totalRecords"
     selectionMode="single"
@@ -56,9 +56,10 @@
         </tr>
     </ng-template> -->
     <ng-template pTemplate="body" let-rowData let-message>
-        <tr #selRow class="row-class" [pSelectableRow]="rowData" [pContextMenuRow]="rowData" style="height:30px">
-            <td >
-               {{message.subject}}
+        <tr #selRow class="message-row" [pSelectableRow]="rowData" [pContextMenuRow]="rowData" >
+            <td>
+                <div>{{'Mittente indirizzo@email.com lllllllkkkkkkkkkk kkkkkkkkkkkkkkkkkkkkkk kkllllliiiiiiiiiiiiiiiii iiiiiiiiiiiiiiiiiiiiii iiiiiiiiiiiiiiiiiii iiiiiiiiiiiilllllllll llllllllllllll'}}</div> 
+                <div>{{message.subject}}</div>
             </td>
         </tr>
     </ng-template>

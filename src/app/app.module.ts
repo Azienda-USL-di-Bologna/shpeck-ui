@@ -22,6 +22,9 @@ import { SanitizeHtmlPipe } from "./utils/sanitize-html-pipe";
 import { ToolbarComponent } from "./mailbox/toolbar/toolbar.component";
 import { SettingsComponent } from "./settings/settings.component";
 import { NewMailComponent } from "./mailbox/new-mail/new-mail.component";
+import { TagService } from "./services/tag.service";
+import { PecService } from "./services/pec.service";
+import { FolderService } from "./services/folder.service";
 
 @NgModule({
   declarations: [
@@ -45,7 +48,7 @@ import { NewMailComponent } from "./mailbox/new-mail/new-mail.component";
     PrimengPluginModule,
     FormsModule
   ],
-  providers: [DialogService, DatePipe],
+  providers: [DialogService, DatePipe, PecService, TagService, FolderService],
   bootstrap: [AppComponent],
   entryComponents: [SettingsComponent, NewMailComponent]
 })

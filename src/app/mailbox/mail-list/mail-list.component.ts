@@ -11,11 +11,13 @@ import { FiltersAndSorts, FilterDefinition, FILTER_TYPES } from "@nfa/next-sdr";
 })
 export class MailListComponent implements OnInit {
 
-  private _idTag: number = -1;
-  @Input("idTag")
-  set idTag(idTag: number) {
-    this._idTag = idTag;
-    this.loadData(idTag);
+  private _idFolder: number;
+  @Input("idFolder")
+  set idFolder(idFolder: number) {
+    this._idFolder = idFolder;
+    if (idFolder) {
+      this.loadData(idFolder);
+    }
   }
 
   public sortOptions = {};
@@ -42,12 +44,12 @@ export class MailListComponent implements OnInit {
   constructor(private messageService: MessageService) { }
 
   ngOnInit() {
-    // this.idTag = 6;
+    // this.idFolder = 6;
     // this.loadData(6);
   }
 
-  private loadData(idTag: number) {
-    this.messageService.getData(null, this.buildInitialFilterAndSort(idTag), null, null).subscribe(
+  private loadData(idFolder: number) {
+    this.messageService.getData(null, this.buildInitialFilterAndSort(idFolder), null, null).subscribe(
       data => {
         if (data && data.results) {
           this.totalRecords = data.page.totalElements;
@@ -57,9 +59,9 @@ export class MailListComponent implements OnInit {
     );
   }
 
-  buildInitialFilterAndSort(idTag: number): FiltersAndSorts {
+  buildInitialFilterAndSort(idFolder: number): FiltersAndSorts {
     const filtersAndSorts: FiltersAndSorts = new FiltersAndSorts();
-    filtersAndSorts.addFilter(new FilterDefinition("messageTagList.idTag.id", FILTER_TYPES.not_string.equals, idTag));
+    filtersAndSorts.addFilter(new FilterDefinition("messageFolderList.idFolder.id", FILTER_TYPES.not_string.equals, idFolder));
     return filtersAndSorts;
   }
 

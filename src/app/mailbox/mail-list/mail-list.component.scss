@@ -17,7 +17,16 @@
   flex-direction: column;
 }
 
-.strech-row {
-  align-items: stretch;
-  flex-direction: row;
+::ng-deep .ui-table table {
+  width: auto;
+}
+
+.message-row {
+  //align-items: stretch;
+  //flex-direction: row;
+  height:30px;
+  //white-space-collapsing: collapse; 
+  //text-wrap: none;
+  white-space: nowrap;
+  //overflow: scroll;
 }
