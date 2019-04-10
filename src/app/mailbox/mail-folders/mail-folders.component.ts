@@ -1,7 +1,6 @@
 import { Component, OnInit, ViewEncapsulation, Output, EventEmitter } from "@angular/core";
-import { FilterDefinition, FiltersAndSorts, SortDefinition, SORT_MODES, FILTER_TYPES, AdditionalDataDefinition } from "@nfa/next-sdr";
-import { TagService } from "src/app/services/tag.service";
-import { Tag, Pec, ENTITIES_STRUCTURE } from "@bds/ng-internauta-model";
+import { FiltersAndSorts, SortDefinition, SORT_MODES, AdditionalDataDefinition } from "@nfa/next-sdr";
+import { Pec, ENTITIES_STRUCTURE } from "@bds/ng-internauta-model";
 import { PecService } from "src/app/services/pec.service";
 
 @Component({
@@ -15,7 +14,7 @@ export class MailFoldersComponent implements OnInit {
 
   public mailfolders  = [];
 
-  @Output("idFolderEmitter") private idFolderEmitter: EventEmitter<number> = new EventEmitter();
+  @Output("folderEmitter") private folderEmitter: EventEmitter<number> = new EventEmitter();
 
   constructor(private pecService: PecService) { }
 
@@ -46,7 +45,7 @@ export class MailFoldersComponent implements OnInit {
       for (const folder of pec.folderList) {
         children.push({
           "label": folder.description,
-          "data": folder.id,
+          "data": folder,
           "nodeType": "folder",
           "expandedIcon": "pi pi-folder-open",
           "collapsedIcon": "pi pi-folder",
@@ -56,7 +55,7 @@ export class MailFoldersComponent implements OnInit {
     }
     return {
       "label": pec.indirizzo,
-      "data": pec.id,
+      "data": pec,
       "nodeType": "pec",
       "expandedIcon": "pi pi-folder-open",
       "collapsedIcon": "pi pi-folder",
@@ -66,7 +65,7 @@ export class MailFoldersComponent implements OnInit {
 
   public handleNodeSelect(event: any) {
     if (event.node.nodeType === "folder") {
-      this.idFolderEmitter.emit(event.node.data);
+      this.folderEmitter.emit(event.node.data);
     }
   }
 }

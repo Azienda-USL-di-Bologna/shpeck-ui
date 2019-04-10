@@ -1,7 +1,7 @@
 import { Component, OnInit, Input } from "@angular/core";
 import {VirtualScrollerModule} from "primeng/virtualscroller";
-import { Message } from "@bds/ng-internauta-model";
-import { MessageService } from "src/app/services/message.service";
+import { Message, ENTITIES_STRUCTURE, MessageAddress, AddresRoleType, Folder, FolderType } from "@bds/ng-internauta-model";
+import { MessageService} from "src/app/services/message.service";
 import { FiltersAndSorts, FilterDefinition, FILTER_TYPES } from "@nfa/next-sdr";
 
 @Component({
@@ -11,18 +11,26 @@ import { FiltersAndSorts, FilterDefinition, FILTER_TYPES } from "@nfa/next-sdr";
 })
 export class MailListComponent implements OnInit {
 
-  private _idFolder: number;
-  @Input("idFolder")
-  set idFolder(idFolder: number) {
-    this._idFolder = idFolder;
-    if (idFolder) {
-      this.loadData(idFolder);
+  private addresRoleType = {
+    FROM: "FROM",
+    TO: "TO",
+    CC: "CC"
+  };
+
+  private _folder: Folder;
+  @Input("folder")
+  set folder(folder: Folder) {
+    this._folder = folder;
+    if (folder) {
+      this.loadData(folder);
     }
   }
 
   public sortOptions = {};
   public sortKey = {};
   public messages: Message[] = [];
+  public fromOrTo: string;
+
   public totalRecords: number;
   public cols = [
       {
@@ -48,21 +56,43 @@ export class MailListComponent implements OnInit {
     // this.loadData(6);
   }
 
-  private loadData(idFolder: number) {
-    this.messageService.getData(null, this.buildInitialFilterAndSort(idFolder), null, null).subscribe(
+  private loadData(folder: Folder) {
+    this.messageService.getData(ENTITIES_STRUCTURE.shpeck.message.customProjections.CustomMessageWithAddressList, this.buildInitialFilterAndSort(folder), null, null).subscribe(
       data => {
         if (data && data.results) {
           this.totalRecords = data.page.totalElements;
           this.messages = data.results;
+          let addresRoleType;
+          switch (this._folder.type) {
+            case FolderType.INBOX:
+              addresRoleType = AddresRoleType.FROM;
+              break;
+            case FolderType.OUTBOX:
+              addresRoleType = AddresRoleType.TO;
+              break;
+            default:
+              addresRoleType = AddresRoleType.FROM;
+          }
+          this.setFromOrTo(this.messages, addresRoleType);
           }
       }
     );
   }
 
-  buildInitialFilterAndSort(idFolder: number): FiltersAndSorts {
+  buildInitialFilterAndSort(folder: Folder): FiltersAndSorts {
     const filtersAndSorts: FiltersAndSorts = new FiltersAndSorts();
-    filtersAndSorts.addFilter(new FilterDefinition("messageFolderList.idFolder.id", FILTER_TYPES.not_string.equals, idFolder));
+    filtersAndSorts.addFilter(new FilterDefinition("messageFolderList.idFolder.id", FILTER_TYPES.not_string.equals, folder.id));
     return filtersAndSorts;
   }
 
+  private setFromOrTo(messages: Message[], addressRole: string) {
+    messages.map((message: Message) => {
+      const messageAddressList: MessageAddress[] = message.messageAddressList.filter((messageAddress: MessageAddress) => messageAddress.addressRole === addressRole);
+      message["fromOrTo"] = "";
+      messageAddressList.forEach((messageAddress: MessageAddress) => message["fromOrTo"] += ", " + messageAddress.idAddress.originalAddress);
+      if ((message["fromOrTo"] as string).startsWith(",")) {
+        message["fromOrTo"]  = (message["fromOrTo"] as string).substr(1, (message["fromOrTo"] as string).length - 2);
+      }
+    });
+  }
 }

@@ -2,6 +2,7 @@ import { Component, OnInit, ViewChild, ElementRef, AfterViewInit, AfterViewCheck
 import { Subscription } from "rxjs";
 import { SettingsService } from "../services/settings.service";
 import { AppCustomization } from "src/environments/app-customization";
+import { Folder } from "@bds/ng-internauta-model";
 
 @Component({
   selector: "app-mailbox",
@@ -11,7 +12,7 @@ import { AppCustomization } from "src/environments/app-customization";
 })
 export class MailboxComponent implements OnInit, AfterViewInit, AfterViewChecked, OnChanges {
 
-  public idFolderSelected: number;
+  public folderSelected: Folder;
 
   // @ViewChild("leftSide") private leftSide: ElementRef;
   @ViewChild("mailFolder") private mailFolder: ElementRef;
@@ -48,8 +49,8 @@ export class MailboxComponent implements OnInit, AfterViewInit, AfterViewChecked
     }));
   }
 
-  public onFolderSelected(idFolder: number) {
-    this.idFolderSelected = idFolder;
+  public onFolderSelected(folder: Folder) {
+    this.folderSelected = folder;
   }
 
   ngAfterViewInit() {

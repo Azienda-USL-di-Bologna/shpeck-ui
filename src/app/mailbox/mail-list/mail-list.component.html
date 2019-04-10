@@ -58,7 +58,7 @@
     <ng-template pTemplate="body" let-rowData let-message>
         <tr #selRow class="message-row" [pSelectableRow]="rowData" [pContextMenuRow]="rowData" >
             <td>
-                <div>{{'Mittente indirizzo@email.com lllllllkkkkkkkkkk kkkkkkkkkkkkkkkkkkkkkk kkllllliiiiiiiiiiiiiiiii iiiiiiiiiiiiiiiiiiiiii iiiiiiiiiiiiiiiiiii iiiiiiiiiiiilllllllll llllllllllllll'}}</div> 
+                <div>{{message.fromOrTo}}</div> 
                 <div>{{message.subject}}</div>
             </td>
         </tr>
