@@ -15,6 +15,9 @@ import { AutoCompleteModule } from "primeng/autocomplete";
 import { CheckboxModule } from "primeng/checkbox";
 import { InputTextModule } from "primeng/inputtext";
 import { EditorModule } from "primeng/editor";
+import { FileUploadModule } from "primeng/fileupload";
+import { ChipsModule } from "primeng/chips";
+
 
 @NgModule({
     declarations: [],
@@ -36,7 +39,9 @@ import { EditorModule } from "primeng/editor";
         AutoCompleteModule,
         CheckboxModule,
         InputTextModule,
-        EditorModule
+        EditorModule,
+        FileUploadModule,
+        ChipsModule
     ],
     exports: [
         DynamicDialogModule,
@@ -56,7 +61,9 @@ import { EditorModule } from "primeng/editor";
         AutoCompleteModule,
         CheckboxModule,
         InputTextModule,
-        EditorModule
+        EditorModule,
+        FileUploadModule,
+        ChipsModule
     ]
 })
 export class PrimengModule { }

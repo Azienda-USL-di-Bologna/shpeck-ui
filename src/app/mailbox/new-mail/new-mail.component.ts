@@ -1,4 +1,5 @@
 import { Component, OnInit } from "@angular/core";
+import { FormGroup, FormControl, Validators } from "@angular/forms";
 
 @Component({
   selector: "app-new-mail",
@@ -6,9 +7,14 @@ import { Component, OnInit } from "@angular/core";
   styleUrls: ["./new-mail.component.scss"]
 })
 export class NewMailComponent implements OnInit {
+
+  mailForm: FormGroup;
+
   country: any;
 
-  countries: any[];
+  addresses: any[] = [];
+  ccAddresses: any[] = [];
+  attachments: any[] = [];
 
   filteredCountriesSingle: any[];
 
@@ -35,41 +41,93 @@ export class NewMailComponent implements OnInit {
     { "name": "Jamaica", "code": "JM" },
     { "name": "Japan", "code": "JP" },
   ];
-  eml = {
-    attachments: [
-      { "name": "Wallis and Futuna", "code": "WF" },
-      { "name": "Western Sahara", "code": "EH" },
-      { "name": "Yemen", "code": "YE" },
-      { "name": "Zambia", "code": "ZM" },
-      { "name": "Zimbabwe", "code": "ZW" }
-    ]
-  };
-  text1: string = "";
 
   constructor() { }
 
   ngOnInit() {
+    this.mailForm = new FormGroup({
+      addresses: new FormControl(this.addresses),
+      ccAddresses: new FormControl(this.ccAddresses),
+      hideRecipients: new FormControl(false),
+      mailObject: new FormControl(""),
+      attachments: new FormControl(this.attachments),
+      mailText: new FormControl("")
+    });
+
   }
+
   filterCountrySingle(event) {
     let query = event.query;
     this.filteredCountriesSingle = this.filterCountry(query, this.countiess);
+  }
 
-}
+  filterCountryMultiple(event) {
+      let query = event.query;
+      this.filteredCountriesMultiple = this.filterCountry(query, this.countiess);
+  }
 
-filterCountryMultiple(event) {
-    let query = event.query;
-    this.filteredCountriesMultiple = this.filterCountry(query, this.countiess);
-}
+  filterCountry(query, countries: any[]): any[] {
+      let filtered : any[] = [];
+      for (let i = 0; i < countries.length; i++) {
+          let country = countries[i];
+          if (country.name.toLowerCase().indexOf(query.toLowerCase()) == 0) {
+              filtered.push(country);
+          }
+      }
+      return filtered;
+  }
 
-filterCountry(query, countries: any[]): any[] {
-    //in a real application, make a request to a remote url with the query and return filtered results, for demo we filter at client side
-    let filtered : any[] = [];
-    for (let i = 0; i < countries.length; i++) {
-        let country = countries[i];
-        if (country.name.toLowerCase().indexOf(query.toLowerCase()) == 0) {
-            filtered.push(country);
+  onKeyUp(event: KeyboardEvent, formField: string) {
+    if (event.key === "Enter") {
+      const tokenInput = event.target as any;
+      if (tokenInput.value) {
+        if (formField && formField === "addresses") {
+          this.addresses.push({ id: "", name: tokenInput.value });
+        } else {
+          this.ccAddresses.push({ id: "", name: tokenInput.value });
         }
+        tokenInput.value = "";
+      }
     }
-    return filtered;
-}
+  }
+
+  onFileChange(event, fileinput) {
+    console.log("allegati = ", event);
+    for (const file of event.target.files) {
+      if (this.attachments.find((element) => {
+        return element.name === file.name;
+      })) {
+        continue;
+      } else {
+        this.attachments.push(file);
+      }
+    }
+    fileinput.value = null;
+    console.log("allegati = ", this.attachments);
+  }
+
+  onRemove(event) {
+    console.log("REMOVE = ", event);
+    console.log("allegati = ", this.attachments);
+    this.attachments.splice(this.attachments.indexOf(event.value), 1);
+    this.mailForm.patchValue({
+      attachments: this.attachments
+    });
+    console.log("allegati = ", this.attachments);
+  }
+  onSubmit() {
+      console.log("FORM = ", this.mailForm.value);
+  }
+
+  formatSize(bytes) {
+    if (bytes == 0) {
+        return "0 B";
+    }
+    const k = 1000,
+    dm = 3,
+    sizes = ["B", "KB", "MB", "GB", "TB", "PB", "EB", "ZB", "YB"],
+    i = Math.floor(Math.log(bytes) / Math.log(k));
+
+    return parseFloat((bytes / Math.pow(k, i)).toFixed(dm)) + " " + sizes[i];
+  }
 }

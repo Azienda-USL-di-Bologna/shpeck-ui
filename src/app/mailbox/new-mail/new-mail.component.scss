@@ -1,3 +1,4 @@
+/******* List *******/
 .list-items {
   list-style: none;
   padding: 0;
@@ -13,43 +14,61 @@ li {
   margin: 0 0 10px;
 }
 
-.d-flex,
-ul,
-li {
+.d-flex, ul, li {
   display: flex;
 }
 
-.flex-dir-col,
-ul {
+.flex-dir-col, ul {
   flex-direction: column;
 }
 
+/******* Buttons *******/
+.button-styles {
+  margin: 8px 0 5px 5px;
+  width: 129px;
+
+}
+
+.custom-border, .button-styles {
+  border: 1px solid #a6a6a6 !important;
+}
+
+.ui-fileupload-choose:not(.ui-state-disabled):hover {
+  background-color: #c8c8c8 !important;
+}
+
+/******* Footer *******/
+.footer-class {
+  display: flex;
+  justify-content: flex-end;
+}
+
+/******* Attachments *******/
+::ng-deep body .ui-chips > ul.ui-inputtext .ui-chips-token{
+  background-color: rgb(235, 235, 235);
+  border-radius: 5px;
+  padding: 2px 5px;
+  margin: 1px;
+  color: black;
+}
+.attachment:hover {
+  background-color: rgb(206, 206, 206);
+}
+
+/******* General rules *******/
 .flex-1,
 ::ng-deep p-editor {
   flex: 1;
 }
 
-.margin-l-5,
-.margin-lr-5 {
+.margin-l-5, .margin-lr-5 {
   margin-left: 5px;
 }
 
-.margin-r-5,
-.margin-lr-5 {
+.margin-r-5, .margin-lr-5 {
   margin-right: 5px;
 }
 
 .height-100 {
   height: 100%;
-}
-
-.button-styles {
-  margin: 8px 0 5px 5px;
-  width: 129px;
-  border: 1px solid #a6a6a6 !important;
-}
-
-.footer-class {
-  display: flex;
-  justify-content: flex-end;
 }
