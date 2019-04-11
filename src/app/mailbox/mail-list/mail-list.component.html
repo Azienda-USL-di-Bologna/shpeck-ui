@@ -19,47 +19,25 @@
     [autoLayout]="false"
     [responsive]="true"
     [totalRecords]="totalRecords"
-    selectionMode="single"
-    
-    [scrollable]="true"
-    
-    
-    
-    >
-
-    <!-- <ng-template pTemplate="header" let-columns>
-        <tr>
-            <th [id]="col.field" *ngFor="let col of columns" [style.width]="col.width" [style.minWidth]="col.minWidth" scope="colgroup">
-                <div *ngIf="col.field != undefined && col.field !== 'azione'" [pSortableColumn]="col.field">
-                    {{col.header}}
-                    <p-sortIcon [field]="col.field" ariaLabelAsc="Colonnna {{col.header}}, Ordinamento ascendente" ariaLabelDesc="Colonnna {{col.header}}, Ordinamento discendente">
-                    </p-sortIcon>
-                </div>
-            </th>
-        </tr>
-        <tr>
-            <td *ngFor="let col of columns" [ngSwitch]="col.filterWidget" class="filters-styles" [style.width]="col.width" [style.minWidth]="col.minWidth">
-                <div *ngIf="col.field != undefined && col.field !== 'azione'">
-                    <p-calendar #calGen *ngSwitchCase="'Calendar'" [(ngModel)]="dataRange[col.field]" placeholder="Scegli..." showButtonBar="true"
-                        [locale]="localIt" [showIcon]="false" dateFormat="dd/mm/yy" (onSelect)="onCalendarAction($event, col.field, 'select')"
-                        (onClearClick)="onCalendarAction($event, col.field, 'clear')" (onTodayClick)="onCalendarAction($event, col.field, 'today')"
-                        appendTo="body" selectionMode="range" readonlyInput="true" [pTooltip]="calendarTooltip(col.field)" inputId="CalInput_{{col.field}}">
-                    </p-calendar>
-                    <input *ngSwitchDefault pInputText
-                        attr.aria-label="Colonnna {{col.header}}, Cella filtro"
-                        type="text"
-                        (input)="dt.filter($event.target.value, col.field, col.filterMatchMode)"
-                        #filterInputText>
-                </div>
-            </td>
-
-        </tr>
-    </ng-template> -->
+    [selectionMode]="'multiple'"
+    [metaKeySelection]="true"
+    [scrollable]="false">
     <ng-template pTemplate="body" let-rowData let-message>
         <tr #selRow class="message-row" [pSelectableRow]="rowData" [pContextMenuRow]="rowData" >
             <td>
-                <div>{{message.fromOrTo}}</div> 
-                <div>{{message.subject}}</div>
+                <div class = "display-block">
+                    <span *ngIf="iconsVisibility['REPLIED']" class="fa fa-mail-reply extra-margin"></span>
+                    <span *ngIf="iconsVisibility['ASSIGNED']" class="fa fa-circle extra-margin"></span>
+                    <span *ngIf="iconsVisibility['FORWARDED']" class="fa fa-mail-forward extra-margin"></span>
+                </div>
+                <div class = "display-block">
+                    <span class = "pi pi-user display-icon"></span> <div class="display-text">{{message.fromOrTo}}</div> 
+                </div>
+                <div class = "display-block extra-margin">
+                    <span *ngIf="!message.seen" class="fa fa-envelope display-icon"></span>
+                    <span *ngIf="message.seen" class="fa fa-envelope-open-o display-icon"></span>
+                    <div class="display-text" [ngClass]="{'display-bold':!message.seen}">{{message.subject}}</div> 
+                </div>
             </td>
         </tr>
     </ng-template>

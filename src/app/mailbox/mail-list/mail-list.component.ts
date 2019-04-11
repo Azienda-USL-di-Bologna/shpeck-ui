@@ -1,6 +1,6 @@
 import { Component, OnInit, Input } from "@angular/core";
 import {VirtualScrollerModule} from "primeng/virtualscroller";
-import { Message, ENTITIES_STRUCTURE, MessageAddress, AddresRoleType, Folder, FolderType } from "@bds/ng-internauta-model";
+import { Message, ENTITIES_STRUCTURE, MessageAddress, AddresRoleType, Folder, FolderType, TagType } from "@bds/ng-internauta-model";
 import { MessageService} from "src/app/services/message.service";
 import { FiltersAndSorts, FilterDefinition, FILTER_TYPES } from "@nfa/next-sdr";
 
@@ -10,12 +10,6 @@ import { FiltersAndSorts, FilterDefinition, FILTER_TYPES } from "@nfa/next-sdr";
   styleUrls: ["./mail-list.component.scss"]
 })
 export class MailListComponent implements OnInit {
-
-  private addresRoleType = {
-    FROM: "FROM",
-    TO: "TO",
-    CC: "CC"
-  };
 
   private _folder: Folder;
   @Input("folder")
@@ -30,6 +24,8 @@ export class MailListComponent implements OnInit {
   public sortKey = {};
   public messages: Message[] = [];
   public fromOrTo: string;
+  public iconsVisibility = [];
+  public aaa = true;
 
   public totalRecords: number;
   public cols = [
@@ -62,19 +58,9 @@ export class MailListComponent implements OnInit {
         if (data && data.results) {
           this.totalRecords = data.page.totalElements;
           this.messages = data.results;
-          let addresRoleType;
-          switch (this._folder.type) {
-            case FolderType.INBOX:
-              addresRoleType = AddresRoleType.FROM;
-              break;
-            case FolderType.OUTBOX:
-              addresRoleType = AddresRoleType.TO;
-              break;
-            default:
-              addresRoleType = AddresRoleType.FROM;
-          }
-          this.setFromOrTo(this.messages, addresRoleType);
-          }
+          this.setFromOrTo(this.messages, this._folder.type);
+          this.setIconsVisibility(this.messages, this._folder.type);
+        }
       }
     );
   }
@@ -85,13 +71,30 @@ export class MailListComponent implements OnInit {
     return filtersAndSorts;
   }
 
-  private setFromOrTo(messages: Message[], addressRole: string) {
+  private setIconsVisibility(messages: Message[], folderType: string) {
+    this.iconsVisibility["REPLIED"] = true;
+    this.iconsVisibility["ASSIGNED"] = true;
+    this.iconsVisibility["FORWARDED"] = true;
+  }
+
+  private setFromOrTo(messages: Message[], folderType: string) {
+    let addresRoleType: string;
+    switch (folderType) {
+      case FolderType.INBOX:
+        addresRoleType = AddresRoleType.FROM;
+        break;
+      case FolderType.OUTBOX:
+        addresRoleType = AddresRoleType.TO;
+        break;
+      default:
+        addresRoleType = AddresRoleType.FROM;
+    }
     messages.map((message: Message) => {
-      const messageAddressList: MessageAddress[] = message.messageAddressList.filter((messageAddress: MessageAddress) => messageAddress.addressRole === addressRole);
+      const messageAddressList: MessageAddress[] = message.messageAddressList.filter((messageAddress: MessageAddress) => messageAddress.addressRole === addresRoleType);
       message["fromOrTo"] = "";
       messageAddressList.forEach((messageAddress: MessageAddress) => message["fromOrTo"] += ", " + messageAddress.idAddress.originalAddress);
       if ((message["fromOrTo"] as string).startsWith(",")) {
-        message["fromOrTo"]  = (message["fromOrTo"] as string).substr(1, (message["fromOrTo"] as string).length - 2);
+        message["fromOrTo"]  = (message["fromOrTo"] as string).substr(1, (message["fromOrTo"] as string).length - 1);
       }
     });
   }

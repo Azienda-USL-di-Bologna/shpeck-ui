@@ -17,11 +17,40 @@
   flex-direction: column;
 }
 
+//body .ui-table .ui-table-tbody > tr > td
+
+::ng-deep .ui-table-tbody > tr > td {
+  border: none !important;
+}
+
 ::ng-deep .ui-table table {
-  width: auto;
+  width: 100%;
+  border: none;
+}
+
+.display-block {
+  display: block;
+}
+
+.extra-margin {
+  margin-left: 11px;
+}
+
+.display-icon {
+  position: absolute;
+}
+
+.display-text {
+  margin-left: 20px;
+}
+
+.display-bold {
+  font-weight: bold;
 }
 
 .message-row {
+  font-size: 12px !important;
+  width: 100% !important;
   //align-items: stretch;
   //flex-direction: row;
   height:30px;
