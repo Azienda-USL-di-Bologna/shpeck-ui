@@ -8,6 +8,9 @@
 label {
   font-size:medium;
   font-weight: bold;
+  // display: flex;
+  // width: 152px;
+  // justify-content: flex-end;
 }
 
 li {
@@ -22,15 +25,26 @@ li {
   flex-direction: column;
 }
 
+::ng-deep body .ui-chkbox .ui-chkbox-box.ui-state-active {
+  border-color: #2e4a65 !important;
+  background-color: #406284 !important;
+  color: #ffffff;
+}
+/******* Chips *******/
+::ng-deep .ui-chips {
+  > ul.ui-inputtext,
+  > ul.ui-inputtext:focus {
+    min-height: 33px;
+  }
+  .ui-chips-input-token {
+    display: none;  // Makes chips readonly
+  }
+}
+
 /******* Buttons *******/
 .button-styles {
   margin: 8px 0 5px 5px;
   width: 129px;
-
-}
-
-.custom-border, .button-styles {
-  border: 1px solid #a6a6a6 !important;
 }
 
 .ui-fileupload-choose:not(.ui-state-disabled):hover {
@@ -43,8 +57,9 @@ li {
   justify-content: flex-end;
 }
 
-/******* Attachments *******/
-::ng-deep body .ui-chips > ul.ui-inputtext .ui-chips-token{
+/******* Attachments and Address chips *******/
+::ng-deep body .ui-chips > ul.ui-inputtext .ui-chips-token,
+::ng-deep body .ui-autocomplete.ui-autocomplete-multiple .ui-autocomplete-multiple-container .ui-autocomplete-token {
   background-color: rgb(235, 235, 235);
   border-radius: 5px;
   padding: 2px 5px;
@@ -53,6 +68,10 @@ li {
 }
 .attachment:hover {
   background-color: rgb(206, 206, 206);
+}
+
+::ng-deep body .ui-autocomplete-panel .ui-autocomplete-items .ui-autocomplete-list-item.ui-state-highlight {
+  background-color: #546069;
 }
 
 /******* General rules *******/
@@ -71,4 +90,9 @@ li {
 
 .height-100 {
   height: 100%;
+}
+
+::ng-deep body .ui-autocomplete.ui-autocomplete-multiple .ui-autocomplete-multiple-container:not(.ui-state-disabled).ui-state-focus,
+input:focus {
+  border-color: #2e4a65 !important;
 }

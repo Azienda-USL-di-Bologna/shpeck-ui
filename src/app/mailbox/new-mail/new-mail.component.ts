@@ -21,25 +21,25 @@ export class NewMailComponent implements OnInit {
   filteredCountriesMultiple: any[];
 
   countiess = [
-    { "name": "Finland", "code": "FI" },
-    { "name": "France", "code": "FR" },
-    { "name": "Gabon", "code": "GA" },
-    { "name": "Gambia", "code": "GM" },
-    { "name": "Georgia", "code": "GE" },
-    { "name": "Germany", "code": "DE" },
-    { "name": "Ghana", "code": "GH" },
-    { "name": "Greece", "code": "GR" },
-    { "name": "Hong Kong", "code": "HK" },
-    { "name": "Hungary", "code": "HU" },
-    { "name": "Iceland", "code": "IS" },
-    { "name": "India", "code": "IN" },
-    { "name": "Indonesia", "code": "ID" },
-    { "name": "Ireland", "code": "IE" },
-    { "name": "Isle of Man", "code": "IM" },
-    { "name": "Israel", "code": "IL" },
-    { "name": "Italy", "code": "IT" },
-    { "name": "Jamaica", "code": "JM" },
-    { "name": "Japan", "code": "JP" },
+    { "address": "g.russo@nsi.it", "code": "FI" },
+    { "address": "opsouperen@cryptontrade.ga", "code": "FR" },
+    { "address": "heckerman@att.net", "code": "GA" },
+    { "address": "jespley@sbcglobal.net", "code": "GM" },
+    { "address": "kannan@msn.com", "code": "GE" },
+    { "address": "boftx@outlook.com", "code": "DE" },
+    { "address": "sacraver@optonline.net", "code": "GH" },
+    { "address": "north@yahoo.ca", "code": "GR" },
+    { "address": "dhwon@yahoo.ca", "code": "HK" },
+    { "address": "jamuir@att.net", "code": "HU" },
+    { "address": "kobayasi@msn.com", "code": "IS" },
+    { "address": "syrinx@optonline.net", "code": "IN" },
+    { "address": "bcevc@live.com", "code": "ID" },
+    { "address": "syrinx@outlook.com", "code": "IE" },
+    { "address": "lpalmer@aol.com", "code": "IM" },
+    { "address": "crimsane@aol.com", "code": "IL" },
+    { "address": "geoffr@sbcglobal.net", "code": "IT" },
+    { "address": "dcoppit@live.com", "code": "JM" },
+    { "address": "schumer@outlook.com", "code": "JP" },
   ];
 
   constructor() { }
@@ -70,7 +70,7 @@ export class NewMailComponent implements OnInit {
       let filtered : any[] = [];
       for (let i = 0; i < countries.length; i++) {
           let country = countries[i];
-          if (country.name.toLowerCase().indexOf(query.toLowerCase()) == 0) {
+          if (country.address.toLowerCase().indexOf(query.toLowerCase()) == 0) {
               filtered.push(country);
           }
       }
@@ -82,11 +82,11 @@ export class NewMailComponent implements OnInit {
       const tokenInput = event.target as any;
       if (tokenInput.value) {
         if (formField && formField === "addresses") {
-          this.addresses.push({ id: "", name: tokenInput.value });
+          this.addresses.push({ id: "", address: tokenInput.value });
+          tokenInput.value = "";
         } else {
-          this.ccAddresses.push({ id: "", name: tokenInput.value });
+          this.ccAddresses.push({ id: "", address: tokenInput.value });
         }
-        tokenInput.value = "";
       }
     }
   }

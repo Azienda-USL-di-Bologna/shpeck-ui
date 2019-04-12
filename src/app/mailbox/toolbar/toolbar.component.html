@@ -1,20 +1,39 @@
 <p-toolbar>
   <div class="d-flex">
+      <!-- Nuova Pec -->
       <button
         pButton type="button" label="Nuova PEC"
-        icon="pi pi-plus" class="button-new-mail ui-button-raised ui-button-primary"
+        icon="pi pi-plus" class="button-new-mail ui-button-raised ui-button-primary custom-primary-button"
         (click)="handleEvent($event)">
       </button>
-      <button pButton type="button" label="Rispondi" icon="fa fa-reply" class="button-styles ui-button-raised ui-button-secondary"></button>
-      <button pButton type="button" label="Rispondi a tutti" icon="fa fa-reply-all" class="button-styles ui-button-raised ui-button-secondary"></button>
-      <button pButton type="button" label="Inoltra" icon="fa fa-share" class="button-styles ui-button-raised ui-button-secondary"></button>
-      <button pButton type="button" label="Elimina" icon="fa fa-trash" class="button-styles ui-button-raised ui-button-secondary"></button>
-      <button pButton type="button" label="Sposta" class="button-styles ui-button-raised ui-button-secondary margin-l-15">
+      <!-- Rispondi -->
+      <button
+        pButton type="button" label="Rispondi"
+        icon="fa fa-reply" class="button-styles ui-button-raised ui-button-secondary custom-border">
+      </button>
+      <!-- Rispondi a tutti -->
+      <button
+        pButton type="button" label="Rispondi a tutti"
+        icon="fa fa-reply-all" class="button-styles ui-button-raised ui-button-secondary custom-border">
+      </button>
+      <!-- Inoltra -->
+      <button
+        pButton type="button" label="Inoltra"
+        icon="fa fa-share" class="button-styles ui-button-raised ui-button-secondary custom-border">
+      </button>
+      <!-- Elimina -->
+      <button
+        pButton type="button" label="Elimina"
+        icon="fa fa-trash" class="button-styles ui-button-raised ui-button-secondary custom-border">
+      </button>
+      <!-- Sposta -->
+      <button
+        pButton type="button" label="Sposta"
+        class="button-styles ui-button-raised ui-button-secondary margin-l-15 custom-border">
         <img class="images-pos" src="assets/images/icons/folder_export.png" width="24px" alt="Sposta in">
       </button>
-      <button pButton type="button" label="Fascicola" class="button-styles ui-button-raised ui-button-secondary"></button>
-
+      <!-- Fascicola -->
+      <button pButton type="button" label="Fascicola" class="button-styles ui-button-raised ui-button-secondary custom-border"></button>
       <!-- <i class="pi pi-bars a-items-center d-flex"></i> -->
-
   </div>
 </p-toolbar>

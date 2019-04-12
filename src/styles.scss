@@ -31,3 +31,17 @@ body .ui-dropdown-panel .ui-dropdown-items .ui-dropdown-item-group.ui-state-high
     border: 1px solid #848484;
     color: #ffffff;
 }
+
+body .custom-primary-button {
+    border: 1px solid #203244;
+    background-color: #2e4a65;
+}
+body .custom-primary-button:hover {
+    border-color: #2e4a65 !important;
+    background-color: #406284 !important;
+    color: #ffffff;
+}
+
+body .custom-border, body .custom-secondary-button {
+    border: 1px solid #a6a6a6 !important;
+}
