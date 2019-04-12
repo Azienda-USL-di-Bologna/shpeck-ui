@@ -86,6 +86,7 @@ export class NewMailComponent implements OnInit {
           tokenInput.value = "";
         } else {
           this.ccAddresses.push({ id: "", address: tokenInput.value });
+          tokenInput.value = "";
         }
       }
     }
