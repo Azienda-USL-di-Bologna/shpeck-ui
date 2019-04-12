@@ -11,6 +11,7 @@
                 required="true" type="email"
                 id="addresses" formControlName="addresses" [suggestions]="filteredCountriesMultiple"
                 (completeMethod)="filterCountryMultiple($event)" (onKeyUp)="onKeyUp($event, 'addresses')"
+                (onSelect)="onSelect($event, 'addresses')" (onUnselect)="onRemove($event, 'addresses')"
                 [minLength]="1" placeholder="Seleziona contatti..." field="address" [multiple]="true">
               </p-autoComplete>
           </span>
@@ -26,6 +27,7 @@
               type="email"
               id="ccAddresses" formControlName="ccAddresses" [suggestions]="filteredCountriesMultiple"
               (completeMethod)="filterCountryMultiple($event)" (onKeyUp)="onKeyUp($event, 'ccAddresses')"
+              (onSelect)="onSelect($event, 'ccAddresses')" (onUnselect)="onRemove($event, 'ccAddresses')"
               [minLength]="1" field="address" [multiple]="true">
             </p-autoComplete>
           </span>
@@ -55,7 +57,7 @@
               <input #fileinput type="file" (change)="onFileChange($event, fileinput)" multiple="multiple">
           </span>
           <span class="ui-fluid flex-1 margin-l-5">
-            <p-chips formControlName="attachments" (onRemove)="onRemove($event)">
+            <p-chips formControlName="attachments" (onRemove)="onRemove($event, 'attachments')">
                 <ng-template let-item pTemplate="item">
                     {{item.name}} ({{formatSize(item.size)}}) <i style="margin-right:1.5em"></i>
                 </ng-template>

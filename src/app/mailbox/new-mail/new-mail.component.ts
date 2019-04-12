@@ -20,26 +20,26 @@ export class NewMailComponent implements OnInit {
 
   filteredCountriesMultiple: any[];
 
-  countiess = [
-    { "address": "g.russo@nsi.it", "code": "FI" },
-    { "address": "opsouperen@cryptontrade.ga", "code": "FR" },
-    { "address": "heckerman@att.net", "code": "GA" },
-    { "address": "jespley@sbcglobal.net", "code": "GM" },
-    { "address": "kannan@msn.com", "code": "GE" },
-    { "address": "boftx@outlook.com", "code": "DE" },
-    { "address": "sacraver@optonline.net", "code": "GH" },
-    { "address": "north@yahoo.ca", "code": "GR" },
-    { "address": "dhwon@yahoo.ca", "code": "HK" },
-    { "address": "jamuir@att.net", "code": "HU" },
-    { "address": "kobayasi@msn.com", "code": "IS" },
-    { "address": "syrinx@optonline.net", "code": "IN" },
-    { "address": "bcevc@live.com", "code": "ID" },
-    { "address": "syrinx@outlook.com", "code": "IE" },
-    { "address": "lpalmer@aol.com", "code": "IM" },
-    { "address": "crimsane@aol.com", "code": "IL" },
-    { "address": "geoffr@sbcglobal.net", "code": "IT" },
-    { "address": "dcoppit@live.com", "code": "JM" },
-    { "address": "schumer@outlook.com", "code": "JP" },
+  indirizziTest = [
+    { "address": "g.russo@nsi.it", "id": "FI" },
+    { "address": "opsouperen@cryptontrade.ga", "id": "FR" },
+    { "address": "heckerman@att.net", "id": "GA" },
+    { "address": "jespley@sbcglobal.net", "id": "GM" },
+    { "address": "kannan@msn.com", "id": "GE" },
+    { "address": "boftx@outlook.com", "id": "DE" },
+    { "address": "sacraver@optonline.net", "id": "GH" },
+    { "address": "north@yahoo.ca", "id": "GR" },
+    { "address": "dhwon@yahoo.ca", "id": "HK" },
+    { "address": "jamuir@att.net", "id": "HU" },
+    { "address": "kobayasi@msn.com", "id": "IS" },
+    { "address": "syrinx@optonline.net", "id": "IN" },
+    { "address": "bcevc@live.com", "id": "ID" },
+    { "address": "syrinx@outlook.com", "id": "IE" },
+    { "address": "lpalmer@aol.com", "id": "IM" },
+    { "address": "crimsane@aol.com", "id": "IL" },
+    { "address": "geoffr@sbcglobal.net", "id": "IT" },
+    { "address": "dcoppit@live.com", "id": "JM" },
+    { "address": "schumer@outlook.com", "id": "JP" },
   ];
 
   constructor() { }
@@ -58,12 +58,12 @@ export class NewMailComponent implements OnInit {
 
   filterCountrySingle(event) {
     let query = event.query;
-    this.filteredCountriesSingle = this.filterCountry(query, this.countiess);
+    this.filteredCountriesSingle = this.filterCountry(query, this.indirizziTest);
   }
 
   filterCountryMultiple(event) {
       let query = event.query;
-      this.filteredCountriesMultiple = this.filterCountry(query, this.countiess);
+      this.filteredCountriesMultiple = this.filterCountry(query, this.indirizziTest);
   }
 
   filterCountry(query, countries: any[]): any[] {
@@ -76,53 +76,88 @@ export class NewMailComponent implements OnInit {
       }
       return filtered;
   }
-
+  /**
+   * Intercetta la pressione del tasto invio per inserire l'indirizzo nei destinatari
+   * per far funzionare sia l'autocomplete che l'inserimento manuale
+   * @param event L'evento del dom, contiene sia l'informazione sul tasto che il valore inserito
+   * @param formField Il campo del form dove è stato inserito l'indirizzo, addresses o ccAddresses
+  */
   onKeyUp(event: KeyboardEvent, formField: string) {
     if (event.key === "Enter") {
       const tokenInput = event.target as any;
       if (tokenInput.value) {
         if (formField) {
           if (formField === "addresses") {
-            this.addresses.push({ id: "", address: tokenInput.value });
-            this.mailForm.patchValue({
-              address: this.addresses
-            });
-          } else {
-            this.ccAddresses.push({ id: "", address: tokenInput.value });
-            this.mailForm.patchValue({
-              ccAddress: this.ccAddresses
-            });
+            if (!this.addresses.find((element) => {
+              return element.address === tokenInput.value;
+            })) {
+              this.addresses.push({ address: tokenInput.value, id: "" });
+            }
+          } else if (!this.ccAddresses.find((element) => {
+              return element.address === tokenInput.value;
+            })) {
+            this.ccAddresses.push({ address: tokenInput.value, id: "" });
           }
-          tokenInput.value = "";
         }
+        tokenInput.value = "";
+      }
+    }
+  }
+  /**
+   * Intercetta la selezione dell'elemento nell'autocomplete e aggiorna
+   * sia gli array degli indirizzi che la form
+   * @param item L'oggetto selezionato nell'autocomplete
+   * @param formField Il campo del form dove è stato selezionato l'indirizzo, addresses o ccAddresses
+  */
+  onSelect(item, formField) {
+    const tokenInput = item;
+    if (tokenInput) {
+      if (formField === "addresses") {
+        if (this.addresses.indexOf(item) ===  -1) {
+          this.addresses.push(item);
+          this.mailForm.patchValue({
+            addresses: this.addresses
+          });
+        }
+      } else if (this.ccAddresses.indexOf(item) ===  -1) {
+        this.ccAddresses.push(item);
+        this.mailForm.patchValue({
+          ccAddresses: this.ccAddresses
+        });
       }
     }
   }
 
+  onRemove(event, formField) {
+    switch (formField) {
+      case "addresses":
+      this.addresses.splice(this.addresses.indexOf(event), 1);
+        break;
+      case "ccAddresses":
+        this.ccAddresses.splice(this.ccAddresses.indexOf(event), 1);
+        break;
+      case "attachments":
+        this.attachments.splice(this.attachments.indexOf(event.value), 1);
+        break;
+    }
+    this.mailForm.patchValue({
+      addresses: this.addresses,
+      ccAddresses: this.ccAddresses,
+      attachments: this.attachments
+    });
+  }
+  /* Gestione array allegati */
   onFileChange(event, fileinput) {
-    console.log("allegati = ", event);
     for (const file of event.target.files) {
-      if (this.attachments.find((element) => {
+      if (!this.attachments.find((element) => {
         return element.name === file.name;
       })) {
-        continue;
-      } else {
         this.attachments.push(file);
       }
     }
     fileinput.value = null;
-    console.log("allegati = ", this.attachments);
   }
 
-  onRemove(event) {
-    console.log("REMOVE = ", event);
-    console.log("allegati = ", this.attachments);
-    this.attachments.splice(this.attachments.indexOf(event.value), 1);
-    this.mailForm.patchValue({
-      attachments: this.attachments
-    });
-    console.log("allegati = ", this.attachments);
-  }
   onSubmit() {
       console.log("FORM = ", this.mailForm.value);
   }
