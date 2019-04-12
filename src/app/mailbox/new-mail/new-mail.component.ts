@@ -81,11 +81,18 @@ export class NewMailComponent implements OnInit {
     if (event.key === "Enter") {
       const tokenInput = event.target as any;
       if (tokenInput.value) {
-        if (formField && formField === "addresses") {
-          this.addresses.push({ id: "", address: tokenInput.value });
-          tokenInput.value = "";
-        } else {
-          this.ccAddresses.push({ id: "", address: tokenInput.value });
+        if (formField) {
+          if (formField === "addresses") {
+            this.addresses.push({ id: "", address: tokenInput.value });
+            this.mailForm.patchValue({
+              address: this.addresses
+            });
+          } else {
+            this.ccAddresses.push({ id: "", address: tokenInput.value });
+            this.mailForm.patchValue({
+              ccAddress: this.ccAddresses
+            });
+          }
           tokenInput.value = "";
         }
       }
