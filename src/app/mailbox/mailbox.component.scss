@@ -110,6 +110,30 @@
     padding: 5px;
     overflow: hidden;
 }
+.mail-list:hover {
+    overflow: overlay;
+}
+
+/* width */
+::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+  }
+  
+  /* Track */
+  ::-webkit-scrollbar-track {
+    background: #f1f1f1; 
+  }
+   
+  /* Handle */
+  ::-webkit-scrollbar-thumb {
+    background: #88888857; 
+  }
+  
+  /* Handle on hover */
+  ::-webkit-scrollbar-thumb:hover {
+    background: #8888889c; 
+  }
 
 :host {
     width: 100%;

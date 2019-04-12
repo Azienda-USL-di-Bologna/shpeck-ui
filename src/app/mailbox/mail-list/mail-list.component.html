@@ -12,18 +12,19 @@
 
 <p-table #dt
     [lazy]="true"
-    
     [value]="messages"
     [columns]="cols"
     [paginator]="false"
     [autoLayout]="false"
     [responsive]="true"
     [totalRecords]="totalRecords"
-    [selectionMode]="'multiple'"
+    selectionMode="multiple"
     [metaKeySelection]="true"
-    [scrollable]="false">
-    <ng-template pTemplate="body" let-rowData let-message>
-        <tr #selRow class="message-row" [pSelectableRow]="rowData" [pContextMenuRow]="rowData" >
+    [scrollable]="false"
+    (onRowSelect)="handleEvent('onRowSelect', $event)"
+    >
+    <ng-template pTemplate="body" let-rowData let-message let-rowIndex="rowIndex">
+        <tr #selRow class="message-row" [pSelectableRow]="rowData" [pSelectableRowIndex]="rowIndex" [pContextMenuRow]="rowData" >
             <td>
                 <div class = "display-block">
                     <span *ngIf="iconsVisibility['REPLIED']" class="fa fa-mail-reply extra-margin"></span>

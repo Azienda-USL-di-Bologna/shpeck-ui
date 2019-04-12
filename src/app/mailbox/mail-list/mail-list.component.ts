@@ -25,7 +25,7 @@ export class MailListComponent implements OnInit {
   public messages: Message[] = [];
   public fromOrTo: string;
   public iconsVisibility = [];
-  public aaa = true;
+  private selectedProjection: string = ENTITIES_STRUCTURE.shpeck.message.customProjections.CustomMessageWithAddressList;
 
   public totalRecords: number;
   public cols = [
@@ -53,7 +53,7 @@ export class MailListComponent implements OnInit {
   }
 
   private loadData(folder: Folder) {
-    this.messageService.getData(ENTITIES_STRUCTURE.shpeck.message.customProjections.CustomMessageWithAddressList, this.buildInitialFilterAndSort(folder), null, null).subscribe(
+    this.messageService.getData(this.selectedProjection, this.buildInitialFilterAndSort(folder), null, null).subscribe(
       data => {
         if (data && data.results) {
           this.totalRecords = data.page.totalElements;
@@ -97,5 +97,20 @@ export class MailListComponent implements OnInit {
         message["fromOrTo"]  = (message["fromOrTo"] as string).substr(1, (message["fromOrTo"] as string).length - 1);
       }
     });
+  }
+
+  public handleEvent(name: string, event: any) {
+    console.log("handleEvent", name, event);
+    switch (name) {
+      case "onRowSelect":
+        this.messages[event.index].seen = true;
+        this.saveMessage(event.index);
+      break;
+    }
+  }
+
+  private saveMessage(index: number) {
+    this.messageService.patchHttpCall(this.messages[index], this.messages[index].id, this.selectedProjection, null)
+    .subscribe((message: Message) => {});
   }
 }

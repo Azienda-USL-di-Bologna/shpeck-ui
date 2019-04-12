@@ -16,8 +16,9 @@
     // height: 100%;
 }
 
->>> .content-wrapper > app-mailbox{
-    width: 100%
+::ng-deep .content-wrapper > app-mailbox{
+    width: 100%;
+    height: 100%;
 }
 
 ::ng-deep body .ui-dialog .ui-dialog-titlebar, .titolo-popup {
