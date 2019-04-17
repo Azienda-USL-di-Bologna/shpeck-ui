@@ -18,16 +18,21 @@
     <div #rightSide class="content-right d-flex">
 
       <div #mailList class="mail-list">
-        <app-mail-list [folder] = "folderSelected"></app-mail-list>
+        <app-mail-list 
+          [folder] = "folderSelected"
+          (messageClicked)="messageClicked($event)">
+        </app-mail-list>
       </div>
 
-      <div *ngIf="!hideDetail" #rightSlider class="slider text-center">
+      <div [ngClass]="hideDetail ? 'hidden' : 'slider'" #rightSlider class="text-center">
           <div></div>
       </div>
 
-      <div *ngIf="!hideDetail" #mailDetail class="mail-detail">
+      <div [ngClass]="hideDetail ? 'hidden' : 'mail-detail'" #mailDetail>
         <div [ngClass]="{'overlap-div' : sliding}"></div>
-        <app-mail-detail></app-mail-detail>
+        <app-mail-detail 
+          [messageDetailed]="messageDetailed">
+        </app-mail-detail>
       </div>
     </div>
   </div>

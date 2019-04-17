@@ -3,6 +3,8 @@ import { EmlAttachment } from "./eml-attachment";
 export class EmlData {
   public plainText: string;
   public htmlText: string;
+  public htmlTextImgEmbedded: string;
+  public displayBody: string;
   public subject: string;
   public to: string[];
   public from: string;

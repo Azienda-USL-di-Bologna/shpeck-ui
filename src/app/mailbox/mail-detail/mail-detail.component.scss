@@ -17,11 +17,21 @@
 }
 
 /* ============ ACCORDION ============ */
-::ng-deep body .accordion .ui-accordion .ui-accordion-header a {
+::ng-deep body .multi-accordion-eml-detail .ui-accordion .ui-accordion-header a {
   font-weight: initial;
 }
 
+::ng-deep .accordion-dettagli .ui-accordion-content.ui-widget-content {
+  display: flex;
+  flex-direction: column;
+  padding: 2px 10px;
+}
+
 /* ============ DETTAGLI ============ */
+.send-date {
+  align-self: flex-end;
+  font-size: 12;
+}
 .elenco-dettagli {
   padding: 0;
   margin: 0;
@@ -29,9 +39,19 @@
 }
 .elenco-dettagli .li-description {
   font-weight: bolder;
+  width: 23px;
+  display: inline-block;
+  text-align: right;
 }
 .elenco-dettagli .li-content {
   margin-left: 8px;
+}
+.elenco-dettagli .indirizzo {
+  background-color: rgb(240, 240, 240);
+  border-radius: 5px;
+  margin: 1px 3px;
+  padding: 4px;
+  display: inline-flex;
 }
 
 /* ============ ALLEGATI ============ */
@@ -109,4 +129,10 @@
 }
 .mail-body {
   flex-grow: 1;
+  overflow: hidden;
+  border: 1px solid #d6d6d6;
+  margin-top: 2px;
+}
+.mail-body:hover {
+  overflow: overlay;
 }

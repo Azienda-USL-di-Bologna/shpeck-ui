@@ -1,10 +1,10 @@
-import { Component, OnInit } from "@angular/core";
+import { Component, OnInit, Input, ViewChild, ElementRef } from "@angular/core";
 import { MessageService } from "src/app/services/message.service";
-import { HttpClient } from "@angular/common/http";
 import { Message } from "@bds/ng-internauta-model";
 import { ContentTypeList } from "src/app/utils/styles-constants";
 import { EmlData } from "src/app/classes/eml-data";
 import { EmlAttachment } from "src/app/classes/eml-attachment";
+import { HttpClient } from "@angular/common/http";
 
 
 @Component({
@@ -13,37 +13,76 @@ import { EmlAttachment } from "src/app/classes/eml-attachment";
   styleUrls: ["./mail-detail.component.scss"]
 })
 export class MailDetailComponent implements OnInit {
-  public eml: EmlData;
+
   private contentTypesEnabledForPreview = ["text/html", "application/pdf", "text/plain", "image/jpeg", "image/png"];
-  // variabile di input
   private message: Message = new Message();
+
+  @Input("messageDetailed")
+  set messageDetailed(messageDetailed: Message) {
+    if (messageDetailed) {
+      this.message = messageDetailed;
+      this.getEmlData(this.message);
+    }
+  }
+
+  public eml: EmlData;
+  @ViewChild("emliframe") private emliframe: ElementRef;
 
   constructor(private messageService: MessageService, private http: HttpClient) { }
 
-  ngOnInit() {
-    this.getEmlData(this.message);
-  }
+  ngOnInit() { }
 
   /**
    * Chiedo al backend di darmi tutte le info contenute nell'eml che si riferisce al message.
    * @param message
    */
   private getEmlData(message: Message) {
-    this.message.id = 42;
     this.messageService.extractMessageData(this.message).subscribe(
       data => {
+        if (data.attachments && data.attachments.length > 0) {
+          data.attachments.forEach(a => {
+            a.contentType = a.mimeType.substr(0, a.mimeType.indexOf(";"));
+            a.simpleType = a.contentType.substr(0, a.contentType.indexOf("/"));
+            if (a.fileName.length > 42) {
+              a.displayName = a.fileName.substr(0, 34) + ".." + a.fileName.substr(a.fileName.length - 6, a.fileName.length) ;
+            } else {
+              a.displayName = a.fileName;
+            }
+          });
+        }
+        data.displayBody = data.htmlTextImgEmbedded != null ? data.htmlTextImgEmbedded : (
+          data.htmlText != null ? data.htmlText : data.plainText.replace(/\n/g, "<br/>")
+        );
         this.eml = data;
-        this.eml.attachments.forEach(a => {
-          a.contentType = a.mimeType.substr(0, a.mimeType.indexOf(";"));
-          a.simpleType = a.contentType.substr(0, a.contentType.indexOf("/"));
-          if (a.fileName.length > 42) {
-            a.displayName = a.fileName.substr(0, 34) + ".." + a.fileName.substr(a.fileName.length - 6, a.fileName.length) ;
-          } else {
-            a.displayName = a.fileName;
-          }
-        });
+        console.log(this.eml);
       }
     );
+  }
+
+  /**
+   * Agisco sulla proprietà contentDocument del mio iframe per andare a fare dei ritocchi
+   */
+  public customizeIframeContent() {
+    const iframeContent = this.emliframe.nativeElement.contentDocument || this.emliframe.nativeElement.contentWindow;
+    /* Aggiungo target="_blank" ai vari a in modo che i link si aprano in un altro tab */
+    const elements = iframeContent.getElementsByTagName("a");
+    let len = elements.length;
+    while (len--) {
+      elements[len].target = "_blank";
+    }
+    /* Setto lo stile della scrollbar */
+    this.http.get("app/mailbox/mail-detail/mail-detail-iframe-custom-style.scss", { responseType: "text"}).subscribe(data => {
+      const head = iframeContent.head || iframeContent.getElementsByTagName("head")[0];
+      const style = iframeContent.createElement("style");
+      head.appendChild(style);
+      style.type = "text/css";
+      if (style.styleSheet) {
+        // This is required for IE8 and below.
+        style.styleSheet.cssText = data;
+      } else {
+        style.appendChild(document.createTextNode(data));
+      }
+    });
   }
 
   /**
@@ -104,7 +143,12 @@ export class MailDetailComponent implements OnInit {
     totalsize = totalsize * 0.71;
     const totalSizeKB = totalsize / Math.pow(1000, 1);
     if (totalSizeKB < 1) {
-      return (originalTotalSize * 0.72).toFixed(0) + "B";
+      const byte = (originalTotalSize * 0.72).toFixed(0);
+      if (+byte < 1) {
+        return "1B";
+      } else {
+        return (originalTotalSize * 0.72).toFixed(0) + "B";
+      }
     }
     const totalSizeMB = totalsize / Math.pow(1000, 2) ;
     if (totalSizeMB < 1) {
@@ -125,8 +169,8 @@ export class MailDetailComponent implements OnInit {
         year: "numeric",
         month: "long",
         day: "numeric",
-        minute: "numeric",
-        second: "numeric"
+        hour: "numeric",
+        minute: "numeric"
       });
       return date.charAt(0).toUpperCase() + date.slice(1);
     }

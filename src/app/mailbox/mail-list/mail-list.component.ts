@@ -1,4 +1,4 @@
-import { Component, OnInit, Input } from "@angular/core";
+import { Component, OnInit, Input, Output, EventEmitter } from "@angular/core";
 import {VirtualScrollerModule} from "primeng/virtualscroller";
 import { buildLazyEventFiltersAndSorts } from "@bds/primeng-plugin";
 import { Message, ENTITIES_STRUCTURE, MessageAddress, AddresRoleType, Folder, FolderType, TagType, MessageTag, InOut, Tag, Pec } from "@bds/ng-internauta-model";
@@ -27,6 +27,7 @@ export class MailListComponent implements OnInit {
       // });
     }
   }
+  @Output() messageClicked = new EventEmitter<Message>();
 
   public sortOptions = {};
   public sortKey = {};
@@ -144,6 +145,7 @@ export class MailListComponent implements OnInit {
       case "onRowSelect":
         this.messages[event.index].seen = true;
         this.saveMessage(event.index);
+        this.messageClicked.emit(event.data);
       break;
     }
   }

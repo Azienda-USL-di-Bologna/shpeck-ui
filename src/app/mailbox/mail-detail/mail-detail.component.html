@@ -1,20 +1,28 @@
 <div class="detail-container">
   <h3 class="mail-object">{{eml?.subject}}</h3>
-  <p-accordion [multiple]="true" class="accordion">
-      <p-accordionTab header="Dettagli">
+  <p-accordion [multiple]="true" class="multi-accordion-eml-detail">
+      <p-accordionTab header="Dettagli" class="accordion-dettagli"
+        [disabled]="eml == null">
+        <span *ngIf="eml?.sendDate" class="send-date">{{getDateDisplay(eml.sendDate)}}</span>
         <ul class="elenco-dettagli">
             <!-- <li *ngIf="eml?.ricevuta"><span class="li-description">Ricevuta il:</span><span class="li-content">{{eml?.ricevuta}}</span></li>
             <li *ngIf="eml?.consegnata"><span class="li-description">Consegnata il:</span><span class="li-content">{{eml?.consegnata}}</span></li> -->
-            <li *ngIf="eml?.sendDate"><span class="li-description">Inviato:</span><span class="li-content">{{getDateDisplay(eml.sendDate)}}</span></li>
-            <li *ngIf="eml?.from"><span class="li-description">Da:</span><span class="li-content">{{eml?.from}}</span></li>
-            <li *ngIf="eml?.to"><span class="li-description">A:</span><span class="li-content">{{eml?.to}}</span></li>
-            <li *ngIf="eml?.cc"><span class="li-description">CC:</span><span class="li-content">{{eml?.cc}}</span></li>
+            <!-- <li *ngIf="eml?.sendDate"><span class="li-description">Inviato:</span><span class="li-content">{{getDateDisplay(eml.sendDate)}}</span></li> -->
+            <li *ngIf="eml?.from"><span class="li-description">Da:</span><span class="li-content indirizzo">{{eml?.from}}</span></li>
+            <li *ngIf="eml?.to && eml?.to.length > 0">
+              <span class="li-description">A:</span>
+              <span *ngFor="let t of eml?.to" class="li-content indirizzo">{{t}}</span>
+            </li>
+            <li *ngIf="eml?.cc && eml?.cc.length > 0">
+              <span class="li-description">CC:</span>
+              <span *ngFor="let c of eml?.cc" class="li-content indirizzo">{{c}}</span>
+            </li>
         </ul>
       </p-accordionTab>
       <p-accordionTab header="Allegati" [disabled]="eml?.attachments == null" class="accordion-allegati">
         <div class="box-allegati">
-          <div *ngFor="let attachment of eml?.attachments" class="allegato">
-            <span>
+          <div *ngFor="let attachment of eml?.attachments">
+            <span *ngIf="!attachment.forHtmlAttribute" class="allegato">
               <i class="fa icona" [ngClass]="getFaClass(attachment)"></i>
               <span 
                 class="allegato-nome" 
@@ -33,8 +41,16 @@
         <span *ngIf="eml?.attachments" class="scarica-tutti" (click)="getAllEmlAttachment()">Scarica tutti gli allegati</span>
       </p-accordionTab>
   </p-accordion>
-  <div class="mail-body-box" [ngClass]="{'mail-body-box-no-anteprima' : !eml?.htmlText}">
-    <iframe *ngIf="eml?.htmlText" [srcdoc]="eml?.htmlText | sanitizeHtml" sandbox class="mail-body"></iframe>
-    <div *ngIf="!eml?.htmlText" class="no-anteprima">Anteprima non disponibile.</div>
+  <div class="mail-body-box" [ngClass]="{'mail-body-box-no-anteprima' : !eml?.displayBody}">
+    <iframe
+      #emliframe 
+      *ngIf="eml?.displayBody" 
+      [srcdoc]="eml?.displayBody | sanitizeHtml" 
+      class="mail-body" 
+      (load)="customizeIframeContent()"
+      frameborder="0"
+      sandbox="allow-popups allow-popups-to-escape-sandbox allow-same-origin">
+    </iframe>
+    <div *ngIf="!eml?.displayBody" class="no-anteprima">Anteprima non disponibile.</div>
   </div>
 </div>

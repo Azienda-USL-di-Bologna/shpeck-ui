@@ -69,6 +69,10 @@
     transform: translateY(-50%);    
 }
 
+.hidden {
+    display: none !important;
+}
+
 .content-left{
     /*position: relative;*/
     display: block;
@@ -104,12 +108,9 @@
     margin-top: 5px;
 }
 
-.mail-list {
-    display: flex;
-    flex: 1;
-    padding: 5px;
-    overflow: hidden;
-}
+
+/*     
+} */
 .mail-list:hover {
     overflow: overlay;
 }
@@ -145,6 +146,13 @@
 .text-center{
     text-align: center;
 }
+/* ========= MAIL LIST ========== */
+.mail-list {
+    display: flex;
+    flex: 1;
+    padding: 5px;
+    overflow: hidden;
+ }
 
 /* ========= MAIL DETAIL ========== */
 .mail-detail {

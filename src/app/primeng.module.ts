@@ -17,6 +17,7 @@ import { InputTextModule } from "primeng/inputtext";
 import { EditorModule } from "primeng/editor";
 import { FileUploadModule } from "primeng/fileupload";
 import { ChipsModule } from "primeng/chips";
+import { LightboxModule } from "primeng/lightbox";
 
 
 @NgModule({
@@ -41,7 +42,8 @@ import { ChipsModule } from "primeng/chips";
         InputTextModule,
         EditorModule,
         FileUploadModule,
-        ChipsModule
+        ChipsModule,
+        LightboxModule
     ],
     exports: [
         DynamicDialogModule,
@@ -63,7 +65,8 @@ import { ChipsModule } from "primeng/chips";
         InputTextModule,
         EditorModule,
         FileUploadModule,
-        ChipsModule
+        ChipsModule,
+        LightboxModule
     ]
 })
 export class PrimengModule { }

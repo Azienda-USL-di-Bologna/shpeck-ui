@@ -24,4 +24,9 @@
 ::ng-deep body .ui-dialog .ui-dialog-titlebar, .titolo-popup {
     background-color: #993366;
     color: white;
- }
+}
+
+::ng-deep body .ui-table .ui-table-tbody > tr.ui-state-highlight {
+    background-color: #FCF9BF !important;
+    color: black !important;
+}

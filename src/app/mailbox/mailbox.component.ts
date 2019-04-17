@@ -1,8 +1,8 @@
-import { Component, OnInit, ViewChild, ElementRef, AfterViewInit, AfterViewChecked, OnChanges, HostListener } from "@angular/core";
+import { Component, OnInit, ViewChild, ElementRef, AfterViewInit, AfterViewChecked, OnChanges, HostListener, Output, EventEmitter } from "@angular/core";
 import { Subscription } from "rxjs";
 import { SettingsService } from "../services/settings.service";
 import { AppCustomization } from "src/environments/app-customization";
-import { Folder } from "@bds/ng-internauta-model";
+import { Folder, Message } from "@bds/ng-internauta-model";
 
 @Component({
   selector: "app-mailbox",
@@ -13,7 +13,8 @@ import { Folder } from "@bds/ng-internauta-model";
 export class MailboxComponent implements OnInit, AfterViewInit, AfterViewChecked, OnChanges {
 
   public folderSelected: Folder;
-
+  // @Output() message = new EventEmitter<any>();
+  public messageDetailed: Message;
   // @ViewChild("leftSide") private leftSide: ElementRef;
   @ViewChild("mailFolder") private mailFolder: ElementRef;
   @ViewChild("rightSide") private rightSide: ElementRef;
@@ -44,9 +45,18 @@ export class MailboxComponent implements OnInit, AfterViewInit, AfterViewChecked
   ngOnInit() {
     // this.setLook();
     this.subscriptions.push(this.settingsService.settingsChangedNotifier$.subscribe(newSettings => {
-      console.log("eccolo quaaaaaaaaa");
       this.hideDetail = newSettings[AppCustomization.shpeck.hideDetail] === "true";
+      if (this.hideDetail) {
+        this.mailList.nativeElement.style.flex = "1";
+      }
     }));
+  }
+
+  /**
+   * Rivevo il messaggio cliccato dalla mail-list e lo passo alla mail-detail per essere visualizzato
+   */
+  public messageClicked(messageClicked) {
+    this.messageDetailed = messageClicked;
   }
 
   public onFolderSelected(folder: Folder) {
@@ -87,10 +97,9 @@ export class MailboxComponent implements OnInit, AfterViewInit, AfterViewChecked
 
   private setLook(): void {
     this.setResponsiveSliders();
-    // this.rightSide.nativeElement.style.width = "30%";
-    // this.rightSlider.nativeElement.style.marginLeft = this.mailFolder.nativeElement.clientWidth + this.mailList.nativeElement.clientWidth + "px" ;
-    // this.rightSlider.nativeElement.style.left =  "0px" ;
-    // this.rightSlider.nativeElement.style.marginLeft = "200px" ;
+    if (this.settingsService.getImpostazioniVisualizzazione()) {
+      this.hideDetail = this.settingsService.getHideDetail() === "true";
+    }
   }
 
   private setResponsiveSliders(): void {

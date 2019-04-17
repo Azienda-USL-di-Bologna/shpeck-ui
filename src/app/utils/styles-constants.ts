@@ -23,7 +23,8 @@ export const ContentTypeList = {
         contentType: [
             "application/msword",
             "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
-            "application/vnd.oasis.opendocument.text"
+            "application/vnd.oasis.opendocument.text",
+            "application/vnd.oasis.opendocument.spreadsheet"
         ],
         simpleType: []
     },
