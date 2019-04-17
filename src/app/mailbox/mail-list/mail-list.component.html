@@ -1,14 +1,16 @@
-<!-- <div class="flex-1 flex-direction-col" style="background-color: skyblue">
-  aaaaaaaaaaaa
-
-</div> -->
-
-<!-- (onLazyLoad)="handleEvent('onLazyLoad', $event)"
-(keydown.arrowdown)="onKeydownHandlerArrowDown($event)"
-    (keydown.arrowup)="onKeydownHandlerArrowUp($event)"
-[(contextMenuSelection)]="attivitaSelezionata" [contextMenu]="cm" 
-(onRowSelect)="handleEvent('onRowSelect', $event)"
-[loading]="loading"-->
+<!-- 
+       [lazy]="true" (onLazyLoad)="lazyLoad($event)"
+    [value]="messages"
+    [columns]="cols"
+    [paginator]="false"
+    [autoLayout]="false"
+    [responsive]="true"
+    [totalRecords]="totalRecords"
+    selectionMode="multiple"
+    [metaKeySelection]="true"
+    [scrollable]="true" [virtualRowHeight]="10" [virtualScroll]="true"
+    (onRowSelect)="handleEvent('onRowSelect', $event)" 
+-->
 
 <p-table #dt
     [lazy]="true"
@@ -20,23 +22,30 @@
     [totalRecords]="totalRecords"
     selectionMode="multiple"
     [metaKeySelection]="true"
-    [scrollable]="false"
+    [scrollable]="true"
     (onRowSelect)="handleEvent('onRowSelect', $event)"
     >
     <ng-template pTemplate="body" let-rowData let-message let-rowIndex="rowIndex">
         <tr #selRow class="message-row" [pSelectableRow]="rowData" [pSelectableRowIndex]="rowIndex" [pContextMenuRow]="rowData" >
             <td>
-                <div class = "display-block">
-                    <span *ngIf="iconsVisibility['REPLIED']" class="fa fa-mail-reply extra-margin"></span>
-                    <span *ngIf="iconsVisibility['ASSIGNED']" class="fa fa-circle extra-margin"></span>
-                    <span *ngIf="iconsVisibility['FORWARDED']" class="fa fa-mail-forward extra-margin"></span>
+                <div class = "mail-icons-container">
+                    <span *ngIf="message['iconsVisibility']['replied'] || message['iconsVisibility']['replied_all']; else reply_empty">
+                        <span class="mail-icon" [ngClass]="{'visibility-hidden':!message['iconsVisibility']['replied_all'] && !message['iconsVisibility']['replied']}">
+                            <i [pTooltip]="getTagDescription('replied_all')" tooltipPosition="top" *ngIf="message['iconsVisibility']['replied_all']; else reply_single" class="material-icons mail-icons">reply_all</i>
+                            <ng-template #reply_single><i [pTooltip]="getTagDescription('replied')" tooltipPosition="top" class="material-icons mail-icons">reply</i></ng-template>
+                        </span>
+                    </span>
+                    <ng-template #reply_empty> <span class="mail-icon" [ngClass]="{'visibility-hidden': true}"><i class="material-icons">reply_all</i></span></ng-template>
+                    <span class="mail-icon" [ngClass]="{'visibility-hidden':!message['iconsVisibility']['forwarded']}"><i [pTooltip]="getTagDescription('forwarded')" tooltipPosition="top" class="material-icons mail-icons">forward</i></span>
+                    <span class="mail-icon" [ngClass]="{'visibility-hidden':!message['iconsVisibility']['assigned']}"><i [pTooltip]="getTagDescription('assigned')" tooltipPosition="top" class="material-icons mail-icons">merge_type</i></span>
+                    <span class="mail-icon" [ngClass]="{'visibility-hidden':!message['iconsVisibility']['readdressed']}"><i [pTooltip]="getTagDescription('readdressed')" tooltipPosition="top" class="material-icons mail-icons">fast_forward</i></span>
                 </div>
                 <div class = "display-block">
-                    <span class = "pi pi-user display-icon"></span> <div class="display-text">{{message.fromOrTo}}</div> 
+                    <span class = "pi pi-user display-icon"></span> <div class="display-text" [ngClass]="{'display-bold':!message.seen}">{{message.fromOrTo}}</div> 
                 </div>
                 <div class = "display-block extra-margin">
-                    <span *ngIf="!message.seen" class="fa fa-envelope display-icon"></span>
-                    <span *ngIf="message.seen" class="fa fa-envelope-open-o display-icon"></span>
+                    <span *ngIf="!message.seen" class="fa fa-envelope display-icon envelope-icon"></span>
+                    <span *ngIf="message.seen" class="fa fa-envelope-open-o display-icon envelope-icon"></span>
                     <div class="display-text" [ngClass]="{'display-bold':!message.seen}">{{message.subject}}</div> 
                 </div>
             </td>

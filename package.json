@@ -31,6 +31,7 @@
     "angular-font-awesome": "^3.1.2",
     "core-js": "^2.5.4",
     "font-awesome": "^4.7.0",
+    "material-design-icons": "^3.0.1",
     "node-sass": "^4.11.0",
     "npm": "^6.9.0",
     "primeflex": "^1.0.0-rc.1",
