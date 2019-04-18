@@ -1,4 +1,4 @@
-import { Component, OnInit, Input, ViewChild, ElementRef } from "@angular/core";
+import { Component, Input, ViewChild, ElementRef } from "@angular/core";
 import { MessageService } from "src/app/services/message.service";
 import { Message } from "@bds/ng-internauta-model";
 import { ContentTypeList } from "src/app/utils/styles-constants";
@@ -12,7 +12,7 @@ import { HttpClient } from "@angular/common/http";
   templateUrl: "./mail-detail.component.html",
   styleUrls: ["./mail-detail.component.scss"]
 })
-export class MailDetailComponent implements OnInit {
+export class MailDetailComponent {
 
   private contentTypesEnabledForPreview = ["text/html", "application/pdf", "text/plain", "image/jpeg", "image/png"];
   private message: Message = new Message();
@@ -26,11 +26,10 @@ export class MailDetailComponent implements OnInit {
   }
 
   public eml: EmlData;
+  public accordionAttachmentsSelected: boolean = false;
   @ViewChild("emliframe") private emliframe: ElementRef;
 
   constructor(private messageService: MessageService, private http: HttpClient) { }
-
-  ngOnInit() { }
 
   /**
    * Chiedo al backend di darmi tutte le info contenute nell'eml che si riferisce al message.
@@ -54,9 +53,22 @@ export class MailDetailComponent implements OnInit {
           data.htmlText != null ? data.htmlText : data.plainText.replace(/\n/g, "<br/>")
         );
         this.eml = data;
-        console.log(this.eml);
+        this.setLook();
+      },
+      err => {
+        this.eml = null;
       }
     );
+  }
+
+  /**
+   * Funzione da chiamare ogni qualvolta si voglia risettare il look generale
+   * del dettaglio mail.
+   */
+  private setLook() {
+    if (this.eml.attachments == null) {
+      this.accordionAttachmentsSelected = false;
+    }
   }
 
   /**

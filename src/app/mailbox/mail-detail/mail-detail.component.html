@@ -8,7 +8,10 @@
             <!-- <li *ngIf="eml?.ricevuta"><span class="li-description">Ricevuta il:</span><span class="li-content">{{eml?.ricevuta}}</span></li>
             <li *ngIf="eml?.consegnata"><span class="li-description">Consegnata il:</span><span class="li-content">{{eml?.consegnata}}</span></li> -->
             <!-- <li *ngIf="eml?.sendDate"><span class="li-description">Inviato:</span><span class="li-content">{{getDateDisplay(eml.sendDate)}}</span></li> -->
-            <li *ngIf="eml?.from"><span class="li-description">Da:</span><span class="li-content indirizzo">{{eml?.from}}</span></li>
+            <li *ngIf="eml?.from">
+              <span class="li-description">Da:</span>
+              <span class="li-content indirizzo">{{eml?.from}}</span>
+            </li>
             <li *ngIf="eml?.to && eml?.to.length > 0">
               <span class="li-description">A:</span>
               <span *ngFor="let t of eml?.to" class="li-content indirizzo">{{t}}</span>
@@ -19,7 +22,11 @@
             </li>
         </ul>
       </p-accordionTab>
-      <p-accordionTab header="Allegati" [disabled]="eml?.attachments == null" class="accordion-allegati">
+      <p-accordionTab 
+        header="Allegati" 
+        [(selected)]="accordionAttachmentsSelected" 
+        [disabled]="eml?.attachments == null" 
+        class="accordion-allegati">
         <div class="box-allegati">
           <div *ngFor="let attachment of eml?.attachments">
             <span *ngIf="!attachment.forHtmlAttribute" class="allegato">

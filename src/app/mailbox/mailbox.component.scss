@@ -1,172 +1,150 @@
 .container {
-    display: flex;
-    flex-direction: column;
-    flex: 1;
-    //flex-basis: 20%;
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  //flex-basis: 20%;
 }
 
 .box {
-    background-color: #cce4f7;
-    text-align: center;
-    //height: 100%;
-    display: flex;
-    flex: 1;
+  background-color: #cce4f7;
+  text-align: center;
+  //height: 100%;
+  display: flex;
+  flex: 1;
 }
 
 .buttons-bar {
-    height: 50px;
-    display: block;
-    //flex-grow: 0.05;
-    //flex-basis: 1%;
-    // flex-shrink: 1;
-    width: 100%;
-  }
+  height: 50px;
+  display: block;
+  //flex-grow: 0.05;
+  //flex-basis: 1%;
+  // flex-shrink: 1;
+  width: 100%;
+}
 
 .oldslider{
-    position: absolute;
-    left: 0;
-    top: 0;
-    bottom: 0;
-    width: 15px;
-    cursor: w-resize;
-    text-align: center;
-    justify-content: center;
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 15px;
+  cursor: w-resize;
+  text-align: center;
+  justify-content: center;
 }
 .oldslider > div{
-    border: dotted 1px grey;
-    width: 3px;
-    border-top: none;
-    border-bottom: none;
-    height: 100%;
-    display: inline-block;
+  border: dotted 1px grey;
+  width: 3px;
+  border-top: none;
+  border-bottom: none;
+  height: 100%;
+  display: inline-block;
 }
 
 .slider {
-    position: relative;
-    cursor: w-resize;
-    border: solid 1px grey;
-    width: 5px;
-    border-top: none;
-    border-bottom: none;
-    height: 100%;
-    display: inline-block;
-    overflow: hidden;
+  position: relative;
+  cursor: w-resize;
+  border: solid 1px grey;
+  width: 5px;
+  border-top: none;
+  border-bottom: none;
+  height: 100%;
+  display: inline-block;
+  overflow: hidden;
 }
 
 .slider::before {
-    content: "";
-    border: dotted 2px grey;
-    position: absolute;
-    left: 0;
-    width: 0px;
-    height: 18px;
-    //background-color: black;
+  content: "";
+  border: dotted 2px grey;
+  position: absolute;
+  left: 0;
+  width: 0px;
+  height: 18px;
+  //background-color: black;
 
-    // serve per centrarlo rispetto all'altezza del padre
-    top: 50%;
+  // serve per centrarlo rispetto all'altezza del padre
+  top: 50%;
 
-    // serve per far si che sia centrato rispettto all'altezza di se stesso
-    transform: translateY(-50%);    
+  // serve per far si che sia centrato rispettto all'altezza di se stesso
+  transform: translateY(-50%);    
 }
 
 .hidden {
-    display: none !important;
+  display: none !important;
 }
 
 .content-left{
-    /*position: relative;*/
-    display: block;
-    width: 300px;
-    overflow: hidden;
-    // padding: 5px
-    //flex-direction: column;
+  /*position: relative;*/
+  display: block;
+  width: 300px;
+  overflow: hidden;
+  // padding: 5px
+  //flex-direction: column;
 }
 .content-right{
-    //padding-left: 23px;
-    // overflow-y: auto;
-    position: relative;
-    display: block;
-    //display: flex;
-    // width: 100%;
-    // height: 100%;
-    
-    flex: 1;
-    //flex-direction: row;
+  //padding-left: 23px;
+  // overflow-y: auto;
+  position: relative;
+  display: block;
+  //display: flex;
+  // width: 100%;
+  // height: 100%;
+  
+  flex: 1;
+  //flex-direction: row;
 }
 
 .d-flex{
-    display: flex;
+  display: flex;
 }
 
 .mail-container {
-    //height: 100%;
-    //width: 100%;
-    display: flex;
-    flex: 1;
-    position: relative;
-    flex-direction: row;
-    margin-top: 5px;
+  //height: 100%;
+  //width: 100%;
+  display: flex;
+  flex: 1;
+  position: relative;
+  flex-direction: row;
+  margin-top: 5px;
 }
-
-
-/*     
-} */
-.mail-list:hover {
-    overflow: overlay;
-}
-
-/* width */
-::-webkit-scrollbar {
-    width: 10px;
-    height: 10px;
-  }
-  
-  /* Track */
-  ::-webkit-scrollbar-track {
-    background: #f1f1f1; 
-  }
-   
-  /* Handle */
-  ::-webkit-scrollbar-thumb {
-    background: #88888857; 
-  }
-  
-  /* Handle on hover */
-  ::-webkit-scrollbar-thumb:hover {
-    background: #8888889c; 
-  }
 
 :host {
-    width: 100%;
-    display: flex;
+  width: 100%;
+  display: flex;
 }
 .flex-1{
-    flex: 1;
+  flex: 1;
 }
 .text-center{
-    text-align: center;
+  text-align: center;
 }
 /* ========= MAIL LIST ========== */
 .mail-list {
-    display: flex;
-    flex: 1;
-    padding: 5px;
-    overflow: hidden;
- }
+  display: flex;
+  flex: 1;
+  padding: 5px;
+  overflow: hidden;
+}
+.mail-list:hover {
+  overflow: overlay;
+}
 
 /* ========= MAIL DETAIL ========== */
 .mail-detail {
-    display: flex;
-    flex: 1;
-    padding-left: 4px;
-    position: relative;
-    overflow: hidden;
+  display: flex;
+  flex: 1;
+  padding-left: 4px;
+  position: relative;
+  overflow: hidden;
+}
+.mail-detail:hover {
+  overflow: overlay;
 }
 .overlap-div {
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    z-index: 100;
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 100;
 }
