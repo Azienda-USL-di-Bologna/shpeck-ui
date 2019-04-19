@@ -43,4 +43,13 @@ export class MessageService extends NextSDREntityProvider {
     const url = getInternautaUrl(BaseUrlType.Shpeck) + "/" + CUSTOM_SERVER_METHODS.getAllEmlAttachment + "/" + message.id;
     return this.http.get(url, {responseType: "blob"});
   }
+
+  /**
+   * Salva la bozza sul database e ritorna un observable
+   * @param form La form contenente tutti i campi della mail da salvare
+   */
+  public saveDraftMessage(form: FormData) {
+    const apiUrl = getInternautaUrl(BaseUrlType.Shpeck) + "/" + CUSTOM_SERVER_METHODS.saveDraftMessage;
+    return this.http.post(apiUrl, form);
+  }
 }

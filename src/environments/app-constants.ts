@@ -31,7 +31,8 @@ export const BaseUrls: Map<BaseUrlType, string> = new Map<BaseUrlType, string>([
 export const CUSTOM_SERVER_METHODS = {
     extractMessageData: "extractMessageData",
     getEmlAttachment: "getEmlAttachment",
-    getAllEmlAttachment: "get_all_eml_attachment"
+    getAllEmlAttachment: "get_all_eml_attachment",
+    saveDraftMessage: "saveDraftMessage"
 };
 
 export function getInternautaUrl(type: BaseUrlType): string {

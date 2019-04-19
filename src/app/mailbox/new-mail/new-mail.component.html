@@ -5,14 +5,14 @@
       <ul class="list-items">
         <!-- A Addresses -->
         <li>
-          <label for="addresses" style="padding-right: 9px">A: </label>
+          <label for="to" style="padding-right: 9px">A: </label>
           <span class="ui-fluid flex-1 margin-lr-5">
               <p-autoComplete
                 required="true" type="email"
-                id="addresses" formControlName="addresses" [suggestions]="filteredCountriesMultiple"
+                id="to" formControlName="to" [suggestions]="filteredCountriesMultiple"
                 (completeMethod)="filterCountryMultiple($event)" (onKeyUp)="onKeyUp($event, 'addresses')"
-                (onSelect)="onSelect($event, 'addresses')" (onUnselect)="onRemove($event, 'addresses')"
-                [minLength]="1" placeholder="Seleziona contatti..." field="address" [multiple]="true">
+                (onSelect)="onSelect($event, 'addresses')"
+                [minLength]="1" placeholder="Seleziona contatti..." [multiple]="true">
               </p-autoComplete>
           </span>
           <span>
@@ -25,10 +25,10 @@
           <span class="ui-fluid flex-1 margin-lr-5">
             <p-autoComplete
               type="email"
-              id="ccAddresses" formControlName="ccAddresses" [suggestions]="filteredCountriesMultiple"
+              id="cc" formControlName="cc" [suggestions]="filteredCountriesMultiple"
               (completeMethod)="filterCountryMultiple($event)" (onKeyUp)="onKeyUp($event, 'ccAddresses')"
-              (onSelect)="onSelect($event, 'ccAddresses')" (onUnselect)="onRemove($event, 'ccAddresses')"
-              [minLength]="1" field="address" [multiple]="true">
+              (onSelect)="onSelect($event, 'ccAddresses')"
+              [minLength]="1" [multiple]="true">
             </p-autoComplete>
           </span>
           <span>
@@ -44,9 +44,9 @@
         </li>
         <!-- Oggetto -->
         <li>
-          <label for="mailObject">Oggetto: </label>
+          <label for="subject">Oggetto: </label>
           <span class="ui-fluid flex-1 margin-l-5">
-              <input id="mailObject" type="text" size="1000" pInputText formControlName="mailObject">
+              <input id="subject" type="text" size="1000" pInputText formControlName="subject">
           </span>
         </li>
         <!-- Allegati -->
@@ -57,7 +57,7 @@
               <input #fileinput type="file" (change)="onFileChange($event, fileinput)" multiple="multiple">
           </span>
           <span class="ui-fluid flex-1 margin-l-5">
-            <p-chips formControlName="attachments" (onRemove)="onRemove($event, 'attachments')">
+            <p-chips id="attachments" formControlName="attachments">
                 <ng-template let-item pTemplate="item">
                     {{item.name}} ({{formatSize(item.size)}}) <i style="margin-right:1.5em"></i>
                 </ng-template>
@@ -66,9 +66,9 @@
         </li>
         <!-- Testo Mail -->
         <li class="flex-dir-col" style="margin: 0">
-          <label for="mail-text">Testo: </label>
+          <label for="body">Testo: </label>
           <span #editor class="ui-fluid d-flex">
-            <p-editor id="mail-text" formControlName="mailText"
+            <p-editor id="body" formControlName="body"
               [style]="{'overflow':'auto', 'word-break': 'break-word', 'height': '361px','max-height': '361px'}">
             </p-editor>
           </span>
@@ -79,12 +79,12 @@
         <button
           type="button" pButton icon="pi pi-save"
           class="ui-button-raised ui-button-secondary button-styles custom-secondary-button"
-          label="Salva bozza">
+          label="Salva bozza" (click)="onSaveDraft()">
         </button>
         <button
           type="button" pButton icon="pi pi-times"
           class="ui-button-raised ui-button-secondary button-styles custom-secondary-button"
-          label="Annulla" >
+          label="Annulla" (click)="onClose()" >
         </button>
         <button
           type="submit" pButton icon="fa fa-paper-plane"
