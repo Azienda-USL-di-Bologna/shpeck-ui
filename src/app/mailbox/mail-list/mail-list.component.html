@@ -22,7 +22,7 @@
     [totalRecords]="totalRecords"
     selectionMode="multiple"
     [metaKeySelection]="true"
-    [scrollable]="true"
+    [scrollable]="false"
     (onRowSelect)="handleEvent('onRowSelect', $event)"
     >
     <ng-template pTemplate="body" let-rowData let-message let-rowIndex="rowIndex">

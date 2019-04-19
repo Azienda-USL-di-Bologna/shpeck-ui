@@ -11,6 +11,7 @@
 .content-wrapper {
   display: flex;
   flex: 1;
+  min-height: 0;
 }
 ::ng-deep .content-wrapper > app-mailbox {
   width: 100%;
@@ -42,3 +43,10 @@
 ::ng-deep  ::-webkit-scrollbar-thumb:hover {
   background: #8888889c; 
 }
+/* * {
+  scrollbar-color: #88888857 #88888857;
+  scrollbar-width: 10px;
+}
+*:hover {
+  scrollbar-color: #8888889c #f1f1f1;
+} */

@@ -106,6 +106,7 @@
   position: relative;
   flex-direction: row;
   margin-top: 5px;
+  min-height: 0;
 }
 
 :host {
@@ -126,7 +127,7 @@
   overflow: hidden;
 }
 .mail-list:hover {
-  overflow: overlay;
+  overflow: auto;
 }
 
 /* ========= MAIL DETAIL ========== */
