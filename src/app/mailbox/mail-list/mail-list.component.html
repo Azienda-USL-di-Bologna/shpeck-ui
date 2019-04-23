@@ -23,12 +23,13 @@
     [metaKeySelection]="true"
     [scrollable]="false"
     (onRowSelect)="handleEvent('onRowSelect', $event)"
+    
+    [rowTrackBy]="trackByFn"
     > -->
 
 <p-table #dt *ngIf="_folder"
     [lazy]="true" (onLazyLoad)="lazyLoad($event)"
     scrollHeight="100%"
-    [rowTrackBy]="trackByFn"
     [value]="messages"
     [columns]="cols"
     [paginator]="false"
@@ -40,6 +41,7 @@
     [metaKeySelection]="true"
     [lazyLoadOnInit] = "true"
     [rows]="rowsNmber"
+    [rowTrackBy]="trackByFn"
     [scrollable]="true" [virtualRowHeight]="virtualRowHeight" [virtualScroll]="true" [virtualScrollDelay]="150"
     (onRowSelect)="handleEvent('onRowSelect', $event)"
     >

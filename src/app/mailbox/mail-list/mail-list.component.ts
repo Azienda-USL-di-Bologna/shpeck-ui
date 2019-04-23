@@ -1,4 +1,4 @@
-import { Component, OnInit, Input, Output, EventEmitter, ViewChild, ElementRef } from "@angular/core";
+import { Component, OnInit, Input, Output, EventEmitter, ViewChild, ElementRef, AfterViewInit, AfterContentInit, AfterContentChecked, AfterViewChecked } from "@angular/core";
 import {VirtualScrollerModule} from "primeng/virtualscroller";
 import { buildLazyEventFiltersAndSorts } from "@bds/primeng-plugin";
 import { Message, ENTITIES_STRUCTURE, MessageAddress, AddresRoleType, Folder, FolderType, TagType, MessageTag, InOut, Tag, Pec } from "@bds/ng-internauta-model";
@@ -7,28 +7,41 @@ import { FiltersAndSorts, FilterDefinition, FILTER_TYPES, SortDefinition, SORT_M
 import { TagService } from "src/app/services/tag.service";
 import { Observable } from "rxjs";
 import { DatePipe } from "@angular/common";
+import { Table } from "primeng/table";
 
 @Component({
   selector: "app-mail-list",
   templateUrl: "./mail-list.component.html",
   styleUrls: ["./mail-list.component.scss"]
 })
-export class MailListComponent implements OnInit {
+export class MailListComponent implements OnInit, AfterViewChecked {
 
   public _folder: Folder;
   @Input("folder")
   set folder(folder: Folder) {
-    this._folder = folder;
-    if (folder) {
-      this.lazyLoad(null);
+    this._folder = null;
+    setTimeout(() => {
+      this._folder = folder;
+      if (folder) {
+        this.lazyLoad(null);
+      }
+    }, 0);
+    // if (folder) {
+    //   this.lazyLoad(null);
+      // if (this.dt) {
+      //   this.dt.sort(null);
+      // } else {
+      //   this.lazyLoad(null);
+      // }
       // this.loadTag(folder).subscribe((tags: Tag[]) => {
       //   this.tags = tags;
       //   this.loadData(folder);
       // });
-    }
+    // }
   }
   @Output() messageClicked = new EventEmitter<Message>();
   @ViewChild("selRow") private selRow: ElementRef;
+  @ViewChild("dt") private dt: Table;
 
   public sortOptions = {};
   public sortKey = {};
@@ -80,6 +93,11 @@ export class MailListComponent implements OnInit {
     // };
   }
 
+  ngAfterViewChecked() {
+    // console.log("ngAfterViewchecked", this.selRow.nativeElement.offsetHeight);
+  }
+
+
   public getTagDescription(tagName: string) {
     if (this.tags && this.tags[tagName]) {
       return this.tags[tagName].description;
@@ -95,7 +113,6 @@ export class MailListComponent implements OnInit {
   }
 
   private loadData(pageCong: PagingConf, lazyFilterAndSort?: FiltersAndSorts) {
-    console.log("loadData", this.virtualRowHeight);
     this.loading = true;
     this.messageService.getData(this.selectedProjection, this.buildInitialFilterAndSort(), lazyFilterAndSort, pageCong).subscribe(
       data => {
@@ -105,9 +122,9 @@ export class MailListComponent implements OnInit {
           this.setMailTagVisibility(this.messages, this._folder.type);
         }
         this.loading = false;
-        // setTimeout(() => {
-        //   this.virtualRowHeight = this.selRow.nativeElement.offsetHeight;
-        // }, 0);
+        setTimeout(() => {
+          console.log(this.selRow.nativeElement.offsetHeight);
+        });
       }
     );
   }
@@ -115,6 +132,10 @@ export class MailListComponent implements OnInit {
   public lazyLoad(event: any) {
     console.log("lazyload", event);
     if (event) {
+      // questo if è il modo più sicuro per fare "event.first === Nan"
+      if (event.first !== event.first) {
+        event.first = 0;
+      }
       if (this.pageConf.conf.limit !== event.rows || this.pageConf.conf.offset !== event.first) {
         this.pageConf.conf = {
           limit: event.rows,
