@@ -1,12 +1,12 @@
-import { Component, OnInit, Input, Output, EventEmitter } from "@angular/core";
+import { Component, OnInit, Input, Output, EventEmitter, ViewChild, ElementRef } from "@angular/core";
 import {VirtualScrollerModule} from "primeng/virtualscroller";
 import { buildLazyEventFiltersAndSorts } from "@bds/primeng-plugin";
 import { Message, ENTITIES_STRUCTURE, MessageAddress, AddresRoleType, Folder, FolderType, TagType, MessageTag, InOut, Tag, Pec } from "@bds/ng-internauta-model";
 import { MessageService} from "src/app/services/message.service";
-import { FiltersAndSorts, FilterDefinition, FILTER_TYPES, SortDefinition, SORT_MODES } from "@nfa/next-sdr";
+import { FiltersAndSorts, FilterDefinition, FILTER_TYPES, SortDefinition, SORT_MODES, PagingConf, PagingMode } from "@nfa/next-sdr";
 import { TagService } from "src/app/services/tag.service";
 import { Observable } from "rxjs";
-import { DatePipe } from '@angular/common';
+import { DatePipe } from "@angular/common";
 
 @Component({
   selector: "app-mail-list",
@@ -15,12 +15,12 @@ import { DatePipe } from '@angular/common';
 })
 export class MailListComponent implements OnInit {
 
-  private _folder: Folder;
+  public _folder: Folder;
   @Input("folder")
   set folder(folder: Folder) {
     this._folder = folder;
     if (folder) {
-      this.loadData(folder);
+      this.lazyLoad(null);
       // this.loadTag(folder).subscribe((tags: Tag[]) => {
       //   this.tags = tags;
       //   this.loadData(folder);
@@ -28,6 +28,7 @@ export class MailListComponent implements OnInit {
     }
   }
   @Output() messageClicked = new EventEmitter<Message>();
+  @ViewChild("selRow") private selRow: ElementRef;
 
   public sortOptions = {};
   public sortKey = {};
@@ -36,7 +37,18 @@ export class MailListComponent implements OnInit {
   public tags = [];
   private selectedProjection: string = ENTITIES_STRUCTURE.shpeck.message.customProjections.CustomMessageWithAddressList;
 
+  private pageConf: PagingConf = {
+    mode: "LIMIT_OFFSET",
+    conf: {
+      limit: 0,
+      offset: 0
+    }
+  };
+
+  public loading = false;
+  public virtualRowHeight: number = 68;
   public totalRecords: number;
+  public rowsNmber = 10;
   public cols = [
       {
         field: "subject",
@@ -59,6 +71,13 @@ export class MailListComponent implements OnInit {
   ngOnInit() {
     // this.idFolder = 6;
     // this.loadData(6);
+    // this.pageConf = {
+    //   mode: "LIMIT_OFFSET",
+    //   conf: {
+    //     limit: 0,
+    //     offset: this.rowsNmber * 2
+    //   }
+    // };
   }
 
   public getTagDescription(tagName: string) {
@@ -75,28 +94,55 @@ export class MailListComponent implements OnInit {
     return this.tagService.getData(null, filtersAndSorts, null, null);
   }
 
-  private loadData(folder: Folder, lazyFilterAndSort?: FiltersAndSorts) {
-    this.messageService.getData(this.selectedProjection, this.buildInitialFilterAndSort(folder), lazyFilterAndSort, null).subscribe(
+  private loadData(pageCong: PagingConf, lazyFilterAndSort?: FiltersAndSorts) {
+    console.log("loadData", this.virtualRowHeight);
+    this.loading = true;
+    this.messageService.getData(this.selectedProjection, this.buildInitialFilterAndSort(), lazyFilterAndSort, pageCong).subscribe(
       data => {
         if (data && data.results) {
           this.totalRecords = data.page.totalElements;
           this.messages = data.results;
           this.setMailTagVisibility(this.messages, this._folder.type);
         }
+        this.loading = false;
+        // setTimeout(() => {
+        //   this.virtualRowHeight = this.selRow.nativeElement.offsetHeight;
+        // }, 0);
       }
     );
   }
 
-  private lazyLoad(event: any) {
-    // const filtersAndSorts: FiltersAndSorts = buildLazyEventFiltersAndSorts(event, this.cols, this.datepipe);
+  public lazyLoad(event: any) {
+    console.log("lazyload", event);
+    if (event) {
+      if (this.pageConf.conf.limit !== event.rows || this.pageConf.conf.offset !== event.first) {
+        this.pageConf.conf = {
+          limit: event.rows,
+          offset: event.first
+        };
+        const filtersAndSorts: FiltersAndSorts = buildLazyEventFiltersAndSorts(event, this.cols, this.datepipe);
 
-    // this.loadData(this.folder, filtersAndSorts);
+        this.loadData(this.pageConf, filtersAndSorts);
+      }
+    } else {
+      this.pageConf.conf = {
+        limit: this.rowsNmber * 2,
+        offset: 0
+      };
+      const filtersAndSorts: FiltersAndSorts = buildLazyEventFiltersAndSorts(event, this.cols, this.datepipe);
+
+      this.loadData(this.pageConf, filtersAndSorts);
+    }
   }
 
-  buildInitialFilterAndSort(folder: Folder): FiltersAndSorts {
+  trackByFn(index, item) {
+    return item.id;
+  }
+
+  buildInitialFilterAndSort(): FiltersAndSorts {
     const filtersAndSorts: FiltersAndSorts = new FiltersAndSorts();
-    filtersAndSorts.addFilter(new FilterDefinition("messageFolderList.idFolder.id", FILTER_TYPES.not_string.equals, folder.id));
-    filtersAndSorts.addSort(new SortDefinition("receiveTime", SORT_MODES.desc));
+    filtersAndSorts.addFilter(new FilterDefinition("messageFolderList.idFolder.id", FILTER_TYPES.not_string.equals, this._folder.id));
+    // filtersAndSorts.addSort(new SortDefinition("receiveTime", SORT_MODES.desc));
     filtersAndSorts.addSort(new SortDefinition("id", SORT_MODES.desc));
     return filtersAndSorts;
   }
@@ -133,7 +179,10 @@ export class MailListComponent implements OnInit {
     const messageAddressList: MessageAddress[] = message.messageAddressList.filter(
       (messageAddress: MessageAddress) => messageAddress.addressRole === addresRoleType);
     message["fromOrTo"] = "";
-    messageAddressList.forEach((messageAddress: MessageAddress) => message["fromOrTo"] += ", " + messageAddress.idAddress.originalAddress);
+    messageAddressList.forEach(
+      (messageAddress: MessageAddress) => {
+        message["fromOrTo"] += ", " + (messageAddress.idAddress.originalAddress ? messageAddress.idAddress.originalAddress : messageAddress.idAddress.mailAddress);
+      });
     if ((message["fromOrTo"] as string).startsWith(",")) {
       message["fromOrTo"]  = (message["fromOrTo"] as string).substr(1, (message["fromOrTo"] as string).length - 1);
     }
