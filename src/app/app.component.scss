@@ -29,8 +29,9 @@
   color: black !important;
 }
 
-/* -----------CUSTOM SCROLLBAR----------------- */
-/* CHROME */
+// -----------CUSTOM SCROLLBAR----------------- //
+// CHROME
+/*
 ::ng-deep ::-webkit-scrollbar {
   width: 10px;
   height: 10px;
@@ -44,7 +45,8 @@
 ::ng-deep  ::-webkit-scrollbar-thumb:hover {
   background: #8888889c; 
 }
-/* FIREFOX */
+
+// FIREFOX
 ::ng-deep * {
   scrollbar-color: #88888857 #f1f1f1;
   scrollbar-width: thin;
@@ -52,3 +54,4 @@
 ::ng-deep *:hover {
   scrollbar-color: #8888889c #f1f1f1;
 }
+*/
