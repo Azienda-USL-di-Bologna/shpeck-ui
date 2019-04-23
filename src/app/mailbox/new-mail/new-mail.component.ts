@@ -1,5 +1,7 @@
 import { Component, OnInit } from "@angular/core";
-import { FormGroup, FormControl, Validators } from "@angular/forms";
+import { FormGroup, FormControl, Validators, FormArray } from "@angular/forms";
+import { DynamicDialogRef } from "primeng/api";
+import { MessageService } from "src/app/services/message.service";
 
 @Component({
   selector: "app-new-mail",
@@ -12,46 +14,44 @@ export class NewMailComponent implements OnInit {
 
   country: any;
 
-  addresses: any[] = [];
-  ccAddresses: any[] = [];
-  attachments: any[] = [];
-
   filteredCountriesSingle: any[];
 
   filteredCountriesMultiple: any[];
 
   indirizziTest = [
-    { "address": "g.russo@nsi.it", "id": "FI" },
-    { "address": "opsouperen@cryptontrade.ga", "id": "FR" },
-    { "address": "heckerman@att.net", "id": "GA" },
-    { "address": "jespley@sbcglobal.net", "id": "GM" },
-    { "address": "kannan@msn.com", "id": "GE" },
-    { "address": "boftx@outlook.com", "id": "DE" },
-    { "address": "sacraver@optonline.net", "id": "GH" },
-    { "address": "north@yahoo.ca", "id": "GR" },
-    { "address": "dhwon@yahoo.ca", "id": "HK" },
-    { "address": "jamuir@att.net", "id": "HU" },
-    { "address": "kobayasi@msn.com", "id": "IS" },
-    { "address": "syrinx@optonline.net", "id": "IN" },
-    { "address": "bcevc@live.com", "id": "ID" },
-    { "address": "syrinx@outlook.com", "id": "IE" },
-    { "address": "lpalmer@aol.com", "id": "IM" },
-    { "address": "crimsane@aol.com", "id": "IL" },
-    { "address": "geoffr@sbcglobal.net", "id": "IT" },
-    { "address": "dcoppit@live.com", "id": "JM" },
-    { "address": "schumer@outlook.com", "id": "JP" },
+    "g.russo@nsi.it",
+    "opsouperen@cryptontrade.ga",
+    "heckerman@att.net",
+    "jespley@sbcglobal.net",
+    "kannan@msn.com",
+    "boftx@outlook.com",
+    "sacraver@optonline.net",
+    "north@yahoo.ca",
+    "dhwon@yahoo.ca",
+    "jamuir@att.net",
+    "kobayasi@msn.com",
+    "syrinx@optonline.net",
+    "bcevc@live.com",
+    "syrinx@outlook.com",
+    "lpalmer@aol.com",
+    "crimsane@aol.com",
+    "geoffr@sbcglobal.net",
+    "dcoppit@live.com",
+    "schumer@outlook.com"
   ];
 
-  constructor() { }
+  constructor(public ref: DynamicDialogRef, private messageService: MessageService) { }
 
   ngOnInit() {
     this.mailForm = new FormGroup({
-      addresses: new FormControl(this.addresses),
-      ccAddresses: new FormControl(this.ccAddresses),
+      idPec: new FormControl("1456"),
+      to: new FormControl([]),
+      cc: new FormControl([]),
       hideRecipients: new FormControl(false),
-      mailObject: new FormControl(""),
-      attachments: new FormControl(this.attachments),
-      mailText: new FormControl("")
+      subject: new FormControl(""),
+      attachments: new FormControl([]),
+      body: new FormControl(""),
+      from: new FormControl("anubi83@hotmail.com")
     });
 
   }
@@ -70,7 +70,7 @@ export class NewMailComponent implements OnInit {
       let filtered : any[] = [];
       for (let i = 0; i < countries.length; i++) {
           let country = countries[i];
-          if (country.address.toLowerCase().indexOf(query.toLowerCase()) == 0) {
+          if (country.toLowerCase().indexOf(query.toLowerCase()) == 0) {
               filtered.push(country);
           }
       }
@@ -88,15 +88,16 @@ export class NewMailComponent implements OnInit {
       if (tokenInput.value) {
         if (formField) {
           if (formField === "addresses") {
-            if (!this.addresses.find((element) => {
-              return element.address === tokenInput.value;
-            })) {
-              this.addresses.push({ address: tokenInput.value, id: "" });
+            const toForm = this.mailForm.get("to");
+
+            if (!toForm.value.find((element) => element.address === tokenInput.value)) {
+              toForm.value.push(tokenInput.value);
             }
-          } else if (!this.ccAddresses.find((element) => {
-              return element.address === tokenInput.value;
-            })) {
-            this.ccAddresses.push({ address: tokenInput.value, id: "" });
+          } else {
+            const ccForm = this.mailForm.get("cc");
+            if (!ccForm.value.find((element) => element.address === tokenInput.value)) {
+              ccForm.value.push(tokenInput.value);
+            }
           }
         }
         tokenInput.value = "";
@@ -113,53 +114,56 @@ export class NewMailComponent implements OnInit {
     const tokenInput = item;
     if (tokenInput) {
       if (formField === "addresses") {
-        if (this.addresses.indexOf(item) ===  -1) {
-          this.addresses.push(item);
-          this.mailForm.patchValue({
-            addresses: this.addresses
-          });
+        const toForm = this.mailForm.get("to");
+        if (toForm.value.indexOf(item) === -1) {
+          toForm.value.push(item);
         }
-      } else if (this.ccAddresses.indexOf(item) ===  -1) {
-        this.ccAddresses.push(item);
-        this.mailForm.patchValue({
-          ccAddresses: this.ccAddresses
-        });
+      } else {
+        const ccForm = this.mailForm.get("cc");
+        if (ccForm.value.indexOf(item) === -1) {
+          ccForm.value.push(item);
+        }
       }
     }
   }
 
-  onRemove(event, formField) {
-    switch (formField) {
-      case "addresses":
-      this.addresses.splice(this.addresses.indexOf(event), 1);
-        break;
-      case "ccAddresses":
-        this.ccAddresses.splice(this.ccAddresses.indexOf(event), 1);
-        break;
-      case "attachments":
-        this.attachments.splice(this.attachments.indexOf(event.value), 1);
-        break;
-    }
-    this.mailForm.patchValue({
-      addresses: this.addresses,
-      ccAddresses: this.ccAddresses,
-      attachments: this.attachments
-    });
-  }
-  /* Gestione array allegati */
+  /* Gestione allegati */
   onFileChange(event, fileinput) {
+    const fileForm = this.mailForm.get("attachments");
     for (const file of event.target.files) {
-      if (!this.attachments.find((element) => {
-        return element.name === file.name;
-      })) {
-        this.attachments.push(file);
+      if (!fileForm.value.find((element) => element.name === file.name)) {
+        fileForm.value.push(file);
       }
     }
     fileinput.value = null;
   }
 
   onSubmit() {
-      console.log("FORM = ", this.mailForm.value);
+    console.log("FORM = ", this.mailForm.value);
+  }
+
+  /* Salvataggio della bozza */
+  onSaveDraft() {
+    console.log("FORM = ", this.mailForm.value);
+    const formToSend = new FormData();
+    Object.keys(this.mailForm.controls).forEach(key => {
+      if (key === "attachments") {  // Gli allegati vanno aggiunti singolarmente
+        const files = this.mailForm.get(key).value;
+        files.forEach(file => {
+          formToSend.append(key, file);
+        });
+      } else {
+        formToSend.append(key.toString(), this.mailForm.get(key).value);
+      }
+    });
+    this.messageService.saveDraftMessage(formToSend).subscribe(
+      res => console.log(res),
+      err => console.log(err)
+    );
+  }
+
+  onClose() {
+    this.ref.close(null);
   }
 
   formatSize(bytes) {

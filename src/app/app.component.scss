@@ -29,8 +29,8 @@
   color: black !important;
 }
 
-/*
-// -----------CUSTOM SCROLLBAR----------------- //
+/* -----------CUSTOM SCROLLBAR----------------- */
+/* CHROME */
 ::ng-deep ::-webkit-scrollbar {
   width: 10px;
   height: 10px;
@@ -43,11 +43,12 @@
 }
 ::ng-deep  ::-webkit-scrollbar-thumb:hover {
   background: #8888889c; 
-}*/
-/* * {
-  scrollbar-color: #88888857 #88888857;
-  scrollbar-width: 10px;
 }
-*:hover {
+/* FIREFOX */
+::ng-deep * {
+  scrollbar-color: #88888857 #f1f1f1;
+  scrollbar-width: thin;
+}
+::ng-deep *:hover {
   scrollbar-color: #8888889c #f1f1f1;
-} */
+}
