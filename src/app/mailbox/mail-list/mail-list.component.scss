@@ -17,14 +17,21 @@
   flex-direction: column;
 }
 
+
 //body .ui-table .ui-table-tbody > tr > td
 
 ::ng-deep .ui-table-tbody > tr > td {
   border: none !important;
 }
 
-::ng-deep .ui-table table {
+::ng-deep .ui-table-scrollable-body {
   // width: 100%;
+  // min-height: 900px;
+  //position: unset;
+}
+
+::ng-deep .ui-table-virtual-scroller {
+  // height: 100% !important;
 }
 
 .display-block {
@@ -83,7 +90,7 @@
   width: 100% !important;
   //align-items: stretch;
   //flex-direction: row;
-  height:30px;
+  height: 70px !important;
   //white-space-collapsing: collapse; 
   //text-wrap: none;
   white-space: nowrap;

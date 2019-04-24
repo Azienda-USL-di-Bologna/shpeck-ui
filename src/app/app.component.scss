@@ -18,6 +18,11 @@
   height: 100%;
 }
 
+
+// ::ng-deep * {
+//   box-sizing: content-box !important;
+// }
+
 /* ------------TEMPLATE GENERALE---------------------- */
 /* --- RIGHE P-TABLE --- */
 ::ng-deep body .ui-dialog .ui-dialog-titlebar, .titolo-popup {
@@ -31,7 +36,7 @@
 
 // -----------CUSTOM SCROLLBAR----------------- //
 // CHROME
-/*
+
 ::ng-deep ::-webkit-scrollbar {
   width: 10px;
   height: 10px;
@@ -54,4 +59,3 @@
 ::ng-deep *:hover {
   scrollbar-color: #8888889c #f1f1f1;
 }
-*/

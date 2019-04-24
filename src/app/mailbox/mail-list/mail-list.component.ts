@@ -20,6 +20,8 @@ export class MailListComponent implements OnInit, AfterViewChecked {
   @Input("folder")
   set folder(folder: Folder) {
     this._folder = null;
+    // trucco per far si che la table vanga tolta e rimessa nel dom (in modo da essere resettata) altrimenti sminchia
+    // NB: nell'html la visualizzazione della table è controllata da un *ngIf
     setTimeout(() => {
       this._folder = folder;
       if (folder) {
@@ -59,7 +61,7 @@ export class MailListComponent implements OnInit, AfterViewChecked {
   };
 
   public loading = false;
-  public virtualRowHeight: number = 68;
+  public virtualRowHeight: number = 70;
   public totalRecords: number;
   public rowsNmber = 10;
   public cols = [
