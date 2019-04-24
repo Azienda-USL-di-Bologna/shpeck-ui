@@ -4,13 +4,15 @@ import { HttpClient } from "@angular/common/http";
 import { DatePipe } from "@angular/common";
 import { getInternautaUrl, BaseUrlType, CUSTOM_SERVER_METHODS } from "src/environments/app-constants";
 import { ENTITIES_STRUCTURE, Message } from "@bds/ng-internauta-model";
-import { Observable } from "rxjs";
+import { Observable, Subject } from "rxjs";
 import { EmlAttachment } from "../classes/eml-attachment";
 
 @Injectable({
   providedIn: "root"
 })
 export class MessageService extends NextSDREntityProvider {
+  messagesSelected = new Subject<MessageTemplate>();
+
   constructor(protected http: HttpClient, protected datepipe: DatePipe) {
     super(http, datepipe, ENTITIES_STRUCTURE.shpeck.message, getInternautaUrl(BaseUrlType.Shpeck));
   }
@@ -52,4 +54,9 @@ export class MessageService extends NextSDREntityProvider {
     const apiUrl = getInternautaUrl(BaseUrlType.Shpeck) + "/" + CUSTOM_SERVER_METHODS.saveDraftMessage;
     return this.http.post(apiUrl, form);
   }
+}
+
+export interface MessageTemplate {
+  message: Message;
+  body: string;
 }

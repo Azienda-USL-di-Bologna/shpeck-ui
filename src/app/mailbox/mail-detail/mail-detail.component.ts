@@ -53,6 +53,7 @@ export class MailDetailComponent {
           data.htmlText != null ? data.htmlText : data.plainText.replace(/\n/g, "<br/>")
         );
         this.eml = data;
+        this.messageService.messagesSelected.next({message: this.message, body: data.displayBody });
         this.setLook();
       },
       err => {

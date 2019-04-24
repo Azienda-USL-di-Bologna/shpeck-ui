@@ -4,17 +4,19 @@
       <button
         pButton type="button" label="Nuova PEC"
         icon="pi pi-plus" class="button-new-mail ui-button-raised ui-button-primary custom-primary-button"
-        (click)="handleEvent($event)">
+        (click)="handleEvent($event, 'new')">
       </button>
       <!-- Rispondi -->
       <button
         pButton type="button" label="Rispondi"
-        icon="fa fa-reply" class="button-styles ui-button-raised ui-button-secondary custom-border">
+        icon="fa fa-reply" class="button-styles ui-button-raised ui-button-secondary custom-border"
+        (click)="handleEvent($event, 'reply')">
       </button>
       <!-- Rispondi a tutti -->
       <button
         pButton type="button" label="Rispondi a tutti"
-        icon="fa fa-reply-all" class="button-styles ui-button-raised ui-button-secondary custom-border">
+        icon="fa fa-reply-all" class="button-styles ui-button-raised ui-button-secondary custom-border"
+        (click)="handleEvent($event, 'reply_all')">
       </button>
       <!-- Inoltra -->
       <button

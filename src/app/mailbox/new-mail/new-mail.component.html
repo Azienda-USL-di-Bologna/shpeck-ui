@@ -1,7 +1,7 @@
 <section class="height-100">
   <!-- <div class="height-100"> -->
     <!-- Prevent default on form to avoid auto submit -->
-    <form class="height-100" [formGroup]="mailForm" (ngSubmit)="onSubmit()" (keydown.enter)="$event.preventDefault()">
+    <form class="height-100" [formGroup]="mailForm" (ngSubmit)="onSubmit()">
       <ul class="list-items">
         <!-- A Addresses -->
         <li>
@@ -67,8 +67,8 @@
         <!-- Testo Mail -->
         <li class="flex-dir-col" style="margin: 0">
           <label for="body">Testo: </label>
-          <span #editor class="ui-fluid d-flex">
-            <p-editor id="body" formControlName="body"
+          <span class="ui-fluid d-flex">
+            <p-editor #editor id="body" formControlName="body"
               [style]="{'overflow':'auto', 'word-break': 'break-word', 'height': '361px','max-height': '361px'}">
             </p-editor>
           </span>

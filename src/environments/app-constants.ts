@@ -8,6 +8,16 @@ export const MAX_CHARS_100 = 100;
 export const BABELMAN_URL = "https://babelman-auslbo.avec.emr.it/";
 export const APPLICATION = "shpeck";
 
+export const TOOLBAR_ACTIONS = {
+    NEW: "new",
+    REPLY: "reply",
+    REPLY_ALL: "reply_all",
+    FORWARD: "forward",
+    DELETE: "delete",
+    MOVE: "move",
+    ARCHIVE: "archive"
+};
+
 export enum BaseUrlType {
     Shpeck,
     ShpeckCommonParameters,

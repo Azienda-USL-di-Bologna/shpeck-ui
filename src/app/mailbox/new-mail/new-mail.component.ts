@@ -1,17 +1,21 @@
-import { Component, OnInit } from "@angular/core";
-import { FormGroup, FormControl, Validators, FormArray } from "@angular/forms";
-import { DynamicDialogRef } from "primeng/api";
+import { Component, OnInit, ViewChild, AfterViewInit } from "@angular/core";
+import { FormGroup, FormControl, Validators } from "@angular/forms";
+import { DynamicDialogRef, DynamicDialogConfig } from "primeng/api";
 import { MessageService } from "src/app/services/message.service";
+import { Message } from "@bds/ng-internauta-model";
+import { Editor } from "primeng/editor";
+import { TOOLBAR_ACTIONS } from "src/environments/app-constants";
 
 @Component({
   selector: "app-new-mail",
   templateUrl: "./new-mail.component.html",
   styleUrls: ["./new-mail.component.scss"]
 })
-export class NewMailComponent implements OnInit {
+export class NewMailComponent implements OnInit, AfterViewInit {
 
+  @ViewChild("editor") editor: Editor;
   mailForm: FormGroup;
-
+  addresses: any[] = [];
   country: any;
 
   filteredCountriesSingle: any[];
@@ -40,20 +44,52 @@ export class NewMailComponent implements OnInit {
     "schumer@outlook.com"
   ];
 
-  constructor(public ref: DynamicDialogRef, private messageService: MessageService) { }
+  constructor(public ref: DynamicDialogRef, private messageService: MessageService, public config: DynamicDialogConfig) { }
 
   ngOnInit() {
+    let message: Message;
+    const action = this.config.data.action;
+    /* Action è passata dal components toolbar. Se è diverso da NEW ci aspettiamo il messaggio e il body della mail */
+    if (action !== TOOLBAR_ACTIONS.NEW) {
+      message = this.config.data.message;
+      message.messageAddressList.forEach(obj => {
+        switch (action) {
+          case TOOLBAR_ACTIONS.REPLY:   // REPLY Prendiamo solo l'indirizzo FROM
+          if (obj.addressRole === "FROM") {
+            this.addresses.push(obj.idAddress.originalAddress ? obj.idAddress.originalAddress : obj.idAddress.mailAddress);
+          }
+            break;
+          case TOOLBAR_ACTIONS.REPLY_ALL: // REPLY_ALL Prendiamo tutti gli indirizzi, from, to, cc
+            this.addresses.push(obj.idAddress.originalAddress ? obj.idAddress.originalAddress : obj.idAddress.mailAddress);
+            break;
+        }
+      });
+      console.log("MESSAGE = ", message);
+      console.log("ADDRESS = ", this.addresses);
+    }
+    /* Inizializzazione della form, funziona per tutte le actions */
     this.mailForm = new FormGroup({
-      idPec: new FormControl("1456"),
-      to: new FormControl([]),
+      idPec: new FormControl(message ? message.fk_idPec.id : ""),
+      to: new FormControl(this.addresses),
       cc: new FormControl([]),
       hideRecipients: new FormControl(false),
-      subject: new FormControl(""),
+      subject: new FormControl(message ? "Re: ".concat(message.subject) : ""),
       attachments: new FormControl([]),
-      body: new FormControl(""),
+      body: new FormControl(""),  // Il body viene inizializzato nell'afterViewInit perché l'editor non è ancora istanziato
       from: new FormControl("anubi83@hotmail.com")
     });
+  }
 
+  ngAfterViewInit() {
+    /* Inizializzazione del body per le risposte */
+    if (this.config.data.action !== TOOLBAR_ACTIONS.NEW) {
+      const message: Message = this.config.data.message;
+      const body = this.config.data.body;
+      this.buildBody(message, body);
+      this.mailForm.patchValue({
+        body: "<br/><br/><hr>" + this.editor.quill.root["innerHTML"]
+      });
+    }
   }
 
   filterCountrySingle(event) {
@@ -90,12 +126,12 @@ export class NewMailComponent implements OnInit {
           if (formField === "addresses") {
             const toForm = this.mailForm.get("to");
 
-            if (!toForm.value.find((element) => element.address === tokenInput.value)) {
+            if (!toForm.value.find((element) => element === tokenInput.value)) {
               toForm.value.push(tokenInput.value);
             }
           } else {
             const ccForm = this.mailForm.get("cc");
-            if (!ccForm.value.find((element) => element.address === tokenInput.value)) {
+            if (!ccForm.value.find((element) => element === tokenInput.value)) {
               ccForm.value.push(tokenInput.value);
             }
           }
@@ -135,7 +171,41 @@ export class NewMailComponent implements OnInit {
         fileForm.value.push(file);
       }
     }
-    fileinput.value = null;
+    fileinput.value = null; // Reset dell'input
+  }
+
+  /**
+   * In caso di Replies, costruisce il template parziale della mail con i dati della mail originale
+   * @param message Il messaggio originale
+   * @param body Il body del messaggio estratto dall'eml
+   */
+  buildBody(message: Message, body: string) {
+    console.log("EDITOR = ", this.editor);
+    const da = this.addresses.join(", ");
+    const inviato = message.receiveTime.toLocaleDateString("it-IT", {
+      weekday: "long",
+      year: "numeric",
+      month: "long",
+      day: "numeric",
+      hour: "numeric",
+      minute: "numeric"
+    }).replace(",", " ");
+    this.editor.quill.setContents([
+      // { insert: "\n\n" },
+      { insert: "Da: ", attributes: { bold: true } },
+      { insert: da },
+      { insert: "\n" },
+      { insert: "Inviato: ", attributes: { bold: true } },
+      { insert: inviato },
+      { insert: "\n" },
+      { insert: "Oggetto: ", attributes: { bold: true } },
+      { insert: message.subject },
+      { insert: "\n\n" },
+    ]);
+    this.editor.quill.clipboard.dangerouslyPasteHTML(this.editor.quill.getLength(), body);
+    const divPosition = this.editor.quill.root["outerHTML"].indexOf(">") + 1;
+    this.editor.quill.root["outerHTML"] = this.editor.quill.root["outerHTML"].slice(0, divPosition) +
+      "<br/><br/><hr>" + this.editor.quill.root["innerHTML"];
   }
 
   onSubmit() {
