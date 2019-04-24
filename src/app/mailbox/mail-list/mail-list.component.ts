@@ -307,21 +307,26 @@ export class MailListComponent implements OnInit, AfterViewChecked {
 
   private selectedContextMenuItem(event: any) {
     console.log(event);
-    const messagesToUpdate: BatchOperation[] = [];
-    this.selectedMessages.forEach((message: Message) => {
-      if (message.seen !== event.item.queryParams.seen) {
-        message.seen = event.item.queryParams.seen;
-        messagesToUpdate.push({
-          id: message.id,
-          operation: BatchOperationTypes.UPDATE,
-          entityPath: BaseUrls.get(BaseUrlType.Shpeck) + "/" + ENTITIES_STRUCTURE.shpeck.message.path,
-          entityBody: message,
-          additionalData: null
+    const menuItem: MenuItem =  event.item;
+    switch (menuItem.id) {
+      case "MessageSeen":
+        const messagesToUpdate: BatchOperation[] = [];
+        this.selectedMessages.forEach((message: Message) => {
+          if (message.seen !== menuItem.queryParams.seen) {
+            message.seen = menuItem.queryParams.seen;
+            messagesToUpdate.push({
+              id: message.id,
+              operation: BatchOperationTypes.UPDATE,
+              entityPath: BaseUrls.get(BaseUrlType.Shpeck) + "/" + ENTITIES_STRUCTURE.shpeck.message.path,
+              entityBody: message,
+              additionalData: null
+            });
+          }
         });
-      }
-    });
-    if (messagesToUpdate.length > 0) {
-      this.messageService.batchHttpCall(messagesToUpdate).subscribe();
+        if (messagesToUpdate.length > 0) {
+          this.messageService.batchHttpCall(messagesToUpdate).subscribe();
+        }
+      break;
     }
   }
 
