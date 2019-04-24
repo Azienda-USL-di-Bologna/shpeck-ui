@@ -37,13 +37,17 @@
     [autoLayout]="true"
     [responsive]="true"
     [totalRecords]="totalRecords"
+    [(selection)]="selectedMessages"
+    contextMenuSelectionMode="joint"
     selectionMode="multiple"
     [metaKeySelection]="true"
     [lazyLoadOnInit] = "true"
     [rows]="rowsNmber"
     [rowTrackBy]="trackByFn"
+    [contextMenu]="cm"
     [scrollable]="true" [virtualRowHeight]="virtualRowHeight" [virtualScroll]="true" [virtualScrollDelay]="150"
     (onRowSelect)="handleEvent('onRowSelect', $event)"
+    (onContextMenuSelect)="handleEvent('onContextMenuSelect', $event)"
     >
     <ng-template pTemplate="body" let-rowData let-message let-rowIndex="rowIndex">
         <tr #selRow class="message-row" [pSelectableRow]="rowData" [pSelectableRowIndex]="rowIndex" [pContextMenuRow]="rowData" >
@@ -80,3 +84,6 @@
     </ng-template> -->
 
 </p-table>
+
+<p-contextMenu #cm [model]="cmItems" styleClass = "context-menu"></p-contextMenu>
+<!-- "{'margin': '-128px 0 0 -312px'}" -->

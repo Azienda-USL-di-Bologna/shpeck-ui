@@ -1,13 +1,14 @@
 import { Component, OnInit, Input, Output, EventEmitter, ViewChild, ElementRef, AfterViewInit, AfterContentInit, AfterContentChecked, AfterViewChecked } from "@angular/core";
-import {VirtualScrollerModule} from "primeng/virtualscroller";
 import { buildLazyEventFiltersAndSorts } from "@bds/primeng-plugin";
 import { Message, ENTITIES_STRUCTURE, MessageAddress, AddresRoleType, Folder, FolderType, TagType, MessageTag, InOut, Tag, Pec } from "@bds/ng-internauta-model";
 import { MessageService} from "src/app/services/message.service";
-import { FiltersAndSorts, FilterDefinition, FILTER_TYPES, SortDefinition, SORT_MODES, PagingConf, PagingMode } from "@nfa/next-sdr";
+import { FiltersAndSorts, FilterDefinition, FILTER_TYPES, SortDefinition, SORT_MODES, PagingConf, PagingMode, BatchOperation, BatchOperationTypes } from "@nfa/next-sdr";
 import { TagService } from "src/app/services/tag.service";
 import { Observable } from "rxjs";
 import { DatePipe } from "@angular/common";
 import { Table } from "primeng/table";
+import { BaseUrlType, BaseUrls } from "src/environments/app-constants";
+import { MenuItem } from "primeng/api";
 
 @Component({
   selector: "app-mail-list",
@@ -20,6 +21,7 @@ export class MailListComponent implements OnInit, AfterViewChecked {
   @Input("folder")
   set folder(folder: Folder) {
     this._folder = null;
+    this.selectedMessages = [];
     // trucco per far si che la table vanga tolta e rimessa nel dom (in modo da essere resettata) altrimenti sminchia
     // NB: nell'html la visualizzazione della table è controllata da un *ngIf
     setTimeout(() => {
@@ -28,30 +30,14 @@ export class MailListComponent implements OnInit, AfterViewChecked {
         this.lazyLoad(null);
       }
     }, 0);
-    // if (folder) {
-    //   this.lazyLoad(null);
-      // if (this.dt) {
-      //   this.dt.sort(null);
-      // } else {
-      //   this.lazyLoad(null);
-      // }
-      // this.loadTag(folder).subscribe((tags: Tag[]) => {
-      //   this.tags = tags;
-      //   this.loadData(folder);
-      // });
-    // }
   }
-  @Output() messageClicked = new EventEmitter<Message>();
+
+  @Output() public messageClicked = new EventEmitter<Message>();
+
   @ViewChild("selRow") private selRow: ElementRef;
   @ViewChild("dt") private dt: Table;
 
-  public sortOptions = {};
-  public sortKey = {};
-  public messages: Message[] = [];
-  public fromOrTo: string;
-  public tags = [];
   private selectedProjection: string = ENTITIES_STRUCTURE.shpeck.message.customProjections.CustomMessageWithAddressList;
-
   private pageConf: PagingConf = {
     mode: "LIMIT_OFFSET",
     conf: {
@@ -60,10 +46,82 @@ export class MailListComponent implements OnInit, AfterViewChecked {
     }
   };
 
+  public cmItems: MenuItem[] = [{
+    label: "NOT_SET",
+    id: "MessageSeen",
+    disabled: false,
+    queryParams: {},
+    command: (event) => this.selectedContextMenuItem(event)
+  }, {
+    label: "Rispondi",
+    id: "MessageReply",
+    disabled: true,
+    queryParams: {},
+    command: (event) => this.selectedContextMenuItem(event)
+  }, {
+    label: "Rispondi a tutti",
+    id: "MessageReplyAll",
+    disabled: true,
+    queryParams: {},
+    command: (event) => this.selectedContextMenuItem(event)
+  }, {
+    label: "Inoltra",
+    id: "MessageForward",
+    disabled: true,
+    queryParams: {},
+    command: (event) => this.selectedContextMenuItem(event)
+  }, {
+    label: "Elimina ",
+    id: "MessageDelete",
+    disabled: true,
+    queryParams: {},
+    command: (event) => this.selectedContextMenuItem(event)
+  }, {
+    label: "Assegnata???",
+    id: "MessageAssigned",
+    disabled: true,
+    queryParams: {},
+    command: (event) => this.selectedContextMenuItem(event)
+  }, {
+    label: "Nota",
+    id: "MessageNote",
+    disabled: true,
+    queryParams: {},
+    command: (event) => this.selectedContextMenuItem(event)
+  }, {
+    label: "Scarica",
+    id: "MessageDownload",
+    disabled: true,
+    queryParams: {},
+    command: (event) => this.selectedContextMenuItem(event)
+  }, {
+    label: "Etichette",
+    id: "MessageLabels",
+    disabled: true,
+    queryParams: {},
+    command: (event) => this.selectedContextMenuItem(event)
+  }, {
+    label: "Fascicola",
+    id: "MessageArchive",
+    disabled: true,
+    queryParams: {},
+    command: (event) => this.selectedContextMenuItem(event)
+  }, {
+    label: "Reindirizza",
+    id: "MessageReaddress",
+    disabled: true,
+    queryParams: {},
+    command: (event) => this.selectedContextMenuItem(event)
+  }];
+
+  public messages: Message[] = [];
+  public fromOrTo: string;
+  public tags = [];
   public loading = false;
   public virtualRowHeight: number = 70;
   public totalRecords: number;
   public rowsNmber = 10;
+  public selectedMessages: Message[];
   public cols = [
       {
         field: "subject",
@@ -71,14 +129,7 @@ export class MailListComponent implements OnInit, AfterViewChecked {
         filterMatchMode: FILTER_TYPES.string.containsIgnoreCase,
         width: "85px",
         minWidth: "85px"
-      },
-      // {
-      //   field: "idApplicazione.nome",
-      //   header: "App",
-      //   filterMatchMode: FILTER_TYPES.string.containsIgnoreCase,
-      //   width: "80px",
-      //   minWidth: "80px"
-      // }
+      }
   ];
 
   constructor(private messageService: MessageService, private tagService: TagService, private datepipe: DatePipe) { }
@@ -98,7 +149,6 @@ export class MailListComponent implements OnInit, AfterViewChecked {
   ngAfterViewChecked() {
     // console.log("ngAfterViewchecked", this.selRow.nativeElement.offsetHeight);
   }
-
 
   public getTagDescription(tagName: string) {
     if (this.tags && this.tags[tagName]) {
@@ -213,17 +263,71 @@ export class MailListComponent implements OnInit, AfterViewChecked {
 
   public handleEvent(name: string, event: any) {
     console.log("handleEvent", name, event);
+    // this.selectedMessage = this.messages[event.index];
     switch (name) {
       case "onRowSelect":
-        this.messages[event.index].seen = true;
-        this.saveMessage(event.index);
-        this.messageClicked.emit(event.data);
+        if (this.selectedMessages.length === 1) {
+          const selectedMessage: Message = this.selectedMessages[0];
+          if (!!!selectedMessage.seen) {
+            selectedMessage.seen = true;
+            this.saveMessage(selectedMessage);
+          }
+          this.messageClicked.emit(event.data);
+        }
+      break;
+      case "onContextMenuSelect":
+        this.setContextMenuItem();
       break;
     }
   }
 
-  private saveMessage(index: number) {
-    this.messageService.patchHttpCall(this.messages[index], this.messages[index].id, this.selectedProjection, null)
+  private setContextMenuItem() {
+    this.cmItems.map(element => {
+      // element.disabled = false;
+      switch (element.id) {
+        case "MessageSeen":
+          if (this.selectedMessages.some((message: Message) => !!!message.seen)) {
+            element.label =  "Letto";
+            element.queryParams = {seen: true};
+          } else {
+            element.label = "Da Leggere";
+            element.queryParams = {seen: false};
+          }
+        break;
+        case "MessageReply":
+        case "MessageReplyAll":
+          element.disabled = false;
+          if (this.selectedMessages.length > 1) {
+            element.disabled = true;
+          }
+        break;
+      }
+    });
+  }
+
+  private selectedContextMenuItem(event: any) {
+    console.log(event);
+    const messagesToUpdate: BatchOperation[] = [];
+    this.selectedMessages.forEach((message: Message) => {
+      if (message.seen !== event.item.queryParams.seen) {
+        message.seen = event.item.queryParams.seen;
+        messagesToUpdate.push({
+          id: message.id,
+          operation: BatchOperationTypes.UPDATE,
+          entityPath: BaseUrls.get(BaseUrlType.Shpeck) + "/" + ENTITIES_STRUCTURE.shpeck.message.path,
+          entityBody: message,
+          additionalData: null
+        });
+      }
+    });
+    if (messagesToUpdate.length > 0) {
+      this.messageService.batchHttpCall(messagesToUpdate).subscribe();
+    }
+  }
+
+
+  private saveMessage(selectedMessage: Message) {
+    this.messageService.patchHttpCall(selectedMessage, selectedMessage.id, this.selectedProjection, null)
     .subscribe((message: Message) => {});
   }
 }
