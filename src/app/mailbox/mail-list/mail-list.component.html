@@ -47,6 +47,7 @@
     [contextMenu]="cm"
     [scrollable]="true" [virtualRowHeight]="virtualRowHeight" [virtualScroll]="true" [virtualScrollDelay]="150"
     (onRowSelect)="handleEvent('onRowSelect', $event)" (onRowUnselect)="handleEvent('onRowUnselect', $event)"
+    (selectionChange)="handleEvent('selectionChange', $event)"
     (onContextMenuSelect)="handleEvent('onContextMenuSelect', $event)"
     >
     <ng-template pTemplate="body" let-rowData let-message let-rowIndex="rowIndex">

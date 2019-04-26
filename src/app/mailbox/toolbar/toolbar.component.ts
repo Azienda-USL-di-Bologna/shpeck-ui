@@ -11,17 +11,17 @@ import { TOOLBAR_ACTIONS } from "src/environments/app-constants";
   styleUrls: ["./toolbar.component.scss"]
 })
 export class ToolbarComponent implements OnInit, OnDestroy {
-  messagesSubscription: Subscription;
-  messageSelected: FullMessage;
+  subscriptions: Subscription[] = [];
+  messageEvent: MessageEvent;
   constructor(public dialogService: DialogService, public messageService: MessageService) { }
 
   ngOnInit() {
-    this.messagesSubscription = this.messageService.messageEvent.subscribe((messageEvent: MessageEvent) => {
+    this.subscriptions.push(this.messageService.messageEvent.subscribe((messageEvent: MessageEvent) => {
       if (messageEvent) {
         console.log("DATA = ", messageEvent);
-        this.messageSelected = messageEvent.downloadedMessage;
+        this.messageEvent = messageEvent;
       }
-    });
+    }));
   }
 
   handleEvent(event, action) {
@@ -32,7 +32,7 @@ export class ToolbarComponent implements OnInit, OnDestroy {
         break;
       case TOOLBAR_ACTIONS.REPLY:
       case TOOLBAR_ACTIONS.REPLY_ALL:
-        this.newMail(action, this.messageSelected);
+        this.newMail(action, this.messageEvent);
         break;
       case TOOLBAR_ACTIONS.FORWARD:
         break;
@@ -45,11 +45,11 @@ export class ToolbarComponent implements OnInit, OnDestroy {
     }
   }
 
-  newMail(action, data?) {
+  newMail(action, messageEvent?: MessageEvent) {
     const ref = this.dialogService.open(NewMailComponent, {
-      data: data ? {
-        message: data.message,
-        body: data.body,
+      data: messageEvent ? {
+        message: messageEvent.downloadedMessage.message,
+        body: messageEvent.downloadedMessage.emlData.displayBody,
         action: action
       } : {},
       header: "Nuova Mail",
@@ -65,7 +65,11 @@ export class ToolbarComponent implements OnInit, OnDestroy {
   }
 
   ngOnDestroy() {
-    this.messagesSubscription.unsubscribe();
+    if (this.subscriptions && this.subscriptions.length > 0) {
+      this.subscriptions.forEach((subscription: Subscription) => {
+        subscription.unsubscribe();
+      });
+    }
   }
 
 }

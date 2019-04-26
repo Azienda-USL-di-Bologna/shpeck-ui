@@ -264,27 +264,21 @@ export class MailListComponent implements OnInit, AfterViewChecked {
   public handleEvent(name: string, event: any) {
     console.log("handleEvent", name, event);
     switch (name) {
-      case "onRowSelect":
+      // non c'è nella documentazione, ma pare che scatti sempre una sola volta anche nelle selezioni multiple.
+      // le righe selezionati sono in this.selectedMessages e anche in event
+      case "selectionChange":
         // selezione di un singolo messaggio (o come click singolo oppure come click del primo messaggio con il ctrl)
-        if (!!!event.originalEvent.shiftKey && this.selectedMessages.length === 1) {
+        if (this.selectedMessages.length === 1) {
           const selectedMessage: Message = this.selectedMessages[0];
           this.setSeen(selectedMessage);
-          this.messageService.manageMessageEvent(selectedMessage);
+          this.messageService.manageMessageEvent(selectedMessage, this.selectedMessages);
           // this.messageClicked.emit(selectedMessage);
-        }
-
-        // 
-        if (!event.index || this.selectedMessages.length > 1) {
-          // this.messageService.messagesSelected.next(null);
-        }
-      break;
-      case "onRowUnselect":
-        if (!event.originalEvent.shiftKey && !event.index && this.selectedMessages.length === 1) {
-          // this.messageClicked.emit(this.selectedMessages[0]);
+        } else {
+          this.messageService.manageMessageEvent(null, this.selectedMessages);
         }
       break;
       case "onContextMenuSelect":
-        this.setContextMenuItem();
+        this.setContextMenuItemLook();
       break;
     }
   }
@@ -296,7 +290,7 @@ export class MailListComponent implements OnInit, AfterViewChecked {
     }
   }
 
-  private setContextMenuItem() {
+  private setContextMenuItemLook() {
     this.cmItems.map(element => {
       // element.disabled = false;
       switch (element.id) {
@@ -341,6 +335,9 @@ export class MailListComponent implements OnInit, AfterViewChecked {
         if (messagesToUpdate.length > 0) {
           this.messageService.batchHttpCall(messagesToUpdate).subscribe();
         }
+      break;
+      case "MessageDelete":
+        // this.messageService.deleteMessages();
       break;
     }
   }

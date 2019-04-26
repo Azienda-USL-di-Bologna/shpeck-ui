@@ -1,8 +1,8 @@
 import { Injectable } from "@angular/core";
-import { NextSDREntityProvider } from "@nfa/next-sdr";
+import { NextSDREntityProvider, BatchOperation, BatchOperationTypes } from "@nfa/next-sdr";
 import { HttpClient } from "@angular/common/http";
 import { DatePipe } from "@angular/common";
-import { getInternautaUrl, BaseUrlType, CUSTOM_SERVER_METHODS } from "src/environments/app-constants";
+import { getInternautaUrl, BaseUrlType, CUSTOM_SERVER_METHODS, BaseUrls } from "src/environments/app-constants";
 import { ENTITIES_STRUCTURE, Message } from "@bds/ng-internauta-model";
 import { Observable, Subject, BehaviorSubject, throwError } from "rxjs";
 import { EmlAttachment } from "../classes/eml-attachment";
@@ -23,9 +23,12 @@ export class MessageService extends NextSDREntityProvider {
   }
 
   /**
-   * Estrae i metadati dell'Eml di a cui si riferisce il message.
-   * Ritorna un Observable il cui risultato sarà di tipo EmlData.
-   * @param message Il Message di cui si vogliono i dati.
+   * Notifica un evento alla sottoscrizione di MessageEvent.
+   * Almeno uno dei 2 parametri è obbligatorio
+   * @param messageToDownload indica che deve essere scaricato il messaggio.
+   *  Se passato scarica l'eml relativo e notifica l'evento inserendolo in downloadedMessage,
+   *  in caso di errore nel download l'evento viene comunque notificato, ma senza downloadedMessage
+   * @param selectedMessages indica i messaggi seelzionati che si volgiono notificare con il MessageEvent. Se passato viene notificato in selectedMessages
    */
   public manageMessageEvent(messageToDownload?: Message, selectedMessages?: Message[]) {
     if (!messageToDownload && !selectedMessages) {
@@ -56,8 +59,7 @@ export class MessageService extends NextSDREntityProvider {
   }
 
   /**
-   * Estrae i metadati dell'Eml a cui si riferisce il message.
-   * Ritorna un Observable il cui risultato sarà di tipo EmlData.
+   * Ritorna un Observable di tipo EmlData relativo al download dell'eml del messaggo passato.
    * @param messageId l'id del messaggio di cui si vogliono i dati.
    */
   public downloadEml(messageId: number): Observable<EmlData> {
@@ -92,13 +94,46 @@ export class MessageService extends NextSDREntityProvider {
     const apiUrl = getInternautaUrl(BaseUrlType.Shpeck) + "/" + CUSTOM_SERVER_METHODS.saveDraftMessage;
     return this.http.post(apiUrl, form);
   }
+
+  /**
+   * elimina i messaggi passati tramite una richiesta batch
+   * @param messages i messaggi da eliminare
+   */
+  public deleteMessages(messages: Message[]): Observable<any> {
+    const messagesToDelete: BatchOperation[] = [];
+    messages.forEach((message: Message) => {
+      if (message.id) {
+        messagesToDelete.push({
+          id: message.id,
+          operation: BatchOperationTypes.DELETE,
+          entityPath: BaseUrls.get(BaseUrlType.Shpeck) + "/" + ENTITIES_STRUCTURE.shpeck.message.path,
+          entityBody: null,
+          additionalData: null
+        });
+      }
+    });
+    if (messagesToDelete.length > 0) {
+      return super.batchHttpCall(messagesToDelete);
+    } else {
+      throw new Error("nessun messaggio passato");
+    }
+  }
+
 }
 
+/**
+ * Descrive un messaggio comprensivo sia dei metadati (Message) che del suo eml (EmlData)
+ */
 export interface FullMessage {
   message: Message;
   emlData: EmlData;
 }
 
+/**
+ * Descrive l'evento che viene notificato dalla funzione manageMessageEvent
+ * @param downloadedMessage contiene l'eventuale messaggio completo scaricato
+ * @param selectedMessages contiene gli eventuali messaggi selezionati
+ */
 export interface MessageEvent {
   downloadedMessage?: FullMessage;
   selectedMessages?: Message[];
