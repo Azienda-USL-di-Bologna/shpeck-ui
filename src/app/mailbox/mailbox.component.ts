@@ -14,7 +14,7 @@ export class MailboxComponent implements OnInit, AfterViewInit, AfterViewChecked
 
   public folderSelected: Folder;
   // @Output() message = new EventEmitter<any>();
-  public messageDetailed: Message;
+  public message: Message;
   // @ViewChild("leftSide") private leftSide: ElementRef;
   @ViewChild("mailFolder") private mailFolder: ElementRef;
   @ViewChild("rightSide") private rightSide: ElementRef;
@@ -56,7 +56,7 @@ export class MailboxComponent implements OnInit, AfterViewInit, AfterViewChecked
    * Rivevo il messaggio cliccato dalla mail-list e lo passo alla mail-detail per essere visualizzato
    */
   public messageClicked(messageClicked) {
-    this.messageDetailed = messageClicked;
+    this.message = messageClicked;
   }
 
   public onFolderSelected(folder: Folder) {

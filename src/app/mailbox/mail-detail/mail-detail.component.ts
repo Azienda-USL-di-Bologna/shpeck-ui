@@ -1,10 +1,11 @@
-import { Component, Input, ViewChild, ElementRef } from "@angular/core";
-import { MessageService } from "src/app/services/message.service";
+import { Component, Input, ViewChild, ElementRef, OnInit } from "@angular/core";
+import { MessageService, MessageEvent, FullMessage } from "src/app/services/message.service";
 import { Message } from "@bds/ng-internauta-model";
 import { ContentTypeList } from "src/app/utils/styles-constants";
 import { EmlData } from "src/app/classes/eml-data";
 import { EmlAttachment } from "src/app/classes/eml-attachment";
 import { HttpClient } from "@angular/common/http";
+import { Subscription } from "rxjs";
 
 
 @Component({
@@ -12,16 +13,16 @@ import { HttpClient } from "@angular/common/http";
   templateUrl: "./mail-detail.component.html",
   styleUrls: ["./mail-detail.component.scss"]
 })
-export class MailDetailComponent {
+export class MailDetailComponent implements OnInit {
 
   private contentTypesEnabledForPreview = ["text/html", "application/pdf", "text/plain", "image/jpeg", "image/png"];
   private message: Message = new Message();
+  private subscription: Subscription[] = [];
 
-  @Input("messageDetailed")
-  set messageDetailed(messageDetailed: Message) {
-    if (messageDetailed) {
-      this.message = messageDetailed;
-      this.getEmlData(this.message);
+  @Input("message")
+  set messageDetailed(message: Message) {
+    if (message) {
+      this.messageService.manageMessageEvent(message);
     }
   }
 
@@ -31,35 +32,47 @@ export class MailDetailComponent {
 
   constructor(private messageService: MessageService, private http: HttpClient) { }
 
+  public ngOnInit() {
+    this.subscription.push(this.messageService.messageEvent.subscribe(
+      (messageEvent: MessageEvent) => {
+        if (messageEvent) {
+          if (messageEvent.downloadedMessage) {
+            this.message = messageEvent.downloadedMessage.message;
+          } else {
+            this.message = null;
+          }
+          this.extractMessageData(messageEvent.downloadedMessage);
+        }
+      }
+    ));
+  }
+
   /**
    * Chiedo al backend di darmi tutte le info contenute nell'eml che si riferisce al message.
    * @param message
    */
-  private getEmlData(message: Message) {
-    this.messageService.extractMessageData(this.message).subscribe(
-      data => {
-        if (data.attachments && data.attachments.length > 0) {
-          data.attachments.forEach(a => {
-            a.contentType = a.mimeType.substr(0, a.mimeType.indexOf(";"));
-            a.simpleType = a.contentType.substr(0, a.contentType.indexOf("/"));
-            if (a.fileName.length > 42) {
-              a.displayName = a.fileName.substr(0, 34) + ".." + a.fileName.substr(a.fileName.length - 6, a.fileName.length) ;
-            } else {
-              a.displayName = a.fileName;
-            }
-          });
-        }
-        data.displayBody = data.htmlTextImgEmbedded != null ? data.htmlTextImgEmbedded : (
-          data.htmlText != null ? data.htmlText : data.plainText.replace(/\n/g, "<br/>")
-        );
-        this.eml = data;
-        this.messageService.messagesSelected.next({message: this.message, body: data.displayBody });
-        this.setLook();
-      },
-      err => {
-        this.eml = null;
+  private extractMessageData(fullMessage: FullMessage) {
+    if (fullMessage && fullMessage.emlData) {
+      const data: EmlData = fullMessage.emlData;
+      if (data.attachments && data.attachments.length > 0) {
+        data.attachments.forEach(a => {
+          a.contentType = a.mimeType.substr(0, a.mimeType.indexOf(";"));
+          a.simpleType = a.contentType.substr(0, a.contentType.indexOf("/"));
+          if (a.fileName.length > 42) {
+            a.displayName = a.fileName.substr(0, 34) + ".." + a.fileName.substr(a.fileName.length - 6, a.fileName.length) ;
+          } else {
+            a.displayName = a.fileName;
+          }
+        });
       }
-    );
+      data.displayBody = data.htmlTextImgEmbedded != null ? data.htmlTextImgEmbedded : (
+        data.htmlText != null ? data.htmlText : data.plainText.replace(/\n/g, "<br/>")
+      );
+      this.eml = data;
+    } else {
+      this.eml = null;
+    }
+    this.setLook();
   }
 
   /**
@@ -67,7 +80,7 @@ export class MailDetailComponent {
    * del dettaglio mail.
    */
   private setLook() {
-    if (this.eml.attachments == null) {
+    if (this.eml && !this.eml.attachments) {
       this.accordionAttachmentsSelected = false;
     }
   }

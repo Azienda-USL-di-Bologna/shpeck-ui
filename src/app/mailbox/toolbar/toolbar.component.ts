@@ -1,9 +1,8 @@
 import { Component, OnInit, OnDestroy } from "@angular/core";
 import { DialogService } from "primeng/api";
 import { NewMailComponent } from "../new-mail/new-mail.component";
-import { MessageService, MessageTemplate } from "src/app/services/message.service";
+import { MessageService, FullMessage, MessageEvent } from "src/app/services/message.service";
 import { Subscription } from "rxjs";
-import { Message } from "@bds/ng-internauta-model";
 import { TOOLBAR_ACTIONS } from "src/environments/app-constants";
 
 @Component({
@@ -13,13 +12,15 @@ import { TOOLBAR_ACTIONS } from "src/environments/app-constants";
 })
 export class ToolbarComponent implements OnInit, OnDestroy {
   messagesSubscription: Subscription;
-  messageSelected: MessageTemplate;
+  messageSelected: FullMessage;
   constructor(public dialogService: DialogService, public messageService: MessageService) { }
 
   ngOnInit() {
-    this.messagesSubscription = this.messageService.messagesSelected.subscribe(message => {
-      console.log("DATA = ", message);
-      this.messageSelected = message;
+    this.messagesSubscription = this.messageService.messageEvent.subscribe((messageEvent: MessageEvent) => {
+      if (messageEvent) {
+        console.log("DATA = ", messageEvent);
+        this.messageSelected = messageEvent.downloadedMessage;
+      }
     });
   }
 

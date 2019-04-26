@@ -4,17 +4,22 @@ import { HttpClient } from "@angular/common/http";
 import { DatePipe } from "@angular/common";
 import { getInternautaUrl, BaseUrlType, CUSTOM_SERVER_METHODS } from "src/environments/app-constants";
 import { ENTITIES_STRUCTURE, Message } from "@bds/ng-internauta-model";
-import { Observable, Subject } from "rxjs";
+import { Observable, Subject, BehaviorSubject, throwError } from "rxjs";
 import { EmlAttachment } from "../classes/eml-attachment";
+import { EmlData } from "../classes/eml-data";
 
 @Injectable({
   providedIn: "root"
 })
 export class MessageService extends NextSDREntityProvider {
-  messagesSelected = new Subject<MessageTemplate>();
+  private _messageEvent = new BehaviorSubject<MessageEvent>(null);
 
   constructor(protected http: HttpClient, protected datepipe: DatePipe) {
     super(http, datepipe, ENTITIES_STRUCTURE.shpeck.message, getInternautaUrl(BaseUrlType.Shpeck));
+  }
+
+  public get messageEvent(): Observable<MessageEvent> {
+    return this._messageEvent.asObservable();
   }
 
   /**
@@ -22,9 +27,42 @@ export class MessageService extends NextSDREntityProvider {
    * Ritorna un Observable il cui risultato sarà di tipo EmlData.
    * @param message Il Message di cui si vogliono i dati.
    */
-  public extractMessageData(message: Message): Observable<any> {
-    const url = getInternautaUrl(BaseUrlType.Shpeck) + "/" + CUSTOM_SERVER_METHODS.extractMessageData + "/" + message.id;
-    return this.http.get(url);
+  public manageMessageEvent(messageToDownload?: Message, selectedMessages?: Message[]) {
+    if (!messageToDownload && !selectedMessages) {
+      throw new Error("missing parameters");
+    }
+    if (messageToDownload && messageToDownload.id) {
+      this.downloadEml(messageToDownload.id).subscribe(
+        (data: EmlData) => {
+          this._messageEvent.next({
+            downloadedMessage: {
+              message: messageToDownload,
+              emlData: data
+            },
+            selectedMessages
+          });
+        },
+        (err) => {
+          this._messageEvent.next({
+            selectedMessages
+          });
+        }
+      );
+    } else {
+      this._messageEvent.next({
+        selectedMessages
+      });
+    }
+  }
+
+  /**
+   * Estrae i metadati dell'Eml di a cui si riferisce il message.
+   * Ritorna un Observable il cui risultato sarà di tipo EmlData.
+   * @param messageId l'id del messaggio di cui si vogliono i dati.
+   */
+  public downloadEml(messageId: number): Observable<EmlData> {
+    const url = getInternautaUrl(BaseUrlType.Shpeck) + "/" + CUSTOM_SERVER_METHODS.extractMessageData + "/" + messageId;
+    return this.http.get(url) as Observable<EmlData>;
   }
 
   /**
@@ -56,7 +94,12 @@ export class MessageService extends NextSDREntityProvider {
   }
 }
 
-export interface MessageTemplate {
+export interface FullMessage {
   message: Message;
-  body: string;
+  emlData: EmlData;
+}
+
+export interface MessageEvent {
+  downloadedMessage?: FullMessage;
+  selectedMessages?: Message[];
 }

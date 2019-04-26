@@ -263,21 +263,36 @@ export class MailListComponent implements OnInit, AfterViewChecked {
 
   public handleEvent(name: string, event: any) {
     console.log("handleEvent", name, event);
-    // this.selectedMessage = this.messages[event.index];
     switch (name) {
       case "onRowSelect":
-        if (this.selectedMessages.length === 1) {
+        // selezione di un singolo messaggio (o come click singolo oppure come click del primo messaggio con il ctrl)
+        if (!!!event.originalEvent.shiftKey && this.selectedMessages.length === 1) {
           const selectedMessage: Message = this.selectedMessages[0];
-          if (!!!selectedMessage.seen) {
-            selectedMessage.seen = true;
-            this.saveMessage(selectedMessage);
-          }
-          this.messageClicked.emit(event.data);
+          this.setSeen(selectedMessage);
+          this.messageService.manageMessageEvent(selectedMessage);
+          // this.messageClicked.emit(selectedMessage);
+        }
+
+        // 
+        if (!event.index || this.selectedMessages.length > 1) {
+          // this.messageService.messagesSelected.next(null);
+        }
+      break;
+      case "onRowUnselect":
+        if (!event.originalEvent.shiftKey && !event.index && this.selectedMessages.length === 1) {
+          // this.messageClicked.emit(this.selectedMessages[0]);
         }
       break;
       case "onContextMenuSelect":
         this.setContextMenuItem();
       break;
+    }
+  }
+
+  private setSeen(selectedMessage: Message) {
+    if (!!!selectedMessage.seen) {
+      selectedMessage.seen = true;
+      this.saveMessage(selectedMessage);
     }
   }
 

@@ -10,13 +10,13 @@
       <button
         pButton type="button" label="Rispondi"
         icon="fa fa-reply" class="button-styles ui-button-raised ui-button-secondary custom-border"
-        (click)="handleEvent($event, 'reply')">
+        (click)="handleEvent($event, 'reply')" [disabled]="!messageSelected ? true : false">
       </button>
       <!-- Rispondi a tutti -->
       <button
         pButton type="button" label="Rispondi a tutti"
         icon="fa fa-reply-all" class="button-styles ui-button-raised ui-button-secondary custom-border"
-        (click)="handleEvent($event, 'reply_all')">
+        (click)="handleEvent($event, 'reply_all')" [disabled]="!messageSelected ? true : false">
       </button>
       <!-- Inoltra -->
       <button

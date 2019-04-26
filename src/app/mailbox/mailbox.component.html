@@ -31,7 +31,7 @@
       <div [ngClass]="hideDetail ? 'hidden' : 'mail-detail'" #mailDetail>
         <div [ngClass]="{'overlap-div' : sliding}"></div>
         <app-mail-detail 
-          [messageDetailed]="messageDetailed">
+          [message]="message">
         </app-mail-detail>
       </div>
     </div>
