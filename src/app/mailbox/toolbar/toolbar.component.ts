@@ -2,8 +2,10 @@ import { Component, OnInit, OnDestroy } from "@angular/core";
 import { DialogService } from "primeng/api";
 import { NewMailComponent } from "../new-mail/new-mail.component";
 import { MessageService, FullMessage, MessageEvent } from "src/app/services/message.service";
-import { Subscription } from "rxjs";
+import { Subscription, Observable } from "rxjs";
 import { TOOLBAR_ACTIONS } from "src/environments/app-constants";
+import { Pec } from "@bds/ng-internauta-model";
+import { PecService } from 'src/app/services/pec.service';
 
 @Component({
   selector: "app-toolbar",
@@ -11,15 +13,24 @@ import { TOOLBAR_ACTIONS } from "src/environments/app-constants";
   styleUrls: ["./toolbar.component.scss"]
 })
 export class ToolbarComponent implements OnInit, OnDestroy {
-  subscriptions: Subscription[] = [];
-  messageEvent: MessageEvent;
-  constructor(public dialogService: DialogService, public messageService: MessageService) { }
+  private subscriptions: Subscription[] = [];
+  private messageEvent: MessageEvent;
+  private myPecs: Pec[];
+  constructor(public dialogService: DialogService,
+    public pecService: PecService,
+    public messageService: MessageService) { }
 
   ngOnInit() {
     this.subscriptions.push(this.messageService.messageEvent.subscribe((messageEvent: MessageEvent) => {
       if (messageEvent) {
         console.log("DATA = ", messageEvent);
         this.messageEvent = messageEvent;
+      }
+    }));
+    this.subscriptions.push(this.pecService.myPecs.subscribe((pecs: Pec[]) => {
+      if (pecs) {
+        console.log("pecs = ", pecs);
+        this.myPecs = pecs;
       }
     }));
   }
@@ -37,6 +48,7 @@ export class ToolbarComponent implements OnInit, OnDestroy {
       case TOOLBAR_ACTIONS.FORWARD:
         break;
       case TOOLBAR_ACTIONS.DELETE:
+          console.log("delete: ", this.myPecs);
         break;
       case TOOLBAR_ACTIONS.MOVE:
         break;

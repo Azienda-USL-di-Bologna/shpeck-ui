@@ -30,7 +30,8 @@
       <!-- Elimina -->
       <button
         pButton type="button" label="Elimina"
-        icon="fa fa-trash" class="button-styles ui-button-raised ui-button-secondary custom-border">
+        icon="fa fa-trash" class="button-styles ui-button-raised ui-button-secondary custom-border"
+        (click)="handleEvent($event, 'delete')">
       </button>
       <!-- Sposta -->
       <button

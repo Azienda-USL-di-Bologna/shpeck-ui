@@ -2,6 +2,7 @@ import { Component, OnInit, ViewEncapsulation, Output, EventEmitter } from "@ang
 import { FiltersAndSorts, SortDefinition, SORT_MODES, AdditionalDataDefinition } from "@nfa/next-sdr";
 import { Pec, ENTITIES_STRUCTURE } from "@bds/ng-internauta-model";
 import { PecService } from "src/app/services/pec.service";
+import { BehaviorSubject } from 'rxjs';
 
 @Component({
   selector: "app-mail-folders",
@@ -13,18 +14,17 @@ export class MailFoldersComponent implements OnInit {
 // export class MailFoldersComponent implements OnInit {
 
   public mailfolders  = [];
-
   @Output("folderEmitter") private folderEmitter: EventEmitter<number> = new EventEmitter();
 
   constructor(private pecService: PecService) { }
 
   ngOnInit() {
-    this.pecService.getData(ENTITIES_STRUCTURE.baborg.pec.standardProjections.PecWithFolderList, this.buildFolderInitialFilterAndSort(), null, null).subscribe(
-      data => {
-        if (data && data.results) {
-          for (const pec of data.results) {
+    this.pecService.getMyPecs(ENTITIES_STRUCTURE.baborg.pec.standardProjections.PecWithFolderList, this.buildFolderInitialFilterAndSort(), null, null).subscribe(
+      (myPecs: Pec[]) => {
+        if (myPecs) {
+          for (const pec of myPecs) {
             if (pec) {
-              this.mailfolders.push(this.buildNode(pec as Pec));
+              this.mailfolders.push(this.buildNode(pec));
             }
           }
         }
