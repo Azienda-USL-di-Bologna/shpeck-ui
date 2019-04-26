@@ -25,11 +25,11 @@
 }
 */
 /* FIREFOX */
-::ng-deep * {
+* {
   scrollbar-color: #88888857 #f1f1f1;
   scrollbar-width: thin;
 }
 
-::ng-deep *:hover {
+*:hover {
   scrollbar-color: #8888889c #f1f1f1;
 }

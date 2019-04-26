@@ -1,11 +1,12 @@
-import { Component, Input, ViewChild, ElementRef, OnInit } from "@angular/core";
+import { Component, Input, ViewChild, ElementRef, OnInit, OnDestroy } from "@angular/core";
 import { MessageService, MessageEvent, FullMessage } from "src/app/services/message.service";
-import { Message } from "@bds/ng-internauta-model";
+import { Message, InOut, ENTITIES_STRUCTURE, MessageType, RecepitType } from "@bds/ng-internauta-model";
 import { ContentTypeList } from "src/app/utils/styles-constants";
 import { EmlData } from "src/app/classes/eml-data";
 import { EmlAttachment } from "src/app/classes/eml-attachment";
 import { HttpClient } from "@angular/common/http";
 import { Subscription } from "rxjs";
+import { FiltersAndSorts, FilterDefinition, FILTER_TYPES } from "@nfa/next-sdr";
 
 
 @Component({
@@ -13,10 +14,9 @@ import { Subscription } from "rxjs";
   templateUrl: "./mail-detail.component.html",
   styleUrls: ["./mail-detail.component.scss"]
 })
-export class MailDetailComponent implements OnInit {
+export class MailDetailComponent implements OnInit, OnDestroy {
 
   private contentTypesEnabledForPreview = ["text/html", "application/pdf", "text/plain", "image/jpeg", "image/png"];
-  private message: Message = new Message();
   private subscription: Subscription[] = [];
 
   @Input("message")
@@ -26,53 +26,82 @@ export class MailDetailComponent implements OnInit {
     }
   }
 
-  public eml: EmlData;
+  public fullMessage: FullMessage;
+  public recepits: Message[];
   public accordionAttachmentsSelected: boolean = false;
+  public recepitsVisible: boolean = false;
+  get inOut() { return InOut; }
+
   @ViewChild("emliframe") private emliframe: ElementRef;
 
   constructor(private messageService: MessageService, private http: HttpClient) { }
 
   public ngOnInit() {
+    /* Mi sottoscrivo al messageEvent */
     this.subscription.push(this.messageService.messageEvent.subscribe(
       (messageEvent: MessageEvent) => {
-        if (messageEvent) {
-          if (messageEvent.downloadedMessage) {
-            this.message = messageEvent.downloadedMessage.message;
-          } else {
-            this.message = null;
-          }
-          this.extractMessageData(messageEvent.downloadedMessage);
+        if (messageEvent && messageEvent.downloadedMessage) {
+          this.fullMessage = messageEvent.downloadedMessage;
+          this.manageDownloadedMessage();
+        } else if (!messageEvent || !messageEvent.selectedMessages || !(messageEvent.selectedMessages.length > 1)) {
+          this.fullMessage = null;
         }
       }
     ));
   }
 
+  public ngOnDestroy(): void {
+    /* Mi desottoscrivo da tutto */
+    this.subscription.forEach(s => s.unsubscribe());
+  }
+
   /**
-   * Chiedo al backend di darmi tutte le info contenute nell'eml che si riferisce al message.
+   * Gestisco la visualizzazione del fullMessage.
+   */
+  private manageDownloadedMessage() {
+    const data: EmlData = this.fullMessage.emlData;
+    /* Setto il conentType degli allegati e setto il nome a max 42 caratteri */
+    if (data.attachments && data.attachments.length > 0) {
+      data.attachments.forEach(a => {
+        a.contentType = a.mimeType.substr(0, a.mimeType.indexOf(";"));
+        a.simpleType = a.contentType.substr(0, a.contentType.indexOf("/"));
+        if (a.fileName.length > 42) {
+          a.displayName = a.fileName.substr(0, 34) + ".." + a.fileName.substr(a.fileName.length - 6, a.fileName.length) ;
+        } else {
+          a.displayName = a.fileName;
+        }
+      });
+    }
+    /* Sostituisco le newline con dei <br/> */
+    data.displayBody = data.htmlTextImgEmbedded != null ? data.htmlTextImgEmbedded : (
+      data.htmlText != null ? data.htmlText : data.plainText.replace(/\n/g, "<br/>")
+    );
+
+    /* Per la posta inviata carico le ricevute */
+    /* TODO: La chiamata deve essere senza paginazione senza limite */ /* <============================================================== */
+    if (this.fullMessage.message.inOut === InOut.OUT) {
+      this.messageService.getData(
+        ENTITIES_STRUCTURE.shpeck.message.customProjections.CustomRecepitWithAddressList,
+        this.buildFilterAndSortRecepits(), null, null).subscribe(
+        res => {
+          this.recepits = res.results;
+          this.fullMessage.emlData.deliveryDate = this.recepits.find(r => r.idRecepit.recepitType === RecepitType.ACCETTAZIONE).receiveTime;
+        }
+      );
+    }
+
+    this.setLook();
+  }
+
+  /**
+   * Filtro per cercare le ricevute del Message
    * @param message
    */
-  private extractMessageData(fullMessage: FullMessage) {
-    if (fullMessage && fullMessage.emlData) {
-      const data: EmlData = fullMessage.emlData;
-      if (data.attachments && data.attachments.length > 0) {
-        data.attachments.forEach(a => {
-          a.contentType = a.mimeType.substr(0, a.mimeType.indexOf(";"));
-          a.simpleType = a.contentType.substr(0, a.contentType.indexOf("/"));
-          if (a.fileName.length > 42) {
-            a.displayName = a.fileName.substr(0, 34) + ".." + a.fileName.substr(a.fileName.length - 6, a.fileName.length) ;
-          } else {
-            a.displayName = a.fileName;
-          }
-        });
-      }
-      data.displayBody = data.htmlTextImgEmbedded != null ? data.htmlTextImgEmbedded : (
-        data.htmlText != null ? data.htmlText : data.plainText.replace(/\n/g, "<br/>")
-      );
-      this.eml = data;
-    } else {
-      this.eml = null;
-    }
-    this.setLook();
+  private buildFilterAndSortRecepits(): FiltersAndSorts {
+    const filtersAndSorts: FiltersAndSorts = new FiltersAndSorts();
+    filtersAndSorts.addFilter(new FilterDefinition("idRelated", FILTER_TYPES.not_string.equals, this.fullMessage.message.id));
+    // filtersAndSorts.addFilter(new FilterDefinition("messageType", FILTER_TYPES.string.equals, MessageType.RECEPIT));
+    return filtersAndSorts;
   }
 
   /**
@@ -80,7 +109,7 @@ export class MailDetailComponent implements OnInit {
    * del dettaglio mail.
    */
   private setLook() {
-    if (this.eml && !this.eml.attachments) {
+    if (this.fullMessage.emlData && !this.fullMessage.emlData.attachments) {
       this.accordionAttachmentsSelected = false;
     }
   }
@@ -118,7 +147,7 @@ export class MailDetailComponent implements OnInit {
    * @param preview indica se voglio l'anteprima dell'allegato qualora sia possibile.
    */
   public getEmlAttachment(attachment: EmlAttachment, preview: boolean = false) {
-    this.messageService.getEmlAttachment(this.message, attachment).subscribe(
+    this.messageService.getEmlAttachment(this.fullMessage.message, attachment).subscribe(
       response =>
         this.downLoadFile(response, attachment.contentType, attachment.fileName, preview));
   }
@@ -128,7 +157,7 @@ export class MailDetailComponent implements OnInit {
    * Ne faccio partire poi il download.
    */
   public getAllEmlAttachment() {
-    this.messageService.getAllEmlAttachment(this.message).subscribe(
+    this.messageService.getAllEmlAttachment(this.fullMessage.message).subscribe(
       response =>
         this.downLoadFile(response, "application/zip", "allegati.zip"));
   }
@@ -220,5 +249,9 @@ export class MailDetailComponent implements OnInit {
       }
     }
     return "fa-file-o"; // Classe FA di default
+  }
+
+  public showRecepits() {
+      this.recepitsVisible = true;
   }
 }

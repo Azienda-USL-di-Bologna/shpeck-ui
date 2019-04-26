@@ -15,6 +15,20 @@
   /* font-size: 1.5em; */
   margin: 7px; 
 }
+.recepit-detail {
+  display: flex;
+}
+.info-recepits-button {
+  display: inline;
+  background-color: white;
+  color: black; 
+  border: #848484;
+}
+.info-recepits-button:hover {
+  background-color: #848484 !important;
+  color: white !important; 
+  border: white !important;
+}
 
 /* ============ ACCORDION ============ */
 ::ng-deep body .multi-accordion-eml-detail .ui-accordion .ui-accordion-header a {

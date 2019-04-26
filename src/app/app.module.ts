@@ -25,6 +25,7 @@ import { NewMailComponent } from "./mailbox/new-mail/new-mail.component";
 import { TagService } from "./services/tag.service";
 import { PecService } from "./services/pec.service";
 import { FolderService } from "./services/folder.service";
+import { RecepitsComponent } from "./mailbox/recepits/recepits.component";
 
 @NgModule({
   declarations: [
@@ -36,7 +37,8 @@ import { FolderService } from "./services/folder.service";
     SanitizeHtmlPipe,
     ToolbarComponent,
     SettingsComponent,
-    NewMailComponent
+    NewMailComponent,
+    RecepitsComponent
   ],
   imports: [
     NtJwtLoginModule.forRoot(loginModuleConfig),

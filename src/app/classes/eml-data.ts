@@ -12,4 +12,5 @@ export class EmlData {
   public messageId: string;
   public sendDate: Date;
   public attachments: EmlAttachment[];
+  public deliveryDate: Date;
 }

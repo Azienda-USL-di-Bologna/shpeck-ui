@@ -56,7 +56,7 @@ export class MessageService extends NextSDREntityProvider {
   }
 
   /**
-   * Estrae i metadati dell'Eml di a cui si riferisce il message.
+   * Estrae i metadati dell'Eml a cui si riferisce il message.
    * Ritorna un Observable il cui risultato sarà di tipo EmlData.
    * @param messageId l'id del messaggio di cui si vogliono i dati.
    */
