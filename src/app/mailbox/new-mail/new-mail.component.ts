@@ -15,7 +15,9 @@ export class NewMailComponent implements OnInit, AfterViewInit {
 
   @ViewChild("editor") editor: Editor;
   mailForm: FormGroup;
-  addresses: any[] = [];
+  fromAddress: string = "";
+  toAddresses: any[] = [];
+  ccAddresses: any[] = [];
   country: any;
 
   filteredCountriesSingle: any[];
@@ -53,30 +55,34 @@ export class NewMailComponent implements OnInit, AfterViewInit {
     if (action !== TOOLBAR_ACTIONS.NEW) {
       message = this.config.data.message;
       message.messageAddressList.forEach(obj => {
+        if (obj.addressRole === "FROM") {
+          this.fromAddress = obj.idAddress.originalAddress ? obj.idAddress.originalAddress : obj.idAddress.mailAddress;
+          this.toAddresses.push(this.fromAddress);
+        }
         switch (action) {
-          case TOOLBAR_ACTIONS.REPLY:   // REPLY Prendiamo solo l'indirizzo FROM
-          if (obj.addressRole === "FROM") {
-            this.addresses.push(obj.idAddress.originalAddress ? obj.idAddress.originalAddress : obj.idAddress.mailAddress);
-          }
+          case TOOLBAR_ACTIONS.REPLY:   // REPLY
             break;
-          case TOOLBAR_ACTIONS.REPLY_ALL: // REPLY_ALL Prendiamo tutti gli indirizzi, from, to, cc
-            this.addresses.push(obj.idAddress.originalAddress ? obj.idAddress.originalAddress : obj.idAddress.mailAddress);
+          case TOOLBAR_ACTIONS.REPLY_ALL: // REPLY_ALL Prendiamo tutti gli indirizzi, to, cc
+            if (obj.addressRole === "TO" && obj.idAddress.id !== message.fk_idPec.id) {
+              this.toAddresses.push( obj.idAddress.originalAddress ? obj.idAddress.originalAddress : obj.idAddress.mailAddress);
+            }
+            if (obj.addressRole === "CC") {
+              this.ccAddresses.push(obj.idAddress.originalAddress ? obj.idAddress.originalAddress : obj.idAddress.mailAddress);
+            }
             break;
         }
       });
-      console.log("MESSAGE = ", message);
-      console.log("ADDRESS = ", this.addresses);
     }
     /* Inizializzazione della form, funziona per tutte le actions */
     this.mailForm = new FormGroup({
       idPec: new FormControl(message ? message.fk_idPec.id : ""),
-      to: new FormControl(this.addresses),
-      cc: new FormControl([]),
+      to: new FormControl(this.toAddresses),
+      cc: new FormControl(this.ccAddresses),
       hideRecipients: new FormControl(false),
       subject: new FormControl(message ? "Re: ".concat(message.subject) : ""),
       attachments: new FormControl([]),
       body: new FormControl(""),  // Il body viene inizializzato nell'afterViewInit perché l'editor non è ancora istanziato
-      from: new FormControl("anubi83@hotmail.com")
+      from: new FormControl(this.fromAddress)
     });
   }
 
@@ -181,7 +187,8 @@ export class NewMailComponent implements OnInit, AfterViewInit {
    */
   buildBody(message: Message, body: string) {
     console.log("EDITOR = ", this.editor);
-    const da = this.addresses.join(", ");
+    const to = this.toAddresses.join(", ");
+    const cc = this.ccAddresses.length > 0 ? this.ccAddresses.join(", ") : "";
     const inviato = message.receiveTime.toLocaleDateString("it-IT", {
       weekday: "long",
       year: "numeric",
@@ -190,18 +197,27 @@ export class NewMailComponent implements OnInit, AfterViewInit {
       hour: "numeric",
       minute: "numeric"
     }).replace(",", " ");
-    this.editor.quill.setContents([
+
+    const editorContent = [
       // { insert: "\n\n" },
       { insert: "Da: ", attributes: { bold: true } },
-      { insert: da },
+      { insert: this.fromAddress },
       { insert: "\n" },
-      { insert: "Inviato: ", attributes: { bold: true } },
+      { insert: "A: ", attributes: { bold: true } },
+      { insert: to },
+      { insert: "\n" }];
+    if (cc !== "") {
+      editorContent.push({ insert: "Cc: ", attributes: { bold: true } },
+        { insert: cc },
+        { insert: "\n" });
+    }
+    editorContent.push({ insert: "Inviato: ", attributes: { bold: true } },
       { insert: inviato },
       { insert: "\n" },
       { insert: "Oggetto: ", attributes: { bold: true } },
       { insert: message.subject },
-      { insert: "\n\n" },
-    ]);
+      { insert: "\n\n" });
+    this.editor.quill.setContents(editorContent);
     this.editor.quill.clipboard.dangerouslyPasteHTML(this.editor.quill.getLength(), body);
     const divPosition = this.editor.quill.root["outerHTML"].indexOf(">") + 1;
     this.editor.quill.root["outerHTML"] = this.editor.quill.root["outerHTML"].slice(0, divPosition) +
