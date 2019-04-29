@@ -14,8 +14,8 @@ import { PecService } from "src/app/services/pec.service";
 })
 export class ToolbarComponent implements OnInit, OnDestroy {
   private subscriptions: Subscription[] = [];
-  private messageEvent: MessageEvent;
   private myPecs: Pec[];
+  public messageEvent: MessageEvent;
   constructor(public dialogService: DialogService,
     public pecService: PecService,
     public messageService: MessageService) { }
