@@ -5,7 +5,7 @@ import { MessageService, FullMessage, MessageEvent } from "src/app/services/mess
 import { Subscription, Observable } from "rxjs";
 import { TOOLBAR_ACTIONS } from "src/environments/app-constants";
 import { Pec } from "@bds/ng-internauta-model";
-import { PecService } from 'src/app/services/pec.service';
+import { PecService } from "src/app/services/pec.service";
 
 @Component({
   selector: "app-toolbar",
@@ -59,11 +59,11 @@ export class ToolbarComponent implements OnInit, OnDestroy {
 
   newMail(action, messageEvent?: MessageEvent) {
     const ref = this.dialogService.open(NewMailComponent, {
-      data: messageEvent ? {
-        message: messageEvent.downloadedMessage.message,
-        body: messageEvent.downloadedMessage.emlData.displayBody,
+      data: {
+        message: messageEvent ? messageEvent.downloadedMessage.message : undefined,
+        body: messageEvent ? messageEvent.downloadedMessage.emlData.displayBody : undefined,
         action: action
-      } : {},
+      },
       header: "Nuova Mail",
       width: "auto",
       styleClass: "ui-dialog-resizable ui-dialog-draggable",  // actually doesn't work
