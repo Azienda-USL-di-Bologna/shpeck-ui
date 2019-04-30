@@ -71,7 +71,8 @@
                 <div class = "display-block extra-margin">
                     <span *ngIf="!message.seen" class="fa fa-envelope display-icon envelope-icon"></span>
                     <span *ngIf="message.seen" class="fa fa-envelope-open-o display-icon envelope-icon"></span>
-                    <div class="display-text" [ngClass]="{'display-bold':!message.seen}">{{message.id + " -- " + message.subject}}</div> 
+                    <div class="display-text" [ngClass]="{'display-bold':!message.seen}">{{message.subject}}</div> 
+                    <!-- <div class="display-text" [ngClass]="{'display-bold':!message.seen}">{{message.id + " -- " + message.subject}}</div>  -->
                 </div>
             </td>
         </tr>

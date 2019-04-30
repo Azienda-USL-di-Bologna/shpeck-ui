@@ -94,31 +94,6 @@ export class MessageService extends NextSDREntityProvider {
     const apiUrl = getInternautaUrl(BaseUrlType.Shpeck) + "/" + CUSTOM_SERVER_METHODS.saveDraftMessage;
     return this.http.post(apiUrl, form);
   }
-
-  /**
-   * elimina i messaggi passati tramite una richiesta batch
-   * @param messages i messaggi da eliminare
-   */
-  public deleteMessages(messages: Message[]): Observable<any> {
-    const messagesToDelete: BatchOperation[] = [];
-    messages.forEach((message: Message) => {
-      if (message.id) {
-        messagesToDelete.push({
-          id: message.id,
-          operation: BatchOperationTypes.DELETE,
-          entityPath: BaseUrls.get(BaseUrlType.Shpeck) + "/" + ENTITIES_STRUCTURE.shpeck.message.path,
-          entityBody: null,
-          additionalData: null
-        });
-      }
-    });
-    if (messagesToDelete.length > 0) {
-      return super.batchHttpCall(messagesToDelete);
-    } else {
-      throw new Error("nessun messaggio passato");
-    }
-  }
-
 }
 
 /**

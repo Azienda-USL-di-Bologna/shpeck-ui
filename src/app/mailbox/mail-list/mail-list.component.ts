@@ -1,6 +1,6 @@
 import { Component, OnInit, Input, Output, EventEmitter, ViewChild, ElementRef, AfterViewInit, AfterContentInit, AfterContentChecked, AfterViewChecked } from "@angular/core";
 import { buildLazyEventFiltersAndSorts } from "@bds/primeng-plugin";
-import { Message, ENTITIES_STRUCTURE, MessageAddress, AddresRoleType, Folder, FolderType, TagType, MessageTag, InOut, Tag, Pec } from "@bds/ng-internauta-model";
+import { Message, ENTITIES_STRUCTURE, MessageAddress, AddresRoleType, Folder, FolderType, TagType, MessageTag, InOut, Tag, Pec, MessageFolder } from "@bds/ng-internauta-model";
 import { MessageService} from "src/app/services/message.service";
 import { FiltersAndSorts, FilterDefinition, FILTER_TYPES, SortDefinition, SORT_MODES, PagingConf, PagingMode, BatchOperation, BatchOperationTypes } from "@nfa/next-sdr";
 import { TagService } from "src/app/services/tag.service";
@@ -9,6 +9,7 @@ import { DatePipe } from "@angular/common";
 import { Table } from "primeng/table";
 import { BaseUrlType, BaseUrls } from "src/environments/app-constants";
 import { MenuItem } from "primeng/api";
+import { MessageFolderService } from 'src/app/services/message-folder.service.';
 
 @Component({
   selector: "app-mail-list",
@@ -132,7 +133,10 @@ export class MailListComponent implements OnInit, AfterViewChecked {
       }
   ];
 
-  constructor(private messageService: MessageService, private tagService: TagService, private datepipe: DatePipe) { }
+  constructor(private messageService: MessageService,
+    private messageFolderService: MessageFolderService,
+    private tagService: TagService,
+    private datepipe: DatePipe) { }
 
   ngOnInit() {
     // this.idFolder = 6;
@@ -303,6 +307,9 @@ export class MailListComponent implements OnInit, AfterViewChecked {
             element.queryParams = {seen: false};
           }
         break;
+        case "MessageDelete":
+
+        break;
         case "MessageReply":
         case "MessageReplyAll":
           element.disabled = false;
@@ -312,6 +319,11 @@ export class MailListComponent implements OnInit, AfterViewChecked {
         break;
       }
     });
+  }
+
+  private aaa(messagesFolder: MessageFolder[]) {
+    console.log(messagesFolder);
+
   }
 
   private selectedContextMenuItem(event: any) {
@@ -337,7 +349,10 @@ export class MailListComponent implements OnInit, AfterViewChecked {
         }
       break;
       case "MessageDelete":
-        // this.messageService.deleteMessages();
+      this.messageFolderService.moveToTrashMessages(this.selectedMessages.map((message: Message) => {
+        return message.messageFolderList.filter((messageFolder: MessageFolder) =>
+            messageFolder.fk_idFolder.id = this._folder.id)[0];
+      }), 5).subscribe();
       break;
     }
   }

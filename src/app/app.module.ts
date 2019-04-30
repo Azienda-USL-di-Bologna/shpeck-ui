@@ -26,6 +26,8 @@ import { TagService } from "./services/tag.service";
 import { PecService } from "./services/pec.service";
 import { FolderService } from "./services/folder.service";
 import { RecepitsComponent } from "./mailbox/recepits/recepits.component";
+import { MessageService } from "./services/message.service";
+import { MessageFolderService } from "./services/message-folder.service.";
 
 @NgModule({
   declarations: [
@@ -50,7 +52,7 @@ import { RecepitsComponent } from "./mailbox/recepits/recepits.component";
     PrimengPluginModule,
     ReactiveFormsModule
   ],
-  providers: [DialogService, DatePipe, PecService, TagService, FolderService],
+  providers: [DialogService, DatePipe, PecService, TagService, FolderService, MessageService, MessageFolderService],
   bootstrap: [AppComponent],
   entryComponents: [SettingsComponent, NewMailComponent]
 })
