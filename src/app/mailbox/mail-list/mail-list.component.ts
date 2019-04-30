@@ -38,7 +38,7 @@ export class MailListComponent implements OnInit, AfterViewChecked {
   @ViewChild("selRow") private selRow: ElementRef;
   @ViewChild("dt") private dt: Table;
 
-  private selectedProjection: string = ENTITIES_STRUCTURE.shpeck.message.customProjections.CustomMessageWithAddressList;
+  private selectedProjection: string = ENTITIES_STRUCTURE.shpeck.message.customProjections.CustomMessageForMailList;
   private pageConf: PagingConf = {
     mode: "LIMIT_OFFSET",
     conf: {
