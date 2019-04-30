@@ -1,11 +1,12 @@
 import { Component, OnInit, OnDestroy } from "@angular/core";
 import { DialogService } from "primeng/api";
 import { NewMailComponent } from "../new-mail/new-mail.component";
-import { MessageService, FullMessage, MessageEvent } from "src/app/services/message.service";
+import { ShpeckMessageService, FullMessage, MessageEvent } from "src/app/services/shpeck-message.service";
 import { Subscription, Observable } from "rxjs";
 import { TOOLBAR_ACTIONS } from "src/environments/app-constants";
 import { Pec } from "@bds/ng-internauta-model";
 import { PecService } from "src/app/services/pec.service";
+import { DraftService } from "src/app/services/draft.service";
 
 @Component({
   selector: "app-toolbar",
@@ -18,7 +19,8 @@ export class ToolbarComponent implements OnInit, OnDestroy {
   public messageEvent: MessageEvent;
   constructor(public dialogService: DialogService,
     public pecService: PecService,
-    public messageService: MessageService) { }
+    public messageService: ShpeckMessageService,
+    public draftService: DraftService) { }
 
   ngOnInit() {
     this.subscriptions.push(this.messageService.messageEvent.subscribe((messageEvent: MessageEvent) => {
@@ -58,6 +60,9 @@ export class ToolbarComponent implements OnInit, OnDestroy {
   }
 
   newMail(action, messageEvent?: MessageEvent) {
+
+
+
     const ref = this.dialogService.open(NewMailComponent, {
       data: {
         message: messageEvent ? messageEvent.downloadedMessage.message : undefined,

@@ -1,7 +1,7 @@
 import { Component, OnInit, Input } from "@angular/core";
 import { Message, RecepitType } from "@bds/ng-internauta-model";
 import { Utils } from "src/app/utils/utils";
-import { MessageService } from "src/app/services/message.service";
+import { ShpeckMessageService } from "src/app/services/shpeck-message.service";
 
 @Component({
   selector: "app-recepits",
@@ -19,7 +19,7 @@ export class RecepitsComponent implements OnInit {
     this.recepits = recepits;
   }
 
-  constructor(private messageService: MessageService) {
+  constructor(private messageService: ShpeckMessageService) {
     this.dowloadRecepit = this.dowloadRecepit.bind(this);
   }
 

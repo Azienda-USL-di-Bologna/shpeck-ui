@@ -1,5 +1,5 @@
 import { Component, Input, ViewChild, ElementRef, OnInit, OnDestroy } from "@angular/core";
-import { MessageService, MessageEvent, FullMessage } from "src/app/services/message.service";
+import { ShpeckMessageService, MessageEvent, FullMessage } from "src/app/services/shpeck-message.service";
 import { Message, InOut, ENTITIES_STRUCTURE, MessageType, RecepitType } from "@bds/ng-internauta-model";
 import { ContentTypeList } from "src/app/utils/styles-constants";
 import { EmlData } from "src/app/classes/eml-data";
@@ -41,7 +41,7 @@ export class MailDetailComponent implements OnInit, OnDestroy {
 
   @ViewChild("emliframe") private emliframe: ElementRef;
 
-  constructor(private messageService: MessageService, private http: HttpClient) { }
+  constructor(private messageService: ShpeckMessageService, private http: HttpClient) { }
 
   public ngOnInit(): void {
     /* Mi sottoscrivo al messageEvent */

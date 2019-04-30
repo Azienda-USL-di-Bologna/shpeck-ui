@@ -17,6 +17,7 @@ import { loginModuleConfig } from "./config/module-config";
 
 import { PrimengPluginModule } from "@bds/primeng-plugin";
 import { DialogService } from "primeng/api";
+import { MessageService } from "primeng/api";
 import { MailFoldersComponent } from "./mailbox/mail-folders/mail-folders.component";
 import { SanitizeHtmlPipe } from "./utils/sanitize-html-pipe";
 import { ToolbarComponent } from "./mailbox/toolbar/toolbar.component";
@@ -26,9 +27,11 @@ import { TagService } from "./services/tag.service";
 import { PecService } from "./services/pec.service";
 import { FolderService } from "./services/folder.service";
 import { RecepitsComponent } from "./mailbox/recepits/recepits.component";
-import { MessageService } from "./services/message.service";
-import { MessageFolderService } from "./services/message-folder.service.";
+import { ShpeckMessageService } from "./services/shpeck-message.service";
+import { MessageFolderService } from "./services/message-folder.service";
+import { DraftService } from "./services/draft.service";
 import { NextSdrModule } from "@nfa/next-sdr";
+
 
 @NgModule({
   declarations: [
@@ -54,7 +57,8 @@ import { NextSdrModule } from "@nfa/next-sdr";
     ReactiveFormsModule,
     NextSdrModule
   ],
-  providers: [DialogService, DatePipe, PecService, TagService, FolderService, MessageService, MessageFolderService],
+  providers: [DialogService, DatePipe, PecService, TagService, DraftService,
+    FolderService, MessageService, ShpeckMessageService, MessageFolderService],
   bootstrap: [AppComponent],
   entryComponents: [SettingsComponent, NewMailComponent]
 })

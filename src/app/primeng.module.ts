@@ -18,7 +18,8 @@ import { EditorModule } from "primeng/editor";
 import { FileUploadModule } from "primeng/fileupload";
 import { ChipsModule } from "primeng/chips";
 import { LightboxModule } from "primeng/lightbox";
-import {ContextMenuModule} from "primeng/contextmenu";
+import { ContextMenuModule } from "primeng/contextmenu";
+import { ToastModule } from "primeng/toast";
 
 
 @NgModule({
@@ -45,7 +46,8 @@ import {ContextMenuModule} from "primeng/contextmenu";
         FileUploadModule,
         ChipsModule,
         LightboxModule,
-        ContextMenuModule
+        ContextMenuModule,
+        ToastModule
     ],
     exports: [
         DynamicDialogModule,
@@ -69,7 +71,8 @@ import {ContextMenuModule} from "primeng/contextmenu";
         FileUploadModule,
         ChipsModule,
         LightboxModule,
-        ContextMenuModule
+        ContextMenuModule,
+        ToastModule
     ]
 })
 export class PrimengModule { }

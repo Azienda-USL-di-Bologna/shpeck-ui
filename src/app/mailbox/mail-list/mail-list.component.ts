@@ -1,7 +1,7 @@
 import { Component, OnInit, Input, Output, EventEmitter, ViewChild, ElementRef, AfterViewInit, AfterContentInit, AfterContentChecked, AfterViewChecked } from "@angular/core";
 import { buildLazyEventFiltersAndSorts } from "@bds/primeng-plugin";
 import { Message, ENTITIES_STRUCTURE, MessageAddress, AddresRoleType, Folder, FolderType, TagType, MessageTag, InOut, Tag, Pec, MessageFolder } from "@bds/ng-internauta-model";
-import { MessageService} from "src/app/services/message.service";
+import { ShpeckMessageService} from "src/app/services/shpeck-message.service";
 import { FiltersAndSorts, FilterDefinition, FILTER_TYPES, SortDefinition, SORT_MODES, PagingConf, PagingMode, BatchOperation, BatchOperationTypes } from "@nfa/next-sdr";
 import { TagService } from "src/app/services/tag.service";
 import { Observable } from "rxjs";
@@ -9,7 +9,7 @@ import { DatePipe } from "@angular/common";
 import { Table } from "primeng/table";
 import { BaseUrlType, BaseUrls } from "src/environments/app-constants";
 import { MenuItem } from "primeng/api";
-import { MessageFolderService } from 'src/app/services/message-folder.service.';
+import { MessageFolderService } from "src/app/services/message-folder.service";
 
 @Component({
   selector: "app-mail-list",
@@ -133,7 +133,7 @@ export class MailListComponent implements OnInit, AfterViewChecked {
       }
   ];
 
-  constructor(private messageService: MessageService,
+  constructor(private messageService: ShpeckMessageService,
     private messageFolderService: MessageFolderService,
     private tagService: TagService,
     private datepipe: DatePipe) { }

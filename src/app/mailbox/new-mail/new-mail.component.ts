@@ -1,7 +1,7 @@
 import { Component, OnInit, ViewChild, AfterViewInit } from "@angular/core";
 import { FormGroup, FormControl, Validators } from "@angular/forms";
-import { DynamicDialogRef, DynamicDialogConfig } from "primeng/api";
-import { MessageService } from "src/app/services/message.service";
+import { DynamicDialogRef, DynamicDialogConfig, MessageService } from "primeng/api";
+import { ShpeckMessageService } from "src/app/services/shpeck-message.service";
 import { Message } from "@bds/ng-internauta-model";
 import { Editor } from "primeng/editor";
 import { TOOLBAR_ACTIONS } from "src/environments/app-constants";
@@ -46,7 +46,8 @@ export class NewMailComponent implements OnInit, AfterViewInit {
     "schumer@outlook.com"
   ];
 
-  constructor(public ref: DynamicDialogRef, private messageService: MessageService, public config: DynamicDialogConfig) { }
+  constructor(public ref: DynamicDialogRef, private messageService: ShpeckMessageService,
+    public config: DynamicDialogConfig, private messagePrimeService: MessageService) { }
 
   ngOnInit() {
     let message: Message;
@@ -82,7 +83,8 @@ export class NewMailComponent implements OnInit, AfterViewInit {
       subject: new FormControl(message ? "Re: ".concat(message.subject) : ""),
       attachments: new FormControl([]),
       body: new FormControl(""),  // Il body viene inizializzato nell'afterViewInit perché l'editor non è ancora istanziato
-      from: new FormControl(this.fromAddress)
+      from: new FormControl(this.fromAddress),
+      idMessageReplied: new FormControl(message ? message.id : "")
     });
   }
 
@@ -243,7 +245,10 @@ export class NewMailComponent implements OnInit, AfterViewInit {
       }
     });
     this.messageService.saveDraftMessage(formToSend).subscribe(
-      res => console.log(res),
+      res => {
+        console.log(res);
+        this.messagePrimeService.add({severity: "success", summary: "Service Message", detail: "Via MessageService"});
+      },
       err => console.log(err)
     );
   }
