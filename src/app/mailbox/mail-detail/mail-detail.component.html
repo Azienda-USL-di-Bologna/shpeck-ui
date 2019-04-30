@@ -1,15 +1,21 @@
 <div class="detail-container">
   <h3 class="mail-object">{{fullMessage?.emlData?.subject}}</h3>
-  <div *ngIf="fullMessage?.message?.inOut === inOut?.OUT" class="info-recepits">
-    <li class="recepit-detail">
-      <span class="li-desdcription">Consegnata il:</span>
-      <span class="li-contdent">{{getDateDisplay(fullMessage?.emlData?.deliveryDate)}}</span>
+  <div *ngIf="fullMessage?.message?.inOut === inOut?.OUT" class="recepit-detail">
+    <li class="recepit-date">
+      <span class="recepit-date-label">Consegnato il:</span>
+      <span class="recepit-date-content">{{getDateDisplay(fullMessage?.emlData?.acceptanceDate)}}</span>
     </li>
-    <!-- <li *ngIf="fullMessage?.message?.inOut === inOut?.OUT">
-      <span class="li-description">Ricevuta il:</span>
-      <span class="li-content">{{fullMessage?.emlData?.ricevuta}}</span>
-    </li> -->
-    <button *ngIf="fullMessage?.message?.inOut === inOut?.OUT" (click)="showRecepits()" pButton icon="pi pi-info" class="info-recepits-button"></button>
+    <li class="recepit-date">
+      <span class="recepit-date-label">Ricevuto il:</span>
+      <span class="recepit-date-content">{{getDateDisplay(fullMessage?.emlData?.lastDeliveryDate)}}</span>
+    </li>
+    <button *ngIf="fullMessage?.message?.inOut === inOut?.OUT" 
+      (click)="recepitsVisible = true" 
+      pButton 
+      icon="pi pi-info" 
+      class="recepits-button"
+      pTooltip="Apri dettaglio ricevute">
+    </button>
   </div>
   <p-accordion [multiple]="true" class="multi-accordion-eml-detail">
       <p-accordionTab header="Dettagli" class="accordion-dettagli"
@@ -74,14 +80,16 @@
 <p-dialog 
   header="Ricevute" 
   [(visible)]="recepitsVisible"
+  [responsive]="true" 
   [modal]="true"
-  [responsive]="true"
-  [maximizable]="true">
+  [maximizable]="true"
+  styleClass="recepit-dialog"
+  appendTo="body">
   <app-recepits 
-    [messageDetailed]="fullMessage?.message">
+    [recepits]="fullMessage?.message?.idRelatedList">
   </app-recepits>
   <p-footer>
-    <button type="button" pButton icon="pi pi-close" (click)="recepitsVisible=false" label="Chiudi" class="ui-button-secondary"></button>
+    <button pButton icon="pi pi-times" (click)="recepitsVisible=false" label="Chiudi" class="ui-button-secondary"></button>
   </p-footer>
 </p-dialog>
 

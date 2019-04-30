@@ -28,6 +28,7 @@ import { FolderService } from "./services/folder.service";
 import { RecepitsComponent } from "./mailbox/recepits/recepits.component";
 import { MessageService } from "./services/message.service";
 import { MessageFolderService } from "./services/message-folder.service.";
+import { NextSdrModule } from "@nfa/next-sdr";
 
 @NgModule({
   declarations: [
@@ -50,7 +51,8 @@ import { MessageFolderService } from "./services/message-folder.service.";
     AppRoutingModule,
     PrimengModule,
     PrimengPluginModule,
-    ReactiveFormsModule
+    ReactiveFormsModule,
+    NextSdrModule
   ],
   providers: [DialogService, DatePipe, PecService, TagService, FolderService, MessageService, MessageFolderService],
   bootstrap: [AppComponent],

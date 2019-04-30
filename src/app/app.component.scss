@@ -34,6 +34,18 @@
   color: black !important;
 }
 
+/* Download button */
+::ng-deep .download-button {
+  background-color: transparent !important;
+  border: none !important;
+  color: black !important;
+  font-size: 15px !important;
+}
+::ng-deep .download-button:hover {
+  background-color: #c8c8c8 !important;
+  border-color: #c8c8c8 !important;
+}
+
 // -----------CUSTOM SCROLLBAR----------------- //
 // CHROME
 

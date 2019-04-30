@@ -17,16 +17,33 @@
 }
 .recepit-detail {
   display: flex;
+  margin: 7px;
+  align-items: center;
+  justify-content: space-between;
 }
-.info-recepits-button {
+.recepit-date {
+  font-size: 14px;
+  list-style-type: none;
+}
+.recepit-date-label {
+  list-style-type: none;
+  font-weight: bold;
+}
+.recepit-date-content{
+  margin: 7px;
+}
+.recepits-button {
   display: inline;
   background-color: white;
   color: black; 
   border: #848484;
+  border-radius: 50px;
+  background-color: #f4f4f4;
+  box-shadow: 3px 3px 3px #c7c7c7;
 }
-.info-recepits-button:hover {
-  background-color: #848484 !important;
-  color: white !important; 
+.recepits-button:hover {
+  background-color: #c8c8c8 !important;
+  color: black !important; 
   border: white !important;
 }
 
@@ -149,4 +166,12 @@
 }
 .mail-body:hover {
   overflow: overlay;
+}
+
+/* =========== RECEPIT DIALOG ============ */
+::ng-deep .recepit-dialog {
+  width: 70%;
+}
+::ng-deep .recepit-dialog .ui-dialog-footer {
+  text-align: center !important;
 }

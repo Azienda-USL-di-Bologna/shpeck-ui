@@ -4,7 +4,7 @@ import { HttpClient } from "@angular/common/http";
 import { DatePipe } from "@angular/common";
 import { getInternautaUrl, BaseUrlType, CUSTOM_SERVER_METHODS, BaseUrls } from "src/environments/app-constants";
 import { ENTITIES_STRUCTURE, Message } from "@bds/ng-internauta-model";
-import { Observable, Subject, BehaviorSubject, throwError } from "rxjs";
+import { Observable, BehaviorSubject } from "rxjs";
 import { EmlAttachment } from "../classes/eml-attachment";
 import { EmlData } from "../classes/eml-data";
 
@@ -35,7 +35,7 @@ export class MessageService extends NextSDREntityProvider {
       throw new Error("missing parameters");
     }
     if (messageToDownload && messageToDownload.id) {
-      this.downloadEml(messageToDownload.id).subscribe(
+      this.extractEmlData(messageToDownload.id).subscribe(
         (data: EmlData) => {
           this._messageEvent.next({
             downloadedMessage: {
@@ -58,13 +58,24 @@ export class MessageService extends NextSDREntityProvider {
     }
   }
 
+
+
   /**
    * Ritorna un Observable di tipo EmlData relativo al download dell'eml del messaggo passato.
    * @param messageId l'id del messaggio di cui si vogliono i dati.
    */
-  public downloadEml(messageId: number): Observable<EmlData> {
-    const url = getInternautaUrl(BaseUrlType.Shpeck) + "/" + CUSTOM_SERVER_METHODS.extractMessageData + "/" + messageId;
+  public extractEmlData(messageId: number): Observable<EmlData> {
+    const url = getInternautaUrl(BaseUrlType.Shpeck) + "/" + CUSTOM_SERVER_METHODS.extractEmlData + "/" + messageId;
     return this.http.get(url) as Observable<EmlData>;
+  }
+
+  /**
+   * Ritorna un Observable il cui risultato è il blob dell'eml richiesto.
+   * @param messageId il messaggio di cui si vuole l'eml.
+   */
+  public downloadEml(message: Message): Observable<any> {
+    const url = getInternautaUrl(BaseUrlType.Shpeck) + "/" + CUSTOM_SERVER_METHODS.downloadEml + "/" + message.id;
+    return this.http.get(url, {responseType: "blob"}/* {responseType: "arraybuffer"} */);
   }
 
   /**
@@ -72,8 +83,8 @@ export class MessageService extends NextSDREntityProvider {
    * @param message Il Message che contiene l'allegato.
    * @param allegato L'allegato che si vuole.
    */
-  public getEmlAttachment(message: Message, allegato: EmlAttachment): Observable<any> {
-    const url = getInternautaUrl(BaseUrlType.Shpeck) + "/" + CUSTOM_SERVER_METHODS.getEmlAttachment + "/" + message.id + "/" + allegato.id;
+  public downloadEmlAttachment(message: Message, allegato: EmlAttachment): Observable<any> {
+    const url = getInternautaUrl(BaseUrlType.Shpeck) + "/" + CUSTOM_SERVER_METHODS.downloadEmlAttachment + "/" + message.id + "/" + allegato.id;
      return this.http.get(url, {responseType: "blob"}/* {responseType: "arraybuffer"} */);
   }
 
@@ -81,8 +92,8 @@ export class MessageService extends NextSDREntityProvider {
    * Ritorna un Observable il cui risultato è il blob dello zip degli allegati del Message richiesto.
    * @param message Il Message del quale si vuole lo zip degli allegati
    */
-  public getAllEmlAttachment(message: Message): Observable<any> {
-    const url = getInternautaUrl(BaseUrlType.Shpeck) + "/" + CUSTOM_SERVER_METHODS.getAllEmlAttachment + "/" + message.id;
+  public downloadAllEmlAttachment(message: Message): Observable<any> {
+    const url = getInternautaUrl(BaseUrlType.Shpeck) + "/" + CUSTOM_SERVER_METHODS.downloadAllEmlAttachment + "/" + message.id;
     return this.http.get(url, {responseType: "blob"});
   }
 
