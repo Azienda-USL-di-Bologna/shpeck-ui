@@ -4,7 +4,7 @@ import { NewMailComponent } from "../new-mail/new-mail.component";
 import { ShpeckMessageService, FullMessage, MessageEvent } from "src/app/services/shpeck-message.service";
 import { Subscription, Observable } from "rxjs";
 import { TOOLBAR_ACTIONS } from "src/environments/app-constants";
-import { Pec } from "@bds/ng-internauta-model";
+import { Pec, Draft } from "@bds/ng-internauta-model";
 import { PecService } from "src/app/services/pec.service";
 import { DraftService } from "src/app/services/draft.service";
 
@@ -61,23 +61,27 @@ export class ToolbarComponent implements OnInit, OnDestroy {
 
   newMail(action, messageEvent?: MessageEvent) {
 
-
-
-    const ref = this.dialogService.open(NewMailComponent, {
-      data: {
-        message: messageEvent ? messageEvent.downloadedMessage.message : undefined,
-        body: messageEvent ? messageEvent.downloadedMessage.emlData.displayBody : undefined,
-        action: action
-      },
-      header: "Nuova Mail",
-      width: "auto",
-      styleClass: "ui-dialog-resizable ui-dialog-draggable",  // actually doesn't work
-      contentStyle: { "max-height": "800px", "min-height": "350px", "overflow": "auto", "height": "690px" }
-    });
-    ref.onClose.subscribe((el) => {
-      if (el) {
-        console.log("Ref: ", el);
-      }
+    const draftMessage = new Draft();
+    draftMessage.idPec = this.myPecs[0];
+    this.draftService.postHttpCall(draftMessage).subscribe((draft: Draft) => {
+      const ref = this.dialogService.open(NewMailComponent, {
+        data: {
+          message: messageEvent ? messageEvent.downloadedMessage.message : undefined,
+          body: messageEvent ? messageEvent.downloadedMessage.emlData.displayBody : undefined,
+          idDraft: draft.id,
+          pec: this.myPecs[0],
+          action: action
+        },
+        header: "Nuova Mail",
+        width: "auto",
+        styleClass: "ui-dialog-resizable ui-dialog-draggable",  // actually doesn't work
+        contentStyle: { "max-height": "800px", "min-height": "350px", "overflow": "auto", "height": "690px" }
+      });
+      ref.onClose.subscribe((el) => {
+        if (el) {
+          console.log("Ref: ", el);
+        }
+      });
     });
   }
 

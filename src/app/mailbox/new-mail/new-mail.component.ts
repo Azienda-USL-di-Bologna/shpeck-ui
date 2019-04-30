@@ -2,7 +2,7 @@ import { Component, OnInit, ViewChild, AfterViewInit } from "@angular/core";
 import { FormGroup, FormControl, Validators } from "@angular/forms";
 import { DynamicDialogRef, DynamicDialogConfig, MessageService } from "primeng/api";
 import { ShpeckMessageService } from "src/app/services/shpeck-message.service";
-import { Message } from "@bds/ng-internauta-model";
+import { Message, Pec } from "@bds/ng-internauta-model";
 import { Editor } from "primeng/editor";
 import { TOOLBAR_ACTIONS } from "src/environments/app-constants";
 
@@ -50,7 +50,9 @@ export class NewMailComponent implements OnInit, AfterViewInit {
     public config: DynamicDialogConfig, private messagePrimeService: MessageService) { }
 
   ngOnInit() {
+    console.log("DATA PASSED = ", this.config.data);
     let message: Message;
+    const pec: Pec = this.config.data.pec;
     const action = this.config.data.action;
     /* Action è passata dal components toolbar. Se è diverso da NEW ci aspettiamo il messaggio e il body della mail */
     if (action !== TOOLBAR_ACTIONS.NEW) {
@@ -76,14 +78,15 @@ export class NewMailComponent implements OnInit, AfterViewInit {
     }
     /* Inizializzazione della form, funziona per tutte le actions */
     this.mailForm = new FormGroup({
-      idPec: new FormControl(message ? message.fk_idPec.id : ""),
+      idDraftMessage: new FormControl(this.config.data.idDraft),
+      idPec: new FormControl(pec.id),
       to: new FormControl(this.toAddresses),
       cc: new FormControl(this.ccAddresses),
       hideRecipients: new FormControl(false),
       subject: new FormControl(message ? "Re: ".concat(message.subject) : ""),
       attachments: new FormControl([]),
       body: new FormControl(""),  // Il body viene inizializzato nell'afterViewInit perché l'editor non è ancora istanziato
-      from: new FormControl(this.fromAddress),
+      from: new FormControl(pec.indirizzo),
       idMessageReplied: new FormControl(message ? message.id : "")
     });
   }
@@ -247,9 +250,14 @@ export class NewMailComponent implements OnInit, AfterViewInit {
     this.messageService.saveDraftMessage(formToSend).subscribe(
       res => {
         console.log(res);
-        this.messagePrimeService.add({severity: "success", summary: "Service Message", detail: "Via MessageService"});
+        this.messagePrimeService.add(
+          { severity: "success", summary: "Successo", detail: "Bozza salvata correttamente" });
       },
-      err => console.log(err)
+      err => {
+        console.log(err);
+        this.messagePrimeService.add(
+          { severity: "error", summary: "Errore", detail: "Errore durante il salvaggio, contattare BabelCare" });
+      }
     );
   }
 

@@ -18,7 +18,7 @@
     <div #rightSide class="content-right d-flex">
 
       <div #mailList class="mail-list">
-        <app-mail-list 
+        <app-mail-list
           [folder] = "folderSelected"
           (messageClicked)="messageClicked($event)">
         </app-mail-list>
@@ -30,10 +30,11 @@
 
       <div [ngClass]="hideDetail ? 'hidden' : 'mail-detail'" #mailDetail>
         <div [ngClass]="{'overlap-div' : sliding}"></div>
-        <app-mail-detail 
+        <app-mail-detail
           [message]="message">
         </app-mail-detail>
       </div>
     </div>
   </div>
 </div>
+<p-toast position="top-right"></p-toast>
