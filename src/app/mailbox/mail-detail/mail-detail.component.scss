@@ -21,6 +21,10 @@
   align-items: center;
   justify-content: space-between;
 }
+.recepit-dates {
+  display: flex; 
+  flex-direction: column;
+}
 .recepit-date {
   font-size: 14px;
   list-style-type: none;
