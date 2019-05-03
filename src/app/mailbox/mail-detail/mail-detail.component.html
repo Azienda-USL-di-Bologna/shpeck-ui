@@ -1,14 +1,21 @@
 <div class="detail-container">
   <h3 class="mail-object">{{fullMessage?.emlData?.subject}}</h3>
   <div *ngIf="fullMessage?.message?.inOut === inOut?.OUT" class="recepit-detail">
-    <li class="recepit-date">
-      <span class="recepit-date-label">Consegnato il:</span>
-      <span class="recepit-date-content">{{getDateDisplay(fullMessage?.emlData?.acceptanceDate)}}</span>
-    </li>
-    <li class="recepit-date">
-      <span class="recepit-date-label">Ricevuto il:</span>
-      <span class="recepit-date-content">{{getDateDisplay(fullMessage?.emlData?.lastDeliveryDate)}}</span>
-    </li>
+    <div style="display: flex; flex-direction: column">
+      <li class="recepit-date">
+        <span class="recepit-date-label">Accettata il:</span>
+        <span class="recepit-date-content">{{getDateDisplay(fullMessage?.emlData?.acceptanceDate)}}</span>
+      </li>
+      <li class="recepit-date">
+        <span class="recepit-date-label">Consegnata il:</span>
+        <span *ngIf="fullMessage?.emlData?.lastDeliveryDate != null" class="recepit-date-content">
+          {{getDateDisplay(fullMessage?.emlData?.lastDeliveryDate)}}
+        </span>
+        <span *ngIf="fullMessage?.emlData?.deliveryInfo != null" class="recepit-date-content">
+          {{fullMessage.emlData.deliveryInfo}}
+        </span>
+      </li>
+    </div>
     <button *ngIf="fullMessage?.message?.inOut === inOut?.OUT" 
       (click)="recepitsVisible = true" 
       pButton 

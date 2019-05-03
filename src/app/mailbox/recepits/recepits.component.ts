@@ -25,12 +25,21 @@ export class RecepitsComponent implements OnInit {
 
   ngOnInit() {
     this.cols = [
-      {
+      /* {
         field: "id",
         header: "Id",
         fieldType: "number",
         style: {
           width: "50px",
+          textAlign: "center"
+        }
+      }, */
+      {
+        field: "receiveTime",
+        header: "Data",
+        fieldType: "DateTime",
+        style: {
+          width: "140px",
           textAlign: "center"
         }
       },
@@ -40,15 +49,6 @@ export class RecepitsComponent implements OnInit {
         header: "Tipo Ricevuta",
         style: {
           width: "130px",
-          textAlign: "center"
-        }
-      },
-      {
-        field: "receiveTime",
-        header: "Data",
-        fieldType: "DateTime",
-        style: {
-          width: "140px",
           textAlign: "center"
         }
       },

@@ -85,7 +85,7 @@ export class MailDetailComponent implements OnInit, OnDestroy {
     }
     /* Sostituisco le newline con dei <br/> */
     data.displayBody = data.htmlTextImgEmbedded != null ? data.htmlTextImgEmbedded : (
-      data.htmlText != null ? data.htmlText : data.plainText.replace(/\n/g, "<br/>")
+      data.htmlText != null ? data.htmlText : data.plainText
     );
 
     /* Per la posta inviata carico le ricevute */
@@ -108,10 +108,15 @@ export class MailDetailComponent implements OnInit, OnDestroy {
           );
           // Se ho alemno una ricevuta di consegna prendo la data della più recente
           if (deliveryRecepits.length > 0) {
-            fullMessage.emlData.lastDeliveryDate = deliveryRecepits.reduce(
-              (max, p) =>
-                p.receiveTime > max ? p.receiveTime : max, deliveryRecepits[0].receiveTime
-            );
+            if (deliveryRecepits.length === 1) {
+              fullMessage.emlData.deliveryDate = deliveryRecepits[0].receiveTime;
+              /* fullMessage.emlData.lastDeliveryDate = deliveryRecepits.reduce(
+                (max, p) =>
+                  p.receiveTime > max ? p.receiveTime : max, deliveryRecepits[0].receiveTime
+              ); */
+            } else {
+              fullMessage.emlData.deliveryInfo = "Varie ricevute";
+            }
           }
 
           this.fullMessage = fullMessage;

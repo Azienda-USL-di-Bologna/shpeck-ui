@@ -13,5 +13,6 @@ export class EmlData {
   public sendDate: Date;
   public attachments: EmlAttachment[];
   public acceptanceDate: Date;  // E' la data della ricevuta di accettazione. ('Consegnata il' su UI)
-  public lastDeliveryDate: Date;  // E' la data della più recente ricevuta di consegna ('Ricevuta il' su UI)
+  public deliveryDate: Date;    // E' la data della ricevuta di consegna se ce n'è solo una ('Ricevuta il' su UI)
+  public deliveryInfo: string;  // Contiene 'Varie ricevute' se le ricevute di consegna sono più di una.
 }
