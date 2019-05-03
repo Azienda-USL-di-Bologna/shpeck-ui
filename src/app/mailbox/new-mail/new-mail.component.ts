@@ -66,10 +66,7 @@ export class NewMailComponent implements OnInit, AfterViewInit {
           case TOOLBAR_ACTIONS.REPLY:   // REPLY
             break;
           case TOOLBAR_ACTIONS.REPLY_ALL: // REPLY_ALL Prendiamo tutti gli indirizzi, to, cc
-            if (obj.addressRole === "TO" && obj.idAddress.id !== message.fk_idPec.id) {
-              this.toAddresses.push( obj.idAddress.originalAddress ? obj.idAddress.originalAddress : obj.idAddress.mailAddress);
-            }
-            if (obj.addressRole === "CC") {
+            if (obj.addressRole === "CC" || (obj.addressRole === "TO" && obj.idAddress.id !== message.fk_idPec.id)) {
               this.ccAddresses.push(obj.idAddress.originalAddress ? obj.idAddress.originalAddress : obj.idAddress.mailAddress);
             }
             break;
@@ -98,7 +95,8 @@ export class NewMailComponent implements OnInit, AfterViewInit {
       const body = this.config.data.body;
       this.buildBody(message, body);
       this.mailForm.patchValue({
-        body: "<br/><br/><hr>" + this.editor.quill.root["innerHTML"]
+        // body: "<br/><br/><hr>" + this.editor.quill.root["innerHTML"]
+        body: this.editor.quill.root["innerHTML"]
       });
     }
   }
@@ -204,7 +202,9 @@ export class NewMailComponent implements OnInit, AfterViewInit {
     }).replace(",", " ");
 
     const editorContent = [
-      // { insert: "\n\n" },
+      { insert: "\n\n" },
+      { insert: "-------- Messaggio originale --------" },
+      { insert: "\n" },
       { insert: "Da: ", attributes: { bold: true } },
       { insert: this.fromAddress },
       { insert: "\n" },
@@ -224,9 +224,9 @@ export class NewMailComponent implements OnInit, AfterViewInit {
       { insert: "\n\n" });
     this.editor.quill.setContents(editorContent);
     this.editor.quill.clipboard.dangerouslyPasteHTML(this.editor.quill.getLength(), body);
-    const divPosition = this.editor.quill.root["outerHTML"].indexOf(">") + 1;
+  /*   const divPosition = this.editor.quill.root["outerHTML"].indexOf(">") + 1;
     this.editor.quill.root["outerHTML"] = this.editor.quill.root["outerHTML"].slice(0, divPosition) +
-      "<br/><br/><hr>" + this.editor.quill.root["innerHTML"];
+      "<br/><br/><hr>" + this.editor.quill.root["innerHTML"]; */
   }
 
   onSubmit() {
