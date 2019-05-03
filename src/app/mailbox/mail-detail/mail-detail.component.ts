@@ -10,7 +10,6 @@ import { FiltersAndSorts, FilterDefinition, FILTER_TYPES, SortDefinition, SORT_M
 import { Utils } from "src/app/utils/utils";
 
 
-
 @Component({
   selector: "app-mail-detail",
   templateUrl: "./mail-detail.component.html",
@@ -85,7 +84,7 @@ export class MailDetailComponent implements OnInit, OnDestroy {
     }
     /* Sostituisco le newline con dei <br/> */
     data.displayBody = data.htmlTextImgEmbedded != null ? data.htmlTextImgEmbedded : (
-      data.htmlText != null ? data.htmlText : data.plainText
+      data.htmlText != null ? data.htmlText : data.plainText.replace(/\n/g, "<br/>")
     );
 
     /* Per la posta inviata carico le ricevute */
@@ -110,12 +109,11 @@ export class MailDetailComponent implements OnInit, OnDestroy {
           if (deliveryRecepits.length > 0) {
             if (deliveryRecepits.length === 1) {
               fullMessage.emlData.deliveryDate = deliveryRecepits[0].receiveTime;
-              /* fullMessage.emlData.lastDeliveryDate = deliveryRecepits.reduce(
-                (max, p) =>
-                  p.receiveTime > max ? p.receiveTime : max, deliveryRecepits[0].receiveTime
-              ); */
+              /* Questo pezzo di codice serve a tirare fuori la data più ricente tra le ricevute.
+                fullMessage.emlData.lastDeliveryDate = deliveryRecepits.reduce(
+                (max, p) => p.receiveTime > max ? p.receiveTime : max, deliveryRecepits[0].receiveTime); */
             } else {
-              fullMessage.emlData.deliveryInfo = "Varie ricevute";
+              fullMessage.emlData.deliveryInfo = "Varie. Guardare il dettaglio per maggiori informazioni.";
             }
           }
 

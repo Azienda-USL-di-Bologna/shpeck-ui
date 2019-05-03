@@ -1,7 +1,7 @@
 <div class="detail-container">
   <h3 class="mail-object">{{fullMessage?.emlData?.subject}}</h3>
   <div *ngIf="fullMessage?.message?.inOut === inOut?.OUT" class="recepit-detail">
-    <div style="display: flex; flex-direction: column">
+    <div class="recepit-dates">
       <li class="recepit-date">
         <span class="recepit-date-label">Accettata il:</span>
         <span class="recepit-date-content">{{getDateDisplay(fullMessage?.emlData?.acceptanceDate)}}</span>
