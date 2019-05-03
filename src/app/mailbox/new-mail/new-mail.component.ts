@@ -95,7 +95,6 @@ export class NewMailComponent implements OnInit, AfterViewInit {
       const body = this.config.data.body;
       this.buildBody(message, body);
       this.mailForm.patchValue({
-        // body: "<br/><br/><hr>" + this.editor.quill.root["innerHTML"]
         body: this.editor.quill.root["innerHTML"]
       });
     }
@@ -223,10 +222,10 @@ export class NewMailComponent implements OnInit, AfterViewInit {
       { insert: message.subject },
       { insert: "\n\n" });
     this.editor.quill.setContents(editorContent);
-    this.editor.quill.clipboard.dangerouslyPasteHTML(this.editor.quill.getLength(), body);
-  /*   const divPosition = this.editor.quill.root["outerHTML"].indexOf(">") + 1;
-    this.editor.quill.root["outerHTML"] = this.editor.quill.root["outerHTML"].slice(0, divPosition) +
-      "<br/><br/><hr>" + this.editor.quill.root["innerHTML"]; */
+    /* Mi vergogno di questa cosa ma per adesso devo fare per forza così
+     * in attesa del supporto alle table dell'editor Quill nella versione 2.0 */
+    const bodyTableClean = body.replace(/<table.*?<tbody>/s, "").replace(/<\/tbody.*?<\/table>/s, "").replace(/<tr>/g, "<br>");
+    this.editor.quill.clipboard.dangerouslyPasteHTML(this.editor.quill.getLength(), bodyTableClean);
   }
 
   onSubmit() {
