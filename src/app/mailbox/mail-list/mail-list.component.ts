@@ -10,6 +10,7 @@ import { Table } from "primeng/table";
 import { BaseUrlType, BaseUrls } from "src/environments/app-constants";
 import { MenuItem } from "primeng/api";
 import { MessageFolderService } from "src/app/services/message-folder.service";
+import { Utils } from "src/app/utils/utils";
 
 @Component({
   selector: "app-mail-list",
@@ -17,7 +18,6 @@ import { MessageFolderService } from "src/app/services/message-folder.service";
   styleUrls: ["./mail-list.component.scss"]
 })
 export class MailListComponent implements OnInit, AfterViewChecked {
-
   public _folder: Folder;
   @Input("folder")
   set folder(folder: Folder) {
@@ -38,7 +38,9 @@ export class MailListComponent implements OnInit, AfterViewChecked {
   @ViewChild("selRow") private selRow: ElementRef;
   @ViewChild("dt") private dt: Table;
 
-  private selectedProjection: string = ENTITIES_STRUCTURE.shpeck.message.customProjections.CustomMessageForMailList;
+  private selectedProjection: string =
+    ENTITIES_STRUCTURE.shpeck.message.customProjections
+      .CustomMessageForMailList;
   private pageConf: PagingConf = {
     mode: "LIMIT_OFFSET",
     conf: {
@@ -47,73 +49,85 @@ export class MailListComponent implements OnInit, AfterViewChecked {
     }
   };
 
-  public cmItems: MenuItem[] = [{
-    label: "NOT_SET",
-    id: "MessageSeen",
-    disabled: false,
-    queryParams: {},
-    command: (event) => this.selectedContextMenuItem(event)
-  }, {
-    label: "Rispondi",
-    id: "MessageReply",
-    disabled: true,
-    queryParams: {},
-    command: (event) => this.selectedContextMenuItem(event)
-  }, {
-    label: "Rispondi a tutti",
-    id: "MessageReplyAll",
-    disabled: true,
-    queryParams: {},
-    command: (event) => this.selectedContextMenuItem(event)
-  }, {
-    label: "Inoltra",
-    id: "MessageForward",
-    disabled: true,
-    queryParams: {},
-    command: (event) => this.selectedContextMenuItem(event)
-  }, {
-    label: "Elimina ",
-    id: "MessageDelete",
-    disabled: true,
-    queryParams: {},
-    command: (event) => this.selectedContextMenuItem(event)
-  }, {
-    label: "Assegnata???",
-    id: "MessageAssigned",
-    disabled: true,
-    queryParams: {},
-    command: (event) => this.selectedContextMenuItem(event)
-  }, {
-    label: "Nota",
-    id: "MessageNote",
-    disabled: true,
-    queryParams: {},
-    command: (event) => this.selectedContextMenuItem(event)
-  }, {
-    label: "Scarica",
-    id: "MessageDownload",
-    disabled: true,
-    queryParams: {},
-    command: (event) => this.selectedContextMenuItem(event)
-  }, {
-    label: "Etichette",
-    id: "MessageLabels",
-    disabled: true,
-    queryParams: {},
-    command: (event) => this.selectedContextMenuItem(event)
-  }, {
-    label: "Fascicola",
-    id: "MessageArchive",
-    disabled: true,
-    queryParams: {},
-    command: (event) => this.selectedContextMenuItem(event)
-  }, {
-    label: "Reindirizza",
-    id: "MessageReaddress",
-    disabled: true,
-    queryParams: {},
-    command: (event) => this.selectedContextMenuItem(event)
-  }];
+  public cmItems: MenuItem[] = [
+    {
+      label: "NOT_SET",
+      id: "MessageSeen",
+      disabled: false,
+      queryParams: {},
+      command: event => this.selectedContextMenuItem(event)
+    },
+    {
+      label: "Rispondi",
+      id: "MessageReply",
+      disabled: true,
+      queryParams: {},
+      command: event => this.selectedContextMenuItem(event)
+    },
+    {
+      label: "Rispondi a tutti",
+      id: "MessageReplyAll",
+      disabled: true,
+      queryParams: {},
+      command: event => this.selectedContextMenuItem(event)
+    },
+    {
+      label: "Inoltra",
+      id: "MessageForward",
+      disabled: true,
+      queryParams: {},
+      command: event => this.selectedContextMenuItem(event)
+    },
+    {
+      label: "Elimina ",
+      id: "MessageDelete",
+      disabled: true,
+      queryParams: {},
+      command: event => this.selectedContextMenuItem(event)
+    },
+    {
+      label: "Assegnata???",
+      id: "MessageAssigned",
+      disabled: true,
+      queryParams: {},
+      command: event => this.selectedContextMenuItem(event)
+    },
+    {
+      label: "Nota",
+      id: "MessageNote",
+      disabled: true,
+      queryParams: {},
+      command: event => this.selectedContextMenuItem(event)
+    },
+    {
+      label: "Scarica",
+      id: "MessageDownload",
+      disabled: true,
+      queryParams: {},
+      command: event => this.selectedContextMenuItem(event)
+    },
+    {
+      label: "Etichette",
+      id: "MessageLabels",
+      disabled: true,
+      queryParams: {},
+      command: event => this.selectedContextMenuItem(event)
+    },
+    {
+      label: "Fascicola",
+      id: "MessageArchive",
+      disabled: true,
+      queryParams: {},
+      command: event => this.selectedContextMenuItem(event)
+    },
+    {
+      label: "Reindirizza",
+      id: "MessageReaddress",
+      disabled: true,
+      queryParams: {},
+      command: event => this.selectedContextMenuItem(event)
+    }
+  ];
 
   public messages: Message[] = [];
   public fromOrTo: string;
@@ -124,19 +138,21 @@ export class MailListComponent implements OnInit, AfterViewChecked {
   public rowsNmber = 10;
   public selectedMessages: Message[];
   public cols = [
-      {
-        field: "subject",
-        header: "Oggetto",
-        filterMatchMode: FILTER_TYPES.string.containsIgnoreCase,
-        width: "85px",
-        minWidth: "85px"
-      }
+    {
+      field: "subject",
+      header: "Oggetto",
+      filterMatchMode: FILTER_TYPES.string.containsIgnoreCase,
+      width: "85px",
+      minWidth: "85px"
+    }
   ];
 
-  constructor(private messageService: ShpeckMessageService,
+  constructor(
+    private messageService: ShpeckMessageService,
     private messageFolderService: MessageFolderService,
     private tagService: TagService,
-    private datepipe: DatePipe) { }
+    private datepipe: DatePipe
+  ) {}
 
   ngOnInit() {
     // this.idFolder = 6;
@@ -164,14 +180,22 @@ export class MailListComponent implements OnInit, AfterViewChecked {
 
   private loadTag(pec: Pec): Observable<Tag[]> {
     const filtersAndSorts: FiltersAndSorts = new FiltersAndSorts();
-    filtersAndSorts.addFilter(new FilterDefinition("idPec.id", FILTER_TYPES.not_string.equals, pec.id));
+    filtersAndSorts.addFilter(
+      new FilterDefinition("idPec.id", FILTER_TYPES.not_string.equals, pec.id)
+    );
     return this.tagService.getData(null, filtersAndSorts, null, null);
   }
 
   private loadData(pageCong: PagingConf, lazyFilterAndSort?: FiltersAndSorts) {
     this.loading = true;
-    this.messageService.getData(this.selectedProjection, this.buildInitialFilterAndSort(), lazyFilterAndSort, pageCong).subscribe(
-      data => {
+    this.messageService
+      .getData(
+        this.selectedProjection,
+        this.buildInitialFilterAndSort(),
+        lazyFilterAndSort,
+        pageCong
+      )
+      .subscribe(data => {
         if (data && data.results) {
           this.totalRecords = data.page.totalElements;
           this.messages = data.results;
@@ -181,8 +205,7 @@ export class MailListComponent implements OnInit, AfterViewChecked {
         setTimeout(() => {
           console.log(this.selRow.nativeElement.offsetHeight);
         });
-      }
-    );
+      });
   }
 
   public lazyLoad(event: any) {
@@ -192,12 +215,19 @@ export class MailListComponent implements OnInit, AfterViewChecked {
       if (event.first !== event.first) {
         event.first = 0;
       }
-      if (this.pageConf.conf.limit !== event.rows || this.pageConf.conf.offset !== event.first) {
+      if (
+        this.pageConf.conf.limit !== event.rows ||
+        this.pageConf.conf.offset !== event.first
+      ) {
         this.pageConf.conf = {
           limit: event.rows,
           offset: event.first
         };
-        const filtersAndSorts: FiltersAndSorts = buildLazyEventFiltersAndSorts(event, this.cols, this.datepipe);
+        const filtersAndSorts: FiltersAndSorts = buildLazyEventFiltersAndSorts(
+          event,
+          this.cols,
+          this.datepipe
+        );
 
         this.loadData(this.pageConf, filtersAndSorts);
       }
@@ -206,7 +236,11 @@ export class MailListComponent implements OnInit, AfterViewChecked {
         limit: this.rowsNmber * 2,
         offset: 0
       };
-      const filtersAndSorts: FiltersAndSorts = buildLazyEventFiltersAndSorts(event, this.cols, this.datepipe);
+      const filtersAndSorts: FiltersAndSorts = buildLazyEventFiltersAndSorts(
+        event,
+        this.cols,
+        this.datepipe
+      );
 
       this.loadData(this.pageConf, filtersAndSorts);
     }
@@ -218,7 +252,13 @@ export class MailListComponent implements OnInit, AfterViewChecked {
 
   buildInitialFilterAndSort(): FiltersAndSorts {
     const filtersAndSorts: FiltersAndSorts = new FiltersAndSorts();
-    filtersAndSorts.addFilter(new FilterDefinition("messageFolderList.idFolder.id", FILTER_TYPES.not_string.equals, this._folder.id));
+    filtersAndSorts.addFilter(
+      new FilterDefinition(
+        "messageFolderList.idFolder.id",
+        FILTER_TYPES.not_string.equals,
+        this._folder.id
+      )
+    );
     // filtersAndSorts.addSort(new SortDefinition("receiveTime", SORT_MODES.desc));
     filtersAndSorts.addSort(new SortDefinition("id", SORT_MODES.desc));
     return filtersAndSorts;
@@ -254,14 +294,22 @@ export class MailListComponent implements OnInit, AfterViewChecked {
         addresRoleType = AddresRoleType.FROM;
     }
     const messageAddressList: MessageAddress[] = message.messageAddressList.filter(
-      (messageAddress: MessageAddress) => messageAddress.addressRole === addresRoleType);
+      (messageAddress: MessageAddress) =>
+        messageAddress.addressRole === addresRoleType
+    );
     message["fromOrTo"] = "";
-    messageAddressList.forEach(
-      (messageAddress: MessageAddress) => {
-        message["fromOrTo"] += ", " + (messageAddress.idAddress.originalAddress ? messageAddress.idAddress.originalAddress : messageAddress.idAddress.mailAddress);
-      });
+    messageAddressList.forEach((messageAddress: MessageAddress) => {
+      message["fromOrTo"] +=
+        ", " +
+        (messageAddress.idAddress.originalAddress
+          ? messageAddress.idAddress.originalAddress
+          : messageAddress.idAddress.mailAddress);
+    });
     if ((message["fromOrTo"] as string).startsWith(",")) {
-      message["fromOrTo"]  = (message["fromOrTo"] as string).substr(1, (message["fromOrTo"] as string).length - 1);
+      message["fromOrTo"] = (message["fromOrTo"] as string).substr(
+        1,
+        (message["fromOrTo"] as string).length - 1
+      );
     }
   }
 
@@ -275,15 +323,18 @@ export class MailListComponent implements OnInit, AfterViewChecked {
         if (this.selectedMessages.length === 1) {
           const selectedMessage: Message = this.selectedMessages[0];
           this.setSeen(selectedMessage);
-          this.messageService.manageMessageEvent(selectedMessage, this.selectedMessages);
+          this.messageService.manageMessageEvent(
+            selectedMessage,
+            this.selectedMessages
+          );
           // this.messageClicked.emit(selectedMessage);
         } else {
           this.messageService.manageMessageEvent(null, this.selectedMessages);
         }
-      break;
+        break;
       case "onContextMenuSelect":
         this.setContextMenuItemLook();
-      break;
+        break;
     }
   }
 
@@ -299,36 +350,42 @@ export class MailListComponent implements OnInit, AfterViewChecked {
       // element.disabled = false;
       switch (element.id) {
         case "MessageSeen":
-          if (this.selectedMessages.some((message: Message) => !!!message.seen)) {
-            element.label =  "Letto";
-            element.queryParams = {seen: true};
+          if (
+            this.selectedMessages.some((message: Message) => !!!message.seen)
+          ) {
+            element.label = "Letto";
+            element.queryParams = { seen: true };
           } else {
             element.label = "Da Leggere";
-            element.queryParams = {seen: false};
+            element.queryParams = { seen: false };
           }
-        break;
+          break;
         case "MessageDelete":
-
-        break;
+          break;
         case "MessageReply":
         case "MessageReplyAll":
           element.disabled = false;
           if (this.selectedMessages.length > 1) {
             element.disabled = true;
           }
-        break;
+          break;
+        case "MessageDownload":
+          element.disabled = false;
+          if (this.selectedMessages.length > 1) {
+            element.disabled = true;
+          }
+          break;
       }
     });
   }
 
   private aaa(messagesFolder: MessageFolder[]) {
     console.log(messagesFolder);
-
   }
 
   private selectedContextMenuItem(event: any) {
-    console.log(event);
-    const menuItem: MenuItem =  event.item;
+    console.log("check: ", event);
+    const menuItem: MenuItem = event.item;
     switch (menuItem.id) {
       case "MessageSeen":
         const messagesToUpdate: BatchOperation[] = [];
@@ -338,7 +395,10 @@ export class MailListComponent implements OnInit, AfterViewChecked {
             messagesToUpdate.push({
               id: message.id,
               operation: BatchOperationTypes.UPDATE,
-              entityPath: BaseUrls.get(BaseUrlType.Shpeck) + "/" + ENTITIES_STRUCTURE.shpeck.message.path,
+              entityPath:
+                BaseUrls.get(BaseUrlType.Shpeck) +
+                "/" +
+                ENTITIES_STRUCTURE.shpeck.message.path,
               entityBody: message,
               additionalData: null
             });
@@ -347,19 +407,42 @@ export class MailListComponent implements OnInit, AfterViewChecked {
         if (messagesToUpdate.length > 0) {
           this.messageService.batchHttpCall(messagesToUpdate).subscribe();
         }
-      break;
+        break;
       case "MessageDelete":
-      this.messageFolderService.moveToTrashMessages(this.selectedMessages.map((message: Message) => {
-        return message.messageFolderList.filter((messageFolder: MessageFolder) =>
-            messageFolder.fk_idFolder.id = this._folder.id)[0];
-      }), 5).subscribe();
-      break;
+        this.messageFolderService
+          .moveToTrashMessages(
+            this.selectedMessages.map((message: Message) => {
+              return message.messageFolderList.filter(
+                (messageFolder: MessageFolder) =>
+                  (messageFolder.fk_idFolder.id = this._folder.id)
+              )[0];
+            }),
+            5
+          )
+          .subscribe();
+        break;
+
+      case "MessageDownload":
+        this.dowloadMessage(this.selectedMessages[0]);
+        break;
     }
   }
 
-
   private saveMessage(selectedMessage: Message) {
-    this.messageService.patchHttpCall(selectedMessage, selectedMessage.id, this.selectedProjection, null)
-    .subscribe((message: Message) => {});
+    this.messageService
+      .patchHttpCall(
+        selectedMessage,
+        selectedMessage.id,
+        this.selectedProjection,
+        null
+      )
+      .subscribe((message: Message) => {});
+  }
+
+  private dowloadMessage(selectedMessage: Message): void {
+    this.messageService.downloadEml(selectedMessage).subscribe(response => {
+      const nomeEmail = "Email_" + selectedMessage.subject + "_" + selectedMessage.id;
+      Utils.downLoadFile(response, "message/rfc822", nomeEmail, false);
+    });
   }
 }
