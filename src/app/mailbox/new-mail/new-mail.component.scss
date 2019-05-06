@@ -13,6 +13,10 @@ label {
   // justify-content: flex-end;
 }
 
+ul {
+  flex: 1 0 auto;
+}
+
 li {
   margin: 0 0 10px;
 }
@@ -55,6 +59,7 @@ li {
 .footer-class {
   display: flex;
   justify-content: flex-end;
+  margin-bottom: -7px;
 }
 
 /******* Attachments and Address chips *******/
@@ -95,4 +100,10 @@ li {
 ::ng-deep body .ui-autocomplete.ui-autocomplete-multiple .ui-autocomplete-multiple-container:not(.ui-state-disabled).ui-state-focus,
 input:focus {
   border-color: #2e4a65 !important;
+}
+
+::ng-deep p-editor > div {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
 }

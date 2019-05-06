@@ -75,7 +75,7 @@ export class ToolbarComponent implements OnInit, OnDestroy {
         header: "Nuova Mail",
         width: "auto",
         styleClass: "ui-dialog-resizable ui-dialog-draggable",  // actually doesn't work
-        contentStyle: { "max-height": "800px", "min-height": "350px", "overflow": "auto", "height": "690px" }
+        contentStyle: { "max-height": "43vw", "min-height": "40vw", "overflow": "auto", "height": "40vw" }
       });
       ref.onClose.subscribe((el) => {
         if (el) {
