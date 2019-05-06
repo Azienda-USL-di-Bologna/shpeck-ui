@@ -102,8 +102,10 @@ input:focus {
   border-color: #2e4a65 !important;
 }
 
-::ng-deep p-editor > div {
-  display: flex;
-  flex-direction: column;
-  height: 100%;
+/******* Editor *******/
+::ng-deep .ui-editor-content.ql-container.ql-snow {
+  overflow: auto;
+  word-break: break-word !important;
+  word-break: break-all;
+  min-height: 250px;
 }
