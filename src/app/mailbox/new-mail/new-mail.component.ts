@@ -224,7 +224,7 @@ export class NewMailComponent implements OnInit, AfterViewInit {
     this.editor.quill.setContents(editorContent);
     /* Mi vergogno di questa cosa ma per adesso devo fare per forza così
      * in attesa del supporto alle table dell'editor Quill nella versione 2.0 */
-    const bodyTableClean = body.replace(/<table.*?<tbody>/s, "").replace(/<\/tbody.*?<\/table>/s, "").replace(/<tr>/g, "<br>");
+    const bodyTableClean = body.replace(/<table.[^]*?<tbody>/, "").replace(/<\/tbody.[^]*?<\/table>/, "").replace(/<tr>/g, "<br>");
     this.editor.quill.clipboard.dangerouslyPasteHTML(this.editor.quill.getLength(), bodyTableClean);
   }
 
