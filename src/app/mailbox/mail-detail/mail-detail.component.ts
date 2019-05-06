@@ -153,26 +153,28 @@ export class MailDetailComponent implements OnInit, OnDestroy {
    * Agisco sulla proprietà contentDocument del mio iframe per andare a fare dei ritocchi
    */
   public customizeIframeContent(): void {
-    const iframeContent = this.emliframe.nativeElement.contentDocument || this.emliframe.nativeElement.contentWindow;
-    /* Aggiungo target="_blank" ai vari a in modo che i link si aprano in un altro tab */
-    const elements = iframeContent.getElementsByTagName("a");
-    let len = elements.length;
-    while (len--) {
-      elements[len].target = "_blank";
-    }
-    /* Setto lo stile della scrollbar */
-    this.http.get("app/mailbox/mail-detail/mail-detail-iframe-custom-style.scss", { responseType: "text"}).subscribe(data => {
-      const head = iframeContent.head || iframeContent.getElementsByTagName("head")[0];
-      const style = iframeContent.createElement("style");
-      head.appendChild(style);
-      style.type = "text/css";
-      if (style.styleSheet) {
-        // This is required for IE8 and below.
-        style.styleSheet.cssText = data;
-      } else {
-        style.appendChild(document.createTextNode(data));
+    if (this.emliframe) {
+      const iframeContent = this.emliframe.nativeElement.contentDocument || this.emliframe.nativeElement.contentWindow;
+      /* Aggiungo target="_blank" ai vari a in modo che i link si aprano in un altro tab */
+      const elements = iframeContent.getElementsByTagName("a");
+      let len = elements.length;
+      while (len--) {
+        elements[len].target = "_blank";
       }
-    });
+      /* Setto lo stile della scrollbar */
+      this.http.get("app/mailbox/mail-detail/mail-detail-iframe-custom-style.scss", { responseType: "text"}).subscribe(data => {
+        const head = iframeContent.head || iframeContent.getElementsByTagName("head")[0];
+        const style = iframeContent.createElement("style");
+        head.appendChild(style);
+        style.type = "text/css";
+        if (style.styleSheet) {
+          // This is required for IE8 and below.
+          style.styleSheet.cssText = data;
+        } else {
+          style.appendChild(document.createTextNode(data));
+        }
+      });
+    }
   }
 
   /**
