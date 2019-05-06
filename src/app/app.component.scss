@@ -54,13 +54,13 @@
   height: 10px;
 }
 ::ng-deep  ::-webkit-scrollbar-track {
-  background: #f1f1f1; 
+  background: #f1f1f1;
 }
 ::ng-deep  ::-webkit-scrollbar-thumb {
-  background: #88888857; 
+  background: #88888857;
 }
 ::ng-deep  ::-webkit-scrollbar-thumb:hover {
-  background: #8888889c; 
+  background: #8888889c;
 }
 
 // FIREFOX
@@ -70,4 +70,10 @@
 }
 ::ng-deep *:hover {
   scrollbar-color: #8888889c #f1f1f1;
+}
+
+@media only screen and (max-height: 801px) { /* For mobile phones: */
+  ::ng-deep .ciao-draft .ui-dialog-content.ui-widget-content {
+    height: 91vh !important;
+  }
 }

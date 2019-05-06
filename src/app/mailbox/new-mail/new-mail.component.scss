@@ -15,6 +15,7 @@ label {
 
 ul {
   flex: 1 0 auto;
+  height: 94%;
 }
 
 li {
@@ -107,5 +108,11 @@ input:focus {
   overflow: auto;
   word-break: break-word !important;
   word-break: break-all;
-  min-height: 250px;
+  // min-height: 250px;
+}
+
+::ng-deep p-editor > div {
+  height: 100%;
+  display: flex;
+  flex-flow: column;
 }
