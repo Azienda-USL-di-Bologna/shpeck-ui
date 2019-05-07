@@ -1,10 +1,10 @@
 import { Component, OnInit, ViewChild, AfterViewInit } from "@angular/core";
 import { FormGroup, FormControl, Validators } from "@angular/forms";
 import { DynamicDialogRef, DynamicDialogConfig, MessageService } from "primeng/api";
-import { ShpeckMessageService } from "src/app/services/shpeck-message.service";
 import { Message, Pec } from "@bds/ng-internauta-model";
 import { Editor } from "primeng/editor";
 import { TOOLBAR_ACTIONS } from "src/environments/app-constants";
+import { DraftService } from "src/app/services/draft.service";
 
 @Component({
   selector: "app-new-mail",
@@ -46,8 +46,8 @@ export class NewMailComponent implements OnInit, AfterViewInit {
     "schumer@outlook.com"
   ];
 
-  constructor(public ref: DynamicDialogRef, private messageService: ShpeckMessageService,
-    public config: DynamicDialogConfig, private messagePrimeService: MessageService) { }
+  constructor(public ref: DynamicDialogRef, public config: DynamicDialogConfig,
+    private messagePrimeService: MessageService, public draftService: DraftService) { }
 
   ngOnInit() {
     console.log("DATA PASSED = ", this.config.data);
@@ -246,17 +246,30 @@ export class NewMailComponent implements OnInit, AfterViewInit {
         formToSend.append(key.toString(), this.mailForm.get(key).value);
       }
     });
-    this.messageService.saveDraftMessage(formToSend).subscribe(
+    this.draftService.saveDraftMessage(formToSend).subscribe(
       res => {
         console.log(res);
         this.messagePrimeService.add(
           { severity: "success", summary: "Successo", detail: "Bozza salvata correttamente" });
+        this.onClose();
       },
       err => {
         console.log(err);
         this.messagePrimeService.add(
           { severity: "error", summary: "Errore", detail: "Errore durante il salvaggio, contattare BabelCare" });
       }
+    );
+  }
+
+  onDelete() {
+    this.draftService.deleteHttpCall(this.mailForm.get("idDraftMessage").value).subscribe(
+      res => {
+        this.messagePrimeService.add(
+          { severity: "success", summary: "Successo", detail: "Bozza eliminata correttamente" });
+        this.onClose();
+      },
+      err => this.messagePrimeService.add(
+        { severity: "error", summary: "Errore", detail: "Errore durante l'eliminazione, contattare BabelCare" })
     );
   }
 

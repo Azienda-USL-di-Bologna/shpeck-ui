@@ -75,7 +75,9 @@ export class ToolbarComponent implements OnInit, OnDestroy {
         header: "Nuova Mail",
         width: "auto",
         styleClass: "ciao-draft",  // actually doesn't work
-        contentStyle: { "overflow": "auto", "height": "85vh" }
+        contentStyle: { "overflow": "auto", "height": "85vh" },
+        closable: false,
+        closeOnEscape: false
       });
       ref.onClose.subscribe((el) => {
         if (el) {

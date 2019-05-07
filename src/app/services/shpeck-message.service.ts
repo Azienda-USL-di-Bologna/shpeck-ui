@@ -1,10 +1,10 @@
 import { Injectable } from "@angular/core";
-import { NextSDREntityProvider, BatchOperation, BatchOperationTypes } from "@nfa/next-sdr";
+import { NextSDREntityProvider } from "@nfa/next-sdr";
 import { HttpClient } from "@angular/common/http";
 import { DatePipe } from "@angular/common";
-import { getInternautaUrl, BaseUrlType, CUSTOM_SERVER_METHODS, BaseUrls } from "src/environments/app-constants";
+import { getInternautaUrl, BaseUrlType, CUSTOM_SERVER_METHODS } from "src/environments/app-constants";
 import { ENTITIES_STRUCTURE, Message } from "@bds/ng-internauta-model";
-import { Observable, Subject, BehaviorSubject, throwError } from "rxjs";
+import { Observable, BehaviorSubject } from "rxjs";
 import { EmlAttachment } from "../classes/eml-attachment";
 import { EmlData } from "../classes/eml-data";
 
@@ -95,15 +95,6 @@ export class ShpeckMessageService extends NextSDREntityProvider {
   public downloadAllEmlAttachment(message: Message): Observable<any> {
     const url = getInternautaUrl(BaseUrlType.Shpeck) + "/" + CUSTOM_SERVER_METHODS.downloadAllEmlAttachment + "/" + message.id;
     return this.http.get(url, {responseType: "blob"});
-  }
-
-  /**
-   * Salva la bozza sul database e ritorna un observable
-   * @param form La form contenente tutti i campi della mail da salvare
-   */
-  public saveDraftMessage(form: FormData) {
-    const apiUrl = getInternautaUrl(BaseUrlType.Shpeck) + "/" + CUSTOM_SERVER_METHODS.saveDraftMessage;
-    return this.http.post(apiUrl, form);
   }
 }
 
