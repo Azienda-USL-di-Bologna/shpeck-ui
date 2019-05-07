@@ -103,6 +103,10 @@ input:focus {
   border-color: #2e4a65 !important;
 }
 
+::ng-deep .ui-tooltip {
+  max-width: 18.5em;
+}
+
 /******* Editor *******/
 ::ng-deep .ui-editor-content.ql-container.ql-snow {
   overflow: auto;

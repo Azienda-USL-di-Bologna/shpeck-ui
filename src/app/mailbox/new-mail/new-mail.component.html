@@ -28,7 +28,8 @@
               id="cc" formControlName="cc" [suggestions]="filteredCountriesMultiple"
               (completeMethod)="filterCountryMultiple($event)" (onKeyUp)="onKeyUp($event, 'ccAddresses')"
               (onSelect)="onSelect($event, 'ccAddresses')"
-              [minLength]="1" [multiple]="true">
+              [pTooltip]="mailForm.get('hideRecipients').value ? ccTooltip : ''"
+              [minLength]="1" [multiple]="true" [disabled]="mailForm.get('hideRecipients').value">
             </p-autoComplete>
           </span>
           <span>
@@ -39,7 +40,10 @@
         <li>
           <label for="hideRecipients">Destinatari privati: </label>
           <span class="ui-fluid margin-lr-5">
-            <p-checkbox id="hideRecipients" formControlName="hideRecipients" binary="true"></p-checkbox>
+            <p-checkbox id="hideRecipients" formControlName="hideRecipients" binary="true"
+              [disabled]="mailForm.get('cc').value.length > 0"
+              [pTooltip]="mailForm.get('cc').value.length > 0 ? hideRecipientsTooltip : ''" >
+            </p-checkbox>
           </span>
         </li>
         <!-- Oggetto -->

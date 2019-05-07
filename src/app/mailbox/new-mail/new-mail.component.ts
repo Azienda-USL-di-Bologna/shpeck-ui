@@ -45,7 +45,8 @@ export class NewMailComponent implements OnInit, AfterViewInit {
     "dcoppit@live.com",
     "schumer@outlook.com"
   ];
-
+  ccTooltip = "Non puoi inserire destinatari CC se è attiva la funzione Destinatari privati";
+  hideRecipientsTooltip = "Non puoi utilizzare la funzione Destinatari privati con destinatari CC: cancellali o rendili destinatari A";
   constructor(public ref: DynamicDialogRef, public config: DynamicDialogConfig,
     private messagePrimeService: MessageService, public draftService: DraftService) { }
 
