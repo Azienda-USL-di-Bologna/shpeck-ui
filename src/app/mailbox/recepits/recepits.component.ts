@@ -81,7 +81,7 @@ export class RecepitsComponent implements OnInit {
   public dowloadRecepit(recepit: Message): void {
     this.messageService.downloadEml(recepit).subscribe(
       response => {
-        const nomeRicevuta = "Ricevuta_" + recepit.idRecepit.recepitType + "_" + recepit.id;
+        const nomeRicevuta = "Ricevuta_" + recepit.idRecepit.recepitType + "_" + recepit.id + ".eml";
         Utils.downLoadFile(response, "message/rfc822", nomeRicevuta, false);
       }
     );

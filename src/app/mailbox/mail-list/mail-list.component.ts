@@ -441,7 +441,7 @@ export class MailListComponent implements OnInit, AfterViewChecked {
 
   private dowloadMessage(selectedMessage: Message): void {
     this.messageService.downloadEml(selectedMessage).subscribe(response => {
-      const nomeEmail = "Email_" + selectedMessage.subject + "_" + selectedMessage.id;
+      const nomeEmail = "Email_" + selectedMessage.subject + "_" + selectedMessage.id + ".eml";
       Utils.downLoadFile(response, "message/rfc822", nomeEmail, false);
     });
   }
