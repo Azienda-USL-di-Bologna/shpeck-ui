@@ -87,8 +87,8 @@ export class NewMailComponent implements OnInit, AfterViewInit {
       idDraftMessage: new FormControl(this.config.data.idDraft),
       idPec: new FormControl(pec.id),
       to: new FormControl(this.toAddresses),
-      cc: new FormControl(this.ccAddresses),
-      hideRecipients: new FormControl(false),
+      cc: new FormControl({ value: this.ccAddresses, disabled: false}),
+      hideRecipients: new FormControl({ value: false, disabled: false }),
       subject: new FormControl(subject),
       attachments: new FormControl(this.attachments),
       body: new FormControl(""),  // Il body viene inizializzato nell'afterViewInit perché l'editor non è ancora istanziato
@@ -163,6 +163,10 @@ export class NewMailComponent implements OnInit, AfterViewInit {
             if (!ccForm.value.find((element) => element === tokenInput.value)) {
               ccForm.value.push(tokenInput.value);
             }
+            if (ccForm.value && ccForm.value.length > 0) {
+              const hideRecipients = this.mailForm.get("hideRecipients");
+              hideRecipients.disable();
+            }
           }
         }
         tokenInput.value = "";
@@ -189,8 +193,33 @@ export class NewMailComponent implements OnInit, AfterViewInit {
         if (ccForm.value.indexOf(item) === -1) {
           ccForm.value.push(item);
         }
+        if (ccForm.value && ccForm.value.length > 0) {
+          const hideRecipients = this.mailForm.get("hideRecipients");
+          hideRecipients.disable();
+        }
       }
     }
+  }
+  /**
+   * Metodo chiamato quando viene eliminato un indirizzo dai CC address
+   * Verifica se il campo è popolato per disattivare il check dei destinatari privati
+   * @param item L'oggetto rimosso
+  */
+  onUnselect(item) {
+    const ccForm = this.mailForm.get("cc");
+    if (ccForm.value && ccForm.value.length === 0) {
+      const hideRecipients = this.mailForm.get("hideRecipients");
+      hideRecipients.enable();
+    }
+  }
+  /**
+   * Metodo chiamato quando cambia il valore della checkbox destinatari privati (HiddenRecipients)
+   * Verifica se il valore è true ed in tal caso disabilita il campo CC
+   * @param checkBoxValue Il valore della checkBox
+  */
+  onChange(checkBoxValue) {
+    const ccForm = this.mailForm.get("cc");
+    checkBoxValue ? ccForm.disable() : ccForm.enable();
   }
 
   /* Gestione allegati */

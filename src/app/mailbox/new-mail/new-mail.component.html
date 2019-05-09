@@ -1,7 +1,7 @@
 <section class="height-100">
   <!-- <div class="height-100"> -->
     <!-- Prevent default on form to avoid auto submit -->
-    <form class="height-100 d-flex flex-dir-col" [formGroup]="mailForm" (ngSubmit)="onSubmit()">
+    <form class="height-100 d-flex flex-dir-col" [formGroup]="mailForm" (ngSubmit)="onSubmit()" (keydown.enter)="$event.preventDefault()">
       <ul class="list-items">
         <!-- A Addresses -->
         <li>
@@ -27,9 +27,9 @@
               type="email"
               id="cc" formControlName="cc" [suggestions]="filteredCountriesMultiple"
               (completeMethod)="filterCountryMultiple($event)" (onKeyUp)="onKeyUp($event, 'ccAddresses')"
-              (onSelect)="onSelect($event, 'ccAddresses')"
+              (onSelect)="onSelect($event, 'ccAddresses')" (onUnselect)="onUnselect($event)"
               [pTooltip]="mailForm.get('hideRecipients').value ? ccTooltip : ''"
-              [minLength]="1" [multiple]="true" [disabled]="mailForm.get('hideRecipients').value">
+              [minLength]="1" [multiple]="true" >
             </p-autoComplete>
           </span>
           <span>
@@ -41,7 +41,7 @@
           <label for="hideRecipients">Destinatari privati: </label>
           <span class="ui-fluid margin-lr-5">
             <p-checkbox id="hideRecipients" formControlName="hideRecipients" binary="true"
-              [disabled]="mailForm.get('cc').value.length > 0"
+              (onChange)="onChange($event)"
               [pTooltip]="mailForm.get('cc').value.length > 0 ? hideRecipientsTooltip : ''" >
             </p-checkbox>
           </span>
