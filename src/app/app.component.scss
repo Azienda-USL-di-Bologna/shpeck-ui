@@ -72,8 +72,8 @@
   scrollbar-color: #8888889c #f1f1f1;
 }
 
-@media only screen and (max-height: 801px) { /* For mobile phones: */
-  ::ng-deep .ciao-draft .ui-dialog-content.ui-widget-content {
+@media only screen and (max-height: 801px) { /* For low resolutions */
+  ::ng-deep .new-draft .ui-dialog-content.ui-widget-content {
     height: 91vh !important;
   }
 }

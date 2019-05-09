@@ -1,10 +1,11 @@
 import { Component, OnInit, ViewChild, AfterViewInit } from "@angular/core";
 import { FormGroup, FormControl, Validators } from "@angular/forms";
 import { DynamicDialogRef, DynamicDialogConfig, MessageService } from "primeng/api";
-import { Message, Pec } from "@bds/ng-internauta-model";
+import { Message, Pec, Draft, MessageRelatedType } from "@bds/ng-internauta-model";
 import { Editor } from "primeng/editor";
 import { TOOLBAR_ACTIONS } from "src/environments/app-constants";
 import { DraftService } from "src/app/services/draft.service";
+import { EmlData } from "src/app/classes/eml-data";
 
 @Component({
   selector: "app-new-mail",
@@ -15,9 +16,12 @@ export class NewMailComponent implements OnInit, AfterViewInit {
 
   @ViewChild("editor") editor: Editor;
   mailForm: FormGroup;
-  fromAddress: string = "";
+  fromAddress: string = ""; // Indirizzo che ha inviato la mail in caso di Rispondi e Rispondi a tutti
+  toAddressesForLabel: string[] = [];
+  ccAddressesForLabel: string[] = [];
   toAddresses: any[] = [];
   ccAddresses: any[] = [];
+  attachments: any[] = [];
   country: any;
 
   filteredCountriesSingle: any[];
@@ -52,48 +56,53 @@ export class NewMailComponent implements OnInit, AfterViewInit {
 
   ngOnInit() {
     console.log("DATA PASSED = ", this.config.data);
-    let message: Message;
+    let subject: string = ""; // L'Oggetto della mail
+    let messageRelatedType = "";
+    // Variabile per il messaggio in caso di azioni reply e inoltra
+    const message: Message = this.config.data.fullMessage ? this.config.data.fullMessage.message : null;
     const pec: Pec = this.config.data.pec;
     const action = this.config.data.action;
-    /* Action è passata dal components toolbar. Se è diverso da NEW ci aspettiamo il messaggio e il body della mail */
-    if (action !== TOOLBAR_ACTIONS.NEW) {
-      message = this.config.data.message;
-      message.messageAddressList.forEach(obj => {
-        if (obj.addressRole === "FROM") {
-          this.fromAddress = obj.idAddress.originalAddress ? obj.idAddress.originalAddress : obj.idAddress.mailAddress;
-          this.toAddresses.push(this.fromAddress);
-        }
-        switch (action) {
-          case TOOLBAR_ACTIONS.REPLY:   // REPLY
-            break;
-          case TOOLBAR_ACTIONS.REPLY_ALL: // REPLY_ALL Prendiamo tutti gli indirizzi, to, cc
-            if (obj.addressRole === "CC" || (obj.addressRole === "TO" && obj.idAddress.id !== message.fk_idPec.id)) {
-              this.ccAddresses.push(obj.idAddress.originalAddress ? obj.idAddress.originalAddress : obj.idAddress.mailAddress);
-            }
-            break;
-        }
-      });
+    /* Action è passata dal components toolbar. Se è diverso da NEW ci aspettiamo il FullMessage di MessageEvent */
+    switch (action) {
+      case TOOLBAR_ACTIONS.REPLY:   // REPLY
+        subject = "Re: ".concat(message.subject);
+        messageRelatedType = MessageRelatedType.REPLIED;
+        this.fillAddressesArray(message, false, action);
+        break;
+      case TOOLBAR_ACTIONS.REPLY_ALL: // REPLY_ALL Prendiamo tutti gli indirizzi, to, cc
+        subject = "Re: ".concat(message.subject);
+        messageRelatedType = MessageRelatedType.REPLIED;
+        this.fillAddressesArray(message, true, action);
+        break;
+      case TOOLBAR_ACTIONS.FORWARD:
+        subject = "Fwd: ".concat(message.subject);
+        messageRelatedType = MessageRelatedType.FORWARDED;
+        this.fillAddressesArray(message, false, action);
+        Object.assign(this.attachments, this.config.data.fullMessage.emlData.attachments);
+        break;
     }
-    /* Inizializzazione della form, funziona per tutte le actions */
+    /* Inizializzazione della form, funziona per tutte le actions ed é l'oggetto che contiene tutti i campi
+     * che saranno inviati al server */
     this.mailForm = new FormGroup({
       idDraftMessage: new FormControl(this.config.data.idDraft),
       idPec: new FormControl(pec.id),
       to: new FormControl(this.toAddresses),
       cc: new FormControl(this.ccAddresses),
       hideRecipients: new FormControl(false),
-      subject: new FormControl(message ? "Re: ".concat(message.subject) : ""),
-      attachments: new FormControl([]),
+      subject: new FormControl(subject),
+      attachments: new FormControl(this.attachments),
       body: new FormControl(""),  // Il body viene inizializzato nell'afterViewInit perché l'editor non è ancora istanziato
       from: new FormControl(pec.indirizzo),
-      idMessageReplied: new FormControl(message ? message.id : "")
+      idMessageRelated: new FormControl(message ? message.id : ""),
+      messageRelatedType: new FormControl(messageRelatedType)
     });
   }
 
   ngAfterViewInit() {
-    /* Inizializzazione del body per le risposte */
+    /* Inizializzazione del body per le risposte e l'inoltra */
     if (this.config.data.action !== TOOLBAR_ACTIONS.NEW) {
-      const message: Message = this.config.data.message;
-      const body = this.config.data.body;
+      const message: Message = this.config.data.fullMessage.message;
+      const body = this.config.data.fullMessage.emlData.displayBody;
       this.buildBody(message, body);
       this.mailForm.patchValue({
         body: this.editor.quill.root["innerHTML"]
@@ -101,26 +110,37 @@ export class NewMailComponent implements OnInit, AfterViewInit {
     }
   }
 
-  filterCountrySingle(event) {
-    let query = event.query;
-    this.filteredCountriesSingle = this.filterCountry(query, this.indirizziTest);
-  }
-
-  filterCountryMultiple(event) {
-      let query = event.query;
-      this.filteredCountriesMultiple = this.filterCountry(query, this.indirizziTest);
-  }
-
-  filterCountry(query, countries: any[]): any[] {
-      let filtered : any[] = [];
-      for (let i = 0; i < countries.length; i++) {
-          let country = countries[i];
-          if (country.toLowerCase().indexOf(query.toLowerCase()) == 0) {
-              filtered.push(country);
+  /**
+   * Popola gli array degli indirizzi che saranno usati per popolare i campi della form e le label per il body
+   * @param message Il messaggio a cui si sta rispondendo o si sta inoltrando
+   * @param allAddresses Se True viene popolato l'array dei CC con tutti gli indirizzi
+   * @param action L'azione che è stata effettuata (REPLY, FORWARD, ETC)
+  */
+  fillAddressesArray(message: Message, allAddresses: boolean, action: string) {
+    message.messageAddressList.forEach(obj => {
+      switch (obj.addressRole) {
+        case "FROM":
+          this.fromAddress = obj.idAddress.originalAddress ? obj.idAddress.originalAddress : obj.idAddress.mailAddress;
+          if (action !== TOOLBAR_ACTIONS.FORWARD) {
+            this.toAddresses.push(this.fromAddress);
           }
+          break;
+        case "TO":
+          this.toAddressesForLabel.push(obj.idAddress.originalAddress ? obj.idAddress.originalAddress : obj.idAddress.mailAddress);
+          if (allAddresses && obj.idAddress.id !== message.fk_idPec.id) {
+            this.ccAddresses.push(obj.idAddress.originalAddress ? obj.idAddress.originalAddress : obj.idAddress.mailAddress);
+          }
+          break;
+        case "CC":
+          this.ccAddressesForLabel.push(obj.idAddress.originalAddress ? obj.idAddress.originalAddress : obj.idAddress.mailAddress);
+          if (allAddresses && obj.idAddress.id !== message.fk_idPec.id) {
+            this.ccAddresses.push(obj.idAddress.originalAddress ? obj.idAddress.originalAddress : obj.idAddress.mailAddress);
+          }
+          break;
       }
-      return filtered;
+    });
   }
+
   /**
    * Intercetta la pressione del tasto invio per inserire l'indirizzo nei destinatari
    * per far funzionare sia l'autocomplete che l'inserimento manuale
@@ -149,6 +169,7 @@ export class NewMailComponent implements OnInit, AfterViewInit {
       }
     }
   }
+
   /**
    * Intercetta la selezione dell'elemento nell'autocomplete e aggiorna
    * sia gli array degli indirizzi che la form
@@ -190,8 +211,8 @@ export class NewMailComponent implements OnInit, AfterViewInit {
    */
   buildBody(message: Message, body: string) {
     console.log("EDITOR = ", this.editor);
-    const to = this.toAddresses.join(", ");
-    const cc = this.ccAddresses.length > 0 ? this.ccAddresses.join(", ") : "";
+    const to = this.toAddressesForLabel.join(", ");
+    const cc = this.ccAddressesForLabel.length > 0 ? this.ccAddressesForLabel.join(", ") : "";
     const inviato = message.receiveTime.toLocaleDateString("it-IT", {
       weekday: "long",
       year: "numeric",
@@ -241,7 +262,13 @@ export class NewMailComponent implements OnInit, AfterViewInit {
       if (key === "attachments") {  // Gli allegati vanno aggiunti singolarmente
         const files = this.mailForm.get(key).value;
         files.forEach(file => {
-          formToSend.append(key, file);
+          if (file.id) {
+            /* Nel caso di Inoltra, gli allegati della mail inoltrata avranno un id
+             * che servirà per scaricarli dall'eml e aggiungerli alla nuova mail */
+            formToSend.append("idMessageRelatedAttachments", file.id);
+          } else {
+            formToSend.append(key, file);
+          }
         });
       } else {
         formToSend.append(key.toString(), this.mailForm.get(key).value);
@@ -288,5 +315,27 @@ export class NewMailComponent implements OnInit, AfterViewInit {
     i = Math.floor(Math.log(bytes) / Math.log(k));
 
     return parseFloat((bytes / Math.pow(k, i)).toFixed(dm)) + " " + sizes[i];
+  }
+
+  /* Metodi per la ricerca nei campi indirizzi, saranno rivisti con l'introduzione della rubrica */
+  filterCountrySingle(event) {
+    let query = event.query;
+    this.filteredCountriesSingle = this.filterCountry(query, this.indirizziTest);
+  }
+
+  filterCountryMultiple(event) {
+      let query = event.query;
+      this.filteredCountriesMultiple = this.filterCountry(query, this.indirizziTest);
+  }
+
+  filterCountry(query, countries: any[]): any[] {
+      let filtered : any[] = [];
+      for (let i = 0; i < countries.length; i++) {
+          let country = countries[i];
+          if (country.toLowerCase().indexOf(query.toLowerCase()) == 0) {
+              filtered.push(country);
+          }
+      }
+      return filtered;
   }
 }
