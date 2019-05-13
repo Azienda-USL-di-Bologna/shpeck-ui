@@ -39,11 +39,15 @@ export class MailFoldersComponent implements OnInit, OnDestroy {
               this.mailfolders.push(this.buildNode(pec));
             }
           }
+          this.selected = this.mailfolders[0];
+          this.mailFoldersService.selectedPecTreeNode(this.mailfolders[0]);
         }
       }
     ));
     this.subscriptions.push(this.toolBarService.getFilterTyped.subscribe((filter: FilterDefinition[]) => {
-      this.selected = null;
+      if (filter) {
+        this.selectRootNode(this.selected, false);
+      }
     }));
   }
 
@@ -85,7 +89,7 @@ export class MailFoldersComponent implements OnInit, OnDestroy {
   public handleNodeSelect(event: any) {
     if (this.mailfolders) {
       this.mailfolders.map(m => m.styleClass = MailFoldersComponent.ROOT_NODE_NOT_SELECTED_STYLE_CLASS);
-      this.selectRootNode(event.node);
+      this.selectRootNode(event.node, true);
       this.mailFoldersService.selectedPecTreeNode(event.node);
     }
   }
@@ -94,11 +98,14 @@ export class MailFoldersComponent implements OnInit, OnDestroy {
 
   // }
 
-  private selectRootNode(node: TreeNode) {
+  private selectRootNode(node: TreeNode, changeOnlyStyle: boolean) {
     if (node.type === "pec") {
       node.styleClass = MailFoldersComponent.ROOT_NODE_SELECTED_STYLE_CLASS;
+      if (!!!changeOnlyStyle) {
+        this.selected = node;
+      }
     } else {
-      this.selectRootNode(node.parent);
+      this.selectRootNode(node.parent, changeOnlyStyle);
     }
   }
 

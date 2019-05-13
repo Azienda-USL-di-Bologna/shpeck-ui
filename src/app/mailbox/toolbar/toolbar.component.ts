@@ -19,9 +19,10 @@ export class ToolbarComponent implements OnInit, OnDestroy {
   private subscriptions: Subscription[] = [];
   private myPecs: Pec[];
   private searchTimeout: any;
+  private filterString: string;
   public messageEvent: MessageEvent;
 
-  @Output("filtersEmitter") private filtersEmitter: EventEmitter<FilterDefinition[]> = new EventEmitter();
+  // @Output("filtersEmitter") private filtersEmitter: EventEmitter<FilterDefinition[]> = new EventEmitter();
 
   constructor(public dialogService: DialogService,
     private pecService: PecService,
@@ -44,18 +45,30 @@ export class ToolbarComponent implements OnInit, OnDestroy {
     }));
   }
 
-  public onSearch(event) {
-    if (this.searchTimeout) {
-      clearTimeout(this.searchTimeout);
+  public onInput(event) {
+    if (event && event.target) {
+      this.filterString = event.target.value;
     }
-    this.searchTimeout = setTimeout(() => {
+    // if (this.searchTimeout) {
+    //   clearTimeout(this.searchTimeout);
+    // }
+    // this.searchTimeout = setTimeout(() => {
+    //   const filter = [];
+    //   if (event && event.target && event.target.value && event.target.value !== "") {
+    //     filter.push(new FilterDefinition("tscol", FILTER_TYPES.not_string.equals, event.target.value));
+    //   }
+    //   // this.filtersEmitter.emit(valueToEmit);
+    //   this.toolBarService.setFilterTyped(filter);
+    // }, 600);
+  }
+  public onKey(event) {
+    if (event && event.key === "Enter") {
       const filter = [];
-      if (event && event.target && event.target.value && event.target.value !== "") {
+      if (this.filterString && this.filterString.length > 0) {
         filter.push(new FilterDefinition("tscol", FILTER_TYPES.not_string.equals, event.target.value));
+        this.toolBarService.setFilterTyped(filter);
       }
-      // this.filtersEmitter.emit(valueToEmit);
-      this.toolBarService.setFilterTyped(filter);
-    }, 600);
+    }
   }
 
   handleEvent(event, action) {
