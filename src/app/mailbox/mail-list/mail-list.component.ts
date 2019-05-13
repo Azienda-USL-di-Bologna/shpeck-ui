@@ -1,46 +1,39 @@
-import { Component, OnInit, Input, Output, EventEmitter, ViewChild, ElementRef, AfterViewInit, AfterContentInit, AfterContentChecked, AfterViewChecked } from "@angular/core";
+import { Component, OnInit, Input, Output, EventEmitter, ViewChild, ElementRef, AfterViewInit, AfterContentInit, AfterContentChecked, AfterViewChecked, OnChanges, OnDestroy } from "@angular/core";
 import { buildLazyEventFiltersAndSorts } from "@bds/primeng-plugin";
-import { Message, ENTITIES_STRUCTURE, MessageAddress, AddresRoleType, Folder, FolderType, TagType, MessageTag, InOut, Tag, Pec, MessageFolder } from "@bds/ng-internauta-model";
+import { Message, ENTITIES_STRUCTURE, MessageAddress, AddresRoleType, Folder, FolderType, TagType, MessageTag, InOut, Tag, Pec, MessageFolder, MessageType } from "@bds/ng-internauta-model";
 import { ShpeckMessageService} from "src/app/services/shpeck-message.service";
 import { FiltersAndSorts, FilterDefinition, FILTER_TYPES, SortDefinition, SORT_MODES, PagingConf, PagingMode, BatchOperation, BatchOperationTypes } from "@nfa/next-sdr";
 import { TagService } from "src/app/services/tag.service";
-import { Observable } from "rxjs";
+import { Observable, Subscription } from "rxjs";
 import { DatePipe } from "@angular/common";
 import { Table } from "primeng/table";
 import { BaseUrlType, BaseUrls } from "src/environments/app-constants";
-import { MenuItem } from "primeng/api";
+import { MenuItem, LazyLoadEvent, FilterMetadata, TreeNode } from "primeng/api";
 import { MessageFolderService } from "src/app/services/message-folder.service";
 import { Utils } from "src/app/utils/utils";
+import { MailFoldersService } from "../mail-folders/mail-folders.service";
+import { ToolBarService } from "../toolbar/toolbar.service";
 
 @Component({
   selector: "app-mail-list",
   templateUrl: "./mail-list.component.html",
   styleUrls: ["./mail-list.component.scss"]
 })
-export class MailListComponent implements OnInit, AfterViewChecked {
-  public _folder: Folder;
-  @Input("folder")
-  set folder(folder: Folder) {
-    this._folder = null;
-    this.selectedMessages = [];
-    // trucco per far si che la table vanga tolta e rimessa nel dom (in modo da essere resettata) altrimenti sminchia
-    // NB: nell'html la visualizzazione della table è controllata da un *ngIf
-    setTimeout(() => {
-      this._folder = folder;
-      if (folder) {
-        this.lazyLoad(null);
-      }
-    }, 0);
-  }
+export class MailListComponent implements OnInit, AfterViewChecked, OnChanges, OnDestroy {
 
   @Output() public messageClicked = new EventEmitter<Message>();
 
   @ViewChild("selRow") private selRow: ElementRef;
   @ViewChild("dt") private dt: Table;
 
+  public _selectedFolder: Folder;
+  public _selectedPec: Pec;
+  public _filters: FilterDefinition[];
+
   private selectedProjection: string =
     ENTITIES_STRUCTURE.shpeck.message.customProjections
       .CustomMessageForMailList;
+
   private pageConf: PagingConf = {
     mode: "LIMIT_OFFSET",
     conf: {
@@ -48,6 +41,9 @@ export class MailListComponent implements OnInit, AfterViewChecked {
       offset: 0
     }
   };
+
+  private subscriptions: Subscription[] = [];
+  private previousFilter: FilterDefinition[] = [];
 
   public cmItems: MenuItem[] = [
     {
@@ -151,10 +147,28 @@ export class MailListComponent implements OnInit, AfterViewChecked {
     private messageService: ShpeckMessageService,
     private messageFolderService: MessageFolderService,
     private tagService: TagService,
+    private mailFoldersService: MailFoldersService,
+    private toolBarService: ToolBarService,
     private datepipe: DatePipe
   ) {}
 
   ngOnInit() {
+    this.subscriptions.push(this.mailFoldersService.pecTreeNodeSelected.subscribe((pecTreeNodeSelected: TreeNode) => {
+      if (pecTreeNodeSelected) {
+        if (pecTreeNodeSelected.type === "folder") {
+          const selectedFolder: Folder = pecTreeNodeSelected.data;
+          this._selectedPec = selectedFolder.idPec;
+          this.setFolder(selectedFolder);
+        } else {
+          this._selectedPec = pecTreeNodeSelected.data;
+        }
+      }
+    }));
+    this.subscriptions.push(this.toolBarService.getFilterTyped.subscribe((filters: FilterDefinition[]) => {
+      if (filters) {
+        this.setFilters(filters);
+      }
+    }));
     // this.idFolder = 6;
     // this.loadData(6);
     // this.pageConf = {
@@ -168,6 +182,51 @@ export class MailListComponent implements OnInit, AfterViewChecked {
 
   ngAfterViewChecked() {
     // console.log("ngAfterViewchecked", this.selRow.nativeElement.offsetHeight);
+  }
+
+  ngOnChanges() {
+    // console.log("filtes: ", this._filters);
+    // if (this._filters) {
+    //   this.filtering = true;
+    //   this._folder = null;
+    //   // let filters = [];
+    //   // Object.assign(filters, this._filters);
+    //   let filters = this._filters;
+    //   this._filters = null;
+    //   setTimeout(() => {
+    //     this._filters = filters;
+    //     this.lazyLoad(null);
+    //   }, 0);
+    //   this.resetPageConfig = true;
+    //   // this.dt.filter(null, null, null);
+    // }
+  }
+
+  private setFolder(folder: Folder) {
+    this._selectedFolder = null;
+    this._filters = null;
+    this.selectedMessages = [];
+    // trucco per far si che la table vanga tolta e rimessa nel dom (in modo da essere resettata) altrimenti sminchia
+    // NB: nell'html la visualizzazione della table è controllata da un *ngIf
+    setTimeout(() => {
+      this._selectedFolder = folder;
+      if (folder) {
+        this.lazyLoad(null);
+      }
+    }, 0);
+  }
+
+  private setFilters(filters: FilterDefinition[]) {
+    this._selectedFolder = null;
+    this._filters = null;
+    setTimeout(() => {
+      this._filters = filters;
+      if (filters) {
+        // this.resetPageConfig = true;
+        // this.filtering = true;
+        this.lazyLoad(null);
+      }
+    }, 0);
   }
 
   public getTagDescription(tagName: string) {
@@ -186,12 +245,12 @@ export class MailListComponent implements OnInit, AfterViewChecked {
     return this.tagService.getData(null, filtersAndSorts, null, null);
   }
 
-  private loadData(pageCong: PagingConf, lazyFilterAndSort?: FiltersAndSorts) {
+  private loadData(pageCong: PagingConf, lazyFilterAndSort?: FiltersAndSorts, folder?: Folder) {
     this.loading = true;
     this.messageService
       .getData(
         this.selectedProjection,
-        this.buildInitialFilterAndSort(),
+        this.buildInitialFilterAndSort(folder),
         lazyFilterAndSort,
         pageCong
       )
@@ -199,26 +258,63 @@ export class MailListComponent implements OnInit, AfterViewChecked {
         if (data && data.results) {
           this.totalRecords = data.page.totalElements;
           this.messages = data.results;
-          this.setMailTagVisibility(this.messages, this._folder.type);
+          this.setMailTagVisibility(this.messages);
         }
         this.loading = false;
-        setTimeout(() => {
-          console.log(this.selRow.nativeElement.offsetHeight);
-        });
+        // setTimeout(() => {
+        //   console.log(this.selRow.nativeElement.offsetHeight);
+        // });
       });
   }
 
-  public lazyLoad(event: any) {
+  public buildTableEventFilters(filtersDefinition: FilterDefinition[] ): {[s: string]: FilterMetadata} {
+    if (filtersDefinition && filtersDefinition.length > 0) {
+      const eventFilters: {[s: string]: FilterMetadata} = {};
+      filtersDefinition.forEach(filter => {
+        const filterMetadata: FilterMetadata = {
+          value: filter.value,
+          matchMode: filter.filterMatchMode
+        };
+        eventFilters[filter.field] = filterMetadata;
+      });
+      return eventFilters;
+    } else {
+      return null;
+    }
+  }
+
+  private needLoading(event: LazyLoadEvent): boolean {
+    let needLoading = this.pageConf.conf.limit !== event.rows ||
+    this.pageConf.conf.offset !== event.first;
+    if (!needLoading) {
+      if (this._filters && !this.previousFilter || !this._filters && this.previousFilter) {
+        needLoading = true;
+      } else if (this._filters && this.previousFilter) {
+        for (const filter of this._filters) {
+          if (this.previousFilter.findIndex(e =>
+            e.field === filter.field && e.filterMatchMode === filter.filterMatchMode && e.value === filter.value) === -1) {
+              needLoading = true;
+              break;
+          }
+        }
+      }
+    }
+    return needLoading;
+  }
+
+  public lazyLoad(event: LazyLoadEvent ) {
     console.log("lazyload", event);
+    const eventFilters: {[s: string]: FilterMetadata} = this.buildTableEventFilters(this._filters);
     if (event) {
+      if (eventFilters && Object.entries(eventFilters).length > 0) {
+        event.filters = eventFilters;
+      }
+
       // questo if è il modo più sicuro per fare "event.first === Nan"
       if (event.first !== event.first) {
         event.first = 0;
       }
-      if (
-        this.pageConf.conf.limit !== event.rows ||
-        this.pageConf.conf.offset !== event.first
-      ) {
+      if (this.needLoading(event)) {
         this.pageConf.conf = {
           limit: event.rows,
           offset: event.first
@@ -229,9 +325,14 @@ export class MailListComponent implements OnInit, AfterViewChecked {
           this.datepipe
         );
 
-        this.loadData(this.pageConf, filtersAndSorts);
+        this.loadData(this.pageConf, filtersAndSorts, this._selectedFolder);
       }
     } else {
+      if (eventFilters) {
+        event = {
+          filters: eventFilters
+        };
+      }
       this.pageConf.conf = {
         limit: this.rowsNmber * 2,
         offset: 0
@@ -242,21 +343,46 @@ export class MailListComponent implements OnInit, AfterViewChecked {
         this.datepipe
       );
 
-      this.loadData(this.pageConf, filtersAndSorts);
+      this.loadData(this.pageConf, filtersAndSorts, this._selectedFolder);
     }
+    this.previousFilter = this._filters;
+    // this.filtering = false;
   }
 
   trackByFn(index, item) {
     return item.id;
   }
 
-  buildInitialFilterAndSort(): FiltersAndSorts {
+  buildInitialFilterAndSort(folder: Folder): FiltersAndSorts {
     const filtersAndSorts: FiltersAndSorts = new FiltersAndSorts();
+    if (folder) {
+      filtersAndSorts.addFilter(
+        new FilterDefinition(
+          "messageFolderList.idFolder.id",
+          FILTER_TYPES.not_string.equals,
+          folder.id
+        )
+      );
+    }
     filtersAndSorts.addFilter(
       new FilterDefinition(
-        "messageFolderList.idFolder.id",
+        "idPec.id",
         FILTER_TYPES.not_string.equals,
-        this._folder.id
+        this._selectedPec.id
+      )
+    );
+    filtersAndSorts.addFilter(
+      new FilterDefinition(
+        "messageFolderList.messageType",
+        FILTER_TYPES.not_string.equals,
+        MessageType.MAIL
+      )
+    );
+    filtersAndSorts.addFilter(
+      new FilterDefinition(
+        "messageFolderList.messageType",
+        FILTER_TYPES.not_string.equals,
+        MessageType.PEC
       )
     );
     // filtersAndSorts.addSort(new SortDefinition("receiveTime", SORT_MODES.desc));
@@ -264,7 +390,7 @@ export class MailListComponent implements OnInit, AfterViewChecked {
     return filtersAndSorts;
   }
 
-  private setMailTagVisibility(messages: Message[], folderType: string) {
+  private setMailTagVisibility(messages: Message[]) {
     messages.map((message: Message) => {
       this.setFromOrTo(message);
       this.setIconsVisibility(message);
@@ -293,23 +419,25 @@ export class MailListComponent implements OnInit, AfterViewChecked {
       default:
         addresRoleType = AddresRoleType.FROM;
     }
-    const messageAddressList: MessageAddress[] = message.messageAddressList.filter(
-      (messageAddress: MessageAddress) =>
-        messageAddress.addressRole === addresRoleType
-    );
     message["fromOrTo"] = "";
-    messageAddressList.forEach((messageAddress: MessageAddress) => {
-      message["fromOrTo"] +=
-        ", " +
-        (messageAddress.idAddress.originalAddress
-          ? messageAddress.idAddress.originalAddress
-          : messageAddress.idAddress.mailAddress);
-    });
-    if ((message["fromOrTo"] as string).startsWith(",")) {
-      message["fromOrTo"] = (message["fromOrTo"] as string).substr(
-        1,
-        (message["fromOrTo"] as string).length - 1
+      if (message.messageAddressList) {
+      const messageAddressList: MessageAddress[] = message.messageAddressList.filter(
+        (messageAddress: MessageAddress) =>
+          messageAddress.addressRole === addresRoleType
       );
+      messageAddressList.forEach((messageAddress: MessageAddress) => {
+        message["fromOrTo"] +=
+          ", " +
+          (messageAddress.idAddress.originalAddress
+            ? messageAddress.idAddress.originalAddress
+            : messageAddress.idAddress.mailAddress);
+      });
+      if ((message["fromOrTo"] as string).startsWith(",")) {
+        message["fromOrTo"] = (message["fromOrTo"] as string).substr(
+          1,
+          (message["fromOrTo"] as string).length - 1
+        );
+      }
     }
   }
 
@@ -414,7 +542,7 @@ export class MailListComponent implements OnInit, AfterViewChecked {
             this.selectedMessages.map((message: Message) => {
               return message.messageFolderList.filter(
                 (messageFolder: MessageFolder) =>
-                  (messageFolder.fk_idFolder.id = this._folder.id)
+                  (messageFolder.fk_idFolder.id = this._selectedFolder.id)
               )[0];
             }),
             5
@@ -444,5 +572,12 @@ export class MailListComponent implements OnInit, AfterViewChecked {
       const nomeEmail = "Email_" + selectedMessage.subject + "_" + selectedMessage.id + ".eml";
       Utils.downLoadFile(response, "message/rfc822", nomeEmail, false);
     });
+  }
+
+  public ngOnDestroy() {
+    for (const s of this.subscriptions) {
+      s.unsubscribe();
+    }
+    this.subscriptions = [];
   }
 }

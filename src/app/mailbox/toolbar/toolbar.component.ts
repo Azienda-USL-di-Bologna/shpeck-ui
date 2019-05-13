@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy } from "@angular/core";
+import { Component, OnInit, OnDestroy, EventEmitter, Output } from "@angular/core";
 import { DialogService } from "primeng/api";
 import { NewMailComponent } from "../new-mail/new-mail.component";
 import { ShpeckMessageService, FullMessage, MessageEvent } from "src/app/services/shpeck-message.service";
@@ -7,6 +7,8 @@ import { TOOLBAR_ACTIONS } from "src/environments/app-constants";
 import { Pec, Draft, MessageRelatedType } from "@bds/ng-internauta-model";
 import { PecService } from "src/app/services/pec.service";
 import { DraftService } from "src/app/services/draft.service";
+import { FilterDefinition, FILTER_TYPES } from "@nfa/next-sdr";
+import { ToolBarService } from "./toolbar.service";
 
 @Component({
   selector: "app-toolbar",
@@ -16,11 +18,16 @@ import { DraftService } from "src/app/services/draft.service";
 export class ToolbarComponent implements OnInit, OnDestroy {
   private subscriptions: Subscription[] = [];
   private myPecs: Pec[];
+  private searchTimeout: any;
   public messageEvent: MessageEvent;
+
+  @Output("filtersEmitter") private filtersEmitter: EventEmitter<FilterDefinition[]> = new EventEmitter();
+
   constructor(public dialogService: DialogService,
-    public pecService: PecService,
-    public messageService: ShpeckMessageService,
-    public draftService: DraftService) { }
+    private pecService: PecService,
+    private messageService: ShpeckMessageService,
+    private toolBarService: ToolBarService,
+    private draftService: DraftService) { }
 
   ngOnInit() {
     this.subscriptions.push(this.messageService.messageEvent.subscribe((messageEvent: MessageEvent) => {
@@ -35,6 +42,20 @@ export class ToolbarComponent implements OnInit, OnDestroy {
         this.myPecs = pecs;
       }
     }));
+  }
+
+  public onSearch(event) {
+    if (this.searchTimeout) {
+      clearTimeout(this.searchTimeout);
+    }
+    this.searchTimeout = setTimeout(() => {
+      const filter = [];
+      if (event && event.target && event.target.value && event.target.value !== "") {
+        filter.push(new FilterDefinition("tscol", FILTER_TYPES.not_string.equals, event.target.value));
+      }
+      // this.filtersEmitter.emit(valueToEmit);
+      this.toolBarService.setFilterTyped(filter);
+    }, 600);
   }
 
   handleEvent(event, action) {

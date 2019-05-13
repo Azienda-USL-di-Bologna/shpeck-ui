@@ -1,7 +1,7 @@
 <div class="p-col container p-nogutter">
 
   <div class="buttons-bar" style="background-color: sandybrown">
-    <app-toolbar></app-toolbar>
+    <app-toolbar (filtersEmitter)="onFilterSelection($event)"></app-toolbar>
   </div>
   <div #mailContainer class="mail-container p-col">
 
@@ -18,8 +18,12 @@
     <div #rightSide class="content-right d-flex">
 
       <div #mailList class="mail-list">
-        <app-mail-list
+        <!-- <app-mail-list
           [folder] = "folderSelected"
+          [filters] = "filtersSelected"
+          (messageClicked)="messageClicked($event)">
+        </app-mail-list> -->
+        <app-mail-list
           (messageClicked)="messageClicked($event)">
         </app-mail-list>
       </div>

@@ -3,16 +3,17 @@ import { Subscription } from "rxjs";
 import { SettingsService } from "../services/settings.service";
 import { AppCustomization } from "src/environments/app-customization";
 import { Folder, Message } from "@bds/ng-internauta-model";
+import { FilterDefinition } from "@nfa/next-sdr";
 
 @Component({
   selector: "app-mailbox",
   templateUrl: "./mailbox.component.html",
   styleUrls: ["./mailbox.component.scss"],
-
 })
 export class MailboxComponent implements OnInit, AfterViewInit, AfterViewChecked, OnChanges {
 
   public folderSelected: Folder;
+  public filtersSelected: FilterDefinition[];
   // @Output() message = new EventEmitter<any>();
   public message: Message;
   // @ViewChild("leftSide") private leftSide: ElementRef;
@@ -60,7 +61,17 @@ export class MailboxComponent implements OnInit, AfterViewInit, AfterViewChecked
   }
 
   public onFolderSelected(folder: Folder) {
-    this.folderSelected = folder;
+    // faccio la copia per fare in modo che scatti sempre l'input di mail-list-component, altrimento se l'oggetto è lo stesso non scatterebbe
+    if (folder) {
+      this.folderSelected = new Folder();
+      Object.assign(this.folderSelected , folder);
+    } else {
+      this.folderSelected = null;
+    }
+  }
+
+  public onFilterSelection(filters: FilterDefinition[]) {
+    this.filtersSelected = filters;
   }
 
   ngAfterViewInit() {

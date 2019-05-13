@@ -2,6 +2,7 @@
   styleClass = "tree-style"
   [value]="mailfolders"
   selectionMode = "single"
+  [(selection)]="selected"
   (onNodeSelect)="handleNodeSelect($event)">
 </p-tree>
 

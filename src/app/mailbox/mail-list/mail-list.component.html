@@ -27,7 +27,7 @@
     [rowTrackBy]="trackByFn"
     > -->
 
-<p-table #dt *ngIf="_folder"
+<p-table #dt *ngIf="_selectedFolder || _filters"
     [lazy]="true" (onLazyLoad)="lazyLoad($event)"
     scrollHeight="100%"
     [value]="messages"
@@ -41,7 +41,7 @@
     contextMenuSelectionMode="joint"
     selectionMode="multiple"
     [metaKeySelection]="true"
-    [lazyLoadOnInit] = "true"
+    [lazyLoadOnInit] = "false"
     [rows]="rowsNmber"
     [rowTrackBy]="trackByFn"
     [contextMenu]="cm"
@@ -54,24 +54,25 @@
         <tr #selRow class="message-row" [pSelectableRow]="rowData" [pSelectableRowIndex]="rowIndex" [pContextMenuRow]="rowData" >
             <td>
                 <div class = "mail-icons-container">
-                    <span *ngIf="message['iconsVisibility']['replied'] || message['iconsVisibility']['replied_all']">
+                    <span *ngIf="message?.iconsVisibility?.replied || message?.iconsVisibility?.replied_all">
                         <span class="mail-icon" [ngClass]="{'visibility-hidden':!message['iconsVisibility']['replied_all'] && !message['iconsVisibility']['replied']}">
                             <i [pTooltip]="getTagDescription('replied_all')" tooltipPosition="top" *ngIf="message['iconsVisibility']['replied_all']; else reply_single" class="material-icons mail-icons">reply_all</i>
                             <ng-template #reply_single><i [pTooltip]="getTagDescription('replied')" tooltipPosition="top" class="material-icons mail-icons">reply</i></ng-template>
                         </span>
                     </span>
-                    <span *ngIf="!message['iconsVisibility']['replied'] && !message['iconsVisibility']['replied_all']" class="mail-icon visibility-hidden"><i class="material-icons mail-icons">reply_all</i></span>
-                    <span class="mail-icon" [ngClass]="{'visibility-hidden':!message['iconsVisibility']['forwarded']}"><i [pTooltip]="getTagDescription('forwarded')" tooltipPosition="top" class="material-icons mail-icons">forward</i></span>
-                    <span class="mail-icon" [ngClass]="{'visibility-hidden':!message['iconsVisibility']['assigned']}"><i [pTooltip]="getTagDescription('assigned')" tooltipPosition="top" class="material-icons mail-icons">merge_type</i></span>
-                    <span class="mail-icon" [ngClass]="{'visibility-hidden':!message['iconsVisibility']['readdressed']}"><i [pTooltip]="getTagDescription('readdressed')" tooltipPosition="top" class="material-icons mail-icons">fast_forward</i></span>
+                    <span *ngIf="!message?.iconsVisibility?.replied && !message?.iconsVisibility?.replied_all" class="mail-icon visibility-hidden"><i class="material-icons mail-icons">reply_all</i></span>
+                    <span class="mail-icon" [ngClass]="{'visibility-hidden':!message?.iconsVisibility?.forwarded}"><i [pTooltip]="getTagDescription('forwarded')" tooltipPosition="top" class="material-icons mail-icons">forward</i></span>
+                    <span class="mail-icon" [ngClass]="{'visibility-hidden':!message?.iconsVisibility?.assigned}"><i [pTooltip]="getTagDescription('assigned')" tooltipPosition="top" class="material-icons mail-icons">merge_type</i></span>
+                    <span class="mail-icon" [ngClass]="{'visibility-hidden':!message?.iconsVisibility?.readdressed}"><i [pTooltip]="getTagDescription('readdressed')" tooltipPosition="top" class="material-icons mail-icons">fast_forward</i></span>
                 </div>
                 <div class = "display-block">
                     <span class = "pi pi-user display-icon"></span> <div class="display-text" [ngClass]="{'display-bold':!message.seen}">{{message.fromOrTo}}</div> 
                 </div>
                 <div class = "display-block extra-margin">
-                    <span *ngIf="!message.seen" class="fa fa-envelope display-icon envelope-icon"></span>
-                    <span *ngIf="message.seen" class="fa fa-envelope-open-o display-icon envelope-icon"></span>
-                    <div class="display-text" [ngClass]="{'display-bold':!message.seen}">{{message.subject}}</div> 
+                    <span *ngIf="!message?.seen" class="fa fa-envelope display-icon envelope-icon"></span>
+                    <span *ngIf="message?.seen" class="fa fa-envelope-open-o display-icon envelope-icon"></span>
+                    <span *ngIf="_filters" class="display-text text-background">{{message?.messageFolderList[0]?.idFolder.description}}</span>
+                    <span class="display-text" [ngClass]="{'display-bold':!message.seen}">{{message.subject}}</span>
                     <!-- <div class="display-text" [ngClass]="{'display-bold':!message.seen}">{{message.id + " -- " + message.subject}}</div>  -->
                 </div>
             </td>

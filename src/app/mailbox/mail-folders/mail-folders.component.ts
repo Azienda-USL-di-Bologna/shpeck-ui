@@ -1,8 +1,11 @@
-import { Component, OnInit, ViewEncapsulation, Output, EventEmitter } from "@angular/core";
-import { FiltersAndSorts, SortDefinition, SORT_MODES, AdditionalDataDefinition } from "@nfa/next-sdr";
+import { Component, OnInit, ViewEncapsulation, Output, EventEmitter, OnDestroy } from "@angular/core";
+import { FiltersAndSorts, SortDefinition, SORT_MODES, AdditionalDataDefinition, FilterDefinition } from "@nfa/next-sdr";
 import { Pec, ENTITIES_STRUCTURE } from "@bds/ng-internauta-model";
 import { PecService } from "src/app/services/pec.service";
-import { BehaviorSubject } from 'rxjs';
+import { TreeNode } from "primeng/api";
+import { MailFoldersService } from "./mail-folders.service";
+import { ToolBarService } from "../toolbar/toolbar.service";
+import { Subscription } from "rxjs";
 
 @Component({
   selector: "app-mail-folders",
@@ -10,16 +13,25 @@ import { BehaviorSubject } from 'rxjs';
   styleUrls: ["./mail-folders.component.scss"],
   encapsulation: ViewEncapsulation.Emulated
 })
-export class MailFoldersComponent implements OnInit {
+export class MailFoldersComponent implements OnInit, OnDestroy {
 // export class MailFoldersComponent implements OnInit {
 
-  public mailfolders  = [];
-  @Output("folderEmitter") private folderEmitter: EventEmitter<number> = new EventEmitter();
+  private static ROOT_NODE_NOT_SELECTED_STYLE_CLASS = "root-tree-node-style";
+  private static ROOT_NODE_SELECTED_STYLE_CLASS = "root-tree-node-style-selected";
 
-  constructor(private pecService: PecService) { }
+  private subscriptions: Subscription[] = [];
+
+  public mailfolders = [];
+  // @Output("folderEmitter") private folderEmitter: EventEmitter<number> = new EventEmitter();
+
+  public selected: TreeNode;
+
+  constructor(private pecService: PecService,
+    private mailFoldersService: MailFoldersService,
+    private toolBarService: ToolBarService) { }
 
   ngOnInit() {
-    this.pecService.getMyPecs(ENTITIES_STRUCTURE.baborg.pec.standardProjections.PecWithFolderList, this.buildFolderInitialFilterAndSort(), null, null).subscribe(
+    this.subscriptions.push(this.pecService.getMyPecs(ENTITIES_STRUCTURE.baborg.pec.standardProjections.PecWithFolderList, this.buildFolderInitialFilterAndSort(), null, null).subscribe(
       (myPecs: Pec[]) => {
         if (myPecs) {
           for (const pec of myPecs) {
@@ -29,7 +41,10 @@ export class MailFoldersComponent implements OnInit {
           }
         }
       }
-    );
+    ));
+    this.subscriptions.push(this.toolBarService.getFilterTyped.subscribe((filter: FilterDefinition[]) => {
+      this.selected = null;
+    }));
   }
 
   private buildFolderInitialFilterAndSort(): FiltersAndSorts {
@@ -40,13 +55,14 @@ export class MailFoldersComponent implements OnInit {
   }
 
   private buildNode(pec: Pec): any {
-    const children = [];
+    const children: TreeNode[] = [];
     if (pec.folderList) {
       for (const folder of pec.folderList) {
+        folder.idPec = pec;
         children.push({
           "label": folder.description,
           "data": folder,
-          "nodeType": "folder",
+          "type": "folder",
           "expandedIcon": "pi pi-folder-open",
           "collapsedIcon": "pi pi-folder",
           "styleClass": "tree-node-style"
@@ -56,16 +72,40 @@ export class MailFoldersComponent implements OnInit {
     return {
       "label": pec.indirizzo,
       "data": pec,
-      "nodeType": "pec",
+      "type": "pec",
       "expandedIcon": "pi pi-folder-open",
       "collapsedIcon": "pi pi-folder",
-      "children": children
-    };
+      "children": children,
+      "selectable": true,
+      "styleClass": MailFoldersComponent.ROOT_NODE_NOT_SELECTED_STYLE_CLASS
+      // "styleClass": "root-tree-node-style"
+    } as TreeNode;
   }
 
   public handleNodeSelect(event: any) {
-    if (event.node.nodeType === "folder") {
-      this.folderEmitter.emit(event.node.data);
+    if (this.mailfolders) {
+      this.mailfolders.map(m => m.styleClass = MailFoldersComponent.ROOT_NODE_NOT_SELECTED_STYLE_CLASS);
+      this.selectRootNode(event.node);
+      this.mailFoldersService.selectedPecTreeNode(event.node);
     }
+  }
+
+  // private deselectAllNode() {
+
+  // }
+
+  private selectRootNode(node: TreeNode) {
+    if (node.type === "pec") {
+      node.styleClass = MailFoldersComponent.ROOT_NODE_SELECTED_STYLE_CLASS;
+    } else {
+      this.selectRootNode(node.parent);
+    }
+  }
+
+  public ngOnDestroy() {
+    for (const s of this.subscriptions) {
+      s.unsubscribe();
+    }
+    this.subscriptions = [];
   }
 }

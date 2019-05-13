@@ -31,13 +31,78 @@
     padding: 0 !important;
 }
 
-// ::ng-deep .ui-tree-container {
-//     padding: 0 !important;
+// ::ng-deep .ui-treenode-content-selected {
+//     background-color: aquamarine;
 // }
 
-::ng-deep .tree-node-style {
-    font-size: 12px !important;
+// ::ng-deep .ui-treenode-content-selected {
+//     color: black !important;
+//     background-color: #eff0ef;
+//     font-weight: bold;
+//   }
+
+  ::ng-deep body .ui-tree .ui-tree-container .ui-treenode .ui-treenode-content .ui-treenode-label.ui-state-highlight {
+    background-color: #eaeaea !important;
+    color: black;
+    font-weight: bold;
+  }
+
+  ::ng-deep .tree-node-style {
+    font-size: 0.90em !important;
+    // background-color: white !important;
+    // color: black !important;
+    font-weight: normal !important;
 }
+::ng-deep .tree-node-style.ui-treenode-leaf .ui-treenode-label {
+    background-color: white !important;
+}
+
+::ng-deep .root-tree-node-style {
+    font-size: 12px !important;
+    // background-color: white !important;
+    // color: black !important;
+    font-weight: normal !important;
+}
+
+::ng-deep .root-tree-node-style-selected {
+    font-size: 12px !important;
+    color: black !important;
+    background-color: #eaeaea;
+    font-weight: bold;
+  }
+
+::ng-deep .root-tree-node-style-selected .ui-treenode-label {
+    // font-size: 12px !important;
+    background-color: #eaeaea !important;
+    // color: black  !important;
+    // font-weight: bold !important;
+}
+
+// ::ng-deep .tree-node-style .ui-treenode-label {
+//     font-size: 12px !important;
+//     background-color: white !important;
+//     color: black !important;
+//     font-weight: normal !important;
+// }
+
+// ::ng-deep .tree-node-style .ui-state-highlight {
+//     font-size: 12px !important;
+//     background-color: #eaeaea !important;
+//     color: black  !important;
+//     font-weight: bold !important;
+// }
+
+// ::ng-deep .root-tree-node-style {
+//     font-size: 12px !important;
+//     color: black !important;
+//     font-weight: normal !important;
+// }
+
+// ::ng-deep .ui-treenode-icon, ::ng-deep .ui-tree-toggler {
+//     font-size: 12px !important;
+// }
+
+
 
 // ::ng-deep .pi-folder:before {
 //     content: none;
