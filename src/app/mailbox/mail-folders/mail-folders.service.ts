@@ -7,6 +7,8 @@ import { BehaviorSubject, Subject, Observable } from "rxjs";
 })
 export class MailFoldersService {
 
+
+
   private _pecTreeNodeSelected: BehaviorSubject<TreeNode> = new BehaviorSubject<TreeNode>(null);
 
   constructor() { }
@@ -19,3 +21,8 @@ export class MailFoldersService {
     return this._pecTreeNodeSelected.asObservable();
   }
 }
+
+export const PecTreeNodeType = {
+  PEC: "pec",
+  FOLDER: "folder"
+};

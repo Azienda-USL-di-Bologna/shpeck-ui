@@ -3,7 +3,7 @@ import { FiltersAndSorts, SortDefinition, SORT_MODES, AdditionalDataDefinition, 
 import { Pec, ENTITIES_STRUCTURE } from "@bds/ng-internauta-model";
 import { PecService } from "src/app/services/pec.service";
 import { TreeNode } from "primeng/api";
-import { MailFoldersService } from "./mail-folders.service";
+import { MailFoldersService, PecTreeNodeType } from "./mail-folders.service";
 import { ToolBarService } from "../toolbar/toolbar.service";
 import { Subscription } from "rxjs";
 
@@ -62,11 +62,10 @@ export class MailFoldersComponent implements OnInit, OnDestroy {
     const children: TreeNode[] = [];
     if (pec.folderList) {
       for (const folder of pec.folderList) {
-        folder.idPec = pec;
         children.push({
           "label": folder.description,
           "data": folder,
-          "type": "folder",
+          "type": PecTreeNodeType.FOLDER,
           "expandedIcon": "pi pi-folder-open",
           "collapsedIcon": "pi pi-folder",
           "styleClass": "tree-node-style"
@@ -76,7 +75,7 @@ export class MailFoldersComponent implements OnInit, OnDestroy {
     return {
       "label": pec.indirizzo,
       "data": pec,
-      "type": "pec",
+      "type": PecTreeNodeType.PEC,
       "expandedIcon": "pi pi-folder-open",
       "collapsedIcon": "pi pi-folder",
       "children": children,
@@ -99,7 +98,7 @@ export class MailFoldersComponent implements OnInit, OnDestroy {
   // }
 
   private selectRootNode(node: TreeNode, changeOnlyStyle: boolean) {
-    if (node.type === "pec") {
+    if (node.type === PecTreeNodeType.PEC) {
       node.styleClass = MailFoldersComponent.ROOT_NODE_SELECTED_STYLE_CLASS;
       if (!!!changeOnlyStyle) {
         this.selected = node;
