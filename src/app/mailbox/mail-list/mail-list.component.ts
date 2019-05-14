@@ -373,14 +373,14 @@ export class MailListComponent implements OnInit, AfterViewChecked, OnChanges, O
     );
     filtersAndSorts.addFilter(
       new FilterDefinition(
-        "messageFolderList.messageType",
+        "messageType",
         FILTER_TYPES.not_string.equals,
         MessageType.MAIL
       )
     );
     filtersAndSorts.addFilter(
       new FilterDefinition(
-        "messageFolderList.messageType",
+        "messageType",
         FILTER_TYPES.not_string.equals,
         MessageType.PEC
       )

@@ -1,10 +1,10 @@
-import { Component, OnInit, OnDestroy, EventEmitter, Output } from "@angular/core";
+import { Component, OnInit, OnDestroy} from "@angular/core";
 import { DialogService } from "primeng/api";
 import { NewMailComponent } from "../new-mail/new-mail.component";
-import { ShpeckMessageService, FullMessage, MessageEvent } from "src/app/services/shpeck-message.service";
-import { Subscription, Observable } from "rxjs";
+import { ShpeckMessageService, MessageEvent } from "src/app/services/shpeck-message.service";
+import { Subscription } from "rxjs";
 import { TOOLBAR_ACTIONS } from "src/environments/app-constants";
-import { Pec, Draft, MessageRelatedType } from "@bds/ng-internauta-model";
+import { Pec, Draft } from "@bds/ng-internauta-model";
 import { PecService } from "src/app/services/pec.service";
 import { DraftService } from "src/app/services/draft.service";
 import { FilterDefinition, FILTER_TYPES } from "@nfa/next-sdr";
@@ -18,8 +18,6 @@ import { ToolBarService } from "./toolbar.service";
 export class ToolbarComponent implements OnInit, OnDestroy {
   private subscriptions: Subscription[] = [];
   private myPecs: Pec[];
-  private searchTimeout: any;
-  private filterString: string;
   public messageEvent: MessageEvent;
 
   // @Output("filtersEmitter") private filtersEmitter: EventEmitter<FilterDefinition[]> = new EventEmitter();
@@ -45,10 +43,10 @@ export class ToolbarComponent implements OnInit, OnDestroy {
     }));
   }
 
-  public onInput(event) {
-    if (event && event.target) {
-      this.filterString = event.target.value;
-    }
+  // public onInput(event) {
+  //   if (event && event.target) {
+  //     this.filterString = event.target.value;
+  //   }
     // if (this.searchTimeout) {
     //   clearTimeout(this.searchTimeout);
     // }
@@ -60,14 +58,13 @@ export class ToolbarComponent implements OnInit, OnDestroy {
     //   // this.filtersEmitter.emit(valueToEmit);
     //   this.toolBarService.setFilterTyped(filter);
     // }, 600);
-  }
-  public onKey(event) {
-    if (event && event.key === "Enter") {
+  // }
+
+  public onEnter(value) {
+    if (value && value.length > 0) {
       const filter = [];
-      if (this.filterString && this.filterString.length > 0) {
-        filter.push(new FilterDefinition("tscol", FILTER_TYPES.not_string.equals, event.target.value));
-        this.toolBarService.setFilterTyped(filter);
-      }
+      filter.push(new FilterDefinition("tscol", FILTER_TYPES.not_string.equals, value));
+      this.toolBarService.setFilterTyped(filter);
     }
   }
 

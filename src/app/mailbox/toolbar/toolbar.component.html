@@ -45,7 +45,7 @@
       </button>
       <!-- Fascicola -->
       <button pButton type="button" label="Fascicola" class="button-styles ui-button-raised ui-button-secondary custom-border"></button>
-      <input type="text" pInputText size="50" placeholder="Cerca..." (input)="onInput($event)" (keyup)="onKey($event)" class="input-find">
+      <input #search type="text" pInputText size="50" placeholder="Cerca..." (keyup.enter)="onEnter(search.value)" class="input-find">
       <!-- <i class="pi pi-bars a-items-center d-flex"></i> -->
   </div>
 </p-toolbar>
