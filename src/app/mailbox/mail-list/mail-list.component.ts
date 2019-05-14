@@ -11,7 +11,7 @@ import { BaseUrlType, BaseUrls } from "src/environments/app-constants";
 import { MenuItem, LazyLoadEvent, FilterMetadata, TreeNode } from "primeng/api";
 import { MessageFolderService } from "src/app/services/message-folder.service";
 import { Utils } from "src/app/utils/utils";
-import { MailFoldersService } from "../mail-folders/mail-folders.service";
+import { MailFoldersService, PecTreeNodeType } from "../mail-folders/mail-folders.service";
 import { ToolBarService } from "../toolbar/toolbar.service";
 
 @Component({
@@ -27,7 +27,7 @@ export class MailListComponent implements OnInit, AfterViewChecked, OnChanges, O
   @ViewChild("dt") private dt: Table;
 
   public _selectedFolder: Folder;
-  public _selectedPec: Pec;
+  public _selectedPecId: number;
   public _filters: FilterDefinition[];
 
   private selectedProjection: string =
@@ -155,12 +155,13 @@ export class MailListComponent implements OnInit, AfterViewChecked, OnChanges, O
   ngOnInit() {
     this.subscriptions.push(this.mailFoldersService.pecTreeNodeSelected.subscribe((pecTreeNodeSelected: TreeNode) => {
       if (pecTreeNodeSelected) {
-        if (pecTreeNodeSelected.type === "folder") {
+        if (pecTreeNodeSelected.type === PecTreeNodeType.FOLDER) {
           const selectedFolder: Folder = pecTreeNodeSelected.data;
-          this._selectedPec = selectedFolder.idPec;
+          this._selectedPecId = selectedFolder.fk_idPec.id;
           this.setFolder(selectedFolder);
         } else {
-          this._selectedPec = pecTreeNodeSelected.data;
+          const pec: Pec = pecTreeNodeSelected.data;
+          this._selectedPecId = pec.id;
         }
       }
     }));
@@ -368,7 +369,7 @@ export class MailListComponent implements OnInit, AfterViewChecked, OnChanges, O
       new FilterDefinition(
         "idPec.id",
         FILTER_TYPES.not_string.equals,
-        this._selectedPec.id
+        this._selectedPecId
       )
     );
     filtersAndSorts.addFilter(

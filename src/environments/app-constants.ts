@@ -43,7 +43,8 @@ export const CUSTOM_SERVER_METHODS = {
     extractEmlData: "extractEmlData",
     downloadEmlAttachment: "downloadEmlAttachment",
     downloadAllEmlAttachment: "downloadAllEmlAttachment",
-    saveDraftMessage: "saveDraftMessage"
+    saveDraftMessage: "saveDraftMessage",
+    sendMessage: "sendMessage"
 };
 
 export function getInternautaUrl(type: BaseUrlType): string {

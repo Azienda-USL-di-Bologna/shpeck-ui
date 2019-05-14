@@ -14,12 +14,21 @@ export class DraftService extends NextSDREntityProvider {
     super(http, datepipe, ENTITIES_STRUCTURE.shpeck.draft, getInternautaUrl(BaseUrlType.Shpeck));
   }
 
-   /**
+  /**
    * Salva la bozza sul database e ritorna un observable
    * @param form La form contenente tutti i campi della mail da salvare
-   */
+  */
   public saveDraftMessage(form: FormData) {
     const apiUrl = getInternautaUrl(BaseUrlType.Shpeck) + "/" + CUSTOM_SERVER_METHODS.saveDraftMessage;
+    return this.http.post(apiUrl, form);
+  }
+
+  /**
+   * Invia la mail al server e ritorna un observable
+   * @param form La form contenente tutti i campi della mail da salvare
+  */
+  public sendMessage(form: FormData) {
+    const apiUrl = getInternautaUrl(BaseUrlType.Shpeck) + "/" + CUSTOM_SERVER_METHODS.sendMessage;
     return this.http.post(apiUrl, form);
   }
 }
