@@ -1,14 +1,15 @@
 import { Component, OnInit, OnDestroy} from "@angular/core";
-import { DialogService } from "primeng/api";
+import { DialogService, TreeNode } from "primeng/api";
 import { NewMailComponent } from "../new-mail/new-mail.component";
 import { ShpeckMessageService, MessageEvent } from "src/app/services/shpeck-message.service";
 import { Subscription } from "rxjs";
 import { TOOLBAR_ACTIONS } from "src/environments/app-constants";
-import { Pec, Draft } from "@bds/ng-internauta-model";
+import { Pec, Draft, Folder } from "@bds/ng-internauta-model";
 import { PecService } from "src/app/services/pec.service";
 import { DraftService } from "src/app/services/draft.service";
 import { FilterDefinition, FILTER_TYPES } from "@nfa/next-sdr";
 import { ToolBarService } from "./toolbar.service";
+import { PecTreeNodeType, MailFoldersService } from "../mail-folders/mail-folders.service";
 
 @Component({
   selector: "app-toolbar",
@@ -19,6 +20,7 @@ export class ToolbarComponent implements OnInit, OnDestroy {
   private subscriptions: Subscription[] = [];
   private myPecs: Pec[];
   public messageEvent: MessageEvent;
+  private _selectedPec: Pec;
 
   // @Output("filtersEmitter") private filtersEmitter: EventEmitter<FilterDefinition[]> = new EventEmitter();
 
@@ -26,13 +28,27 @@ export class ToolbarComponent implements OnInit, OnDestroy {
     private pecService: PecService,
     private messageService: ShpeckMessageService,
     private toolBarService: ToolBarService,
-    private draftService: DraftService) { }
+    private draftService: DraftService,
+    private mailFoldersService: MailFoldersService
+  ) { }
 
   ngOnInit() {
     this.subscriptions.push(this.messageService.messageEvent.subscribe((messageEvent: MessageEvent) => {
       if (messageEvent) {
         console.log("DATA = ", messageEvent);
         this.messageEvent = messageEvent;
+      }
+    }));
+    this.subscriptions.push(this.mailFoldersService.pecTreeNodeSelected.subscribe((pecTreeNodeSelected: TreeNode) => {
+      if (pecTreeNodeSelected && this.myPecs && this.myPecs.length > 0) {
+        let idPec: number;
+        if (pecTreeNodeSelected.type === PecTreeNodeType.FOLDER) {
+          const selectedFolder: Folder = pecTreeNodeSelected.data;
+          idPec = selectedFolder.fk_idPec.id;
+        } else {
+          idPec = ((pecTreeNodeSelected.data) as Pec).id;
+        }
+        this._selectedPec = this.myPecs.filter(p => p.id === idPec)[0];
       }
     }));
     this.subscriptions.push(this.pecService.myPecs.subscribe((pecs: Pec[]) => {
@@ -93,13 +109,16 @@ export class ToolbarComponent implements OnInit, OnDestroy {
 
     const draftMessage = new Draft();
     // draftMessage.messageRelatedType = MessageRelatedType.FORWARDED;
-    draftMessage.idPec = this.myPecs[0];
+    // draftMessage.idPec = this._selectedPec;
+    const pec: Pec = new Pec();
+    pec.id = this._selectedPec.id;
+    draftMessage.idPec = pec;
     this.draftService.postHttpCall(draftMessage).subscribe((draft: Draft) => {
       const ref = this.dialogService.open(NewMailComponent, {
         data: {
           fullMessage: messageEvent ? messageEvent.downloadedMessage : undefined,
           idDraft: draft.id,
-          pec: this.myPecs[0],
+          pec: pec,
           action: action
         },
         header: "Nuova Mail",

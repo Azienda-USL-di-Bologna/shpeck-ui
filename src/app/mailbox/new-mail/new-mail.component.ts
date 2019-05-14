@@ -1,6 +1,6 @@
 import { Component, OnInit, ViewChild, AfterViewInit } from "@angular/core";
 import { FormGroup, FormControl, Validators } from "@angular/forms";
-import { DynamicDialogRef, DynamicDialogConfig, MessageService } from "primeng/api";
+import { DynamicDialogRef, DynamicDialogConfig, MessageService, DialogService } from "primeng/api";
 import { Message, Pec, Draft, MessageRelatedType } from "@bds/ng-internauta-model";
 import { Editor } from "primeng/editor";
 import { TOOLBAR_ACTIONS } from "src/environments/app-constants";
@@ -51,7 +51,7 @@ export class NewMailComponent implements OnInit, AfterViewInit {
   ];
   ccTooltip = "Non puoi inserire destinatari CC se è attiva la funzione Destinatari privati";
   hideRecipientsTooltip = "Non puoi utilizzare la funzione Destinatari privati con destinatari CC: cancellali o rendili destinatari A";
-  constructor(public ref: DynamicDialogRef, public config: DynamicDialogConfig,
+  constructor(public ref: DynamicDialogRef, public config: DynamicDialogConfig, public dialogService: DialogService,
     private messagePrimeService: MessageService, public draftService: DraftService) { }
 
   ngOnInit() {
@@ -71,7 +71,7 @@ export class NewMailComponent implements OnInit, AfterViewInit {
         break;
       case TOOLBAR_ACTIONS.REPLY_ALL: // REPLY_ALL Prendiamo tutti gli indirizzi, to, cc
         subject = "Re: ".concat(message.subject);
-        messageRelatedType = MessageRelatedType.REPLIED;
+        messageRelatedType = MessageRelatedType.REPLIED_ALL;
         this.fillAddressesArray(message, true, action);
         break;
       case TOOLBAR_ACTIONS.FORWARD:
@@ -94,7 +94,8 @@ export class NewMailComponent implements OnInit, AfterViewInit {
       body: new FormControl(""),  // Il body viene inizializzato nell'afterViewInit perché l'editor non è ancora istanziato
       from: new FormControl(pec.indirizzo),
       idMessageRelated: new FormControl(message ? message.id : ""),
-      messageRelatedType: new FormControl(messageRelatedType)
+      messageRelatedType: new FormControl(messageRelatedType),
+      idMessageRelatedAttachments: new FormControl("")
     });
   }
 
@@ -279,13 +280,7 @@ export class NewMailComponent implements OnInit, AfterViewInit {
     this.editor.quill.clipboard.dangerouslyPasteHTML(this.editor.quill.getLength(), bodyTableClean);
   }
 
-  onSubmit() {
-    console.log("FORM = ", this.mailForm.value);
-  }
-
-  /* Salvataggio della bozza */
-  onSaveDraft() {
-    console.log("FORM = ", this.mailForm.value);
+  buildFormToSend(): FormData {
     const formToSend = new FormData();
     Object.keys(this.mailForm.controls).forEach(key => {
       if (key === "attachments") {  // Gli allegati vanno aggiunti singolarmente
@@ -303,6 +298,37 @@ export class NewMailComponent implements OnInit, AfterViewInit {
         formToSend.append(key.toString(), this.mailForm.get(key).value);
       }
     });
+    return formToSend;
+  }
+
+  /* Invio mail */
+  onSubmit() {
+    console.log("FORM = ", this.mailForm.value);
+    const formToSend: FormData = this.buildFormToSend();
+    this.draftService.sendMessage(formToSend).subscribe(
+      res => {
+        console.log(res);
+        this.messagePrimeService.add(
+          { severity: "success", summary: "Successo", detail: "Email inviata!" });
+        },
+      err => {
+        console.log("Error: ", err);
+        if (err && err.error.code === "007") {
+            this.messagePrimeService.add(
+            { severity: "error", summary: "Errore", detail: err.error.message, life: 3200 });
+        } else {
+          this.messagePrimeService.add(
+          { severity: "error", summary: "Errore", detail: "Errore durante l'invio della mail, contattare BabelCare" });
+        }
+      }
+    );
+    this.onClose();
+  }
+
+  /* Salvataggio della bozza */
+  onSaveDraft() {
+    console.log("FORM = ", this.mailForm.value);
+    const formToSend: FormData = this.buildFormToSend();
     this.draftService.saveDraftMessage(formToSend).subscribe(
       res => {
         console.log(res);
@@ -318,20 +344,27 @@ export class NewMailComponent implements OnInit, AfterViewInit {
     );
   }
 
-  onDelete() {
+  onDelete(showMessage: boolean) {
     this.draftService.deleteHttpCall(this.mailForm.get("idDraftMessage").value).subscribe(
       res => {
-        this.messagePrimeService.add(
-          { severity: "success", summary: "Successo", detail: "Bozza eliminata correttamente" });
+        if (showMessage) {
+          this.messagePrimeService.add(
+            { severity: "success", summary: "Successo", detail: "Bozza eliminata correttamente" });
+        }
         this.onClose();
       },
-      err => this.messagePrimeService.add(
-        { severity: "error", summary: "Errore", detail: "Errore durante l'eliminazione, contattare BabelCare" })
+      err => {
+        if (showMessage) {
+          this.messagePrimeService.add(
+            { severity: "error", summary: "Errore", detail: "Errore durante l'eliminazione, contattare BabelCare" });
+        }
+      }
     );
   }
 
   onClose() {
-    this.ref.close(null);
+    this.dialogService.dialogComponentRef.instance.close();
+    // this.ref.close();
   }
 
   formatSize(bytes) {
