@@ -86,11 +86,21 @@ export class NewMailComponent implements OnInit, AfterViewInit {
     }
     /* Inizializzazione della form, funziona per tutte le actions ed é l'oggetto che contiene tutti i campi
      * che saranno inviati al server */
+    const toFormControl: FormControl[] = [];
+    if (this.toAddresses.length > 0) {
+      this.toAddresses.forEach(el => toFormControl.push(new FormControl(el, Validators.email)));
+      this.toAutoComplete.writeValue(this.toAddresses);
+    }
+    const ccFormControl: FormControl[] = [];
+    if (this.ccAddresses.length > 0) {
+      this.ccAddresses.forEach(el => ccFormControl.push(new FormControl(el, Validators.email)));
+      this.ccAutoComplete.writeValue(this.ccAddresses);
+    }
     this.mailForm = new FormGroup({
       idDraftMessage: new FormControl(this.config.data.idDraft),
       idPec: new FormControl(pec.id),
-      to: new FormArray(this.toAddresses, Validators.required),
-      cc: new FormArray(this.ccAddresses),
+      to: new FormArray(toFormControl, Validators.required),
+      cc: new FormArray(ccFormControl),
       hideRecipients: new FormControl({ value: false, disabled: false }),
       subject: new FormControl(subject),
       attachments: new FormControl(this.attachments),
