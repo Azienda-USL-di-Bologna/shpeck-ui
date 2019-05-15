@@ -11,7 +11,7 @@
                 required="true" type="email"
                 id="to" formControlName="to" [suggestions]="filteredCountriesMultiple"
                 (completeMethod)="filterCountryMultiple($event)" (onKeyUp)="onKeyUp($event, 'addresses')"
-                (onSelect)="onSelect($event, 'addresses')"
+                (onSelect)="onSelect($event, 'addresses')" (onBlur)="onKeyUp($event, 'addresses')"
                 [minLength]="1" placeholder="Seleziona contatti..." [multiple]="true">
               </p-autoComplete>
           </span>
@@ -27,7 +27,7 @@
               type="email"
               id="cc" formControlName="cc" [suggestions]="filteredCountriesMultiple"
               (completeMethod)="filterCountryMultiple($event)" (onKeyUp)="onKeyUp($event, 'ccAddresses')"
-              (onSelect)="onSelect($event, 'ccAddresses')" (onUnselect)="onUnselect($event)"
+              (onSelect)="onSelect($event, 'ccAddresses')" (onUnselect)="onUnselect($event)" (onBlur)="onKeyUp($event, 'ccAddresses')"
               [pTooltip]="mailForm.get('hideRecipients').value ? ccTooltip : ''"
               [minLength]="1" [multiple]="true" >
             </p-autoComplete>
@@ -92,7 +92,7 @@
         <button
           type="button" pButton icon="fa fa-paper-plane"
           class="ui-button-raised ui-button-secondary button-styles custom-secondary-button"
-          label="Invia" (click)="onSubmit()">
+          label="Invia" (click)="onSubmit()" [disabled]="mailForm.invalid">
         </button>
       </p-footer>
     </form>

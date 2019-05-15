@@ -11,24 +11,21 @@
         pButton type="button" label="Rispondi"
         icon="fa fa-reply" class="button-styles ui-button-raised ui-button-secondary custom-border"
         (click)="handleEvent($event, 'reply')"
-        [disabled]="!!!messageEvent?.downloadedMessage || !!!messageEvent?.selectedMessages ||
-                    messageEvent?.selectedMessages.length > 1">
+        [disabled]="!(isActive$ | async)">
       </button>
       <!-- Rispondi a tutti -->
       <button
         pButton type="button" label="Rispondi a tutti"
         icon="fa fa-reply-all" class="button-styles ui-button-raised ui-button-secondary custom-border"
         (click)="handleEvent($event, 'reply_all')"
-        [disabled]="!!!messageEvent?.downloadedMessage || !!!messageEvent?.selectedMessages ||
-                    messageEvent?.selectedMessages.length > 1">
+        [disabled]="!(isActive$ | async)">
       </button>
       <!-- Inoltra -->
       <button
         pButton type="button" label="Inoltra"
         icon="fa fa-share" class="button-styles ui-button-raised ui-button-secondary custom-border"
         (click)="handleEvent($event, 'forward')"
-        [disabled]="!!!messageEvent?.downloadedMessage || !!!messageEvent?.selectedMessages ||
-                    messageEvent?.selectedMessages.length > 1">
+        [disabled]="!(isActive$ | async)">
       </button>
       <!-- Elimina -->
       <button

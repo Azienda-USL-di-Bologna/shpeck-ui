@@ -7,7 +7,7 @@ import { TagService } from "src/app/services/tag.service";
 import { Observable, Subscription } from "rxjs";
 import { DatePipe } from "@angular/common";
 import { Table } from "primeng/table";
-import { BaseUrlType, BaseUrls } from "src/environments/app-constants";
+import { BaseUrlType, BaseUrls, TOOLBAR_ACTIONS } from "src/environments/app-constants";
 import { MenuItem, LazyLoadEvent, FilterMetadata, TreeNode } from "primeng/api";
 import { MessageFolderService } from "src/app/services/message-folder.service";
 import { Utils } from "src/app/utils/utils";
@@ -493,6 +493,7 @@ export class MailListComponent implements OnInit, AfterViewChecked, OnChanges, O
           break;
         case "MessageReply":
         case "MessageReplyAll":
+        case "MessageForward":
           element.disabled = false;
           if (this.selectedMessages.length > 1) {
             element.disabled = true;
@@ -553,6 +554,16 @@ export class MailListComponent implements OnInit, AfterViewChecked, OnChanges, O
 
       case "MessageDownload":
         this.dowloadMessage(this.selectedMessages[0]);
+        break;
+
+      case "MessageReply":
+        this.toolBarService.newMail(this._selectedPecId, TOOLBAR_ACTIONS.REPLY);
+        break;
+      case "MessageReplyAll":
+        this.toolBarService.newMail(this._selectedPecId, TOOLBAR_ACTIONS.REPLY_ALL);
+        break;
+      case "MessageForward":
+        this.toolBarService.newMail(this._selectedPecId, TOOLBAR_ACTIONS.FORWARD);
         break;
     }
   }

@@ -5,7 +5,6 @@ import { Message, Pec, Draft, MessageRelatedType } from "@bds/ng-internauta-mode
 import { Editor } from "primeng/editor";
 import { TOOLBAR_ACTIONS } from "src/environments/app-constants";
 import { DraftService } from "src/app/services/draft.service";
-import { EmlData } from "src/app/classes/eml-data";
 
 @Component({
   selector: "app-new-mail",
@@ -86,13 +85,12 @@ export class NewMailComponent implements OnInit, AfterViewInit {
     this.mailForm = new FormGroup({
       idDraftMessage: new FormControl(this.config.data.idDraft),
       idPec: new FormControl(pec.id),
-      to: new FormControl(this.toAddresses),
+      to: new FormControl(this.toAddresses, Validators.email),
       cc: new FormControl({ value: this.ccAddresses, disabled: false}),
       hideRecipients: new FormControl({ value: false, disabled: false }),
       subject: new FormControl(subject),
       attachments: new FormControl(this.attachments),
       body: new FormControl(""),  // Il body viene inizializzato nell'afterViewInit perché l'editor non è ancora istanziato
-      from: new FormControl(pec.indirizzo),
       idMessageRelated: new FormControl(message ? message.id : ""),
       messageRelatedType: new FormControl(messageRelatedType),
       idMessageRelatedAttachments: new FormControl("")
@@ -149,9 +147,9 @@ export class NewMailComponent implements OnInit, AfterViewInit {
    * @param formField Il campo del form dove è stato inserito l'indirizzo, addresses o ccAddresses
   */
   onKeyUp(event: KeyboardEvent, formField: string) {
-    if (event.key === "Enter") {
+    if (event.key === "Enter" || event.type === "blur") {
       const tokenInput = event.target as any;
-      if (tokenInput.value) {
+      if (tokenInput.value && tokenInput.validity.valid) {
         if (formField) {
           if (formField === "addresses") {
             const toForm = this.mailForm.get("to");
@@ -159,7 +157,7 @@ export class NewMailComponent implements OnInit, AfterViewInit {
             if (!toForm.value.find((element) => element === tokenInput.value)) {
               toForm.value.push(tokenInput.value);
             }
-          } else {
+          } else if (formField === "ccAddresses") {
             const ccForm = this.mailForm.get("cc");
             if (!ccForm.value.find((element) => element === tokenInput.value)) {
               ccForm.value.push(tokenInput.value);
@@ -182,14 +180,13 @@ export class NewMailComponent implements OnInit, AfterViewInit {
    * @param formField Il campo del form dove è stato selezionato l'indirizzo, addresses o ccAddresses
   */
   onSelect(item, formField) {
-    const tokenInput = item;
-    if (tokenInput) {
+    if (item) {
       if (formField === "addresses") {
         const toForm = this.mailForm.get("to");
         if (toForm.value.indexOf(item) === -1) {
           toForm.value.push(item);
         }
-      } else {
+      } else if (formField === "ccAddresses") {
         const ccForm = this.mailForm.get("cc");
         if (ccForm.value.indexOf(item) === -1) {
           ccForm.value.push(item);
