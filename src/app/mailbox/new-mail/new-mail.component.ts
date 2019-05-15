@@ -229,7 +229,8 @@ export class NewMailComponent implements OnInit, AfterViewInit {
    * Verifica se il valore è true ed in tal caso disabilita il campo CC
    * @param checkBoxValue Il valore della checkBox
   */
-  /* onChange(checkBoxValue) {
+  /* Con il FormArray non serve più, l'abilitazione è gestita sulla proprietà disabled e non dal formcontrol
+  onChange(checkBoxValue) {
     const ccForm = this.mailForm.get("cc") as FormArray;
     checkBoxValue ? ccForm.disable() : ccForm.enable();
   } */
@@ -316,43 +317,43 @@ export class NewMailComponent implements OnInit, AfterViewInit {
   onSubmit() {
     console.log("FORM = ", this.mailForm.value);
     const formToSend: FormData = this.buildFormToSend();
-    // this.draftService.sendMessage(formToSend).subscribe(
-    //   res => {
-    //     console.log(res);
-    //     this.messagePrimeService.add(
-    //       { severity: "success", summary: "Successo", detail: "Email inviata!" });
-    //     },
-    //   err => {
-    //     console.log("Error: ", err);
-    //     if (err && err.error.code === "007") {
-    //         this.messagePrimeService.add(
-    //         { severity: "error", summary: "Errore", detail: err.error.message, life: 3200 });
-    //     } else {
-    //       this.messagePrimeService.add(
-    //       { severity: "error", summary: "Errore", detail: "Errore durante l'invio della mail, contattare BabelCare" });
-    //     }
-    //   }
-    // );
-    // this.onClose();
+    this.draftService.sendMessage(formToSend).subscribe(
+      res => {
+        console.log(res);
+        this.messagePrimeService.add(
+          { severity: "success", summary: "Successo", detail: "Email inviata!" });
+        },
+      err => {
+        console.log("Error: ", err);
+        if (err && err.error.code === "007") {
+            this.messagePrimeService.add(
+            { severity: "error", summary: "Errore", detail: err.error.message, life: 3200 });
+        } else {
+          this.messagePrimeService.add(
+          { severity: "error", summary: "Errore", detail: "Errore durante l'invio della mail, contattare BabelCare" });
+        }
+      }
+    );
+    this.onClose();
   }
 
   /* Salvataggio della bozza */
   onSaveDraft() {
     console.log("FORM = ", this.mailForm.value);
-    // const formToSend: FormData = this.buildFormToSend();
-    // this.draftService.saveDraftMessage(formToSend).subscribe(
-    //   res => {
-    //     console.log(res);
-    //     this.messagePrimeService.add(
-    //       { severity: "success", summary: "Successo", detail: "Bozza salvata correttamente" });
-    //     this.onClose();
-    //   },
-    //   err => {
-    //     console.log(err);
-    //     this.messagePrimeService.add(
-    //       { severity: "error", summary: "Errore", detail: "Errore durante il salvaggio, contattare BabelCare" });
-    //   }
-    // );
+    const formToSend: FormData = this.buildFormToSend();
+    this.draftService.saveDraftMessage(formToSend).subscribe(
+      res => {
+        console.log(res);
+        this.messagePrimeService.add(
+          { severity: "success", summary: "Successo", detail: "Bozza salvata correttamente" });
+        this.onClose();
+      },
+      err => {
+        console.log(err);
+        this.messagePrimeService.add(
+          { severity: "error", summary: "Errore", detail: "Errore durante il salvaggio, contattare BabelCare" });
+      }
+    );
   }
 
   onDelete(showMessage: boolean) {
