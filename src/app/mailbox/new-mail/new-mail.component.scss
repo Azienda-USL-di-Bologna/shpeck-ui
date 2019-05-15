@@ -36,7 +36,7 @@ li {
   color: #ffffff;
 }
 /******* Chips *******/
-::ng-deep .ui-chips {
+::ng-deep #attachments .ui-chips {
   > ul.ui-inputtext,
   > ul.ui-inputtext:focus {
     min-height: 33px;

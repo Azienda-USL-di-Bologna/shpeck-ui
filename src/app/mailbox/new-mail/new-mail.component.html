@@ -7,11 +7,11 @@
         <li>
           <label for="to" style="padding-right: 9px">A: </label>
           <span class="ui-fluid flex-1 margin-lr-5">
-              <p-autoComplete
+              <p-autoComplete #toAutoComplete
                 required="true" type="email"
-                id="to" formControlName="to" [suggestions]="filteredCountriesMultiple"
-                (completeMethod)="filterCountryMultiple($event)" (onKeyUp)="onKeyUp($event, 'addresses')"
-                (onSelect)="onSelect($event, 'addresses')" (onBlur)="onKeyUp($event, 'addresses')"
+                id="to" formControlArray="to" [suggestions]="filteredCountriesMultiple"
+                (completeMethod)="filterCountryMultiple($event)" (onKeyUp)="onKeyUp($event, 'to')"
+                (onSelect)="onSelect($event, 'to')" (onUnselect)="onUnselect($event, 'to')" (onBlur)="onKeyUp($event, 'to')"
                 [minLength]="1" placeholder="Seleziona contatti..." [multiple]="true">
               </p-autoComplete>
           </span>
@@ -21,14 +21,14 @@
         </li>
         <!-- CC Addresses -->
         <li>
-          <label for="ccAddresses">CC: </label>
+          <label for="cc">CC: </label>
           <span class="ui-fluid flex-1 margin-lr-5">
-            <p-autoComplete
+            <p-autoComplete #ccAutoComplete
               type="email"
-              id="cc" formControlName="cc" [suggestions]="filteredCountriesMultiple"
-              (completeMethod)="filterCountryMultiple($event)" (onKeyUp)="onKeyUp($event, 'ccAddresses')"
-              (onSelect)="onSelect($event, 'ccAddresses')" (onUnselect)="onUnselect($event)" (onBlur)="onKeyUp($event, 'ccAddresses')"
-              [pTooltip]="mailForm.get('hideRecipients').value ? ccTooltip : ''"
+              id="cc" formControlArray="cc" [suggestions]="filteredCountriesMultiple"
+              (completeMethod)="filterCountryMultiple($event)" (onKeyUp)="onKeyUp($event, 'cc')"
+              (onSelect)="onSelect($event, 'cc')" (onUnselect)="onUnselect($event, 'cc')" (onBlur)="onKeyUp($event, 'cc')"
+              [pTooltip]="mailForm.get('hideRecipients').value ? ccTooltip : ''" [disabled]="mailForm.get('hideRecipients')?.value"
               [minLength]="1" [multiple]="true" >
             </p-autoComplete>
           </span>
@@ -41,7 +41,6 @@
           <label for="hideRecipients">Destinatari privati: </label>
           <span class="ui-fluid margin-lr-5">
             <p-checkbox id="hideRecipients" formControlName="hideRecipients" binary="true"
-              (onChange)="onChange($event)"
               [pTooltip]="mailForm.get('cc').value.length > 0 ? hideRecipientsTooltip : ''" >
             </p-checkbox>
           </span>
@@ -92,7 +91,7 @@
         <button
           type="button" pButton icon="fa fa-paper-plane"
           class="ui-button-raised ui-button-secondary button-styles custom-secondary-button"
-          label="Invia" (click)="onSubmit()" [disabled]="mailForm.invalid || mailForm.get('to').invalid">
+          label="Invia" (click)="onSubmit()" [disabled]="mailForm.invalid">
         </button>
       </p-footer>
     </form>

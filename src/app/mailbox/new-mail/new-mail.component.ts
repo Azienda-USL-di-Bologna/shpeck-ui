@@ -1,10 +1,12 @@
 import { Component, OnInit, ViewChild, AfterViewInit } from "@angular/core";
-import { FormGroup, FormControl, Validators } from "@angular/forms";
+import { FormGroup, FormControl, Validators, FormArray } from "@angular/forms";
 import { DynamicDialogRef, DynamicDialogConfig, MessageService, DialogService } from "primeng/api";
 import { Message, Pec, Draft, MessageRelatedType } from "@bds/ng-internauta-model";
 import { Editor } from "primeng/editor";
 import { TOOLBAR_ACTIONS } from "src/environments/app-constants";
 import { DraftService } from "src/app/services/draft.service";
+import { Chips } from "primeng/chips";
+import { AutoComplete } from "primeng/primeng";
 
 @Component({
   selector: "app-new-mail",
@@ -13,6 +15,8 @@ import { DraftService } from "src/app/services/draft.service";
 })
 export class NewMailComponent implements OnInit, AfterViewInit {
 
+  @ViewChild("toAutoComplete") toAutoComplete: AutoComplete;
+  @ViewChild("ccAutoComplete") ccAutoComplete: AutoComplete;
   @ViewChild("editor") editor: Editor;
   mailForm: FormGroup;
   fromAddress: string = ""; // Indirizzo che ha inviato la mail in caso di Rispondi e Rispondi a tutti
@@ -85,8 +89,8 @@ export class NewMailComponent implements OnInit, AfterViewInit {
     this.mailForm = new FormGroup({
       idDraftMessage: new FormControl(this.config.data.idDraft),
       idPec: new FormControl(pec.id),
-      to: new FormControl(this.toAddresses, Validators.email),
-      cc: new FormControl({ value: this.ccAddresses, disabled: false}),
+      to: new FormArray(this.toAddresses, Validators.required),
+      cc: new FormArray(this.ccAddresses),
       hideRecipients: new FormControl({ value: false, disabled: false }),
       subject: new FormControl(subject),
       attachments: new FormControl(this.attachments),
@@ -151,17 +155,17 @@ export class NewMailComponent implements OnInit, AfterViewInit {
       const tokenInput = event.target as any;
       if (tokenInput.value && tokenInput.validity.valid) {
         if (formField) {
-          if (formField === "addresses") {
-            const toForm = this.mailForm.get("to");
+          if (formField === "to") {
+            const toForm = this.mailForm.get("to") as FormArray;
             if (!toForm.value.find((element) => element === tokenInput.value)) {
-              toForm.value.push(tokenInput.value);
-              toForm.updateValueAndValidity();
+              toForm.push(new FormControl(tokenInput.value, Validators.email));
+              this.toAutoComplete.writeValue(toForm.value);
             }
-          } else if (formField === "ccAddresses") {
-            const ccForm = this.mailForm.get("cc");
+          } else if (formField === "cc") {
+            const ccForm = this.mailForm.get("cc") as FormArray;
             if (!ccForm.value.find((element) => element === tokenInput.value)) {
-              ccForm.value.push(tokenInput.value);
-              ccForm.updateValueAndValidity();
+              ccForm.push(new FormControl(tokenInput.value, Validators.email));
+              this.ccAutoComplete.writeValue(ccForm.value);
             }
             if (ccForm.value && ccForm.value.length > 0) {
               const hideRecipients = this.mailForm.get("hideRecipients");
@@ -182,15 +186,17 @@ export class NewMailComponent implements OnInit, AfterViewInit {
   */
   onSelect(item, formField) {
     if (item) {
-      if (formField === "addresses") {
-        const toForm = this.mailForm.get("to");
+      if (formField === "to") {
+        const toForm = this.mailForm.get("to") as FormArray;
         if (toForm.value.indexOf(item) === -1) {
-          toForm.value.push(item);
+          toForm.push(new FormControl(item, Validators.email));
+          this.toAutoComplete.writeValue(toForm.value);
         }
-      } else if (formField === "ccAddresses") {
-        const ccForm = this.mailForm.get("cc");
+      } else if (formField === "cc") {
+        const ccForm = this.mailForm.get("cc") as FormArray;
         if (ccForm.value.indexOf(item) === -1) {
-          ccForm.value.push(item);
+          ccForm.push(new FormControl(item, Validators.email));
+          this.ccAutoComplete.writeValue(ccForm.value);
         }
         if (ccForm.value && ccForm.value.length > 0) {
           const hideRecipients = this.mailForm.get("hideRecipients");
@@ -200,26 +206,33 @@ export class NewMailComponent implements OnInit, AfterViewInit {
     }
   }
   /**
-   * Metodo chiamato quando viene eliminato un indirizzo dai CC address
-   * Verifica se il campo è popolato per disattivare il check dei destinatari privati
+   * Metodo chiamato quando viene eliminato un indirizzo da to o cc
+   * Aggiorna i campi della form e verifica se il campo cc è popolato per disattivare
+   * il check dei destinatari privati
    * @param item L'oggetto rimosso
   */
-  onUnselect(item) {
-    const ccForm = this.mailForm.get("cc");
-    if (ccForm.value && ccForm.value.length === 0) {
-      const hideRecipients = this.mailForm.get("hideRecipients");
-      hideRecipients.enable();
+  onUnselect(item, formField) {
+    if (item && formField === "to") {
+      const toForm = this.mailForm.get("to") as FormArray;
+      toForm.removeAt(toForm.value.indexOf(item));
+    } else if (item && formField === "cc") {
+      const ccForm = this.mailForm.get("cc") as FormArray;
+      ccForm.removeAt(ccForm.value.indexOf(item));
+      if (ccForm.value && ccForm.value.length === 0) {
+        const hideRecipients = this.mailForm.get("hideRecipients");
+        hideRecipients.enable();
+      }
     }
   }
-  /**
+  /* *
    * Metodo chiamato quando cambia il valore della checkbox destinatari privati (HiddenRecipients)
    * Verifica se il valore è true ed in tal caso disabilita il campo CC
    * @param checkBoxValue Il valore della checkBox
   */
-  onChange(checkBoxValue) {
-    const ccForm = this.mailForm.get("cc");
+  /* onChange(checkBoxValue) {
+    const ccForm = this.mailForm.get("cc") as FormArray;
     checkBoxValue ? ccForm.disable() : ccForm.enable();
-  }
+  } */
 
   /* Gestione allegati */
   onFileChange(event, fileinput) {
@@ -303,43 +316,43 @@ export class NewMailComponent implements OnInit, AfterViewInit {
   onSubmit() {
     console.log("FORM = ", this.mailForm.value);
     const formToSend: FormData = this.buildFormToSend();
-    this.draftService.sendMessage(formToSend).subscribe(
-      res => {
-        console.log(res);
-        this.messagePrimeService.add(
-          { severity: "success", summary: "Successo", detail: "Email inviata!" });
-        },
-      err => {
-        console.log("Error: ", err);
-        if (err && err.error.code === "007") {
-            this.messagePrimeService.add(
-            { severity: "error", summary: "Errore", detail: err.error.message, life: 3200 });
-        } else {
-          this.messagePrimeService.add(
-          { severity: "error", summary: "Errore", detail: "Errore durante l'invio della mail, contattare BabelCare" });
-        }
-      }
-    );
-    this.onClose();
+    // this.draftService.sendMessage(formToSend).subscribe(
+    //   res => {
+    //     console.log(res);
+    //     this.messagePrimeService.add(
+    //       { severity: "success", summary: "Successo", detail: "Email inviata!" });
+    //     },
+    //   err => {
+    //     console.log("Error: ", err);
+    //     if (err && err.error.code === "007") {
+    //         this.messagePrimeService.add(
+    //         { severity: "error", summary: "Errore", detail: err.error.message, life: 3200 });
+    //     } else {
+    //       this.messagePrimeService.add(
+    //       { severity: "error", summary: "Errore", detail: "Errore durante l'invio della mail, contattare BabelCare" });
+    //     }
+    //   }
+    // );
+    // this.onClose();
   }
 
   /* Salvataggio della bozza */
   onSaveDraft() {
     console.log("FORM = ", this.mailForm.value);
-    const formToSend: FormData = this.buildFormToSend();
-    this.draftService.saveDraftMessage(formToSend).subscribe(
-      res => {
-        console.log(res);
-        this.messagePrimeService.add(
-          { severity: "success", summary: "Successo", detail: "Bozza salvata correttamente" });
-        this.onClose();
-      },
-      err => {
-        console.log(err);
-        this.messagePrimeService.add(
-          { severity: "error", summary: "Errore", detail: "Errore durante il salvaggio, contattare BabelCare" });
-      }
-    );
+    // const formToSend: FormData = this.buildFormToSend();
+    // this.draftService.saveDraftMessage(formToSend).subscribe(
+    //   res => {
+    //     console.log(res);
+    //     this.messagePrimeService.add(
+    //       { severity: "success", summary: "Successo", detail: "Bozza salvata correttamente" });
+    //     this.onClose();
+    //   },
+    //   err => {
+    //     console.log(err);
+    //     this.messagePrimeService.add(
+    //       { severity: "error", summary: "Errore", detail: "Errore durante il salvaggio, contattare BabelCare" });
+    //   }
+    // );
   }
 
   onDelete(showMessage: boolean) {
