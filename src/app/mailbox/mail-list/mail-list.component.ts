@@ -1,7 +1,7 @@
 import { Component, OnInit, Input, Output, EventEmitter, ViewChild, ElementRef, AfterViewInit, AfterContentInit, AfterContentChecked, AfterViewChecked, OnChanges, OnDestroy } from "@angular/core";
 import { buildLazyEventFiltersAndSorts } from "@bds/primeng-plugin";
 import { Message, ENTITIES_STRUCTURE, MessageAddress, AddresRoleType, Folder, FolderType, TagType, MessageTag, InOut, Tag, Pec, MessageFolder, MessageType } from "@bds/ng-internauta-model";
-import { ShpeckMessageService} from "src/app/services/shpeck-message.service";
+import { ShpeckMessageService, MessageEvent} from "src/app/services/shpeck-message.service";
 import { FiltersAndSorts, FilterDefinition, FILTER_TYPES, SortDefinition, SORT_MODES, PagingConf, PagingMode, BatchOperation, BatchOperationTypes } from "@nfa/next-sdr";
 import { TagService } from "src/app/services/tag.service";
 import { Observable, Subscription } from "rxjs";
@@ -42,6 +42,7 @@ export class MailListComponent implements OnInit, AfterViewChecked, OnChanges, O
     }
   };
 
+  private selectedMessageEvent: MessageEvent;
   private subscriptions: Subscription[] = [];
   private previousFilter: FilterDefinition[] = [];
 
@@ -169,6 +170,9 @@ export class MailListComponent implements OnInit, AfterViewChecked, OnChanges, O
       if (filters) {
         this.setFilters(filters);
       }
+    }));
+    this.subscriptions.push(this.messageService.messageEvent.subscribe((me: MessageEvent) => {
+      this.selectedMessageEvent = me;
     }));
     // this.idFolder = 6;
     // this.loadData(6);
