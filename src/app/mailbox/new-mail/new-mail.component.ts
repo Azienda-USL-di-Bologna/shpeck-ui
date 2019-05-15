@@ -153,14 +153,15 @@ export class NewMailComponent implements OnInit, AfterViewInit {
         if (formField) {
           if (formField === "addresses") {
             const toForm = this.mailForm.get("to");
-
             if (!toForm.value.find((element) => element === tokenInput.value)) {
               toForm.value.push(tokenInput.value);
+              toForm.updateValueAndValidity();
             }
           } else if (formField === "ccAddresses") {
             const ccForm = this.mailForm.get("cc");
             if (!ccForm.value.find((element) => element === tokenInput.value)) {
               ccForm.value.push(tokenInput.value);
+              ccForm.updateValueAndValidity();
             }
             if (ccForm.value && ccForm.value.length > 0) {
               const hideRecipients = this.mailForm.get("hideRecipients");
