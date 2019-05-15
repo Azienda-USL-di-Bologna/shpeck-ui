@@ -4,12 +4,12 @@
     <div class="recepit-dates">
       <li class="recepit-date">
         <span class="recepit-date-label">Accettata il:</span>
-        <span class="recepit-date-content">{{getDateDisplay(fullMessage?.emlData?.acceptanceDate)}}</span>
+        <span class="recepit-date-content">{{fullMessage?.emlData?.acceptanceDate | date:"EEEE d MMMM y, H:m" | titlecase}}</span>
       </li>
       <li class="recepit-date">
         <span class="recepit-date-label">Consegnata il:</span>
         <span *ngIf="fullMessage?.emlData?.lastDeliveryDate != null" class="recepit-date-content">
-          {{getDateDisplay(fullMessage?.emlData?.lastDeliveryDate)}}
+          {{fullMessage?.emlData?.lastDeliveryDate | date:"EEEE d MMMM y, H:m" | titlecase}}
         </span>
         <span *ngIf="fullMessage?.emlData?.deliveryInfo != null" class="recepit-date-content">
           {{fullMessage.emlData.deliveryInfo}}
@@ -24,10 +24,24 @@
       pTooltip="Apri dettaglio ricevute">
     </button>
   </div>
+  <div *ngIf="fullMessage?.message?.inOut === inOut?.IN" class="recepit-detail">
+    <div class="recepit-dates">
+      <li class="recepit-date">
+        <span class="recepit-date-label">Ricevuto il:</span>
+        <span class="recepit-date-content">{{fullMessage?.message?.receiveTime | date:"EEEE d MMMM y, H:m" | titlecase}}</span>
+      </li>
+      <li class="recepit-date">
+        <span class="recepit-date-label">Consegnato il:</span>
+        <span class="recepit-date-content">
+          {{fullMessage?.message?.createTime | date:"EEEE d MMMM y, H:m" | titlecase}}
+        </span>
+      </li>
+    </div>
+  </div>
   <p-accordion [multiple]="true" class="multi-accordion-eml-detail">
       <p-accordionTab header="Dettagli" class="accordion-dettagli"
         [disabled]="fullMessage?.emlData == null">
-        <span *ngIf="fullMessage?.emlData?.sendDate" class="send-date">{{getDateDisplay(fullMessage?.emlData.sendDate)}}</span>
+        <span *ngIf="fullMessage?.emlData?.sendDate" class="send-date">{{fullMessage?.emlData.sendDate | date:"EEEE d MMMM y, H:m" | titlecase}}</span>
         <ul class="elenco-dettagli">
             <!-- <li *ngIf="fullMessage?.emlData?.sendDate"><span class="li-description">Inviato:</span><span class="li-content">{{getDateDisplay(fullMessage?.emlData.sendDate)}}</span></li> -->
             <li *ngIf="fullMessage?.emlData?.from">
