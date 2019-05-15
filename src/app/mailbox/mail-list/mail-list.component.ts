@@ -1,6 +1,6 @@
 import { Component, OnInit, Input, Output, EventEmitter, ViewChild, ElementRef, AfterViewInit, AfterContentInit, AfterContentChecked, AfterViewChecked, OnChanges, OnDestroy } from "@angular/core";
 import { buildLazyEventFiltersAndSorts } from "@bds/primeng-plugin";
-import { Message, ENTITIES_STRUCTURE, MessageAddress, AddresRoleType, Folder, FolderType, TagType, MessageTag, InOut, Tag, Pec, MessageFolder, MessageType } from "@bds/ng-internauta-model";
+import { Message, ENTITIES_STRUCTURE, MessageAddress, AddresRoleType, Folder, MessageTag, InOut, Tag, Pec, MessageFolder, MessageType } from "@bds/ng-internauta-model";
 import { ShpeckMessageService, MessageEvent} from "src/app/services/shpeck-message.service";
 import { FiltersAndSorts, FilterDefinition, FILTER_TYPES, SortDefinition, SORT_MODES, PagingConf, PagingMode, BatchOperation, BatchOperationTypes } from "@nfa/next-sdr";
 import { TagService } from "src/app/services/tag.service";
@@ -11,7 +11,7 @@ import { BaseUrlType, BaseUrls, TOOLBAR_ACTIONS } from "src/environments/app-con
 import { MenuItem, LazyLoadEvent, FilterMetadata, TreeNode } from "primeng/api";
 import { MessageFolderService } from "src/app/services/message-folder.service";
 import { Utils } from "src/app/utils/utils";
-import { MailFoldersService, PecTreeNodeType } from "../mail-folders/mail-folders.service";
+import { MailFoldersService, PecFolderType, PecFolder } from "../mail-folders/mail-folders.service";
 import { ToolBarService } from "../toolbar/toolbar.service";
 
 @Component({
@@ -154,14 +154,14 @@ export class MailListComponent implements OnInit, AfterViewChecked, OnChanges, O
   ) {}
 
   ngOnInit() {
-    this.subscriptions.push(this.mailFoldersService.pecTreeNodeSelected.subscribe((pecTreeNodeSelected: TreeNode) => {
-      if (pecTreeNodeSelected) {
-        if (pecTreeNodeSelected.type === PecTreeNodeType.FOLDER) {
-          const selectedFolder: Folder = pecTreeNodeSelected.data;
+    this.subscriptions.push(this.mailFoldersService.pecFolderSelected.subscribe((pecFolderSelected: PecFolder) => {
+      if (pecFolderSelected) {
+        if (pecFolderSelected.type === PecFolderType.FOLDER) {
+          const selectedFolder: Folder = pecFolderSelected.data as Folder;
           this._selectedPecId = selectedFolder.fk_idPec.id;
           this.setFolder(selectedFolder);
         } else {
-          const pec: Pec = pecTreeNodeSelected.data;
+          const pec: Pec = pecFolderSelected.data as Pec;
           this._selectedPecId = pec.id;
         }
       }
