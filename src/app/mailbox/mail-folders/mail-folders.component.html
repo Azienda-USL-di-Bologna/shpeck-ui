@@ -2,9 +2,37 @@
   styleClass = "tree-style"
   [value]="mailfolders"
   selectionMode = "single"
-  [(selection)]="selected"
-  (onNodeSelect)="handleNodeSelect($event)">
+  [(selection)]="selectedNode"
+  (onNodeSelect)="handleNodeSelect('onNodeSelect', $event)"
+  (onNodeContextMenuSelect)="handleNodeSelect('onContextMenuSelect', $event)"
+  (selectionChange)="handleNodeSelect('selectionChange', $event)"
+  [contextMenu]="cm">
+  <ng-template let-node pTemplate="default">
+    <input *ngIf="!!node.editable" [(ngModel)]="node.label" 
+    type="text" style="width:100%" 
+    class="ui-inputtext" 
+    (focusout)= "node.editable=false"
+    [attr.disabled]="node.editable ? null : ''">
+    <div *ngIf="!!!node.editable">{{node.label}}
+    </div>
+</ng-template>
 </p-tree>
 
+<!-- [attr.disabled]="node.editable ? 'true' : null" -->
+<p-contextMenu #cm [model]="cmItems" styleClass = "context-menu-mail-folders"></p-contextMenu>
+
+<p-dialog [header]="folderDialogProperties.title" 
+          [(visible)]="folderDialogProperties.visible" 
+          modal="true"
+          styleClass="folder-dialog"
+          positionTop="20"
+          positionLeft="20"
+          >
+  Contentaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+</p-dialog>
+
+<!-- <p-overlayPanel #manageFolderPanel [dismissable]="true" [showCloseIcon]="true">
+  Contentaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+</p-overlayPanel> -->
 
 <!-- [style] = "{'background-color': blue}" -->

@@ -4,7 +4,7 @@ import { ButtonModule } from "primeng/button";
 import { TreeModule } from "primeng/tree";
 import { DataScrollerModule } from "primeng/datascroller";
 import { VirtualScrollerModule } from "primeng/virtualscroller";
-import { DropdownModule, CalendarModule, TooltipModule } from "primeng/primeng";
+import { DropdownModule, CalendarModule, TooltipModule, OverlayPanelModule } from "primeng/primeng";
 import { TableModule } from "primeng/table";
 import { AccordionModule } from "primeng/accordion";
 import { ToolbarModule } from "primeng/toolbar";
@@ -38,6 +38,7 @@ import { ToastModule } from "primeng/toast";
         ToolbarModule,
         SplitButtonModule,
         DialogModule,
+        OverlayPanelModule,
         InputSwitchModule,
         AutoCompleteModule,
         CheckboxModule,
@@ -63,6 +64,7 @@ import { ToastModule } from "primeng/toast";
         ToolbarModule,
         SplitButtonModule,
         DialogModule,
+        OverlayPanelModule,
         InputSwitchModule,
         AutoCompleteModule,
         CheckboxModule,

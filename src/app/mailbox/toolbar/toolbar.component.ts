@@ -1,5 +1,5 @@
 import { Component, OnInit, OnDestroy} from "@angular/core";
-import { DialogService, TreeNode } from "primeng/api";
+import { DialogService } from "primeng/api";
 import { ShpeckMessageService, MessageEvent } from "src/app/services/shpeck-message.service";
 import { Subscription, Observable } from "rxjs";
 import { TOOLBAR_ACTIONS } from "src/environments/app-constants";
@@ -7,7 +7,7 @@ import { Pec, Folder } from "@bds/ng-internauta-model";
 import { PecService } from "src/app/services/pec.service";
 import { FilterDefinition, FILTER_TYPES } from "@nfa/next-sdr";
 import { ToolBarService } from "./toolbar.service";
-import { PecTreeNodeType, MailFoldersService } from "../mail-folders/mail-folders.service";
+import { MailFoldersService, PecFolder, PecFolderType } from "../mail-folders/mail-folders.service";
 
 @Component({
   selector: "app-toolbar",
@@ -29,15 +29,15 @@ export class ToolbarComponent implements OnInit, OnDestroy {
   ) { }
 
   ngOnInit() {
-    this.subscriptions.push(this.mailFoldersService.pecTreeNodeSelected.subscribe((pecTreeNodeSelected: TreeNode) => {
-      if (pecTreeNodeSelected && this.myPecs && this.myPecs.length > 0) {
+    this.subscriptions.push(this.mailFoldersService.pecFolderSelected.subscribe((pecFolderSelected: PecFolder) => {
+      if (pecFolderSelected && this.myPecs && this.myPecs.length > 0) {
         let idPec: number;
-        if (pecTreeNodeSelected.type === PecTreeNodeType.FOLDER) {
-          const selectedFolder: Folder = pecTreeNodeSelected.data;
+        if (pecFolderSelected.type === PecFolderType.FOLDER) {
+          const selectedFolder: Folder = pecFolderSelected.data as Folder;
           idPec = selectedFolder.fk_idPec.id;
           this.toolBarService.buttonsActive.next(false);
         } else {
-          idPec = ((pecTreeNodeSelected.data) as Pec).id;
+          idPec = ((pecFolderSelected.data) as Pec).id;
         }
         this._selectedPec = this.myPecs.filter(p => p.id === idPec)[0];
       }
