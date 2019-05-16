@@ -75,9 +75,11 @@ li {
 .attachment:hover {
   background-color: rgb(206, 206, 206);
 }
-
 ::ng-deep body .ui-autocomplete-panel .ui-autocomplete-items .ui-autocomplete-list-item.ui-state-highlight {
   background-color: #546069;
+}
+::ng-deep .ui-autocomplete-input-token input {
+  width: 60em;
 }
 
 /******* General rules *******/
