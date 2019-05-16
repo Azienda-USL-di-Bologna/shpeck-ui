@@ -133,28 +133,30 @@ export class NewMailComponent implements OnInit, AfterViewInit {
    * @param action L'azione che è stata effettuata (REPLY, FORWARD, ETC)
   */
   fillAddressesArray(message: Message, allAddresses: boolean, action: string) {
-    message.messageAddressList.forEach(obj => {
-      switch (obj.addressRole) {
-        case "FROM":
-          this.fromAddress = obj.idAddress.originalAddress ? obj.idAddress.originalAddress : obj.idAddress.mailAddress;
-          if (action !== TOOLBAR_ACTIONS.FORWARD) {
-            this.toAddresses.push(this.fromAddress);
-          }
-          break;
-        case "TO":
-          this.toAddressesForLabel.push(obj.idAddress.originalAddress ? obj.idAddress.originalAddress : obj.idAddress.mailAddress);
-          if (allAddresses && obj.idAddress.id !== message.fk_idPec.id) {
-            this.ccAddresses.push(obj.idAddress.originalAddress ? obj.idAddress.originalAddress : obj.idAddress.mailAddress);
-          }
-          break;
-        case "CC":
-          this.ccAddressesForLabel.push(obj.idAddress.originalAddress ? obj.idAddress.originalAddress : obj.idAddress.mailAddress);
-          if (allAddresses && obj.idAddress.id !== message.fk_idPec.id) {
-            this.ccAddresses.push(obj.idAddress.originalAddress ? obj.idAddress.originalAddress : obj.idAddress.mailAddress);
-          }
-          break;
-      }
-    });
+    if (message.messageAddressList && message.messageAddressList.length > 0) {
+      message.messageAddressList.forEach(obj => {
+        switch (obj.addressRole) {
+          case "FROM":
+            this.fromAddress = obj.idAddress.originalAddress ? obj.idAddress.originalAddress : obj.idAddress.mailAddress;
+            if (action !== TOOLBAR_ACTIONS.FORWARD) {
+              this.toAddresses.push(this.fromAddress);
+            }
+            break;
+          case "TO":
+            this.toAddressesForLabel.push(obj.idAddress.originalAddress ? obj.idAddress.originalAddress : obj.idAddress.mailAddress);
+            if (allAddresses && obj.idAddress.id !== message.fk_idPec.id) {
+              this.ccAddresses.push(obj.idAddress.originalAddress ? obj.idAddress.originalAddress : obj.idAddress.mailAddress);
+            }
+            break;
+          case "CC":
+            this.ccAddressesForLabel.push(obj.idAddress.originalAddress ? obj.idAddress.originalAddress : obj.idAddress.mailAddress);
+            if (allAddresses && obj.idAddress.id !== message.fk_idPec.id) {
+              this.ccAddresses.push(obj.idAddress.originalAddress ? obj.idAddress.originalAddress : obj.idAddress.mailAddress);
+            }
+            break;
+        }
+      });
+    }
   }
 
   /**
