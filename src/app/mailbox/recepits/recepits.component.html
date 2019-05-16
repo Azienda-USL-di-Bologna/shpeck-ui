@@ -14,7 +14,7 @@
   <ng-template pTemplate="body" let-rowData let-columns="columns">
       <tr>
         <td *ngFor="let col of columns" [ngStyle]="col.style">
-          <nextsdr-primeng-table-column-body *ngIf="!['address','button'].includes(col.field)"
+          <nextsdr-primeng-table-column-body *ngIf="!(['address','button'].indexOf(col.field) > -1)"
             [column]="col" 
             [rowData]="rowData">
           </nextsdr-primeng-table-column-body>

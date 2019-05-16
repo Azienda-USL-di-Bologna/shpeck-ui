@@ -252,12 +252,12 @@ export class MailDetailComponent implements OnInit, OnDestroy {
    */
   public getFaClass(attachment: EmlAttachment): string {
     for (const field of Object.keys(ContentTypeList)) {
-      if (ContentTypeList[field].contentType.includes(attachment.contentType)) {
+      if (ContentTypeList[field].contentType.indexOf(attachment.contentType) > -1) {
         return field;
       }
     }
     for (const field of Object.keys(ContentTypeList)) {
-      if (ContentTypeList[field].simpleType.includes(attachment.simpleType)) {
+      if (ContentTypeList[field].simpleType.indexOf(attachment.simpleType) > -1) {
         return field;
       }
     }
