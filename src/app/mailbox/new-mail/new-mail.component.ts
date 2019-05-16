@@ -121,6 +121,9 @@ export class NewMailComponent implements OnInit, AfterViewInit {
         body: this.editor.quill.root["innerHTML"]
       });
     }
+    /* Disabilito la compilazione automatica degli indirizzi */
+    this.setAttribute("toInputId", "autocomplete", "false");
+    this.setAttribute("ccInputId", "autocomplete", "false");
   }
 
   /**
@@ -423,5 +426,10 @@ export class NewMailComponent implements OnInit, AfterViewInit {
           }
       }
       return filtered;
+  }
+
+  private setAttribute(feild, attribute, value): void {
+    const field = document.getElementById(feild);
+    field.setAttribute(attribute, value);
   }
 }
