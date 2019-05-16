@@ -163,6 +163,7 @@ export class NewMailComponent implements OnInit, AfterViewInit {
   onKeyUp(event: KeyboardEvent, formField: string) {
     if (event.key === "Enter" || event.type === "blur") {
       const tokenInput = event.target as any;
+      tokenInput.value = tokenInput.value.trim();
       if (tokenInput.value && tokenInput.validity.valid) {
         if (formField) {
           if (formField === "to") {
@@ -194,8 +195,9 @@ export class NewMailComponent implements OnInit, AfterViewInit {
    * @param item L'oggetto selezionato nell'autocomplete
    * @param formField Il campo del form dove è stato selezionato l'indirizzo, addresses o ccAddresses
   */
-  onSelect(item, formField) {
+  onSelect(item: string, formField) {
     if (item) {
+      item = item.trim();
       if (formField === "to") {
         const toForm = this.mailForm.get("to") as FormArray;
         if (toForm.value.indexOf(item) === -1) {
