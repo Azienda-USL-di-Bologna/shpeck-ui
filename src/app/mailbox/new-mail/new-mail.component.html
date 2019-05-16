@@ -8,7 +8,7 @@
           <label for="to" style="padding-right: 9px">A: </label>
           <span class="ui-fluid flex-1 margin-lr-5">
               <p-autoComplete #toAutoComplete
-                required="true" type="email"
+                required="true" type="email" autocomplete="nope"
                 id="to" formControlArray="to" [suggestions]="filteredCountriesMultiple"
                 (completeMethod)="filterCountryMultiple($event)" (onKeyUp)="onKeyUp($event, 'to')"
                 (onSelect)="onSelect($event, 'to')" (onUnselect)="onUnselect($event, 'to')" (onBlur)="onKeyUp($event, 'to')"
@@ -24,7 +24,7 @@
           <label for="cc">CC: </label>
           <span class="ui-fluid flex-1 margin-lr-5">
             <p-autoComplete #ccAutoComplete
-              type="email"
+              type="email"  autocomplete="nope"
               id="cc" formControlArray="cc" [suggestions]="filteredCountriesMultiple"
               (completeMethod)="filterCountryMultiple($event)" (onKeyUp)="onKeyUp($event, 'cc')"
               (onSelect)="onSelect($event, 'cc')" (onUnselect)="onUnselect($event, 'cc')" (onBlur)="onKeyUp($event, 'cc')"
