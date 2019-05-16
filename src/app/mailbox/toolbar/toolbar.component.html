@@ -31,17 +31,24 @@
       <button
         pButton type="button" label="Elimina"
         icon="fa fa-trash" class="button-styles ui-button-raised ui-button-secondary custom-border"
-        (click)="handleEvent($event, 'delete')">
+        (click)="handleEvent($event, 'delete')"
+        [disabled]="true">
       </button>
       <!-- Sposta -->
       <button
         pButton type="button" label="Sposta"
         class="button-styles ui-button-raised ui-button-secondary margin-l-15 custom-border"
-        (click)="handleEvent($event, 'move')">
+        (click)="handleEvent($event, 'move')"
+        [disabled]="true">
         <img class="images-pos" src="assets/images/icons/folder_export.png" width="24px" alt="Sposta in">
       </button>
       <!-- Fascicola -->
-      <button pButton type="button" label="Fascicola" class="button-styles ui-button-raised ui-button-secondary custom-border"></button>
+      <button
+        pButton type="button" label="Fascicola"
+        class="button-styles ui-button-raised ui-button-secondary custom-border"
+        [disabled]="true">
+      </button>
+      <!-- Ricerca -->
       <input #search type="text" pInputText size="50" placeholder="Cerca..." (keyup.enter)="onEnter(search.value)" class="input-find">
       <!-- <i class="pi pi-bars a-items-center d-flex"></i> -->
   </div>
