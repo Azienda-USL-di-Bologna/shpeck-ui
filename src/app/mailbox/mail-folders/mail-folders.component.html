@@ -1,26 +1,29 @@
-<p-tree #mytree
+<p-tree #tree
   styleClass = "tree-style"
   [value]="mailfolders"
   selectionMode = "single"
   [(selection)]="selectedNode"
   (onNodeSelect)="handleNodeSelect('onNodeSelect', $event)"
+  (onNodeUnselect)="handleNodeSelect('onNodeUnselect', $event)"
   (onNodeContextMenuSelect)="handleNodeSelect('onContextMenuSelect', $event)"
   (selectionChange)="handleNodeSelect('selectionChange', $event)"
   [contextMenu]="cm">
   <ng-template let-node pTemplate="default">
-    <input *ngIf="!!node.editable" [(ngModel)]="node.label" 
+    <input #folderInput [hidden] ="!!!node.editable" [(ngModel)]="node.label" 
+    [id]="node.key"
     type="text" style="width:100%" 
     class="ui-inputtext" 
-    (focusout)= "node.editable=false"
+    (focusout)= "onLostFocus($event, folderInput.value)"
+    (keyup.enter)="onEnterPressed($event, folderInput.value)"
+    (keydown.esc)="OnEscPressed($event)"
     [attr.disabled]="node.editable ? null : ''">
-    <div *ngIf="!!!node.editable">{{node.label}}
-    </div>
+    <div *ngIf="!!!node.editable">{{node.label}}</div>
 </ng-template>
 </p-tree>
 
-<!-- [attr.disabled]="node.editable ? 'true' : null" -->
+<!-- *ngIf="!!node.editable" -->
 <p-contextMenu #cm [model]="cmItems" styleClass = "context-menu-mail-folders"></p-contextMenu>
-
+<!-- 
 <p-dialog [header]="folderDialogProperties.title" 
           [(visible)]="folderDialogProperties.visible" 
           modal="true"
@@ -29,7 +32,7 @@
           positionLeft="20"
           >
   Contentaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
-</p-dialog>
+</p-dialog> -->
 
 <!-- <p-overlayPanel #manageFolderPanel [dismissable]="true" [showCloseIcon]="true">
   Contentaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
