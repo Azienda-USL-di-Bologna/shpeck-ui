@@ -35,7 +35,7 @@ export class MailFoldersComponent implements OnInit, OnDestroy {
   public selectedNode: MyTreeNode;
   public previousSelectedNode: MyTreeNode;
   private _abortSaveFolder: boolean = false;
-  private _pressedEnterOrEsc: boolean = false;
+  private _pressedEnter: boolean = false;
 
   public cmItems: MenuItem[];
   public pecCmItems: MenuItem[] = [
@@ -222,19 +222,19 @@ export class MailFoldersComponent implements OnInit, OnDestroy {
   }
 
   public onLostFocus(event, value?: string) {
-    if (this._pressedEnterOrEsc) {
-      this._pressedEnterOrEsc = false;
+    if (this._pressedEnter) {
+      this._pressedEnter = false;
     } else {
       this.saveFolder(value);
     }
   }
   public onEnterPressed(event, value?: string) {
-    this._pressedEnterOrEsc = true;
+    this._pressedEnter = true;
     this.saveFolder(value);
   }
 
-  public onEscPressed(event, value?: string) {
-    this._pressedEnterOrEsc = false;
+  public onEscPressed(event) {
+    // this._pressedEnterOrEsc = true;
     this.abortSaveFolder();
   }
 

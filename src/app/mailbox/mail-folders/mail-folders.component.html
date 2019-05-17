@@ -15,7 +15,7 @@
     class="ui-inputtext" 
     (focusout)= "onLostFocus($event, folderInput.value)"
     (keyup.enter)="onEnterPressed($event, folderInput.value)"
-    (keydown.esc)="OnEscPressed($event)"
+    (keydown.esc)="onEscPressed($event)"
     [attr.disabled]="node.editable ? null : ''">
     <div *ngIf="!!!node.editable">{{node.label}}</div>
 </ng-template>
