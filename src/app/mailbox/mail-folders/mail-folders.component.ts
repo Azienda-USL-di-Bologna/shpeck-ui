@@ -56,6 +56,13 @@ export class MailFoldersComponent implements OnInit, OnDestroy {
       queryParams: {},
       command: event => this.selectedContextMenuItem(event)
     },
+    {
+      label: "Elimina",
+      id: "DeleteFolder",
+      disabled: false,
+      queryParams: {},
+      command: event => this.selectedContextMenuItem(event)
+    },
   ];
 
   constructor(
@@ -142,8 +149,13 @@ export class MailFoldersComponent implements OnInit, OnDestroy {
             setTimeout(() => {
               this.folderInput.find(e => e.nativeElement.id === this.selectedNode.key).nativeElement.focus();
             }, 0);
-          } else {
-
+          }
+        break;
+        case "DeleteFolder":
+          console.log("rename folder", this.selectedNode);
+          const folderToDelete: Folder = this.selectedNode.data.data as Folder;
+          if (folderToDelete.type === FolderType.CUSTOM) {
+            this.deleteFolder(folderToDelete);
           }
         break;
       }
@@ -182,6 +194,17 @@ export class MailFoldersComponent implements OnInit, OnDestroy {
     };
   }
 
+  private disableNotSelectableFolderContextMenuItems(selectedFolder: Folder) {
+    const items: MenuItem[] = this.folderCmItems.filter(item => (item.id === "RenameFolder" || item.id === "DeleteFolder"));
+    if (items && items.length > 0) {
+      if (selectedFolder.type === FolderType.CUSTOM) {
+        items.map(item => item.disabled = false);
+      } else {
+        items.map(item => item.disabled = true);
+      }
+    }
+  }
+
   public handleNodeSelect(name: string, event: any) {
     switch (name) {
     case "onContextMenuSelect":
@@ -193,14 +216,20 @@ export class MailFoldersComponent implements OnInit, OnDestroy {
       if (event.node && event.node.data && (event.node as MyTreeNode).data.type === PecFolderType.PEC) {
         this.cmItems = this.pecCmItems;
       } else {
+        this.disableNotSelectableFolderContextMenuItems(event.node.data.data as Folder);
         this.cmItems = this.folderCmItems;
-        const renameItems = this.cmItems.find(item => item.id === "RenameFolder");
-        if (renameItems && (event.node.data.data as Folder).type !== FolderType.CUSTOM ) {
-          renameItems.disabled = true;
-        } else {
-          renameItems.disabled = false;
-        }
       }
+      // if (event.node && event.node.data && (event.node as MyTreeNode).data.type === PecFolderType.PEC) {
+      //   this.cmItems = this.pecCmItems;
+      // } else {
+      //   this.cmItems = this.folderCmItems;
+      //   const renameItems = this.cmItems.find(item => item.id === "RenameFolder");
+      //   if (renameItems && (event.node.data.data as Folder).type !== FolderType.CUSTOM ) {
+      //     renameItems.disabled = true;
+      //   } else {
+      //     renameItems.disabled = false;
+      //   }
+      // }
     break;
     case "onNodeUnselect":
       this.previousSelectedNode = this.selectedNode;
@@ -275,6 +304,19 @@ export class MailFoldersComponent implements OnInit, OnDestroy {
       console.log(this.selectedNode.data.data);
     }
     this._abortSaveFolder = false;
+  }
+
+  private deleteFolder(folder: Folder) {
+    this.folderService.deleteHttpCall(folder.id).subscribe(
+      (res) => {
+        const folderElementIndex: number = this.selectedNode.parent.children.findIndex(element => element.data.data.id === folder.id);
+        this.selectedNode.parent.children.splice(folderElementIndex, 1);
+        this.selectedNode = null;
+      },
+      (error) => {
+        //TODO: mostrare errore
+      }
+    );
   }
 
   public validateName(name: string) {
