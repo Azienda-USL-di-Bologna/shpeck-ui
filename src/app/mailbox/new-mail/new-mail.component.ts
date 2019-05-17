@@ -344,10 +344,10 @@ export class NewMailComponent implements OnInit, AfterViewInit {
         console.log("Error: ", err);
         if (err && err.error.code === "007") {
             this.messagePrimeService.add(
-            { severity: "error", summary: "Errore", detail: err.error.message, life: 3200 });
+            { severity: "error", summary: "Errore", detail: err.error.message, life: 3500 });
         } else {
           this.messagePrimeService.add(
-          { severity: "error", summary: "Errore", detail: "Errore durante l'invio della mail, contattare BabelCare" });
+          { severity: "error", summary: "Errore", detail: "Errore durante l'invio della mail, contattare BabelCare", life: 3500 });
         }
       }
     );
@@ -368,7 +368,7 @@ export class NewMailComponent implements OnInit, AfterViewInit {
       err => {
         console.log(err);
         this.messagePrimeService.add(
-          { severity: "error", summary: "Errore", detail: "Errore durante il salvaggio, contattare BabelCare" });
+          { severity: "error", summary: "Errore", detail: "Errore durante il salvaggio, contattare BabelCare", life: 3500 });
       }
     );
   }
@@ -385,7 +385,7 @@ export class NewMailComponent implements OnInit, AfterViewInit {
       err => {
         if (showMessage) {
           this.messagePrimeService.add(
-            { severity: "error", summary: "Errore", detail: "Errore durante l'eliminazione, contattare BabelCare" });
+            { severity: "error", summary: "Errore", detail: "Errore durante l'eliminazione, contattare BabelCare", life: 3500 });
         }
       }
     );
