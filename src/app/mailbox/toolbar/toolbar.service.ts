@@ -52,6 +52,8 @@ export class ToolBarService {
           { severity: "error", summary: "Errore", detail: "Errore! Non è possibile agire sulla mail. Contattare BabelCare" });
         return;
       }
+    } else {  // Nel caso di NEW_MAIL svuotiamo il messageEvent
+      this.messageEvent = null;
     }
     this.draftService.postHttpCall(draftMessage).subscribe((draft: Draft) => {
       const ref = this.dialogService.open(NewMailComponent, {
