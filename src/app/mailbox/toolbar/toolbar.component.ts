@@ -69,7 +69,7 @@ export class ToolbarComponent implements OnInit, OnDestroy {
   // }
 
   public onEnter(value) {
-    if (value && value.length > 0) {
+    if (value && value.length >= 3) {
       const filter = [];
       filter.push(new FilterDefinition("tscol", FILTER_TYPES.not_string.equals, value));
       this.toolBarService.setFilterTyped(filter);
