@@ -62,11 +62,14 @@ export class NewMailComponent implements OnInit, AfterViewInit {
     let subject: string = ""; // L'Oggetto della mail
     let messageRelatedType = "";
     // Variabile per il messaggio in caso di azioni reply e inoltra
-    const message: Message = this.config.data.fullMessage ? this.config.data.fullMessage.message : null;
+    let message: Message = this.config.data.fullMessage ? this.config.data.fullMessage.message : null;
     const pec: Pec = this.config.data.pec;
     const action = this.config.data.action;
     /* Action è passata dal components toolbar. Se è diverso da NEW ci aspettiamo il FullMessage di MessageEvent */
     switch (action) {
+      case TOOLBAR_ACTIONS.NEW:
+        message = null; // Nel caso di NEW_MAIL non ho bisogno del message che resta comunque nel messageEvent
+        break;
       case TOOLBAR_ACTIONS.REPLY:   // REPLY
         subject = "Re: ".concat(message.subject);
         messageRelatedType = MessageRelatedType.REPLIED;
