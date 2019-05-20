@@ -163,6 +163,7 @@ export class MailListComponent implements OnInit, AfterViewChecked, OnChanges, O
         } else {
           const pec: Pec = pecFolderSelected.data as Pec;
           this._selectedPecId = pec.id;
+          this.setFolder(null);
         }
       }
     }));

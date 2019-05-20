@@ -210,8 +210,10 @@ export class MailFoldersComponent implements OnInit, OnDestroy {
     case "onContextMenuSelect":
       if (this.mailfolders) {
         this.mailfolders.map(m => m.styleClass = MailFoldersComponent.ROOT_NODE_NOT_SELECTED_STYLE_CLASS);
-        this.selectRootNode(event.node, true);
-        this.mailFoldersService.selectedPecFolder(event.node.data);
+        if (event.node &&  !(event.node as MyTreeNode).editable) {
+          this.selectRootNode(event.node, true);
+          this.mailFoldersService.selectedPecFolder(event.node.data);
+        }
       }
       if (event.node && event.node.data && (event.node as MyTreeNode).data.type === PecFolderType.PEC) {
         this.cmItems = this.pecCmItems;
@@ -231,7 +233,7 @@ export class MailFoldersComponent implements OnInit, OnDestroy {
       //   }
       // }
     break;
-    case "onNodeUnselect":
+    case "onNodeUnselect": //TODO: capire perché non scatta
       this.previousSelectedNode = this.selectedNode;
     break;
     //   if ((event as TreeNode).type === PecTreeNodeType.PEC) {
@@ -241,7 +243,7 @@ export class MailFoldersComponent implements OnInit, OnDestroy {
     //   }
     // break;
     case "onNodeSelect":
-      if (this.mailfolders) {
+      if (this.mailfolders && event.node && !(event.node as MyTreeNode).editable) {
         this.mailfolders.map(m => m.styleClass = MailFoldersComponent.ROOT_NODE_NOT_SELECTED_STYLE_CLASS);
         this.selectRootNode(event.node, true);
         this.mailFoldersService.selectedPecFolder(event.node.data);
