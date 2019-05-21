@@ -10,9 +10,11 @@ import { Table } from "primeng/table";
 import { BaseUrlType, BaseUrls, TOOLBAR_ACTIONS } from "src/environments/app-constants";
 import { MenuItem, LazyLoadEvent, FilterMetadata, TreeNode } from "primeng/api";
 import { MessageFolderService } from "src/app/services/message-folder.service";
+import { FolderService } from "src/app/services/folder.service";
 import { Utils } from "src/app/utils/utils";
 import { MailFoldersService, PecFolderType, PecFolder } from "../mail-folders/mail-folders.service";
 import { ToolBarService } from "../toolbar/toolbar.service";
+import { NtJwtLoginService, UtenteUtilities } from "@bds/nt-jwt-login";
 
 @Component({
   selector: "app-mail-list",
@@ -45,6 +47,7 @@ export class MailListComponent implements OnInit, AfterViewChecked, OnChanges, O
   private selectedMessageEvent: MessageEvent;
   private subscriptions: Subscription[] = [];
   private previousFilter: FilterDefinition[] = [];
+  private loggedUser: UtenteUtilities;
 
   public cmItems: MenuItem[] = [
     {
@@ -147,11 +150,15 @@ export class MailListComponent implements OnInit, AfterViewChecked, OnChanges, O
   constructor(
     private messageService: ShpeckMessageService,
     private messageFolderService: MessageFolderService,
+    private folderService: FolderService,
     private tagService: TagService,
     private mailFoldersService: MailFoldersService,
     private toolBarService: ToolBarService,
-    private datepipe: DatePipe
-  ) {}
+    private datepipe: DatePipe,
+    private loginService: NtJwtLoginService
+  ) {
+    
+  }
 
   ngOnInit() {
     this.subscriptions.push(this.mailFoldersService.pecFolderSelected.subscribe((pecFolderSelected: PecFolder) => {
@@ -174,6 +181,13 @@ export class MailListComponent implements OnInit, AfterViewChecked, OnChanges, O
     }));
     this.subscriptions.push(this.messageService.messageEvent.subscribe((me: MessageEvent) => {
       this.selectedMessageEvent = me;
+    }));
+    this.subscriptions.push(this.loginService.loggedUser$.subscribe((utente: UtenteUtilities) => {
+      if (utente) {
+        if (!this.loggedUser || utente.getUtente().id !== this.loggedUser.getUtente().id) {
+          this.loggedUser = utente;
+        }
+      }
     }));
     // this.idFolder = 6;
     // this.loadData(6);
@@ -545,14 +559,15 @@ export class MailListComponent implements OnInit, AfterViewChecked, OnChanges, O
         break;
       case "MessageDelete":
         this.messageFolderService
-          .moveToTrashMessages(
+          .moveMessagesToFolder(
             this.selectedMessages.map((message: Message) => {
               return message.messageFolderList.filter(
                 (messageFolder: MessageFolder) =>
                   (messageFolder.fk_idFolder.id = this._selectedFolder.id)
               )[0];
             }),
-            5
+            5,
+            this.loggedUser.getUtente().id
           )
           .subscribe();
         break;

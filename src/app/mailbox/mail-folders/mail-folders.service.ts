@@ -11,6 +11,7 @@ export class MailFoldersService {
 
 
   private _pecFolderSelected: BehaviorSubject<PecFolder> = new BehaviorSubject<PecFolder>(null);
+  private _pecFolders: BehaviorSubject<Folder[]> = new BehaviorSubject<Folder[]>(null);
 
   constructor() {
   }
@@ -19,8 +20,16 @@ export class MailFoldersService {
     this._pecFolderSelected.next(node);
   }
 
-  public get pecFolderSelected(): Observable<TreeNode> {
+  public get pecFolderSelected(): Observable<PecFolder> {
     return this._pecFolderSelected.asObservable();
+  }
+
+  public setPecFolders(folders: Folder[]): void {
+    this._pecFolders.next(folders);
+  }
+
+  public get pecFolders(): Observable<Folder[]> {
+    return this._pecFolders.asObservable();
   }
 }
 
