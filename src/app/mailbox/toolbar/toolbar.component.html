@@ -49,7 +49,8 @@
         [disabled]="true">
       </button>
       <!-- Ricerca -->
-      <input #search type="text" pInputText size="50" placeholder="Cerca..." (keyup.enter)="onEnter(search.value)" class="input-find">
+      <input #search type="text" pInputText size="50" placeholder="Cerca..." (keyup.enter)="onEnter(search.value)"
+        class="input-find" pTooltip="Inserire almeno 3 caratteri" title="barra di ricerca">
       <!-- <i class="pi pi-bars a-items-center d-flex"></i> -->
   </div>
 </p-toolbar>
