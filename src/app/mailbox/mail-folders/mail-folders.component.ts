@@ -82,6 +82,7 @@ export class MailFoldersComponent implements OnInit, OnDestroy {
           }
           this.selectedNode = this.mailfolders[0];
           this.mailFoldersService.selectedPecFolder(this.mailfolders[0].data);
+          // this.;
         }
       }
     ));
@@ -233,7 +234,7 @@ export class MailFoldersComponent implements OnInit, OnDestroy {
       //   }
       // }
     break;
-    case "onNodeUnselect": //TODO: capire perché non scatta
+    case "onNodeUnselect": // TODO: capire perché non scatta
       this.previousSelectedNode = this.selectedNode;
     break;
     //   if ((event as TreeNode).type === PecTreeNodeType.PEC) {
@@ -308,15 +309,21 @@ export class MailFoldersComponent implements OnInit, OnDestroy {
     this._abortSaveFolder = false;
   }
 
+  /**
+   * Elimina la folder passata. Setta la root come selectedNode e manda l'evento di selectedPecFolder
+   * @param folder
+   */
   private deleteFolder(folder: Folder) {
     this.folderService.deleteHttpCall(folder.id).subscribe(
       (res) => {
         const folderElementIndex: number = this.selectedNode.parent.children.findIndex(element => element.data.data.id === folder.id);
         this.selectedNode.parent.children.splice(folderElementIndex, 1);
+        this.selectRootNode(this.selectedNode.parent, false);
+        this.mailFoldersService.selectedPecFolder(this.selectedNode.data);
         this.selectedNode = null;
       },
       (error) => {
-        //TODO: mostrare errore
+        // TODO: mostrare errore
       }
     );
   }

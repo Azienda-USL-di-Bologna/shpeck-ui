@@ -16,11 +16,11 @@ export class MessageFolderService extends NextSDREntityProvider {
   }
 
   /**
-   * sposta nella i messaggi passati in un altra folder tramite una richiesta batch
+   * Sposta i messaggi passati in un altra folder tramite una richiesta batch
    * @param messages i messaggi da spostare
    * @param newFolderId l'id della folder in cui spostare i messaggi
    */
-  public moveToTrashMessages(messagesFolder: MessageFolder[], newFolderId: number): Observable<any> {
+  public moveMessagesToFolder(messagesFolder: MessageFolder[], newFolderId: number, idUtente?: number): Observable<any> {
     const messagesToDelete: BatchOperation[] = [];
     messagesFolder.forEach((messageFolder: MessageFolder) => {
       if (messageFolder.id) {
@@ -31,9 +31,12 @@ export class MessageFolderService extends NextSDREntityProvider {
           entityBody: {
             idFolder: {
               id: newFolderId
+            },
+            idUtente: {
+              id: idUtente
             }
           },
-          additionalData: null
+          additionalData: null,
         });
       }
     });
