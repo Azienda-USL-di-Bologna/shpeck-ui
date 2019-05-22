@@ -1,4 +1,4 @@
-<!-- 
+<!--
        [lazy]="true" (onLazyLoad)="lazyLoad($event)"
     [value]="messages"
     [columns]="cols"
@@ -9,7 +9,7 @@
     selectionMode="multiple"
     [metaKeySelection]="true"
     [scrollable]="true" [virtualRowHeight]="10" [virtualScroll]="true"
-    (onRowSelect)="handleEvent('onRowSelect', $event)" 
+    (onRowSelect)="handleEvent('onRowSelect', $event)"
 -->
 <!-- <p-table #dt
     [lazy]="true"
@@ -23,7 +23,7 @@
     [metaKeySelection]="true"
     [scrollable]="false"
     (onRowSelect)="handleEvent('onRowSelect', $event)"
-    
+
     [rowTrackBy]="trackByFn"
     > -->
 
@@ -66,11 +66,11 @@
                     <span class="mail-icon" [ngClass]="{'visibility-hidden':!message?.iconsVisibility?.readdressed}"><i [pTooltip]="getTagDescription('readdressed')" tooltipPosition="top" class="material-icons mail-icons">fast_forward</i></span>
                 </div>
                 <div class = "display-block">
-                    <span class = "pi pi-user display-icon"></span> <div class="display-text" [ngClass]="{'display-bold':!message.seen}">{{message.fromOrTo}}</div> 
+                    <span class = "pi pi-user display-icon"></span> <div class="display-text" [ngClass]="{'display-bold':!message.seen}">{{message.fromOrTo}}</div>
                 </div>
                 <div class = "display-block extra-margin">
-                    <span *ngIf="!message?.seen" class="fa fa-envelope display-icon envelope-icon"></span>
-                    <span *ngIf="message?.seen" class="fa fa-envelope-open-o display-icon envelope-icon"></span>
+                    <span *ngIf="!message?.seen" class="fas fa-envelope display-icon envelope-icon"></span>
+                    <span *ngIf="message?.seen" class="far fa-envelope-open display-icon envelope-icon"></span>
                     <span *ngIf="_filters" class="display-text text-background">{{message?.messageFolderList[0]?.idFolder.description}}</span>
                     <span class="display-text" [ngClass]="{'display-bold':!message.seen}">{{message.subject}}</span>
                     <!-- <div class="display-text" [ngClass]="{'display-bold':!message.seen}">{{message.id + " -- " + message.subject}}</div>  -->

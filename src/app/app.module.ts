@@ -37,6 +37,8 @@ import { LOCALE_ID } from "@angular/core";
 import { registerLocaleData } from "@angular/common";
 import localeIt from "@angular/common/locales/it";
 import localeItExtra from "@angular/common/locales/extra/it";
+import { MailDraftsComponent } from "./mailbox/mail-drafts/mail-drafts.component";
+import { StripeHtmlPipe } from "./pipes/stripe-html.pipe";
 registerLocaleData(localeIt, "it-IT", localeItExtra);
 
 
@@ -51,7 +53,9 @@ registerLocaleData(localeIt, "it-IT", localeItExtra);
     ToolbarComponent,
     SettingsComponent,
     NewMailComponent,
-    RecepitsComponent
+    RecepitsComponent,
+    MailDraftsComponent,
+    StripeHtmlPipe
   ],
   imports: [
     NtJwtLoginModule.forRoot(loginModuleConfig),

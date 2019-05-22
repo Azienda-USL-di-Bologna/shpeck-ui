@@ -16,10 +16,10 @@
         </span>
       </li>
     </div>
-    <button *ngIf="fullMessage?.message?.inOut === inOut?.OUT" 
-      (click)="recepitsVisible = true" 
-      pButton 
-      icon="pi pi-info" 
+    <button *ngIf="fullMessage?.message?.inOut === inOut?.OUT"
+      (click)="recepitsVisible = true"
+      pButton
+      icon="pi pi-info"
       class="recepits-button"
       pTooltip="Apri dettaglio ricevute">
     </button>
@@ -58,17 +58,17 @@
             </li>
         </ul>
       </p-accordionTab>
-      <p-accordionTab 
-        header="Allegati" 
-        [(selected)]="accordionAttachmentsSelected" 
-        [disabled]="fullMessage?.emlData?.attachments == null" 
+      <p-accordionTab
+        header="Allegati"
+        [(selected)]="accordionAttachmentsSelected"
+        [disabled]="fullMessage?.emlData?.attachments == null"
         class="accordion-allegati">
         <div class="box-allegati">
           <div *ngFor="let attachment of fullMessage?.emlData?.attachments">
             <span *ngIf="!attachment.forHtmlAttribute" class="allegato">
-              <i class="fa icona" [ngClass]="getFaClass(attachment)"></i>
-              <span 
-                class="allegato-nome" 
+              <i class="far icona" [ngClass]="getFaClass(attachment)"></i>
+              <span
+                class="allegato-nome"
                 [pTooltip]="attachment.fileName"
                 tooltipPosition="top"
                 tooltipStyleClass="tooltip"
@@ -80,16 +80,16 @@
             </span>
           </div>
         </div>
-        <i *ngIf="fullMessage?.emlData?.attachments" class="fa fa-file-zip-o icona scarica-tutti-icon"></i>
+        <i *ngIf="fullMessage?.emlData?.attachments" class="far fa-file-zip icona scarica-tutti-icon"></i>
         <span *ngIf="fullMessage?.emlData?.attachments" class="scarica-tutti" (click)="getAllEmlAttachment()">Scarica tutti gli allegati</span>
       </p-accordionTab>
   </p-accordion>
   <div class="mail-body-box" [ngClass]="{'mail-body-box-no-anteprima' : !fullMessage?.emlData?.displayBody}">
     <iframe
-      #emliframe 
-      *ngIf="fullMessage?.emlData?.displayBody" 
-      [srcdoc]="fullMessage?.emlData?.displayBody | sanitizeHtml" 
-      class="mail-body" 
+      #emliframe
+      *ngIf="fullMessage?.emlData?.displayBody"
+      [srcdoc]="fullMessage?.emlData?.displayBody | sanitizeHtml"
+      class="mail-body"
       (load)="customizeIframeContent()"
       frameborder="0"
       sandbox="allow-popups allow-popups-to-escape-sandbox allow-same-origin">
@@ -98,15 +98,15 @@
   </div>
 </div>
 
-<p-dialog 
-  header="Ricevute" 
+<p-dialog
+  header="Ricevute"
   [(visible)]="recepitsVisible"
-  [responsive]="true" 
+  [responsive]="true"
   [modal]="true"
   [maximizable]="true"
   styleClass="recepit-dialog"
   appendTo="body">
-  <app-recepits 
+  <app-recepits
     [recepits]="fullMessage?.message?.idRelatedList">
   </app-recepits>
   <p-footer>

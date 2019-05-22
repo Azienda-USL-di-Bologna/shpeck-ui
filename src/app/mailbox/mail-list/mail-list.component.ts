@@ -157,7 +157,7 @@ export class MailListComponent implements OnInit, AfterViewChecked, OnChanges, O
     private datepipe: DatePipe,
     private loginService: NtJwtLoginService
   ) {
-    
+
   }
 
   ngOnInit() {
