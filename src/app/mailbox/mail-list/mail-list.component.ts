@@ -7,7 +7,7 @@ import { TagService } from "src/app/services/tag.service";
 import { Observable, Subscription } from "rxjs";
 import { DatePipe } from "@angular/common";
 import { Table } from "primeng/table";
-import { BaseUrlType, BaseUrls, TOOLBAR_ACTIONS } from "src/environments/app-constants";
+import { BaseUrlType, BaseUrls, TOOLBAR_ACTIONS, EMLSOURCE } from "src/environments/app-constants";
 import { MenuItem, LazyLoadEvent, FilterMetadata, TreeNode } from "primeng/api";
 import { MessageFolderService } from "src/app/services/message-folder.service";
 import { FolderService } from "src/app/services/folder.service";
@@ -191,37 +191,12 @@ export class MailListComponent implements OnInit, AfterViewChecked, OnChanges, O
         }
       }
     }));
-    // this.idFolder = 6;
-    // this.loadData(6);
-    // this.pageConf = {
-    //   mode: "LIMIT_OFFSET",
-    //   conf: {
-    //     limit: 0,
-    //     offset: this.rowsNmber * 2
-    //   }
-    // };
   }
 
   ngAfterViewChecked() {
-    // console.log("ngAfterViewchecked", this.selRow.nativeElement.offsetHeight);
   }
 
   ngOnChanges() {
-    // console.log("filtes: ", this._filters);
-    // if (this._filters) {
-    //   this.filtering = true;
-    //   this._folder = null;
-    //   // let filters = [];
-    //   // Object.assign(filters, this._filters);
-    //   let filters = this._filters;
-    //   this._filters = null;
-    //   setTimeout(() => {
-    //     this._filters = filters;
-    //     this.lazyLoad(null);
-    //   }, 0);
-    //   this.resetPageConfig = true;
-    //   // this.dt.filter(null, null, null);
-    // }
   }
 
   private setFolder(folder: Folder) {
@@ -473,19 +448,31 @@ export class MailListComponent implements OnInit, AfterViewChecked, OnChanges, O
         if (this.selectedMessages.length === 1) {
           const selectedMessage: Message = this.selectedMessages[0];
           this.setSeen(selectedMessage);
+          const emlSource: string = this.getEmlSource(selectedMessage);
           this.messageService.manageMessageEvent(
+            emlSource,
             selectedMessage,
             this.selectedMessages
           );
           // this.messageClicked.emit(selectedMessage);
         } else {
-          this.messageService.manageMessageEvent(null, this.selectedMessages);
+          this.messageService.manageMessageEvent(null, null, this.selectedMessages);
         }
         break;
       case "onContextMenuSelect":
         this.setContextMenuItemLook();
         break;
     }
+  }
+
+  private getEmlSource(message: Message): string {
+    let emlSource: string;
+    if (message.messageFolderList && message.messageFolderList[0].idFolder.type === FolderType.OUTBOX) {
+      emlSource = EMLSOURCE.OUTBOX;
+    } else {
+      emlSource = EMLSOURCE.MESSAGE;
+    }
+    return emlSource;
   }
 
   private setSeen(selectedMessage: Message) {
@@ -528,10 +515,6 @@ export class MailListComponent implements OnInit, AfterViewChecked, OnChanges, O
           break;
       }
     });
-  }
-
-  private aaa(messagesFolder: MessageFolder[]) {
-    console.log(messagesFolder);
   }
 
   private selectedContextMenuItem(event: any) {
@@ -602,7 +585,7 @@ export class MailListComponent implements OnInit, AfterViewChecked, OnChanges, O
   }
 
   private dowloadMessage(selectedMessage: Message): void {
-    this.messageService.downloadEml(selectedMessage).subscribe(response => {
+    this.messageService.downloadEml(selectedMessage.id, this.getEmlSource(selectedMessage)).subscribe(response => {
       const nomeEmail = "Email_" + selectedMessage.subject + "_" + selectedMessage.id + ".eml";
       Utils.downLoadFile(response, "message/rfc822", nomeEmail, false);
     });

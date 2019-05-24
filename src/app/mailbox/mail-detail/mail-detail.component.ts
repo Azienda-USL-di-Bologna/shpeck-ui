@@ -9,6 +9,7 @@ import { Subscription } from "rxjs";
 import { FiltersAndSorts, FilterDefinition, FILTER_TYPES, SortDefinition, SORT_MODES, PagingConf } from "@nfa/next-sdr";
 import { Utils } from "src/app/utils/utils";
 import { DraftService, DraftEvent } from "src/app/services/draft.service";
+import { EMLSOURCE } from "src/environments/app-constants";
 
 
 @Component({
@@ -30,7 +31,7 @@ export class MailDetailComponent implements OnInit, OnDestroy {
   @Input("message")
   set messageDetailed(message: Message) {
     if (message) {
-      this.messageService.manageMessageEvent(message);
+      this.messageService.manageMessageEvent(null, message);
     }
   }
 
@@ -59,8 +60,9 @@ export class MailDetailComponent implements OnInit, OnDestroy {
       (draftEvent: DraftEvent) => {
         if (draftEvent && draftEvent.fullDraft) {
           const fullMessage: FullMessage = {
-            message: null,
-            emlData: draftEvent.fullDraft.emlData
+            message: draftEvent.fullDraft.draft,
+            emlData: draftEvent.fullDraft.emlData,
+            emlSource: EMLSOURCE.DRAFT
           };
           this.manageDownloadedMessage(fullMessage);
         } else if (!draftEvent || !draftEvent.selectedDrafts || !(draftEvent.selectedDrafts.length > 1)) {
@@ -104,19 +106,19 @@ export class MailDetailComponent implements OnInit, OnDestroy {
 
     /* Per la posta inviata carico le ricevute */
     /* TODO: La chiamata deve essere senza paginazione senza limite */ /* <============================================================== */
-    if (fullMessage.message && fullMessage.message.inOut === InOut.OUT) {
+    if (fullMessage.message && (fullMessage.message as Message).inOut === InOut.OUT) {
       this.messageService.getData(
         ENTITIES_STRUCTURE.shpeck.message.customProjections.CustomRecepitWithAddressList,
         this.buildFilterAndSortRecepits(fullMessage), null, this.pageConfNoLimit).subscribe(
         res => {
-          fullMessage.message.idRelatedList = res.results;
+          (fullMessage.message as Message).idRelatedList = res.results;
           // Prendo la data di accetazione. La ricevuta di accetazione è al massimo una
-          fullMessage.emlData.acceptanceDate = fullMessage.message.idRelatedList.find(
+          fullMessage.emlData.acceptanceDate = (fullMessage.message as Message).idRelatedList.find(
             r =>
               r.idRecepit.recepitType === RecepitType.ACCETTAZIONE
           ).receiveTime;
           // Prendo le ricevute di consegna.
-          const deliveryRecepits = fullMessage.message.idRelatedList.filter(
+          const deliveryRecepits = (fullMessage.message as Message).idRelatedList.filter(
             r =>
               r.idRecepit.recepitType === RecepitType.CONSEGNA
           );
@@ -199,7 +201,7 @@ export class MailDetailComponent implements OnInit, OnDestroy {
    * @param preview indica se voglio l'anteprima dell'allegato qualora sia possibile.
    */
   public getEmlAttachment(attachment: EmlAttachment, preview: boolean = false): void {
-    this.messageService.downloadEmlAttachment(this.fullMessage.message, attachment).subscribe(
+    this.messageService.downloadEmlAttachment(this.fullMessage.message.id, attachment, this.fullMessage.emlSource).subscribe(
       response =>
         Utils.downLoadFile(response, attachment.contentType, attachment.fileName, preview)
     );
@@ -210,7 +212,7 @@ export class MailDetailComponent implements OnInit, OnDestroy {
    * Ne faccio partire poi il download.
    */
   public getAllEmlAttachment(): void {
-    this.messageService.downloadAllEmlAttachment(this.fullMessage.message).subscribe(
+    this.messageService.downloadAllEmlAttachment(this.fullMessage.message as Message, this.fullMessage.emlSource).subscribe(
       response =>
         Utils.downLoadFile(response, "application/zip", "allegati.zip")
     );
