@@ -6,33 +6,41 @@
         icon="pi pi-plus" class="button-new-mail ui-button-raised ui-button-primary custom-primary-button"
         (click)="handleEvent($event, 'new')" onclick="this.blur()">
       </button>
+      <!-- Modifica -->
+      <button
+        *ngIf="buttonObs.get('editVisible') | async"
+        pButton type="button" label="Modifica"
+        icon="fa fa-pen" class="button-styles ui-button-raised ui-button-secondary custom-border"
+        (click)="handleEvent($event, 'edit')"
+        [disabled]="!(buttonObs.get('editActive') | async)">
+      </button>
       <!-- Rispondi -->
       <button
         pButton type="button" label="Rispondi"
         icon="fa fa-reply" class="button-styles ui-button-raised ui-button-secondary custom-border"
         (click)="handleEvent($event, 'reply')"
-        [disabled]="!(isActive$ | async)">
+        [disabled]="!(buttonObs.get('isActive') | async)">
       </button>
       <!-- Rispondi a tutti -->
       <button
         pButton type="button" label="Rispondi a tutti"
         icon="fa fa-reply-all" class="button-styles ui-button-raised ui-button-secondary custom-border"
         (click)="handleEvent($event, 'reply_all')"
-        [disabled]="!(isActive$ | async)">
+        [disabled]="!(buttonObs.get('isActive') | async)">
       </button>
       <!-- Inoltra -->
       <button
         pButton type="button" label="Inoltra"
         icon="fa fa-share" class="button-styles ui-button-raised ui-button-secondary custom-border"
         (click)="handleEvent($event, 'forward')"
-        [disabled]="!(isActive$ | async)">
+        [disabled]="!(buttonObs.get('isActive') | async)">
       </button>
       <!-- Elimina -->
       <button
         pButton type="button" label="Elimina"
         icon="fa fa-trash" class="button-styles ui-button-raised ui-button-secondary custom-border"
         (click)="handleEvent($event, 'delete')"
-        [disabled]="true">
+        [disabled]="!(buttonObs.get('deleteActive') | async)">
       </button>
       <!-- Sposta -->
       <button
@@ -54,3 +62,4 @@
       <!-- <i class="pi pi-bars a-items-center d-flex"></i> -->
   </div>
 </p-toolbar>
+<p-confirmDialog acceptLabel="Sì" rejectLabel="No" [style]="{width: '20vw', top: '40%'}"></p-confirmDialog>

@@ -5,7 +5,7 @@ import { Draft, Pec } from "@bds/ng-internauta-model";
 import { NewMailComponent } from "../new-mail/new-mail.component";
 import { DialogService, MessageService } from "primeng/api";
 import { MessageEvent, ShpeckMessageService } from "src/app/services/shpeck-message.service";
-import { DraftService } from "src/app/services/draft.service";
+import { DraftService, DraftEvent } from "src/app/services/draft.service";
 import { TOOLBAR_ACTIONS } from "src/environments/app-constants";
 
 @Injectable({
@@ -15,8 +15,15 @@ export class ToolBarService {
   private subscriptions: Subscription[] = [];
   private _filter: BehaviorSubject<FilterDefinition[]> = new BehaviorSubject<FilterDefinition[]>(null);
 
-  public buttonsActive: BehaviorSubject<boolean> = new BehaviorSubject<boolean>(false);
   public messageEvent: MessageEvent;
+  public draftEvent: DraftEvent;
+
+  public buttonsObservables = new Map([
+    ["editActive", new BehaviorSubject<boolean>(false)],
+    ["editVisible", new BehaviorSubject<boolean>(false)],
+    ["buttonsActive", new BehaviorSubject<boolean>(false)],
+    ["deleteActive", new BehaviorSubject<boolean>(false)]
+  ]);
 
   constructor(
     private dialogService: DialogService,
@@ -27,9 +34,25 @@ export class ToolBarService {
       if (messageEvent) {
         console.log("DATA = ", messageEvent);
         this.messageEvent = messageEvent;
-        messageEvent.downloadedMessage ? this.buttonsActive.next(true) : this.buttonsActive.next(false);
+        messageEvent.downloadedMessage ? this.buttonsObservables.get("buttonsActive").next(true) :
+          this.buttonsObservables.get("buttonsActive").next(false);
+        this.buttonsObservables.get("editVisible").next(false);
       }
     }));
+    this.subscriptions.push(this.draftService.draftEvent.subscribe(
+      (draftEvent: DraftEvent) => {
+        if (draftEvent) {
+          this.draftEvent = draftEvent;
+          if (draftEvent.fullDraft) {
+            this.buttonsObservables.get("editVisible").next(true);
+            this.buttonsObservables.get("editActive").next(true);
+            this.buttonsObservables.get("deleteActive").next(true);
+          } else {
+            this.buttonsObservables.get("editActive").next(false);
+          }
+        }
+      }
+    ));
   }
 
   public setFilterTyped(filter: FilterDefinition[]): void {
@@ -38,6 +61,12 @@ export class ToolBarService {
 
   public get getFilterTyped(): Observable<FilterDefinition[]> {
     return this._filter.asObservable();
+  }
+
+  public handleDelete() {
+    if (this.draftEvent.fullDraft) {
+      this.draftService.deleteDraftMessage(this.draftEvent.fullDraft.draft.id, true);
+    }
   }
 
   public newMail(pecId, action) {
@@ -75,4 +104,29 @@ export class ToolBarService {
       });
     });
   }
+
+  public editMail() {
+    if (this.draftEvent) {
+      const ref = this.dialogService.open(NewMailComponent, {
+        data: {
+          fullMessage: this.draftEvent.fullDraft,
+          idDraft: this.draftEvent.fullDraft.draft.id,
+          pec: this.draftEvent.fullDraft.draft.idPec,
+          action: "edit"
+        },
+        header: "Modifica bozza",
+        width: "auto",
+        styleClass: "new-draft",
+        contentStyle: { "overflow": "auto", "height": "85vh" },
+        closable: false,
+        closeOnEscape: false
+      });
+      ref.onClose.subscribe((el) => {
+        if (el) {
+          console.log("Ref: ", el);
+        }
+      });
+    }
+  }
+
 }

@@ -2,7 +2,7 @@ import { Injectable } from "@angular/core";
 import { NextSDREntityProvider } from "@nfa/next-sdr";
 import { HttpClient } from "@angular/common/http";
 import { DatePipe } from "@angular/common";
-import { getInternautaUrl, BaseUrlType, CUSTOM_SERVER_METHODS } from "src/environments/app-constants";
+import { getInternautaUrl, BaseUrlType, CUSTOM_SERVER_METHODS, EMLSOURCE } from "src/environments/app-constants";
 import { ENTITIES_STRUCTURE, Message } from "@bds/ng-internauta-model";
 import { Observable, BehaviorSubject } from "rxjs";
 import { EmlAttachment } from "../classes/eml-attachment";
@@ -35,7 +35,7 @@ export class ShpeckMessageService extends NextSDREntityProvider {
       throw new Error("missing parameters");
     }
     if (messageToDownload && messageToDownload.id) {
-      this.extractEmlData(messageToDownload.id).subscribe(
+      this.extractEmlData(messageToDownload.id, EMLSOURCE.MESSAGE).subscribe(
         (data: EmlData) => {
           this._messageEvent.next({
             downloadedMessage: {
@@ -64,8 +64,8 @@ export class ShpeckMessageService extends NextSDREntityProvider {
    * Ritorna un Observable di tipo EmlData relativo al download dell'eml del messaggo passato.
    * @param messageId l'id del messaggio di cui si vogliono i dati.
    */
-  public extractEmlData(messageId: number): Observable<EmlData> {
-    const url = getInternautaUrl(BaseUrlType.Shpeck) + "/" + CUSTOM_SERVER_METHODS.extractEmlData + "/" + messageId;
+  public extractEmlData(messageId: number, emlSource: string): Observable<EmlData> {
+    const url = getInternautaUrl(BaseUrlType.Shpeck) + "/" + CUSTOM_SERVER_METHODS.extractEmlData + "/" + messageId + "?emlSource=" + emlSource;
     return this.http.get(url) as Observable<EmlData>;
   }
 

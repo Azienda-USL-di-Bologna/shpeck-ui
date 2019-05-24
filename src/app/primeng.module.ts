@@ -20,6 +20,7 @@ import { ChipsModule } from "primeng/chips";
 import { LightboxModule } from "primeng/lightbox";
 import { ContextMenuModule } from "primeng/contextmenu";
 import { ToastModule } from "primeng/toast";
+import { ConfirmDialogModule } from 'primeng/confirmdialog';
 
 
 @NgModule({
@@ -48,7 +49,8 @@ import { ToastModule } from "primeng/toast";
         ChipsModule,
         LightboxModule,
         ContextMenuModule,
-        ToastModule
+        ToastModule,
+        ConfirmDialogModule
     ],
     exports: [
         DynamicDialogModule,
@@ -74,7 +76,8 @@ import { ToastModule } from "primeng/toast";
         ChipsModule,
         LightboxModule,
         ContextMenuModule,
-        ToastModule
+        ToastModule,
+        ConfirmDialogModule
     ]
 })
 export class PrimengModule { }

@@ -1,26 +1,34 @@
-import { Component, OnInit, Input } from "@angular/core";
-import { Draft } from "@bds/ng-internauta-model";
+import { Component, OnInit, Input, OnDestroy } from "@angular/core";
+import { Draft, ENTITIES_STRUCTURE } from "@bds/ng-internauta-model";
 import { FILTER_TYPES, FilterDefinition, PagingConf, FiltersAndSorts, SortDefinition, SORT_MODES } from "@nfa/next-sdr";
 import { LazyLoadEvent, FilterMetadata } from "primeng/api";
 import { DatePipe } from "@angular/common";
 import { buildLazyEventFiltersAndSorts } from "@bds/primeng-plugin";
 import { DraftService } from "src/app/services/draft.service";
+import { Observable, Subscription } from "rxjs";
 
 @Component({
   selector: "app-mail-drafts",
   templateUrl: "./mail-drafts.component.html",
   styleUrls: ["./mail-drafts.component.scss"]
 })
-export class MailDraftsComponent implements OnInit {
+export class MailDraftsComponent implements OnInit, OnDestroy {
 
+  private _selectedPecId: number;
   @Input("pecId")
-  public _selectedPecId: number;
+  set selectedPecId(pecId: number) {
+    this._selectedPecId = pecId;
+    this.loadData(null);
+  }
 
   private previousFilter: FilterDefinition[] = [];
-
+  private selectedProjection: string =
+  ENTITIES_STRUCTURE.shpeck.draft.customProjections
+    .CustomDraftWithPlainFields;
 
   public _filters: FilterDefinition[];
 
+  public subscription: Subscription;
   public loading = false;
   public virtualRowHeight: number = 70;
   public totalRecords: number;
@@ -47,10 +55,33 @@ export class MailDraftsComponent implements OnInit {
   constructor(private draftService: DraftService, private datepipe: DatePipe) { }
 
   ngOnInit() {
-    this.loadData(null);
+    this.subscription = this.draftService.reload.subscribe(value => {
+      if (value) {
+        this.loadData(null);
+      }
+    });
   }
 
   public handleEvent(name: string, event: any) {
+    console.log("handleEvent", name, event);
+    switch (name) {
+      // non c'è nella documentazione, ma pare che scatti sempre una sola volta anche nelle selezioni multiple.
+      // le righe selezionati sono in this.selectedMessages e anche in event
+      case "selectionChange":
+        // selezione di un singolo messaggio (o come click singolo oppure come click del primo messaggio con il ctrl)
+        if (this.selectedDrafts.length === 1) {
+          const selectedDraft: Draft = this.selectedDrafts[0];
+          this.draftService.manageDraftEvent(
+            selectedDraft,
+            this.selectedDrafts
+          );
+        } else {
+          this.draftService.manageDraftEvent(null, this.selectedDrafts);
+        }
+        break;
+      case "onContextMenuSelect":
+        break;
+    }
   }
 
   public lazyLoad(event: LazyLoadEvent ) {
@@ -120,7 +151,7 @@ export class MailDraftsComponent implements OnInit {
 
   private loadData(pageCong: PagingConf, lazyFilterAndSort?: FiltersAndSorts) {
     this.loading = true;
-    this.draftService.getData(null, this.buildDraftInitialFilterAndSort(), lazyFilterAndSort, pageCong).subscribe(data => {
+    this.draftService.getData(this.selectedProjection, this.buildDraftInitialFilterAndSort(), lazyFilterAndSort, pageCong).subscribe(data => {
       if (data && data.results) {
         console.log("DATA = ", data);
         this.totalRecords = data.page.totalElements;
@@ -162,5 +193,9 @@ export class MailDraftsComponent implements OnInit {
 
   trackByFn(index, item) {
     return item.id;
+  }
+
+  ngOnDestroy() {
+    this.subscription.unsubscribe();
   }
 }

@@ -1,6 +1,6 @@
 import { Component, Input, ViewChild, ElementRef, OnInit, OnDestroy } from "@angular/core";
 import { ShpeckMessageService, MessageEvent, FullMessage } from "src/app/services/shpeck-message.service";
-import { Message, InOut, ENTITIES_STRUCTURE, MessageType, RecepitType } from "@bds/ng-internauta-model";
+import { Message, InOut, ENTITIES_STRUCTURE, MessageType, RecepitType, Draft } from "@bds/ng-internauta-model";
 import { ContentTypeList } from "src/app/utils/styles-constants";
 import { EmlData } from "src/app/classes/eml-data";
 import { EmlAttachment } from "src/app/classes/eml-attachment";
@@ -8,6 +8,7 @@ import { HttpClient } from "@angular/common/http";
 import { Subscription } from "rxjs";
 import { FiltersAndSorts, FilterDefinition, FILTER_TYPES, SortDefinition, SORT_MODES, PagingConf } from "@nfa/next-sdr";
 import { Utils } from "src/app/utils/utils";
+import { DraftService, DraftEvent } from "src/app/services/draft.service";
 
 
 @Component({
@@ -40,7 +41,7 @@ export class MailDetailComponent implements OnInit, OnDestroy {
 
   @ViewChild("emliframe") private emliframe: ElementRef;
 
-  constructor(private messageService: ShpeckMessageService, private http: HttpClient) { }
+  constructor(private messageService: ShpeckMessageService, private draftService: DraftService, private http: HttpClient) { }
 
   public ngOnInit(): void {
     /* Mi sottoscrivo al messageEvent */
@@ -49,6 +50,20 @@ export class MailDetailComponent implements OnInit, OnDestroy {
         if (messageEvent && messageEvent.downloadedMessage) {
           this.manageDownloadedMessage(messageEvent.downloadedMessage);
         } else if (!messageEvent || !messageEvent.selectedMessages || !(messageEvent.selectedMessages.length > 1)) {
+          this.fullMessage = null;
+          this.setLook();
+        }
+      }
+    ));
+    this.subscription.push(this.draftService.draftEvent.subscribe(
+      (draftEvent: DraftEvent) => {
+        if (draftEvent && draftEvent.fullDraft) {
+          const fullMessage: FullMessage = {
+            message: null,
+            emlData: draftEvent.fullDraft.emlData
+          };
+          this.manageDownloadedMessage(fullMessage);
+        } else if (!draftEvent || !draftEvent.selectedDrafts || !(draftEvent.selectedDrafts.length > 1)) {
           this.fullMessage = null;
           this.setLook();
         }
@@ -89,7 +104,7 @@ export class MailDetailComponent implements OnInit, OnDestroy {
 
     /* Per la posta inviata carico le ricevute */
     /* TODO: La chiamata deve essere senza paginazione senza limite */ /* <============================================================== */
-    if (fullMessage.message.inOut === InOut.OUT) {
+    if (fullMessage.message && fullMessage.message.inOut === InOut.OUT) {
       this.messageService.getData(
         ENTITIES_STRUCTURE.shpeck.message.customProjections.CustomRecepitWithAddressList,
         this.buildFilterAndSortRecepits(fullMessage), null, this.pageConfNoLimit).subscribe(

@@ -28,15 +28,16 @@
                 </div>
                 <div class = "display-block">
                     <span class = "pi pi-user display-icon"></span>
-                    <span *ngIf="draft?.toAddresses" class="display-text">
+                    <label class="pad-left-19">A: </label>
+                    <span *ngIf="draft?.toAddresses">
                       <span *ngFor="let address of draft.toAddresses">{{address}}; </span>
                     </span>
-                    <span *ngIf="!(message?.toAddresses)" class="display-text"></span>
+                    <span *ngIf="!(message?.toAddresses)"></span>
                 </div>
                 <div class = "display-block extra-margin">
                     <span class="fa fa-envelope-open-text display-icon envelope-icon"></span>
                     <span class="display-text">{{draft.subject ||'Nessun oggetto'}}</span>
-                    <div class="display-body">{{draft.body | slice:0:300 | stripeHtml }} </div>
+                    <div class="display-body">{{draft.body | stripeHtml | slice:0:300 }} </div>
                     <!-- <div class="display-text" [ngClass]="{'display-bold':!message.seen}">{{message.id + " -- " + message.subject}}</div>  -->
                 </div>
             </td>

@@ -10,6 +10,7 @@ export const APPLICATION = "shpeck";
 
 export const TOOLBAR_ACTIONS = {
     NEW: "new",
+    EDIT: "edit",
     REPLY: "reply",
     REPLY_ALL: "reply_all",
     FORWARD: "forward",
@@ -45,6 +46,12 @@ export const CUSTOM_SERVER_METHODS = {
     downloadAllEmlAttachment: "downloadAllEmlAttachment",
     saveDraftMessage: "saveDraftMessage",
     sendMessage: "sendMessage"
+};
+
+export const EMLSOURCE = {
+    DRAFT: "DRAFT",
+    OUTBOX: "OUTBOX",
+    MESSAGE: "MESSAGE"
 };
 
 export function getInternautaUrl(type: BaseUrlType): string {

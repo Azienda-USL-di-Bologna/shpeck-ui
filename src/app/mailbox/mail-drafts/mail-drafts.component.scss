@@ -3,35 +3,10 @@
   flex: 1;
 }
 
-.d-flex {
-  display: flex;
-}
-
-.buttons-bar {
-  height: 50px;
-  display: block;
-  width: 100%;
-}
-
-.flex-direction-col {
-  flex-direction: column;
-}
-
-
 //body .ui-table .ui-table-tbody > tr > td
 
 ::ng-deep .ui-table-tbody > tr > td {
   border: none !important;
-}
-
-::ng-deep .ui-table-scrollable-body {
-  // width: 100%;
-  // min-height: 900px;
-  //position: unset;
-}
-
-::ng-deep .ui-table-virtual-scroller {
-  // height: 100% !important;
 }
 
 .display-block {
@@ -42,30 +17,8 @@
   margin-left: 11px;
 }
 
-.mail-icons-container {
-
-  //margin-left: 11px;
-  display: block
-}
-
-.text-background {
-  // background: cadetblue;
-  background: darkgray;
-  text-align: center;
-  font-weight: bold;
-  color: #fff;
-}
-
 .mail-icon {
   padding-left: 5px;
-  //position: absolute;
-  //margin-left: 11px;
-  // display: inline-block;
-  //width: 20px;
-}
-
-.visibility-hidden {
-  visibility: hidden !important;
 }
 
 .display-icon {
@@ -82,6 +35,10 @@
   overflow: hidden;
   color: gray;
 
+}
+
+.pad-left-19 {
+  padding-left: 19px;
 }
 
 .display-text {
@@ -111,11 +68,6 @@
   //text-wrap: none;
   white-space: nowrap;
   //overflow: scroll;
-}
-
-::ng-deep .message-row:focus {
-  // border-style: solid !important;
-  // border-color:cornflowerblue !important;
 }
 
 .material-icons.mail-icons {

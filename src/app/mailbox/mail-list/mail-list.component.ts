@@ -1,6 +1,6 @@
 import { Component, OnInit, Input, Output, EventEmitter, ViewChild, ElementRef, AfterViewInit, AfterContentInit, AfterContentChecked, AfterViewChecked, OnChanges, OnDestroy } from "@angular/core";
 import { buildLazyEventFiltersAndSorts } from "@bds/primeng-plugin";
-import { Message, ENTITIES_STRUCTURE, MessageAddress, AddresRoleType, Folder, MessageTag, InOut, Tag, Pec, MessageFolder, MessageType } from "@bds/ng-internauta-model";
+import { Message, ENTITIES_STRUCTURE, MessageAddress, AddresRoleType, Folder, MessageTag, InOut, Tag, Pec, MessageFolder, MessageType, FolderType } from "@bds/ng-internauta-model";
 import { ShpeckMessageService, MessageEvent} from "src/app/services/shpeck-message.service";
 import { FiltersAndSorts, FilterDefinition, FILTER_TYPES, SortDefinition, SORT_MODES, PagingConf, PagingMode, BatchOperation, BatchOperationTypes } from "@nfa/next-sdr";
 import { TagService } from "src/app/services/tag.service";
@@ -165,8 +165,10 @@ export class MailListComponent implements OnInit, AfterViewChecked, OnChanges, O
       if (pecFolderSelected) {
         if (pecFolderSelected.type === PecFolderType.FOLDER) {
           const selectedFolder: Folder = pecFolderSelected.data as Folder;
-          this._selectedPecId = selectedFolder.fk_idPec.id;
-          this.setFolder(selectedFolder);
+          if (selectedFolder.type !== FolderType.DRAFT) {
+            this._selectedPecId = selectedFolder.fk_idPec.id;
+            this.setFolder(selectedFolder);
+          }
         } else {
           const pec: Pec = pecFolderSelected.data as Pec;
           this._selectedPecId = pec.id;

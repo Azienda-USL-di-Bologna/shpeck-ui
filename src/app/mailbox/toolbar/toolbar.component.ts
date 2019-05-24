@@ -1,5 +1,5 @@
 import { Component, OnInit, OnDestroy} from "@angular/core";
-import { DialogService } from "primeng/api";
+import { DialogService, ConfirmationService } from "primeng/api";
 import { ShpeckMessageService, MessageEvent } from "src/app/services/shpeck-message.service";
 import { Subscription, Observable } from "rxjs";
 import { TOOLBAR_ACTIONS } from "src/environments/app-constants";
@@ -12,20 +12,22 @@ import { MailFoldersService, PecFolder, PecFolderType } from "../mail-folders/ma
 @Component({
   selector: "app-toolbar",
   templateUrl: "./toolbar.component.html",
+  providers: [ConfirmationService],
   styleUrls: ["./toolbar.component.scss"]
 })
 export class ToolbarComponent implements OnInit, OnDestroy {
   private subscriptions: Subscription[] = [];
   private myPecs: Pec[];
-  public messageEvent: MessageEvent;
   private _selectedPec: Pec;
-  public isActive$: Observable<boolean>;
+  public messageEvent: MessageEvent;
+  public buttonObs: Map<string, Observable<boolean>>;
   // @Output("filtersEmitter") private filtersEmitter: EventEmitter<FilterDefinition[]> = new EventEmitter();
 
   constructor(public dialogService: DialogService,
     private pecService: PecService,
     private toolBarService: ToolBarService,
-    private mailFoldersService: MailFoldersService
+    private mailFoldersService: MailFoldersService,
+    private confirmationService: ConfirmationService
   ) { }
 
   ngOnInit() {
@@ -35,7 +37,9 @@ export class ToolbarComponent implements OnInit, OnDestroy {
         if (pecFolderSelected.type === PecFolderType.FOLDER) {
           const selectedFolder: Folder = pecFolderSelected.data as Folder;
           idPec = selectedFolder.fk_idPec.id;
-          this.toolBarService.buttonsActive.next(false);
+          this.toolBarService.buttonsObservables.get("buttonsActive").next(false);
+          this.toolBarService.buttonsObservables.get("editVisible").next(false);
+          this.toolBarService.buttonsObservables.get("deleteActive").next(false);
         } else {
           idPec = ((pecFolderSelected.data) as Pec).id;
         }
@@ -48,7 +52,10 @@ export class ToolbarComponent implements OnInit, OnDestroy {
         this.myPecs = pecs;
       }
     }));
-    this.isActive$ = this.toolBarService.buttonsActive;
+    this.buttonObs = new Map();
+    this.toolBarService.buttonsObservables.forEach((value, key) => {
+      this.buttonObs.set(key, value);
+    });
   }
 
   // public onInput(event) {
@@ -82,19 +89,34 @@ export class ToolbarComponent implements OnInit, OnDestroy {
       case TOOLBAR_ACTIONS.NEW:
         this.toolBarService.newMail(this._selectedPec.id, action);
         break;
+      case TOOLBAR_ACTIONS.EDIT:
+        this.toolBarService.editMail();
+        break;
       case TOOLBAR_ACTIONS.REPLY:
       case TOOLBAR_ACTIONS.REPLY_ALL:
       case TOOLBAR_ACTIONS.FORWARD:
       this.toolBarService.newMail(this._selectedPec.id, action);
         break;
       case TOOLBAR_ACTIONS.DELETE:
-          console.log("delete: ", this.myPecs);
+        this.confirm();
         break;
       case TOOLBAR_ACTIONS.MOVE:
         break;
       case TOOLBAR_ACTIONS.ARCHIVE:
         break;
     }
+  }
+
+  confirm() {
+    this.confirmationService.confirm({
+      message: "Sei sicuro di voler eliminare la bozza?",
+      header: "Conferma",
+      icon: "pi pi-exclamation-triangle",
+      accept: () => {
+        this.toolBarService.handleDelete();
+      },
+      reject: () => {}
+    });
   }
 
   ngOnDestroy() {
