@@ -36,6 +36,7 @@ export class MailDetailComponent implements OnInit, OnDestroy {
   }
 
   public fullMessage: FullMessage;
+  public message: Message;
   public accordionAttachmentsSelected: boolean = false;
   public recepitsVisible: boolean = false;
   get inOut() { return InOut; }
@@ -49,6 +50,9 @@ export class MailDetailComponent implements OnInit, OnDestroy {
     this.subscription.push(this.messageService.messageEvent.subscribe(
       (messageEvent: MessageEvent) => {
         if (messageEvent && messageEvent.downloadedMessage) {
+          if (messageEvent.downloadedMessage.message) {
+            this.message = messageEvent.downloadedMessage.message as Message;
+          }
           this.manageDownloadedMessage(messageEvent.downloadedMessage);
         } else if (!messageEvent || !messageEvent.selectedMessages || !(messageEvent.selectedMessages.length > 1)) {
           this.fullMessage = null;
@@ -86,6 +90,7 @@ export class MailDetailComponent implements OnInit, OnDestroy {
    * - Setto look generico dell'interfaccia.
    */
   private manageDownloadedMessage(fullMessage: FullMessage): void {
+
     const data: EmlData = fullMessage.emlData;
     /* Setto il conentType degli allegati e setto il nome a max 42 caratteri */
     if (data.attachments && data.attachments.length > 0) {
