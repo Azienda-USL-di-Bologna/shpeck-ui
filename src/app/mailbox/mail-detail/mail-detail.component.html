@@ -16,7 +16,7 @@
         </span>
       </li>
     </div>
-    <button *ngIf="fullMessage?.message?.inOut === inOut?.OUT"
+    <button *ngIf="(fullMessage?.message? as Message).inOut === inOut?.OUT"
       (click)="recepitsVisible = true"
       pButton
       icon="pi pi-info"
@@ -24,7 +24,7 @@
       pTooltip="Apri dettaglio ricevute">
     </button>
   </div>
-  <div *ngIf="fullMessage?.message?.inOut === inOut?.IN" class="recepit-detail">
+  <div *ngIf="(fullMessage?.message? as Message).inOut === inOut?.IN" class="recepit-detail">
     <div class="recepit-dates">
       <li class="recepit-date">
         <span class="recepit-date-label">Ricevuto il:</span>
@@ -107,7 +107,7 @@
   styleClass="recepit-dialog"
   appendTo="body">
   <app-recepits
-    [recepits]="fullMessage?.message?.idRelatedList">
+    [recepits]="(fullMessage?.message? as Message).idRelatedList">
   </app-recepits>
   <p-footer>
     <button pButton icon="pi pi-times" (click)="recepitsVisible=false" label="Chiudi" class="ui-button-secondary"></button>
