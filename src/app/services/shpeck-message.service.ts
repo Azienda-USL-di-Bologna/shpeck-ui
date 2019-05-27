@@ -2,8 +2,8 @@ import { Injectable } from "@angular/core";
 import { NextSDREntityProvider } from "@nfa/next-sdr";
 import { HttpClient } from "@angular/common/http";
 import { DatePipe } from "@angular/common";
-import { getInternautaUrl, BaseUrlType, CUSTOM_SERVER_METHODS } from "src/environments/app-constants";
-import { ENTITIES_STRUCTURE, Message } from "@bds/ng-internauta-model";
+import { getInternautaUrl, BaseUrlType, CUSTOM_SERVER_METHODS, EMLSOURCE } from "src/environments/app-constants";
+import { ENTITIES_STRUCTURE, Message, Draft } from "@bds/ng-internauta-model";
 import { Observable, BehaviorSubject } from "rxjs";
 import { EmlAttachment } from "../classes/eml-attachment";
 import { EmlData } from "../classes/eml-data";
@@ -30,17 +30,18 @@ export class ShpeckMessageService extends NextSDREntityProvider {
    *  in caso di errore nel download l'evento viene comunque notificato, ma senza downloadedMessage
    * @param selectedMessages indica i messaggi seelzionati che si volgiono notificare con il MessageEvent. Se passato viene notificato in selectedMessages
    */
-  public manageMessageEvent(messageToDownload?: Message, selectedMessages?: Message[]) {
+  public manageMessageEvent(emlSource: string, messageToDownload?: Message, selectedMessages?: Message[]) {
     if (!messageToDownload && !selectedMessages) {
       throw new Error("missing parameters");
     }
     if (messageToDownload && messageToDownload.id) {
-      this.extractEmlData(messageToDownload.id).subscribe(
+      this.extractEmlData(messageToDownload.id, EMLSOURCE.MESSAGE).subscribe(
         (data: EmlData) => {
           this._messageEvent.next({
             downloadedMessage: {
               message: messageToDownload,
-              emlData: data
+              emlData: data,
+              emlSource: emlSource
             },
             selectedMessages
           });
@@ -63,18 +64,20 @@ export class ShpeckMessageService extends NextSDREntityProvider {
   /**
    * Ritorna un Observable di tipo EmlData relativo al download dell'eml del messaggo passato.
    * @param messageId l'id del messaggio di cui si vogliono i dati.
+   * @param emlSource da dove scaricare l'eml (DRAFT: tabella delle bozze/OUTBOX: tabella della posta in uscita//MESSAGE: repository)
    */
-  public extractEmlData(messageId: number): Observable<EmlData> {
-    const url = getInternautaUrl(BaseUrlType.Shpeck) + "/" + CUSTOM_SERVER_METHODS.extractEmlData + "/" + messageId;
+  public extractEmlData(messageId: number, emlSource: string): Observable<EmlData> {
+    const url = getInternautaUrl(BaseUrlType.Shpeck) + "/" + CUSTOM_SERVER_METHODS.extractEmlData + "/" + messageId + "?emlSource=" + emlSource;
     return this.http.get(url) as Observable<EmlData>;
   }
 
   /**
    * Ritorna un Observable il cui risultato è il blob dell'eml richiesto.
    * @param messageId il messaggio di cui si vuole l'eml.
+   * @param emlSource da dove scaricare l'eml (DRAFT: tabella delle bozze/OUTBOX: tabella della posta in uscita//MESSAGE: repository)
    */
-  public downloadEml(message: Message): Observable<any> {
-    const url = getInternautaUrl(BaseUrlType.Shpeck) + "/" + CUSTOM_SERVER_METHODS.downloadEml + "/" + message.id;
+  public downloadEml(messageId: number, emlSorce: string): Observable<any> {
+    const url = getInternautaUrl(BaseUrlType.Shpeck) + "/" + CUSTOM_SERVER_METHODS.downloadEml + "/" + messageId + "?emlSource=" + emlSorce;
     return this.http.get(url, {responseType: "blob"}/* {responseType: "arraybuffer"} */);
   }
 
@@ -82,9 +85,10 @@ export class ShpeckMessageService extends NextSDREntityProvider {
    * Ritorna un Observable il cui risultato è il blob dell'allegato richiesto.
    * @param message Il Message che contiene l'allegato.
    * @param allegato L'allegato che si vuole.
+   * @param emlSource da dove scaricare l'eml (DRAFT: tabella delle bozze/OUTBOX: tabella della posta in uscita//MESSAGE: repository)
    */
-  public downloadEmlAttachment(message: Message, allegato: EmlAttachment): Observable<any> {
-    const url = getInternautaUrl(BaseUrlType.Shpeck) + "/" + CUSTOM_SERVER_METHODS.downloadEmlAttachment + "/" + message.id + "/" + allegato.id;
+  public downloadEmlAttachment(messageId: number, allegato: EmlAttachment, emlSorce: string): Observable<any> {
+    const url = getInternautaUrl(BaseUrlType.Shpeck) + "/" + CUSTOM_SERVER_METHODS.downloadEmlAttachment + "/" + messageId + "/" + allegato.id + "?emlSource=" + emlSorce;
      return this.http.get(url, {responseType: "blob"}/* {responseType: "arraybuffer"} */);
   }
 
@@ -92,8 +96,8 @@ export class ShpeckMessageService extends NextSDREntityProvider {
    * Ritorna un Observable il cui risultato è il blob dello zip degli allegati del Message richiesto.
    * @param message Il Message del quale si vuole lo zip degli allegati
    */
-  public downloadAllEmlAttachment(message: Message): Observable<any> {
-    const url = getInternautaUrl(BaseUrlType.Shpeck) + "/" + CUSTOM_SERVER_METHODS.downloadAllEmlAttachment + "/" + message.id;
+  public downloadAllEmlAttachment(message: Message, emlSorce: string): Observable<any> {
+    const url = getInternautaUrl(BaseUrlType.Shpeck) + "/" + CUSTOM_SERVER_METHODS.downloadAllEmlAttachment + "/" + message.id + "?emlSource=" + emlSorce;
     return this.http.get(url, {responseType: "blob"});
   }
 }
@@ -102,8 +106,9 @@ export class ShpeckMessageService extends NextSDREntityProvider {
  * Descrive un messaggio comprensivo sia dei metadati (Message) che del suo eml (EmlData)
  */
 export interface FullMessage {
-  message: Message;
+  message: Message | Draft;
   emlData: EmlData;
+  emlSource: string;
 }
 
 /**

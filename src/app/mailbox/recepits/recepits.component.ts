@@ -2,6 +2,7 @@ import { Component, OnInit, Input } from "@angular/core";
 import { Message, RecepitType } from "@bds/ng-internauta-model";
 import { Utils } from "src/app/utils/utils";
 import { ShpeckMessageService } from "src/app/services/shpeck-message.service";
+import { EMLSOURCE } from 'src/environments/app-constants';
 
 @Component({
   selector: "app-recepits",
@@ -79,7 +80,7 @@ export class RecepitsComponent implements OnInit {
    * @param recepit
    */
   public dowloadRecepit(recepit: Message): void {
-    this.messageService.downloadEml(recepit).subscribe(
+    this.messageService.downloadEml(recepit.id, EMLSOURCE.MESSAGE).subscribe(
       response => {
         const nomeRicevuta = "Ricevuta_" + recepit.idRecepit.recepitType + "_" + recepit.id + ".eml";
         Utils.downLoadFile(response, "message/rfc822", nomeRicevuta, false);

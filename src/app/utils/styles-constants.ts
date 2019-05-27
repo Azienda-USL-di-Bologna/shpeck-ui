@@ -1,25 +1,25 @@
 export const ContentTypeList = {
-    "fa-file-pdf-o": {
+    "fa-file-pdf": {
         contentType: ["application/pdf"],
         simpleType: []
     },
-    "fa fa-envelope-o": {
+    "fa fa-envelope": {
         contentType: ["message/rfc822"],
         simpleType: []
     },
-    "fa-file-image-o": {
+    "fa-file-image": {
         contentType: [],
         simpleType: ["image"]
     },
-    "fa-file-audio-o": {
+    "fa-file-audio": {
         contentType: [],
         simpleType: ["audio"]
     },
-    "fa-file-video-o": {
+    "fa-file-video": {
         contentType: [],
         simpleType: ["video"]
     },
-    "fa-file-word-o": {
+    "fa-file-word": {
         contentType: [
             "application/msword",
             "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
@@ -28,7 +28,7 @@ export const ContentTypeList = {
         ],
         simpleType: []
     },
-    "fa-file-excel-o": {
+    "fa-file-excel": {
         contentType: [
             "text/csv",
             "application/vnd.ms-excel",
@@ -36,7 +36,7 @@ export const ContentTypeList = {
         ],
         simpleType: []
     },
-    "fa-file-zip-o": {
+    "fa-file-zip": {
         contentType: [
             "application/x-bzip",
             "application/x-bzip2",
@@ -44,7 +44,7 @@ export const ContentTypeList = {
         ],
         simpleType: []
     },
-    "fa-file-code-o": {
+    "fa-file-code": {
         contentType: [
             "text/xml",
             "text/html",
@@ -53,7 +53,7 @@ export const ContentTypeList = {
         ],
         simpleType: []
     },
-    "fa-file-text-o": {
+    "fa-file-text": {
         contentType: ["plain/text"],
         simpleType: ["text"]
     },
