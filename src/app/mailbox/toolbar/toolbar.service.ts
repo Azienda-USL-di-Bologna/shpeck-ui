@@ -43,13 +43,15 @@ export class ToolBarService {
       (draftEvent: DraftEvent) => {
         if (draftEvent) {
           this.draftEvent = draftEvent;
-          if (draftEvent.fullDraft) {
+          if (draftEvent) {
             this.buttonsObservables.get("editVisible").next(true);
             this.buttonsObservables.get("editActive").next(true);
             this.buttonsObservables.get("deleteActive").next(true);
-          } else {
-            this.buttonsObservables.get("editActive").next(false);
           }
+        } else {
+          this.buttonsObservables.get("editVisible").next(false);
+          this.buttonsObservables.get("editActive").next(false);
+          this.buttonsObservables.get("deleteActive").next(false);
         }
       }
     ));
@@ -65,15 +67,15 @@ export class ToolBarService {
 
   public handleDelete() {
     if (this.draftEvent.fullDraft) {
-      this.draftService.deleteDraftMessage(this.draftEvent.fullDraft.draft.id, true);
+      this.draftService.deleteDraftMessage(this.draftEvent.fullDraft.message.id, true);
     }
   }
 
-  public newMail(pecId, action) {
+  public newMail(pec: Pec, action) {
 
     const draftMessage = new Draft();
-    const pec: Pec = new Pec();
-    pec.id = pecId;
+    /* const pec: Pec = new Pec();
+    pec.id = pecId; */
     draftMessage.idPec = pec;
     if (action !== TOOLBAR_ACTIONS.NEW) {
       if (!this.messageEvent || !this.messageEvent.downloadedMessage) {
@@ -110,8 +112,8 @@ export class ToolBarService {
       const ref = this.dialogService.open(NewMailComponent, {
         data: {
           fullMessage: this.draftEvent.fullDraft,
-          idDraft: this.draftEvent.fullDraft.draft.id,
-          pec: this.draftEvent.fullDraft.draft.idPec,
+          idDraft: this.draftEvent.fullDraft.message.id,
+          pec: this.draftEvent.fullDraft.message.idPec,
           action: "edit"
         },
         header: "Modifica bozza",

@@ -63,12 +63,7 @@ export class MailDetailComponent implements OnInit, OnDestroy {
     this.subscription.push(this.draftService.draftEvent.subscribe(
       (draftEvent: DraftEvent) => {
         if (draftEvent && draftEvent.fullDraft) {
-          const fullMessage: FullMessage = {
-            message: draftEvent.fullDraft.draft,
-            emlData: draftEvent.fullDraft.emlData,
-            emlSource: EMLSOURCE.DRAFT
-          };
-          this.manageDownloadedMessage(fullMessage);
+          this.manageDownloadedMessage(draftEvent.fullDraft);
         } else if (!draftEvent || !draftEvent.selectedDrafts || !(draftEvent.selectedDrafts.length > 1)) {
           this.fullMessage = null;
           this.setLook();

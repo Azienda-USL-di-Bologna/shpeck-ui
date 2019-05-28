@@ -55,8 +55,10 @@ export class MailDraftsComponent implements OnInit, OnDestroy {
   constructor(private draftService: DraftService, private datepipe: DatePipe) { }
 
   ngOnInit() {
-    this.subscription = this.draftService.reload.subscribe(value => {
-      if (value) {
+    this.subscription = this.draftService.reload.subscribe(idDraft => {
+      if (idDraft) {
+        this.loadData(null, null, idDraft);
+      } else {
         this.loadData(null);
       }
     });
@@ -149,13 +151,21 @@ export class MailDraftsComponent implements OnInit, OnDestroy {
     return needLoading;
   }
 
-  private loadData(pageCong: PagingConf, lazyFilterAndSort?: FiltersAndSorts) {
+  private loadData(pageCong: PagingConf, lazyFilterAndSort?: FiltersAndSorts, idDraft?: number) {
     this.loading = true;
     this.draftService.getData(this.selectedProjection, this.buildDraftInitialFilterAndSort(), lazyFilterAndSort, pageCong).subscribe(data => {
       if (data && data.results) {
         console.log("DATA = ", data);
         this.totalRecords = data.page.totalElements;
         this.drafts = data.results;
+        if (idDraft) {
+          const selectedDraft: Draft = this.drafts.find(value => value.id === idDraft);
+          if (selectedDraft !== undefined) {
+            this.draftService.manageDraftEvent(
+              selectedDraft
+            );
+          }
+        }
       }
       this.loading = false;
       // setTimeout(() => {

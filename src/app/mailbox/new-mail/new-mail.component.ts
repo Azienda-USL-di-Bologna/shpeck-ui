@@ -25,6 +25,7 @@ export class NewMailComponent implements OnInit, AfterViewInit {
   toAddresses: any[] = [];
   ccAddresses: any[] = [];
   attachments: any[] = [];
+  selectedPec: Pec;
   country: any;
 
   filteredCountriesSingle: any[];
@@ -64,65 +65,84 @@ export class NewMailComponent implements OnInit, AfterViewInit {
     console.log("DATA PASSED = ", this.config.data);
     let subject: string = ""; // L'Oggetto della mail
     let messageRelatedType = "";
+    const hideRecipients = { value: false, disabled: false };
     // Variabile per il messaggio in caso di azioni reply e inoltra
-    let message: Message = this.config.data.fullMessage ? this.config.data.fullMessage.message : null;
-    const pec: Pec = this.config.data.pec;
+    let message: Message | Draft = this.config.data.fullMessage ? this.config.data.fullMessage.message as Message : null;
+    this.selectedPec = this.config.data.pec;
     const action = this.config.data.action;
     /* Action è passata dal components toolbar. Se è diverso da NEW ci aspettiamo il FullMessage di MessageEvent */
     switch (action) {
       case TOOLBAR_ACTIONS.NEW:
         message = null; // Nel caso di NEW_MAIL non ho bisogno del message che resta comunque nel messageEvent
         break;
+      case TOOLBAR_ACTIONS.EDIT:   // EDIT
+        message = this.config.data.fullMessage.message as Draft;
+        subject = message.subject ? message.subject : "";
+        hideRecipients.value = message.hiddenRecipients;
+        this.fillAddressesArray(null, message, null, null);
+        if (this.config.data.fullMessage.emlData) {
+          Object.assign(this.attachments, this.config.data.fullMessage.emlData.attachments);
+        }
+        break;
       case TOOLBAR_ACTIONS.REPLY:   // REPLY
         subject = "Re: ".concat(message.subject);
         messageRelatedType = MessageRelatedType.REPLIED;
-        this.fillAddressesArray(message, false, action);
+        this.fillAddressesArray(message, null, false, action);
         break;
       case TOOLBAR_ACTIONS.REPLY_ALL: // REPLY_ALL Prendiamo tutti gli indirizzi, to, cc
         subject = "Re: ".concat(message.subject);
         messageRelatedType = MessageRelatedType.REPLIED_ALL;
-        this.fillAddressesArray(message, true, action);
+        this.fillAddressesArray(message, null, true, action);
         break;
       case TOOLBAR_ACTIONS.FORWARD:
         subject = "Fwd: ".concat(message.subject);
         messageRelatedType = MessageRelatedType.FORWARDED;
-        this.fillAddressesArray(message, false, action);
+        this.fillAddressesArray(message, null, false, action);
         Object.assign(this.attachments, this.config.data.fullMessage.emlData.attachments);
         break;
     }
     /* Inizializzazione della form, funziona per tutte le actions ed é l'oggetto che contiene tutti i campi
      * che saranno inviati al server */
     const toFormControl: FormControl[] = [];
-    if (this.toAddresses.length > 0) {
+    if (this.toAddresses && this.toAddresses.length > 0) {
       this.toAddresses.forEach(el => toFormControl.push(new FormControl(el, Validators.email)));
       this.toAutoComplete.writeValue(this.toAddresses);
     }
     const ccFormControl: FormControl[] = [];
-    if (this.ccAddresses.length > 0) {
+    if (this.ccAddresses && this.ccAddresses.length > 0) {
       this.ccAddresses.forEach(el => ccFormControl.push(new FormControl(el, Validators.email)));
       this.ccAutoComplete.writeValue(this.ccAddresses);
     }
     this.mailForm = new FormGroup({
       idDraftMessage: new FormControl(this.config.data.idDraft),
-      idPec: new FormControl(pec.id),
+      idPec: new FormControl(this.selectedPec.id),
       to: new FormArray(toFormControl, Validators.required),
       cc: new FormArray(ccFormControl),
-      hideRecipients: new FormControl({ value: false, disabled: false }),
+      hideRecipients: new FormControl(hideRecipients),
       subject: new FormControl(subject),
       attachments: new FormControl(this.attachments),
       body: new FormControl(""),  // Il body viene inizializzato nell'afterViewInit perché l'editor non è ancora istanziato
-      idMessageRelated: new FormControl(message ? message.id : ""),
+      idMessageRelated: new FormControl(message && action !== TOOLBAR_ACTIONS.EDIT ? message.id : ""),
       messageRelatedType: new FormControl(messageRelatedType),
-      idMessageRelatedAttachments: new FormControl("")
+      idMessageRelatedAttachments: new FormControl(this.attachments)
     });
   }
 
   ngAfterViewInit() {
     /* Inizializzazione del body per le risposte e l'inoltra */
     if (this.config.data.action !== TOOLBAR_ACTIONS.NEW) {
-      const message: Message = this.config.data.fullMessage.message;
-      const body = this.config.data.fullMessage.emlData.displayBody;
-      this.buildBody(message, body);
+      let body = "";
+      if (this.config.data.fullMessage.emlData) {
+        body = this.config.data.fullMessage.emlData.displayBody;
+      } else if (this.config.data.fullMessage.body) {
+        body = this.config.data.fullMessage.body;
+      }
+      if (this.config.data.action === TOOLBAR_ACTIONS.EDIT) {
+        this.editor.quill.clipboard.dangerouslyPasteHTML(body);
+      } else {
+        const message: Message = this.config.data.fullMessage.message;
+        this.buildBody(message, body);
+      }
       this.mailForm.patchValue({
         body: this.editor.quill.root["innerHTML"]
       });
@@ -138,30 +158,33 @@ export class NewMailComponent implements OnInit, AfterViewInit {
    * @param allAddresses Se True viene popolato l'array dei CC con tutti gli indirizzi
    * @param action L'azione che è stata effettuata (REPLY, FORWARD, ETC)
   */
-  fillAddressesArray(message: Message, allAddresses: boolean, action: string) {
-    if (message.messageAddressList && message.messageAddressList.length > 0) {
+  fillAddressesArray(message?: Message, draft?: Draft, allAddresses?: boolean, action?: string) {
+    if (message && message.messageAddressList && message.messageAddressList.length > 0) {
       message.messageAddressList.forEach(obj => {
         switch (obj.addressRole) {
           case "FROM":
-            this.fromAddress = obj.idAddress.originalAddress ? obj.idAddress.originalAddress : obj.idAddress.mailAddress;
+            this.fromAddress = obj.idAddress.mailAddress;
             if (action !== TOOLBAR_ACTIONS.FORWARD) {
               this.toAddresses.push(this.fromAddress);
             }
             break;
           case "TO":
-            this.toAddressesForLabel.push(obj.idAddress.originalAddress ? obj.idAddress.originalAddress : obj.idAddress.mailAddress);
-            if (allAddresses && obj.idAddress.id !== message.fk_idPec.id) {
-              this.ccAddresses.push(obj.idAddress.originalAddress ? obj.idAddress.originalAddress : obj.idAddress.mailAddress);
+            this.toAddressesForLabel.push(obj.idAddress.mailAddress);
+            if (allAddresses && obj.idAddress.mailAddress !== this.selectedPec.indirizzo) {
+              this.ccAddresses.push(obj.idAddress.mailAddress);
             }
             break;
           case "CC":
-            this.ccAddressesForLabel.push(obj.idAddress.originalAddress ? obj.idAddress.originalAddress : obj.idAddress.mailAddress);
-            if (allAddresses && obj.idAddress.id !== message.fk_idPec.id) {
-              this.ccAddresses.push(obj.idAddress.originalAddress ? obj.idAddress.originalAddress : obj.idAddress.mailAddress);
+            this.ccAddressesForLabel.push(obj.idAddress.mailAddress);
+            if (allAddresses && obj.idAddress.mailAddress !== this.selectedPec.indirizzo) {
+              this.ccAddresses.push(obj.idAddress.mailAddress);
             }
             break;
         }
       });
+    } else if (draft) {
+      this.toAddresses = draft.toAddresses;
+      this.ccAddresses = draft.ccAddresses;
     }
   }
 
@@ -321,18 +344,24 @@ export class NewMailComponent implements OnInit, AfterViewInit {
       if (key === "attachments") {  // Gli allegati vanno aggiunti singolarmente
         const files = this.mailForm.get(key).value;
         files.forEach(file => {
-          if (file.id) {
-            /* Nel caso di Inoltra, gli allegati della mail inoltrata avranno un id
-             * che servirà per scaricarli dall'eml e aggiungerli alla nuova mail */
-            formToSend.append("idMessageRelatedAttachments", file.id);
-          } else {
+          if (!file.id) {
             formToSend.append(key, file);
+          }
+        });
+      } else if (key === "idMessageRelatedAttachments") {
+        const files = this.mailForm.get(key).value;
+        files.forEach(file => {
+          if (file.id) {
+            formToSend.append(key, file.id);
           }
         });
       } else {
         formToSend.append(key.toString(), this.mailForm.get(key).value);
       }
     });
+    if (!formToSend.get("idMessageRelatedAttachments")) {
+      formToSend.append("idMessageRelatedAttachments", [].toString());
+    }
     return formToSend;
   }
 
@@ -348,7 +377,7 @@ export class NewMailComponent implements OnInit, AfterViewInit {
   onSaveDraft() {
     console.log("FORM = ", this.mailForm.value);
     const formToSend: FormData = this.buildFormToSend();
-    this.draftService.saveDraftMessage(formToSend);
+    this.draftService.saveDraftMessage(formToSend, this.mailForm.get("idDraftMessage").value);
     this.onClose();
   }
 

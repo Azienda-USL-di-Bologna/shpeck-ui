@@ -7,13 +7,14 @@ import { getInternautaUrl, BaseUrlType, CUSTOM_SERVER_METHODS, EMLSOURCE } from 
 import { BehaviorSubject, Observable } from "rxjs";
 import { EmlData } from "../classes/eml-data";
 import { MessageService } from "primeng/api";
+import { FullMessage } from "./shpeck-message.service";
 
 @Injectable({
   providedIn: "root"
 })
 export class DraftService extends NextSDREntityProvider {
   private _draftEvent = new BehaviorSubject<DraftEvent>(null);
-  public reload: BehaviorSubject<boolean> = new BehaviorSubject<boolean>(false);
+  public reload: BehaviorSubject<number> = new BehaviorSubject<number>(null);
 
   constructor(protected http: HttpClient, protected datepipe: DatePipe, private messagePrimeService: MessageService) {
     super(http, datepipe, ENTITIES_STRUCTURE.shpeck.draft, getInternautaUrl(BaseUrlType.Shpeck));
@@ -27,14 +28,16 @@ export class DraftService extends NextSDREntityProvider {
    * Salva la bozza sul database e ritorna un observable
    * @param form La form contenente tutti i campi della mail da salvare
   */
-  public saveDraftMessage(form: FormData) {
+  public saveDraftMessage(form: FormData, idDraft?: number) {
     const apiUrl = getInternautaUrl(BaseUrlType.Shpeck) + "/" + CUSTOM_SERVER_METHODS.saveDraftMessage;
     this.http.post(apiUrl, form).subscribe(
       res => {
         console.log(res);
         this.messagePrimeService.add(
           { severity: "success", summary: "Successo", detail: "Bozza salvata correttamente" });
-        this.reload.next(true);
+        if (idDraft) {
+          this.reload.next(idDraft);
+        }
       },
       err => {
         console.log(err);
@@ -57,7 +60,8 @@ export class DraftService extends NextSDREntityProvider {
           this.messagePrimeService.add(
             { severity: "success", summary: "Successo", detail: "Bozza eliminata correttamente" });
         }
-        this.reload.next(true);
+        this.reload.next(null);
+        this._draftEvent.next(null);
       },
       err => {
         if (showMessage) {
@@ -79,6 +83,8 @@ export class DraftService extends NextSDREntityProvider {
         console.log(res);
         this.messagePrimeService.add(
           { severity: "success", summary: "Successo", detail: "Email inviata!" });
+        this.reload.next(null);
+        this._draftEvent.next(null);
         },
       err => {
         console.log("Error: ", err);
@@ -111,14 +117,20 @@ export class DraftService extends NextSDREntityProvider {
         (data: EmlData) => {
           this._draftEvent.next({
             fullDraft: {
-              draft: draft,
-              emlData: data
+              message: draft,
+              emlData: data,
+              emlSource: EMLSOURCE.DRAFT
             },
             selectedDrafts
           });
         },
         (err) => {
           this._draftEvent.next({
+            fullDraft: {
+              message: draft,
+              emlData: null,
+              emlSource: EMLSOURCE.DRAFT
+            },
             selectedDrafts
           });
         }
@@ -141,19 +153,11 @@ export class DraftService extends NextSDREntityProvider {
 }
 
 /**
- * Descrive un messaggio comprensivo sia del draft(Draft) che del suo eml (EmlData)
- */
-export interface FullDraft {
-  draft: Draft;
-  emlData: EmlData;
-}
-
-/**
  * Descrive l'evento che viene notificato dalla funzione manageDraftEvent
- * @param fullDraft contiene l'eventuale messaggio Draft completo scaricato
+ * @param fullDraft contiene l'eventuale FullMessage
  * @param selectedDrafts contiene gli eventuali messaggi drafts selezionati
  */
 export interface DraftEvent {
-  fullDraft?: FullDraft;
+  fullDraft?: FullMessage;
   selectedDrafts?: Draft[];
 }

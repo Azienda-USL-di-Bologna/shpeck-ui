@@ -30,6 +30,7 @@ export class MailListComponent implements OnInit, AfterViewChecked, OnChanges, O
 
   public _selectedFolder: Folder;
   public _selectedPecId: number;
+  public _selectedPec: Pec;
   public _filters: FilterDefinition[];
 
   private selectedProjection: string =
@@ -184,6 +185,7 @@ export class MailListComponent implements OnInit, AfterViewChecked, OnChanges, O
           }
         } else {
           const pec: Pec = pecFolderSelected.data as Pec;
+          this._selectedPec = pec;
           this._selectedPecId = pec.id;
           this.setFolder(null);
         }
@@ -643,13 +645,13 @@ export class MailListComponent implements OnInit, AfterViewChecked, OnChanges, O
         break;
 
       case "MessageReply":
-        this.toolBarService.newMail(this._selectedPecId, TOOLBAR_ACTIONS.REPLY);
+        this.toolBarService.newMail(this._selectedPec, TOOLBAR_ACTIONS.REPLY);
         break;
       case "MessageReplyAll":
-        this.toolBarService.newMail(this._selectedPecId, TOOLBAR_ACTIONS.REPLY_ALL);
+        this.toolBarService.newMail(this._selectedPec, TOOLBAR_ACTIONS.REPLY_ALL);
         break;
       case "MessageForward":
-        this.toolBarService.newMail(this._selectedPecId, TOOLBAR_ACTIONS.FORWARD);
+        this.toolBarService.newMail(this._selectedPec, TOOLBAR_ACTIONS.FORWARD);
         break;
     }
   }
