@@ -37,7 +37,6 @@ export class MailFoldersComponent implements OnInit, OnDestroy {
   private _abortSaveFolder: boolean = false;
   private _pressedEnter: boolean = false;
 
-  public cmItems: MenuItem[];
   public pecCmItems: MenuItem[] = [
     {
       label: "Nuova Cartella",
@@ -47,6 +46,7 @@ export class MailFoldersComponent implements OnInit, OnDestroy {
       command: event => this.selectedContextMenuItem(event)
     },
   ];
+  public cmItems: MenuItem[] = this.pecCmItems;
 
   public folderCmItems: MenuItem[] = [
     {
@@ -81,7 +81,7 @@ export class MailFoldersComponent implements OnInit, OnDestroy {
             }
           }
           this.selectedNode = this.mailfolders[0];
-          this.mailFoldersService.selectedPecFolder(this.mailfolders[0].data);
+          this.mailFoldersService.selectedPecFolder(this.mailfolders[0].data, this.mailfolders[0].children.map((c: MyTreeNode) => c.data.data) as Folder[]);
           // this.;
         }
       }
@@ -127,13 +127,12 @@ export class MailFoldersComponent implements OnInit, OnDestroy {
   }
 
   public selectedContextMenuItem(event) {
-    console.log(event);
     if (event && event.item) {
       const menuItemSelected: MenuItem = event.item;
       switch (menuItemSelected.id) {
         case "NewFolder":
           // console.log("new folder", this.selectedNode);
-          const folderToInsert = this.buildCustomFolder(this.selectedNode.data.data as Pec, "Nuova Cartella", true);
+          const folderToInsert = this.buildCustomFolder(this.selectedNode.data.data as Pec, "Nuova Cartella");
           this.selectedNode.children.push(this.buildFolderNode(folderToInsert, true));
           setTimeout(() => {
             const a = this.folderInput;
@@ -143,7 +142,6 @@ export class MailFoldersComponent implements OnInit, OnDestroy {
           this.selectedNode = this.selectedNode.children[this.selectedNode.children.length - 1];
         break;
         case "RenameFolder":
-          console.log("rename folder", this.selectedNode);
           const folderToRename: Folder = this.selectedNode.data.data as Folder;
           if (folderToRename.type === FolderType.CUSTOM) {
             this.selectedNode.editable = true;
@@ -153,7 +151,6 @@ export class MailFoldersComponent implements OnInit, OnDestroy {
           }
         break;
         case "DeleteFolder":
-          console.log("rename folder", this.selectedNode);
           const folderToDelete: Folder = this.selectedNode.data.data as Folder;
           if (folderToDelete.type === FolderType.CUSTOM) {
             this.deleteFolder(folderToDelete);
@@ -163,7 +160,7 @@ export class MailFoldersComponent implements OnInit, OnDestroy {
     }
   }
 
-  private buildCustomFolder(pecContainer: Pec, name?: string, pushInPecContainer?: boolean): Folder {
+  private buildCustomFolder(pecContainer: Pec, name?: string): Folder {
     const folder: Folder = new Folder();
     if (name) {
       name = name.trim();
@@ -174,9 +171,6 @@ export class MailFoldersComponent implements OnInit, OnDestroy {
     const pec: Pec = new Pec();
     pec.id = pecContainer.id;
     folder.idPec = pec;
-    if (!!pushInPecContainer) {
-      pecContainer.folderList.push(folder);
-    }
     return folder;
   }
 
@@ -209,18 +203,21 @@ export class MailFoldersComponent implements OnInit, OnDestroy {
   public handleNodeSelect(name: string, event: any) {
     switch (name) {
     case "onContextMenuSelect":
-      if (this.mailfolders) {
-        this.mailfolders.map(m => m.styleClass = MailFoldersComponent.ROOT_NODE_NOT_SELECTED_STYLE_CLASS);
-        if (event.node &&  !(event.node as MyTreeNode).editable) {
-          this.selectRootNode(event.node, true);
-          this.mailFoldersService.selectedPecFolder(event.node.data);
+      this.mailfolders.map(m => m.styleClass = MailFoldersComponent.ROOT_NODE_NOT_SELECTED_STYLE_CLASS);
+
+      if (event.node &&  !(event.node as MyTreeNode).editable) {
+        this.selectRootNode(event.node, true);
+
+        if (event.node.data && (event.node as MyTreeNode).data.type === PecFolderType.PEC) {
+          this.cmItems = this.pecCmItems;
+          this.mailFoldersService.selectedPecFolder(event.node.data, event.node.children.map((c: MyTreeNode) => c.data.data) as Folder[]);
+        } else {
+          this.disableNotSelectableFolderContextMenuItems(event.node.data.data as Folder);
+          this.cmItems = this.folderCmItems;
+          this.mailFoldersService.selectedPecFolder(event.node.data, event.node.parent.children.map((c: MyTreeNode) => c.data.data) as Folder[]);
         }
-      }
-      if (event.node && event.node.data && (event.node as MyTreeNode).data.type === PecFolderType.PEC) {
-        this.cmItems = this.pecCmItems;
       } else {
-        this.disableNotSelectableFolderContextMenuItems(event.node.data.data as Folder);
-        this.cmItems = this.folderCmItems;
+        this.cmItems = [];
       }
       // if (event.node && event.node.data && (event.node as MyTreeNode).data.type === PecFolderType.PEC) {
       //   this.cmItems = this.pecCmItems;
@@ -247,7 +244,12 @@ export class MailFoldersComponent implements OnInit, OnDestroy {
       if (this.mailfolders && event.node && !(event.node as MyTreeNode).editable) {
         this.mailfolders.map(m => m.styleClass = MailFoldersComponent.ROOT_NODE_NOT_SELECTED_STYLE_CLASS);
         this.selectRootNode(event.node, true);
-        this.mailFoldersService.selectedPecFolder(event.node.data);
+
+        if (event.node.data && (event.node as MyTreeNode).data.type === PecFolderType.PEC) {
+          this.mailFoldersService.selectedPecFolder(event.node.data, event.node.children.map((c: MyTreeNode) => c.data.data) as Folder[]);
+        } else {
+          this.mailFoldersService.selectedPecFolder(event.node.data, event.node.parent.children.map((c: MyTreeNode) => c.data.data) as Folder[]);
+        }
       }
     break;
     }
@@ -289,22 +291,28 @@ export class MailFoldersComponent implements OnInit, OnDestroy {
           if (!inserting) {
             this.folderService.patchHttpCall(folder, folder.id).subscribe((f: Folder) => {
               this.selectedNode.data.data = f;
-              this.mailFoldersService.selectedPecFolder(this.selectedNode.data);
-              console.log(this.selectedNode.data.data);
+              const pecFolderList: Folder[] = (this.selectedNode.parent.data.data as Pec).folderList;
+              const index = pecFolderList.findIndex(childFolder => f.id === childFolder.id);
+              pecFolderList[index] = f;
+              this.mailFoldersService.selectedPecFolder(this.selectedNode.data, this.selectedNode.parent.children.map((c: MyTreeNode) => c.data.data) as Folder[]);
             });
           } else {
+            // Questo assegnamento è per prevenire il caso in cui il salvataggio parta contemporanemanete al cambiamento del selectedNode.
+            // Nella callback dell'insert il selectednode potrebbe essere cambiato
+            // Es. Creazione di cartella, rinomina della stessa e di nuovo inserimento (cliccando direttamente col tasto destro per inserire).
+            this.previousSelectedNode = this.selectedNode;
             this.folderService.postHttpCall(folder).subscribe((f: Folder) => {
-              this.selectedNode.data.data = f;
-              this.selectedNode.key = PecFolderType.FOLDER + "_" + f.id;
-              this.mailFoldersService.selectedPecFolder(this.selectedNode.data);
-              console.log(this.selectedNode.data.data);
+              this.previousSelectedNode.data.data = f;
+              const pecFolderList: Folder[] = (this.previousSelectedNode.parent.data.data as Pec).folderList;
+              pecFolderList.push(f);
+              this.previousSelectedNode.key = PecFolderType.FOLDER + "_" + f.id;
+              this.mailFoldersService.selectedPecFolder(this.previousSelectedNode.data, this.previousSelectedNode.parent.children.map((c: MyTreeNode) => c.data.data) as Folder[]);
             });
           }
         }
       } else {
         this.abortSaveFolder();
       }
-      console.log(this.selectedNode.data.data);
     }
     this._abortSaveFolder = false;
   }
@@ -316,10 +324,13 @@ export class MailFoldersComponent implements OnInit, OnDestroy {
   private deleteFolder(folder: Folder) {
     this.folderService.deleteHttpCall(folder.id).subscribe(
       (res) => {
-        const folderElementIndex: number = this.selectedNode.parent.children.findIndex(element => element.data.data.id === folder.id);
-        this.selectedNode.parent.children.splice(folderElementIndex, 1);
+        const nodeElementIndex: number = this.selectedNode.parent.children.findIndex(element => element.data.data.id === folder.id);
+        this.selectedNode.parent.children.splice(nodeElementIndex, 1);
+        const pec = this.selectedNode.parent.data.data as Pec;
+        const folderElementIndex = pec.folderList.findIndex(element => element.id === folder.id);
+        pec.folderList.splice(folderElementIndex, 1);
         this.selectRootNode(this.selectedNode.parent, false);
-        this.mailFoldersService.selectedPecFolder(this.selectedNode.data);
+        this.mailFoldersService.selectedPecFolder(this.selectedNode.data, pec.folderList);
         this.selectedNode = null;
       },
       (error) => {

@@ -22,7 +22,7 @@
 </p-tree>
 
 <!-- *ngIf="!!node.editable" -->
-<p-contextMenu #cm [model]="cmItems" styleClass = "context-menu-mail-folders"></p-contextMenu>
+<p-contextMenu #cm [hidden]="!cmItems?.length > 0" [model]="cmItems" styleClass = "context-menu-mail-folders"></p-contextMenu>
 <!-- 
 <p-dialog [header]="folderDialogProperties.title" 
           [(visible)]="folderDialogProperties.visible" 

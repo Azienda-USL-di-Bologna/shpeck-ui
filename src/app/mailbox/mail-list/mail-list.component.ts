@@ -48,6 +48,10 @@ export class MailListComponent implements OnInit, AfterViewChecked, OnChanges, O
   private subscriptions: Subscription[] = [];
   private previousFilter: FilterDefinition[] = [];
   private loggedUser: UtenteUtilities;
+  private folders: Folder[] = [];
+
+  private trashFolder: Folder;
+  private foldersSubCmItems: MenuItem[] = null;
 
   public cmItems: MenuItem[] = [
     {
@@ -79,7 +83,15 @@ export class MailListComponent implements OnInit, AfterViewChecked, OnChanges, O
       command: event => this.selectedContextMenuItem(event)
     },
     {
-      label: "Elimina ",
+      label: "Sposta",
+      id: "MessageMove",
+      disabled: true,
+      queryParams: {},
+      items: this.foldersSubCmItems,
+      command: event => this.selectedContextMenuItem(event)
+    },
+    {
+      label: "Elimina",
       id: "MessageDelete",
       disabled: true,
       queryParams: {},
@@ -128,6 +140,7 @@ export class MailListComponent implements OnInit, AfterViewChecked, OnChanges, O
       command: event => this.selectedContextMenuItem(event)
     }
   ];
+
 
   public messages: Message[] = [];
   public fromOrTo: string;
@@ -189,6 +202,14 @@ export class MailListComponent implements OnInit, AfterViewChecked, OnChanges, O
         if (!this.loggedUser || utente.getUtente().id !== this.loggedUser.getUtente().id) {
           this.loggedUser = utente;
         }
+      }
+    }));
+    this.subscriptions.push(this.mailFoldersService.pecFolders.subscribe((folders: Folder[]) => {
+      if (!folders) {
+        this.folders = [];
+      } else {
+        this.folders = folders;
+        // this.buildFoldersSubCmItems();
       }
     }));
   }
@@ -497,7 +518,20 @@ export class MailListComponent implements OnInit, AfterViewChecked, OnChanges, O
             element.queryParams = { seen: false };
           }
           break;
+        case "MessageMove":
+            element.disabled = false;
+            if (this.selectedMessages.some((message: Message) => !message.messageFolderList || message.messageFolderList[0].idFolder.type === FolderType.TRASH)) {
+              element.disabled = true;
+              this.cmItems.find(f => f.id === "MessageMove").items = null;
+            } else {
+              this.buildFoldersSubCmItems();
+            }
+          break;
         case "MessageDelete":
+          element.disabled = false;
+          if (this.selectedMessages.some((message: Message) => !message.messageFolderList || message.messageFolderList[0].idFolder.type === FolderType.TRASH)) {
+            element.disabled = true;
+          }
           break;
         case "MessageReply":
         case "MessageReplyAll":
@@ -513,6 +547,49 @@ export class MailListComponent implements OnInit, AfterViewChecked, OnChanges, O
             element.disabled = true;
           }
           break;
+      }
+    });
+  }
+
+  private buildFoldersSubCmItems() {
+    this.foldersSubCmItems = []; // .splice(0, this.foldersSubCmItems.length);
+    this.cmItems.find(f => f.id === "MessageMove").items = this.foldersSubCmItems;
+
+    this.folders.forEach(f => {
+      if (f.type !== FolderType.DRAFT && f.type !== FolderType.OUTBOX && f.type !== FolderType.TRASH) {
+        let subElementDisabled = false;
+        if (this._selectedFolder && f.id === this._selectedFolder.id) {
+          subElementDisabled = true;
+        } else if (!this._selectedFolder && this.selectedMessages && this.selectedMessages.length === 1 &&
+          this.selectedMessages[0].messageFolderList && this.selectedMessages[0].messageFolderList[0].idFolder.id === f.id) {
+            subElementDisabled = true;
+        } else {
+          switch (f.type) {
+            case FolderType.INBOX:
+              if (this.selectedMessages.some((message: Message) => message.inOut === InOut.OUT)) {
+                subElementDisabled = true;
+              }
+              break;
+            case "SENT": // TODO BLABLA
+              if (this.selectedMessages.some((message: Message) => message.inOut === InOut.IN)) {
+                subElementDisabled = true;
+              }
+              break;
+          }
+        }
+        this.foldersSubCmItems.push(
+          {
+            label: f.description,
+            id: "MessageMove",
+            disabled: subElementDisabled,
+            queryParams: {
+              folder: f
+            },
+            command: event => this.selectedContextMenuItem(event)
+          }
+        );
+      } else if (f.type === FolderType.TRASH) {
+        this.trashFolder = f;
       }
     });
   }
@@ -543,18 +620,22 @@ export class MailListComponent implements OnInit, AfterViewChecked, OnChanges, O
         }
         break;
       case "MessageDelete":
-        this.messageFolderService
+        event.item.queryParams = {folder: this.trashFolder};
+      // tslint:disable-next-line: no-switch-case-fall-through
+      case "MessageMove":
+        if (event.item.queryParams.folder && event.item.queryParams.folder.id) {
+          this.messageFolderService
           .moveMessagesToFolder(
             this.selectedMessages.map((message: Message) => {
-              return message.messageFolderList.filter(
-                (messageFolder: MessageFolder) =>
-                  (messageFolder.fk_idFolder.id = this._selectedFolder.id)
-              )[0];
+              return message.messageFolderList[0];  // Basta prendere il primo elemente perché ogni messaggio può essere in una sola cartella
             }),
-            5,
+            event.item.queryParams.folder.id,
             this.loggedUser.getUtente().id
           )
-          .subscribe();
+          .subscribe(res => {
+            this.messages = Utils.arrayDiff(this.messages, this.selectedMessages);
+          });
+        }
         break;
 
       case "MessageDownload":

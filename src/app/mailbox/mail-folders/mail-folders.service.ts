@@ -16,8 +16,9 @@ export class MailFoldersService {
   constructor() {
   }
 
-  public selectedPecFolder(node: PecFolder): void {
+  public selectedPecFolder(node: PecFolder, folders: Folder[]): void {
     this._pecFolderSelected.next(node);
+    this.setPecFolders(folders);
   }
 
   public get pecFolderSelected(): Observable<PecFolder> {
