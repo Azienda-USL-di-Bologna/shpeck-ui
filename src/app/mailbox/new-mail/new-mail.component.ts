@@ -179,8 +179,7 @@ export class NewMailComponent implements OnInit, AfterViewInit {
               if (message.inOut === InOut.OUT) {
                 this.toAddresses.push(obj.idAddress.mailAddress);
               }
-            }
-            if (allAddresses && obj.idAddress.mailAddress !== this.selectedPec.indirizzo) {
+            } else if (allAddresses && obj.idAddress.mailAddress !== this.selectedPec.indirizzo) {
               this.ccAddresses.push(obj.idAddress.mailAddress);
             }
             break;
