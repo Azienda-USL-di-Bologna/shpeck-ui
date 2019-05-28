@@ -78,8 +78,12 @@ export class NewMailComponent implements OnInit, AfterViewInit {
       case TOOLBAR_ACTIONS.EDIT:   // EDIT
         message = this.config.data.fullMessage.message as Draft;
         subject = message.subject ? message.subject : "";
-        hideRecipients.value = message.hiddenRecipients;
         this.fillAddressesArray(null, message, null, null);
+        if (this.ccAddresses && this.ccAddresses.length > 0) {
+          hideRecipients.disabled = true;
+        }
+        hideRecipients.value = message.hiddenRecipients;
+        hideRecipients.disabled = this.ccAddresses && this.ccAddresses.length > 0;
         if (this.config.data.fullMessage.emlData) {
           Object.assign(this.attachments, this.config.data.fullMessage.emlData.attachments);
         }
@@ -138,7 +142,7 @@ export class NewMailComponent implements OnInit, AfterViewInit {
         body = this.config.data.fullMessage.body;
       }
       if (this.config.data.action === TOOLBAR_ACTIONS.EDIT) {
-        this.editor.quill.clipboard.dangerouslyPasteHTML(0, body);
+        this.editor.quill.clipboard.dangerouslyPasteHTML(body);
       } else {
         const message: Message = this.config.data.fullMessage.message;
         this.buildBody(message, body);
