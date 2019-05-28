@@ -138,7 +138,7 @@ export class NewMailComponent implements OnInit, AfterViewInit {
         body = this.config.data.fullMessage.body;
       }
       if (this.config.data.action === TOOLBAR_ACTIONS.EDIT) {
-        this.editor.quill.clipboard.dangerouslyPasteHTML(body);
+        this.editor.quill.clipboard.dangerouslyPasteHTML(0, body);
       } else {
         const message: Message = this.config.data.fullMessage.message;
         this.buildBody(message, body);

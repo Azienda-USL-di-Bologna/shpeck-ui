@@ -85,24 +85,25 @@ export class MailDetailComponent implements OnInit, OnDestroy {
    * - Setto look generico dell'interfaccia.
    */
   private manageDownloadedMessage(fullMessage: FullMessage): void {
-
-    const data: EmlData = fullMessage.emlData;
-    /* Setto il conentType degli allegati e setto il nome a max 42 caratteri */
-    if (data.attachments && data.attachments.length > 0) {
-      data.attachments.forEach(a => {
-        a.contentType = a.mimeType.substr(0, a.mimeType.indexOf(";"));
-        a.simpleType = a.contentType.substr(0, a.contentType.indexOf("/"));
-        if (a.fileName.length > 42) {
-          a.displayName = a.fileName.substr(0, 34) + ".." + a.fileName.substr(a.fileName.length - 6, a.fileName.length) ;
-        } else {
-          a.displayName = a.fileName;
-        }
-      });
+    if (fullMessage.emlData) {
+      const data: EmlData = fullMessage.emlData;
+      /* Setto il conentType degli allegati e setto il nome a max 42 caratteri */
+      if (data.attachments && data.attachments.length > 0) {
+        data.attachments.forEach(a => {
+          a.contentType = a.mimeType.substr(0, a.mimeType.indexOf(";"));
+          a.simpleType = a.contentType.substr(0, a.contentType.indexOf("/"));
+          if (a.fileName.length > 42) {
+            a.displayName = a.fileName.substr(0, 34) + ".." + a.fileName.substr(a.fileName.length - 6, a.fileName.length) ;
+          } else {
+            a.displayName = a.fileName;
+          }
+        });
+      }
+      /* Sostituisco le newline con dei <br/> */
+      data.displayBody = data.htmlTextImgEmbedded != null ? data.htmlTextImgEmbedded : (
+        data.htmlText != null ? data.htmlText : data.plainText.replace(/\n/g, "<br/>")
+      );
     }
-    /* Sostituisco le newline con dei <br/> */
-    data.displayBody = data.htmlTextImgEmbedded != null ? data.htmlTextImgEmbedded : (
-      data.htmlText != null ? data.htmlText : data.plainText.replace(/\n/g, "<br/>")
-    );
 
     /* Per la posta inviata carico le ricevute */
     /* TODO: La chiamata deve essere senza paginazione senza limite */ /* <============================================================== */
