@@ -57,9 +57,22 @@
         [disabled]="true">
       </button>
       <!-- Ricerca -->
-      <input #search type="text" pInputText size="50" placeholder="Cerca..." (keyup.enter)="onEnter(search.value)"
-        class="input-find" pTooltip="Inserire almeno 3 caratteri" title="barra di ricerca">
+      <input #search matInput type="text" pInputText size="50" placeholder="Cerca..." (keydown.enter)="onEnter(search.value)"
+        class="input-find" pTooltip="Inserire almeno 3 caratteri e premere invio" minlength="3" title="barra di ricerca" autofocus>
       <!-- <i class="pi pi-bars a-items-center d-flex"></i> -->
   </div>
 </p-toolbar>
 <p-confirmDialog acceptLabel="Sì" rejectLabel="No" [style]="{width: '20vw', top: '40%'}"></p-confirmDialog>
+
+<p-dialog
+  header="Attenzione"
+  [(visible)]="showErrorDialog"
+  [responsive]="true"
+  [modal]="true"
+  appendTo="body"
+  focusTrap="true">
+  <p>Inserire almeno 3 caratteri e premere invio!</p>
+  <p-footer>
+    <button #closeDialog pButton icon="pi pi-times" (click)="toggleDialogAndAddFocus()" label="Chiudi" class="ui-button-secondary" autofocus></button>
+  </p-footer>
+</p-dialog>

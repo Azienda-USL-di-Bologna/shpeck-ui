@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy} from "@angular/core";
+import { Component, OnInit, OnDestroy, ViewChild, ElementRef} from "@angular/core";
 import { DialogService, ConfirmationService } from "primeng/api";
 import { ShpeckMessageService, MessageEvent } from "src/app/services/shpeck-message.service";
 import { Subscription, Observable } from "rxjs";
@@ -22,6 +22,19 @@ export class ToolbarComponent implements OnInit, OnDestroy {
   public messageEvent: MessageEvent;
   public buttonObs: Map<string, Observable<boolean>>;
   // @Output("filtersEmitter") private filtersEmitter: EventEmitter<FilterDefinition[]> = new EventEmitter();
+
+  public showErrorDialog: boolean = false;
+
+  @ViewChild("closeDialog") closeField: ElementRef;
+  @ViewChild("search") searchField: ElementRef;
+  toggleDialogAndAddFocus() {
+    this.showErrorDialog = !this.showErrorDialog;
+    if (this.showErrorDialog === false){
+      // console.log("Focus search bar", this.searchField, " show Dialog ", this.showErrorDialog )
+      this.searchField.nativeElement.focus();
+      this.closeField.nativeElement.blur();
+    }
+  }
 
   constructor(public dialogService: DialogService,
     private pecService: PecService,
@@ -80,6 +93,8 @@ export class ToolbarComponent implements OnInit, OnDestroy {
       const filter = [];
       filter.push(new FilterDefinition("tscol", FILTER_TYPES.not_string.equals, value));
       this.toolBarService.setFilterTyped(filter);
+    } else {
+      this.toggleDialogAndAddFocus();
     }
   }
 

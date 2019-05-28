@@ -29,6 +29,10 @@
     margin-right: 0;
 }
 
+.input-find:invalid {
+    box-shadow: 0px 0px 4px red;
+}
+
 ::ng-deep .margin-l-15 > span {
     margin-left: 15px;
 }
