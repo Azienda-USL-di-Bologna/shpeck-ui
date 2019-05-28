@@ -9,10 +9,10 @@
   (selectionChange)="handleNodeSelect('selectionChange', $event)"
   [contextMenu]="cm">
   <ng-template let-node pTemplate="default">
-    <input #folderInput [hidden] ="!!!node.editable" [(ngModel)]="node.label" 
+    <input #folderInput [hidden] ="!!!node.editable" [(ngModel)]="node.label"
     [id]="node.key"
-    type="text" style="width:100%" 
-    class="ui-inputtext" 
+    type="text" style="width:100%"
+    class="ui-inputtext"
     (focusout)= "onLostFocus($event, folderInput.value)"
     (keyup.enter)="onEnterPressed($event, folderInput.value)"
     (keydown.esc)="onEscPressed($event)"
@@ -22,10 +22,10 @@
 </p-tree>
 
 <!-- *ngIf="!!node.editable" -->
-<p-contextMenu #cm [hidden]="!cmItems?.length > 0" [model]="cmItems" styleClass = "context-menu-mail-folders"></p-contextMenu>
-<!-- 
-<p-dialog [header]="folderDialogProperties.title" 
-          [(visible)]="folderDialogProperties.visible" 
+<p-contextMenu #cm [hidden]="!(cmItems?.length > 0)" [model]="cmItems" styleClass = "context-menu-mail-folders"></p-contextMenu>
+<!--
+<p-dialog [header]="folderDialogProperties.title"
+          [(visible)]="folderDialogProperties.visible"
           modal="true"
           styleClass="folder-dialog"
           positionTop="20"
