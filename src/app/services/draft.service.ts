@@ -1,9 +1,9 @@
 import { Injectable } from "@angular/core";
-import { NextSDREntityProvider } from "@nfa/next-sdr";
+import { NextSDREntityProvider, BatchOperation, BatchOperationTypes } from "@nfa/next-sdr";
 import { DatePipe } from "@angular/common";
 import { HttpClient } from "@angular/common/http";
 import { ENTITIES_STRUCTURE, Draft } from "@bds/ng-internauta-model";
-import { getInternautaUrl, BaseUrlType, CUSTOM_SERVER_METHODS, EMLSOURCE } from "src/environments/app-constants";
+import { getInternautaUrl, BaseUrlType, CUSTOM_SERVER_METHODS, EMLSOURCE, BaseUrls } from "src/environments/app-constants";
 import { BehaviorSubject, Observable } from "rxjs";
 import { EmlData } from "../classes/eml-data";
 import { MessageService } from "primeng/api";
@@ -70,6 +70,46 @@ export class DraftService extends NextSDREntityProvider {
         }
       }
     );
+  }
+
+  /**
+   * Elimina le bozze selezionate dal database
+   * @param drafts Array delle bozze da eliminare
+   * @param showMessage Mostrare/Non mostrare il messaggio di notifica eliminazione
+  */
+  public deleteDrafts(drafts: Draft[], showMessage: boolean) {
+    const draftsToDelete: BatchOperation[] = [];
+    for (const draft of drafts) {
+      if (draft.id) {
+        draftsToDelete.push({
+          id: draft.id,
+          operation: BatchOperationTypes.DELETE,
+          entityPath: BaseUrls.get(BaseUrlType.Shpeck) + "/" + ENTITIES_STRUCTURE.shpeck.draft.path,
+          entityBody: null,
+          additionalData: null
+        });
+      }
+    }
+    if (draftsToDelete.length > 0) {
+      return super.batchHttpCall(draftsToDelete).subscribe(
+        res => {
+          if (showMessage) {
+            this.messagePrimeService.add(
+              { severity: "success", summary: "Successo", detail: "Bozze eliminate correttamente" });
+          }
+          this.reload.next(null);
+          this._draftEvent.next(null);
+        },
+        err => {
+          if (showMessage) {
+            this.messagePrimeService.add(
+              { severity: "error", summary: "Errore", detail: "Errore durante l'eliminazione, contattare BabelCare", life: 3500 });
+          }
+        }
+      );
+    } else {
+      throw new Error("nessun messaggio passato");
+    }
   }
 
   /**

@@ -108,8 +108,13 @@ export class ToolbarComponent implements OnInit, OnDestroy {
   }
 
   confirm() {
+    let _message = "Sei sicuro di voler eliminare la bozza?";
+    const drafts = this.toolBarService.draftEvent.selectedDrafts;
+    if (drafts && drafts.length > 1) {
+      _message = "Sei sicuro di voler eliminare le bozze?";
+    }
     this.confirmationService.confirm({
-      message: "Sei sicuro di voler eliminare la bozza?",
+      message: _message,
       header: "Conferma",
       icon: "pi pi-exclamation-triangle",
       accept: () => {

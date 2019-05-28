@@ -68,6 +68,8 @@ export class ToolBarService {
   public handleDelete() {
     if (this.draftEvent.fullDraft) {
       this.draftService.deleteDraftMessage(this.draftEvent.fullDraft.message.id, true);
+    } else if (this.draftEvent.selectedDrafts && this.draftEvent.selectedDrafts.length > 0) {
+      this.draftService.deleteDrafts(this.draftEvent.selectedDrafts, true);
     }
   }
 
