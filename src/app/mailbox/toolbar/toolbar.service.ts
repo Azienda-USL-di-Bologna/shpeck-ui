@@ -92,7 +92,8 @@ export class ToolBarService {
           fullMessage: this.messageEvent ? this.messageEvent.downloadedMessage : undefined,
           idDraft: draft.id,
           pec: pec,
-          action: action
+          action: action,
+          reloadOnDelete: false
         },
         header: "Nuova Mail",
         width: "auto",
@@ -116,7 +117,8 @@ export class ToolBarService {
           fullMessage: this.draftEvent.fullDraft,
           idDraft: this.draftEvent.fullDraft.message.id,
           pec: this.draftEvent.fullDraft.message.idPec,
-          action: "edit"
+          action: "edit",
+          reloadOnDelete: true
         },
         header: "Modifica bozza",
         width: "auto",

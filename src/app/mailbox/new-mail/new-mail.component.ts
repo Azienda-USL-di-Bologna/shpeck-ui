@@ -1,7 +1,7 @@
 import { Component, OnInit, ViewChild, AfterViewInit } from "@angular/core";
 import { FormGroup, FormControl, Validators, FormArray } from "@angular/forms";
 import { DynamicDialogRef, DynamicDialogConfig, DialogService } from "primeng/api";
-import { Message, Pec, Draft, MessageRelatedType } from "@bds/ng-internauta-model";
+import { Message, Pec, Draft, MessageRelatedType, InOut } from "@bds/ng-internauta-model";
 import { Editor } from "primeng/editor";
 import { TOOLBAR_ACTIONS } from "src/environments/app-constants";
 import { DraftService } from "src/app/services/draft.service";
@@ -79,11 +79,9 @@ export class NewMailComponent implements OnInit, AfterViewInit {
         message = this.config.data.fullMessage.message as Draft;
         subject = message.subject ? message.subject : "";
         this.fillAddressesArray(null, message, null, null);
-        if (this.ccAddresses && this.ccAddresses.length > 0) {
-          hideRecipients.disabled = true;
-        }
         hideRecipients.value = message.hiddenRecipients;
         hideRecipients.disabled = this.ccAddresses && this.ccAddresses.length > 0;
+        /* Può esserci l'emlData null nel caso di una draft creata e non salvata correttamente */
         if (this.config.data.fullMessage.emlData) {
           Object.assign(this.attachments, this.config.data.fullMessage.emlData.attachments);
         }
@@ -159,6 +157,7 @@ export class NewMailComponent implements OnInit, AfterViewInit {
   /**
    * Popola gli array degli indirizzi che saranno usati per popolare i campi della form e le label per il body
    * @param message Il messaggio a cui si sta rispondendo o si sta inoltrando
+   * @param draft Il draft che si sta modificando
    * @param allAddresses Se True viene popolato l'array dei CC con tutti gli indirizzi
    * @param action L'azione che è stata effettuata (REPLY, FORWARD, ETC)
   */
@@ -169,11 +168,18 @@ export class NewMailComponent implements OnInit, AfterViewInit {
           case "FROM":
             this.fromAddress = obj.idAddress.mailAddress;
             if (action !== TOOLBAR_ACTIONS.FORWARD) {
-              this.toAddresses.push(this.fromAddress);
+              if (message.inOut === InOut.IN) {
+                this.toAddresses.push(obj.idAddress.mailAddress);
+              }
             }
             break;
           case "TO":
             this.toAddressesForLabel.push(obj.idAddress.mailAddress);
+            if (action !== TOOLBAR_ACTIONS.FORWARD) {
+              if (message.inOut === InOut.OUT) {
+                this.toAddresses.push(obj.idAddress.mailAddress);
+              }
+            }
             if (allAddresses && obj.idAddress.mailAddress !== this.selectedPec.indirizzo) {
               this.ccAddresses.push(obj.idAddress.mailAddress);
             }
@@ -386,7 +392,8 @@ export class NewMailComponent implements OnInit, AfterViewInit {
   }
 
   onDelete(showMessage: boolean) {
-    this.draftService.deleteDraftMessage(this.mailForm.get("idDraftMessage").value, showMessage);
+    const reload: boolean = this.config.data.reloadOnDelete;
+    this.draftService.deleteDraftMessage(this.mailForm.get("idDraftMessage").value, showMessage, reload);
     this.onClose();
   }
 

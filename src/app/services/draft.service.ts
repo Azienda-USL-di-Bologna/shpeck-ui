@@ -53,15 +53,17 @@ export class DraftService extends NextSDREntityProvider {
    * @param idDraft Id della bozza da eliminare
    * @param showMessage Mostrare/Non mostrare il messaggio di notifica eliminazione
   */
-  public deleteDraftMessage(idDraft: number, showMessage: boolean) {
+  public deleteDraftMessage(idDraft: number, showMessage: boolean, reload?: boolean) {
     this.deleteHttpCall(idDraft).subscribe(
       res => {
         if (showMessage) {
           this.messagePrimeService.add(
             { severity: "success", summary: "Successo", detail: "Bozza eliminata correttamente" });
         }
-        this.reload.next(null);
-        this._draftEvent.next(null);
+        if (reload) { // Il reload è true soltanto se siamo in EDIT
+          this.reload.next(null);
+          this._draftEvent.next(null);
+        }
       },
       err => {
         if (showMessage) {
