@@ -1,15 +1,14 @@
-import { Component, OnInit, Output, EventEmitter, ViewChild, ElementRef, AfterViewChecked, OnChanges, OnDestroy } from "@angular/core";
+import { Component, OnInit, Output, EventEmitter, ViewChild, ElementRef, OnDestroy } from "@angular/core";
 import { buildLazyEventFiltersAndSorts } from "@bds/primeng-plugin";
 import { Message, ENTITIES_STRUCTURE, MessageAddress, AddresRoleType, Folder, MessageTag, InOut, Tag, Pec, MessageType, FolderType } from "@bds/ng-internauta-model";
-import { ShpeckMessageService, MessageEvent} from "src/app/services/shpeck-message.service";
+import { ShpeckMessageService } from "src/app/services/shpeck-message.service";
 import { FiltersAndSorts, FilterDefinition, FILTER_TYPES, SortDefinition, SORT_MODES, PagingConf, BatchOperation, BatchOperationTypes } from "@nfa/next-sdr";
 import { TagService } from "src/app/services/tag.service";
 import { Observable, Subscription } from "rxjs";
 import { DatePipe } from "@angular/common";
 import { Table } from "primeng/table";
-import { BaseUrlType, BaseUrls, TOOLBAR_ACTIONS, EMLSOURCE } from "src/environments/app-constants";
+import { TOOLBAR_ACTIONS, EMLSOURCE } from "src/environments/app-constants";
 import { MenuItem, LazyLoadEvent, FilterMetadata, ConfirmationService } from "primeng/api";
-import { MessageFolderService } from "src/app/services/message-folder.service";
 import { Utils } from "src/app/utils/utils";
 import { MailFoldersService, PecFolderType, PecFolder } from "../mail-folders/mail-folders.service";
 import { ToolBarService } from "../toolbar/toolbar.service";
@@ -21,7 +20,7 @@ import { MailListService } from "./mail-list.service";
   styleUrls: ["./mail-list.component.scss"],
   providers: [ConfirmationService]
 })
-export class MailListComponent implements OnInit, AfterViewChecked, OnChanges, OnDestroy {
+export class MailListComponent implements OnInit, OnDestroy {
 
   @Output() public messageClicked = new EventEmitter<Message>();
 
@@ -45,7 +44,6 @@ export class MailListComponent implements OnInit, AfterViewChecked, OnChanges, O
     }
   };
 
-  private selectedMessageEvent: MessageEvent;
   private subscriptions: Subscription[] = [];
   private previousFilter: FilterDefinition[] = [];
   private foldersSubCmItems: MenuItem[] = null;
@@ -190,15 +188,6 @@ export class MailListComponent implements OnInit, AfterViewChecked, OnChanges, O
         this.setFilters(filters);
       }
     }));
-    this.subscriptions.push(this.messageService.messageEvent.subscribe((me: MessageEvent) => {
-      this.selectedMessageEvent = me;
-    }));
-  }
-
-  ngAfterViewChecked() {
-  }
-
-  ngOnChanges() {
   }
 
 
@@ -450,7 +439,7 @@ export class MailListComponent implements OnInit, AfterViewChecked, OnChanges, O
         // selezione di un singolo messaggio (o come click singolo oppure come click del primo messaggio con il ctrl)
         if (this.mailListService.selectedMessages.length === 1) {
           const selectedMessage: Message = this.mailListService.selectedMessages[0];
-          this.setSeen(selectedMessage);
+          this.mailListService.setSeen(true);
           const emlSource: string = this.getEmlSource(selectedMessage);
           this.messageService.manageMessageEvent(
             emlSource,
@@ -478,13 +467,10 @@ export class MailListComponent implements OnInit, AfterViewChecked, OnChanges, O
     return emlSource;
   }
 
-  private setSeen(selectedMessage: Message) {
-    if (!!!selectedMessage.seen) {
-      selectedMessage.seen = true;
-      this.saveMessage(selectedMessage);
-    }
-  }
-
+  /**
+   * Setto il look del menu contestuale.
+   * In particolare attivo e disattivo le varie voci.
+   */
   private setContextMenuItemLook() {
     this.cmItems.map(element => {
       // element.disabled = false;
@@ -530,6 +516,7 @@ export class MailListComponent implements OnInit, AfterViewChecked, OnChanges, O
     });
   }
 
+
   /**
    * Manager delle varie funzionalità del contextMenu.
    * Si limita a chiamare il metodo giusto a seconda dell'ItemMenu selezionata.
@@ -540,7 +527,7 @@ export class MailListComponent implements OnInit, AfterViewChecked, OnChanges, O
     const menuItem: MenuItem = event.item;
     switch (menuItem.id) {
       case "MessageSeen":
-        this.mailListService.toggleSeenProperty(menuItem);
+        this.mailListService.setSeen(menuItem.queryParams.seen);
         break;
       case "MessageDelete":
         this.deletingConfirmation();
@@ -562,6 +549,7 @@ export class MailListComponent implements OnInit, AfterViewChecked, OnChanges, O
         break;
     }
   }
+
 
   /**
    * Chiedo conferma sulla cancellazione dei messaggi selezioni.
@@ -585,16 +573,6 @@ export class MailListComponent implements OnInit, AfterViewChecked, OnChanges, O
     });
   }
 
-  private saveMessage(selectedMessage: Message) {
-    this.messageService
-      .patchHttpCall(
-        selectedMessage,
-        selectedMessage.id,
-        this.selectedProjection,
-        null
-      )
-      .subscribe((message: Message) => {});
-  }
 
   /**
    * Scarico il messaggio passato

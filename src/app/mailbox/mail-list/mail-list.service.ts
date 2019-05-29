@@ -158,11 +158,11 @@ export class MailListService {
    * Questa funzione si occupa di settare i messaggi come visti o non visti.
    * @param menuItem
    */
-  public toggleSeenProperty(menuItem: MenuItem): void {
+  public setSeen(seen: boolean): void {
     const messagesToUpdate: BatchOperation[] = [];
     this.selectedMessages.forEach((message: Message) => {
-      if (message.seen !== menuItem.queryParams.seen) {
-        message.seen = menuItem.queryParams.seen;
+      if (message.seen !== seen) {
+        message.seen = seen;
         messagesToUpdate.push({
           id: message.id,
           operation: BatchOperationTypes.UPDATE,

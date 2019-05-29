@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy, ViewChild, ElementRef} from "@angular/core";
+import { Component, OnDestroy, ViewChild, ElementRef} from "@angular/core";
 import { DialogService, ConfirmationService, MenuItem } from "primeng/api";
 import { Subscription, Observable } from "rxjs";
 import { TOOLBAR_ACTIONS } from "src/environments/app-constants";
@@ -6,7 +6,7 @@ import { Pec, Folder, FolderType } from "@bds/ng-internauta-model";
 import { PecService } from "src/app/services/pec.service";
 import { FilterDefinition, FILTER_TYPES } from "@nfa/next-sdr";
 import { ToolBarService } from "./toolbar.service";
-import { MailFoldersService, PecFolder, PecFolderType } from "../mail-folders/mail-folders.service";
+import { MailFoldersService } from "../mail-folders/mail-folders.service";
 import { MailListService } from "../mail-list/mail-list.service";
 import { Menu } from "primeng/menu";
 
@@ -16,29 +16,22 @@ import { Menu } from "primeng/menu";
   providers: [ConfirmationService],
   styleUrls: ["./toolbar.component.scss"]
 })
-export class ToolbarComponent implements OnInit, OnDestroy {
+export class ToolbarComponent implements OnDestroy {
   private subscriptions: Subscription[] = [];
   private myPecs: Pec[];
   private folders: Folder[];
   private selectedFolder: Folder;
   private _selectedPec: Pec;
+
   public buttonObs: Map<string, Observable<boolean>>;
   public moveMenuItems: MenuItem[];
   // @Output("filtersEmitter") private filtersEmitter: EventEmitter<FilterDefinition[]> = new EventEmitter();
-  @ViewChild("moveMenu") private moveMenu: Menu;
 
   public showErrorDialog: boolean = false;
 
   @ViewChild("closeDialog") closeField: ElementRef;
   @ViewChild("search") searchField: ElementRef;
-  toggleDialogAndAddFocus() {
-    this.showErrorDialog = !this.showErrorDialog;
-    if (this.showErrorDialog === false) {
-      // console.log("Focus search bar", this.searchField, " show Dialog ", this.showErrorDialog )
-      this.searchField.nativeElement.focus();
-      this.closeField.nativeElement.blur();
-    }
-  }
+  @ViewChild("moveMenu") private moveMenu: Menu;
 
   constructor(public dialogService: DialogService,
     private pecService: PecService,
@@ -48,37 +41,11 @@ export class ToolbarComponent implements OnInit, OnDestroy {
     private confirmationService: ConfirmationService
   ) { }
 
-  ngOnInit() {
-
-  }
-
-  // public onInput(event) {
-  //   if (event && event.target) {
-  //     this.filterString = event.target.value;
-  //   }
-    // if (this.searchTimeout) {
-    //   clearTimeout(this.searchTimeout);
-    // }
-    // this.searchTimeout = setTimeout(() => {
-    //   const filter = [];
-    //   if (event && event.target && event.target.value && event.target.value !== "") {
-    //     filter.push(new FilterDefinition("tscol", FILTER_TYPES.not_string.equals, event.target.value));
-    //   }
-    //   // this.filtersEmitter.emit(valueToEmit);
-    //   this.toolBarService.setFilterTyped(filter);
-    // }, 600);
-  // }
-
-  public onEnter(value) {
-    if (value && value.length >= 3) {
-      const filter = [];
-      filter.push(new FilterDefinition("tscol", FILTER_TYPES.not_string.equals, value));
-      this.toolBarService.setFilterTyped(filter);
-    } else {
-      this.toggleDialogAndAddFocus();
-    }
-  }
-
+  /**
+   * Manager del menu.
+   * @param event
+   * @param action
+   */
   handleEvent(event, action) {
     console.log("EVENTO = ", action);
     switch (action) {
@@ -94,7 +61,7 @@ export class ToolbarComponent implements OnInit, OnDestroy {
       this.toolBarService.newMail(this._selectedPec, action);
         break;
       case TOOLBAR_ACTIONS.DELETE:
-        this.confirm();
+        this.deletingConfirmation();
         break;
       case TOOLBAR_ACTIONS.MOVE:
           this.moveMenuItems = this.toolBarService.buildMoveMenuItems();
@@ -105,7 +72,34 @@ export class ToolbarComponent implements OnInit, OnDestroy {
     }
   }
 
-  confirm() {
+
+  // Gestore del focus sulla ricerca.
+  public toggleDialogAndAddFocus() {
+    this.showErrorDialog = !this.showErrorDialog;
+    if (this.showErrorDialog === false) {
+      this.searchField.nativeElement.focus();
+      this.closeField.nativeElement.blur();
+    }
+  }
+
+
+  // Scatta al keydown nella ricerca. Fa il controllo sui tre caratteri e la fa partire.
+  public onEnter(value) {
+    if (value && value.length >= 3) {
+      const filter = [];
+      filter.push(new FilterDefinition("tscol", FILTER_TYPES.not_string.equals, value));
+      this.toolBarService.setFilterTyped(filter);
+    } else {
+      this.toggleDialogAndAddFocus();
+    }
+  }
+
+
+  /**
+   * Chiedo conferma sulla cancellazione dei messaggi selezioni.
+   * In caso affermativo faccio partire la cancellazione spostamento nel cestino).
+   */
+  private deletingConfirmation() {
     let message: string;
     if (this.toolBarService.selectedFolder.type === FolderType.DRAFT) {
       message = "Sei sicuro di voler eliminare la bozza selezionata?";
@@ -127,6 +121,7 @@ export class ToolbarComponent implements OnInit, OnDestroy {
     });
   }
 
+
   ngOnDestroy() {
     if (this.subscriptions && this.subscriptions.length > 0) {
       this.subscriptions.forEach((subscription: Subscription) => {
@@ -134,5 +129,22 @@ export class ToolbarComponent implements OnInit, OnDestroy {
       });
     }
   }
-
 }
+
+
+  // public onInput(event) {
+  //   if (event && event.target) {
+  //     this.filterString = event.target.value;
+  //   }
+    // if (this.searchTimeout) {
+    //   clearTimeout(this.searchTimeout);
+    // }
+    // this.searchTimeout = setTimeout(() => {
+    //   const filter = [];
+    //   if (event && event.target && event.target.value && event.target.value !== "") {
+    //     filter.push(new FilterDefinition("tscol", FILTER_TYPES.not_string.equals, event.target.value));
+    //   }
+    //   // this.filtersEmitter.emit(valueToEmit);
+    //   this.toolBarService.setFilterTyped(filter);
+    // }, 600);
+  // }
