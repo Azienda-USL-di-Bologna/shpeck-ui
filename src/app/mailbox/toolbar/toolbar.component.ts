@@ -1,13 +1,14 @@
 import { Component, OnInit, OnDestroy, ViewChild, ElementRef} from "@angular/core";
-import { DialogService, ConfirmationService } from "primeng/api";
-import { ShpeckMessageService, MessageEvent } from "src/app/services/shpeck-message.service";
+import { DialogService, ConfirmationService, MenuItem } from "primeng/api";
 import { Subscription, Observable } from "rxjs";
 import { TOOLBAR_ACTIONS } from "src/environments/app-constants";
-import { Pec, Folder } from "@bds/ng-internauta-model";
+import { Pec, Folder, FolderType } from "@bds/ng-internauta-model";
 import { PecService } from "src/app/services/pec.service";
 import { FilterDefinition, FILTER_TYPES } from "@nfa/next-sdr";
 import { ToolBarService } from "./toolbar.service";
 import { MailFoldersService, PecFolder, PecFolderType } from "../mail-folders/mail-folders.service";
+import { MailListService } from "../mail-list/mail-list.service";
+import { Menu } from "primeng/menu";
 
 @Component({
   selector: "app-toolbar",
@@ -18,10 +19,13 @@ import { MailFoldersService, PecFolder, PecFolderType } from "../mail-folders/ma
 export class ToolbarComponent implements OnInit, OnDestroy {
   private subscriptions: Subscription[] = [];
   private myPecs: Pec[];
+  private folders: Folder[];
+  private selectedFolder: Folder;
   private _selectedPec: Pec;
-  public messageEvent: MessageEvent;
   public buttonObs: Map<string, Observable<boolean>>;
+  public moveMenuItems: MenuItem[];
   // @Output("filtersEmitter") private filtersEmitter: EventEmitter<FilterDefinition[]> = new EventEmitter();
+  @ViewChild("moveMenu") private moveMenu: Menu;
 
   public showErrorDialog: boolean = false;
 
@@ -29,7 +33,7 @@ export class ToolbarComponent implements OnInit, OnDestroy {
   @ViewChild("search") searchField: ElementRef;
   toggleDialogAndAddFocus() {
     this.showErrorDialog = !this.showErrorDialog;
-    if (this.showErrorDialog === false){
+    if (this.showErrorDialog === false) {
       // console.log("Focus search bar", this.searchField, " show Dialog ", this.showErrorDialog )
       this.searchField.nativeElement.focus();
       this.closeField.nativeElement.blur();
@@ -38,37 +42,14 @@ export class ToolbarComponent implements OnInit, OnDestroy {
 
   constructor(public dialogService: DialogService,
     private pecService: PecService,
-    private toolBarService: ToolBarService,
+    public toolBarService: ToolBarService,
     private mailFoldersService: MailFoldersService,
+    private mailListService: MailListService,
     private confirmationService: ConfirmationService
   ) { }
 
   ngOnInit() {
-    this.subscriptions.push(this.mailFoldersService.pecFolderSelected.subscribe((pecFolderSelected: PecFolder) => {
-      if (pecFolderSelected && this.myPecs && this.myPecs.length > 0) {
-        let idPec: number;
-        if (pecFolderSelected.type === PecFolderType.FOLDER) {
-          const selectedFolder: Folder = pecFolderSelected.data as Folder;
-          idPec = selectedFolder.fk_idPec.id;
-          this.toolBarService.buttonsObservables.get("buttonsActive").next(false);
-          this.toolBarService.buttonsObservables.get("editVisible").next(false);
-          this.toolBarService.buttonsObservables.get("deleteActive").next(false);
-        } else {
-          idPec = ((pecFolderSelected.data) as Pec).id;
-        }
-        this._selectedPec = this.myPecs.filter(p => p.id === idPec)[0];
-      }
-    }));
-    this.subscriptions.push(this.pecService.myPecs.subscribe((pecs: Pec[]) => {
-      if (pecs) {
-        console.log("pecs = ", pecs);
-        this.myPecs = pecs;
-      }
-    }));
-    this.buttonObs = new Map();
-    this.toolBarService.buttonsObservables.forEach((value, key) => {
-      this.buttonObs.set(key, value);
-    });
+
   }
 
   // public onInput(event) {
@@ -116,6 +97,8 @@ export class ToolbarComponent implements OnInit, OnDestroy {
         this.confirm();
         break;
       case TOOLBAR_ACTIONS.MOVE:
+          this.moveMenuItems = this.toolBarService.buildMoveMenuItems();
+          this.moveMenu.toggle(event);
         break;
       case TOOLBAR_ACTIONS.ARCHIVE:
         break;
@@ -123,13 +106,18 @@ export class ToolbarComponent implements OnInit, OnDestroy {
   }
 
   confirm() {
-    let _message = "Sei sicuro di voler eliminare la bozza?";
-    const drafts = this.toolBarService.draftEvent.selectedDrafts;
-    if (drafts && drafts.length > 1) {
-      _message = "Sei sicuro di voler eliminare le bozze?";
+    let message: string;
+    if (this.toolBarService.selectedFolder.type === FolderType.DRAFT) {
+      message = "Sei sicuro di voler eliminare la bozza selezionata?";
+      const drafts = this.toolBarService.draftEvent.selectedDrafts;
+      if (drafts && drafts.length > 1) {
+        message = "Sei sicuro di voler eliminare le bozze selezionate?";
+      }
+    } else {
+      message = "Sei sicuro di voler eliminare i messaggi selezionati?";
     }
     this.confirmationService.confirm({
-      message: _message,
+      message: message,
       header: "Conferma",
       icon: "pi pi-exclamation-triangle",
       accept: () => {

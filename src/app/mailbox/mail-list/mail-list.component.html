@@ -30,14 +30,14 @@
 <p-table #dt *ngIf="_selectedFolder || _filters"
     [lazy]="true" (onLazyLoad)="lazyLoad($event)"
     scrollHeight="100%"
-    [value]="messages"
+    [value]="mailListService.messages"
     [columns]="cols"
     [paginator]="false"
     [loading]="loading"
     [autoLayout]="true"
     [responsive]="true"
     [totalRecords]="totalRecords"
-    [(selection)]="selectedMessages"
+    [(selection)]="mailListService.selectedMessages"
     contextMenuSelectionMode="joint"
     selectionMode="multiple"
     [metaKeySelection]="true"
@@ -89,4 +89,6 @@
 </p-table>
 
 <p-contextMenu #cm [model]="cmItems" styleClass = "context-menu-mail-list"></p-contextMenu>
+
+<p-confirmDialog acceptLabel="Sì" rejectLabel="No" [style]="{width: '20vw', top: '40%'}"></p-confirmDialog>
 <!-- "{'margin': '-128px 0 0 -312px'}" -->

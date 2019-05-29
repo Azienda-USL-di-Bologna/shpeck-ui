@@ -19,8 +19,9 @@ import { FileUploadModule } from "primeng/fileupload";
 import { ChipsModule } from "primeng/chips";
 import { LightboxModule } from "primeng/lightbox";
 import { ContextMenuModule } from "primeng/contextmenu";
+import {MenuModule} from "primeng/menu";
 import { ToastModule } from "primeng/toast";
-import { ConfirmDialogModule } from 'primeng/confirmdialog';
+import { ConfirmDialogModule } from "primeng/confirmdialog";
 
 
 @NgModule({
@@ -49,6 +50,7 @@ import { ConfirmDialogModule } from 'primeng/confirmdialog';
         ChipsModule,
         LightboxModule,
         ContextMenuModule,
+        MenuModule,
         ToastModule,
         ConfirmDialogModule
     ],
@@ -76,6 +78,7 @@ import { ConfirmDialogModule } from 'primeng/confirmdialog';
         ChipsModule,
         LightboxModule,
         ContextMenuModule,
+        MenuModule,
         ToastModule,
         ConfirmDialogModule
     ]

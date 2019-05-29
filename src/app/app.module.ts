@@ -39,6 +39,8 @@ import localeIt from "@angular/common/locales/it";
 import localeItExtra from "@angular/common/locales/extra/it";
 import { MailDraftsComponent } from "./mailbox/mail-drafts/mail-drafts.component";
 import { StripeHtmlPipe } from "./pipes/stripe-html.pipe";
+import { MailListService } from "./mailbox/mail-list/mail-list.service";
+import { CommandManagerService } from "./services/command-manager.service";
 registerLocaleData(localeIt, "it-IT", localeItExtra);
 
 
@@ -78,7 +80,9 @@ registerLocaleData(localeIt, "it-IT", localeItExtra);
     FolderService,
     MessageService,
     ShpeckMessageService,
-    MessageFolderService
+    MessageFolderService,
+    MailListService,
+    CommandManagerService
   ],
   bootstrap: [AppComponent],
   entryComponents: [SettingsComponent, NewMailComponent]
