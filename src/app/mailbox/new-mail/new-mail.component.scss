@@ -90,6 +90,10 @@ li {
   flex: 1;
 }
 
+.d-inline-block {
+  display: inline-block;
+}
+
 .margin-l-5, .margin-lr-5 {
   margin-left: 5px;
 }
@@ -148,4 +152,8 @@ p-editor {
 .confirm-buttons {
   width: 110px !important;
   margin: 0.25em !important;
+}
+
+.warn-class {
+  margin: 0 .5em 0 .5em;
 }

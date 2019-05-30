@@ -102,10 +102,10 @@ export class ToolbarComponent implements OnDestroy {
   private deletingConfirmation() {
     let message: string;
     if (this.toolBarService.selectedFolder.type === FolderType.DRAFT) {
-      message = "Sei sicuro di voler eliminare la bozza selezionata?";
+      message = "Vuoi eliminare definitivamente la bozza selezionata?";
       const drafts = this.toolBarService.draftEvent.selectedDrafts;
       if (drafts && drafts.length > 1) {
-        message = "Sei sicuro di voler eliminare le bozze selezionate?";
+        message = "Vuoi eliminare definitivamente le bozze selezionate?";
       }
     } else {
       message = "Sei sicuro di voler eliminare i messaggi selezionati?";
