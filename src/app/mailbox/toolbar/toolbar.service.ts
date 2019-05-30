@@ -134,7 +134,7 @@ export class ToolBarService {
   public handleDelete() {
     if (this.selectedFolder.type === FolderType.DRAFT) {
       if (this.draftEvent.fullDraft) {
-        this.draftService.deleteDraftMessage(this.draftEvent.fullDraft.message.id, true);
+        this.draftService.deleteDraftMessage(this.draftEvent.fullDraft.message.id, true, true);
       } else if (this.draftEvent.selectedDrafts && this.draftEvent.selectedDrafts.length > 0) {
         this.draftService.deleteDrafts(this.draftEvent.selectedDrafts, true);
       }

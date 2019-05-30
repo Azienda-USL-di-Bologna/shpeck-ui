@@ -63,7 +63,18 @@
       <!-- <i class="pi pi-bars a-items-center d-flex"></i> -->
   </div>
 </p-toolbar>
-<p-confirmDialog acceptLabel="Sì" rejectLabel="No" [style]="{width: '20vw', top: '40%'}"></p-confirmDialog>
+<p-confirmDialog #cd [style]="{width: '20vw', top: '40%'}">
+  <p-footer>
+    <button
+      type="button" class="buttons ui-button-raised ui-button-secondary custom-secondary-button"
+      pButton icon="fas fa-check" label="Sì" (click)="cd.accept()">
+    </button>
+    <button
+      type="button" class="buttons ui-button-raised ui-button-secondary custom-secondary-button"
+      pButton icon="fas fa-times" label="No" (click)="cd.reject()">
+    </button>
+  </p-footer>
+</p-confirmDialog>
 
 <p-dialog
   header="Attenzione"
