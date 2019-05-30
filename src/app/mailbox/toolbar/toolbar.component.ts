@@ -50,7 +50,7 @@ export class ToolbarComponent implements OnDestroy {
     console.log("EVENTO = ", action);
     switch (action) {
       case TOOLBAR_ACTIONS.NEW:
-        this.toolBarService.newMail(this._selectedPec, action);
+        this.toolBarService.newMail(action);
         break;
       case TOOLBAR_ACTIONS.EDIT:
         this.toolBarService.editMail();
@@ -58,7 +58,7 @@ export class ToolbarComponent implements OnDestroy {
       case TOOLBAR_ACTIONS.REPLY:
       case TOOLBAR_ACTIONS.REPLY_ALL:
       case TOOLBAR_ACTIONS.FORWARD:
-      this.toolBarService.newMail(this._selectedPec, action);
+      this.toolBarService.newMail(action);
         break;
       case TOOLBAR_ACTIONS.DELETE:
         this.deletingConfirmation();

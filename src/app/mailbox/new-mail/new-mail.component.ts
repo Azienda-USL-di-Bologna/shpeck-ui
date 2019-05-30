@@ -1,6 +1,6 @@
 import { Component, OnInit, ViewChild, AfterViewInit } from "@angular/core";
 import { FormGroup, FormControl, Validators, FormArray } from "@angular/forms";
-import { DynamicDialogRef, DynamicDialogConfig, DialogService } from "primeng/api";
+import { DynamicDialogConfig, DialogService } from "primeng/api";
 import { Message, Pec, Draft, MessageRelatedType, InOut } from "@bds/ng-internauta-model";
 import { Editor } from "primeng/editor";
 import { TOOLBAR_ACTIONS } from "src/environments/app-constants";
@@ -18,21 +18,21 @@ export class NewMailComponent implements OnInit, AfterViewInit {
   @ViewChild("toAutoComplete") toAutoComplete: AutoComplete;
   @ViewChild("ccAutoComplete") ccAutoComplete: AutoComplete;
   @ViewChild("editor") editor: Editor;
-  mailForm: FormGroup;
-  fromAddress: string = ""; // Indirizzo che ha inviato la mail in caso di Rispondi e Rispondi a tutti
-  toAddressesForLabel: string[] = [];
-  ccAddressesForLabel: string[] = [];
-  toAddresses: any[] = [];
-  ccAddresses: any[] = [];
-  attachments: any[] = [];
-  selectedPec: Pec;
-  country: any;
+  private fromAddress: string = ""; // Indirizzo che ha inviato la mail in caso di Rispondi e Rispondi a tutti
+  private toAddressesForLabel: string[] = [];
+  private ccAddressesForLabel: string[] = [];
+  private toAddresses: any[] = [];
+  private ccAddresses: any[] = [];
 
-  filteredCountriesSingle: any[];
+  public attachments: any[] = [];
+  public mailForm: FormGroup;
+  public selectedPec: Pec;
+  public display = false;
+  /* Questi andranno rinominati */
+  public filteredAddressSingle: any[];
+  public filteredAddressMultiple: any[];
 
-  filteredCountriesMultiple: any[];
-
-  indirizziTest = [
+  public indirizziTest = [
     "g.russo@nsi.it",
     "l.salomone@nsi.it",
     "f.gusella@nsi.it",
@@ -56,9 +56,11 @@ export class NewMailComponent implements OnInit, AfterViewInit {
     "dcoppit@live.com",
     "schumer@outlook.com"
   ];
-  ccTooltip = "Non puoi inserire destinatari CC se è attiva la funzione Destinatari privati";
-  hideRecipientsTooltip = "Non puoi utilizzare la funzione Destinatari privati con destinatari CC: cancellali o rendili destinatari A";
-  constructor(public ref: DynamicDialogRef, public config: DynamicDialogConfig, public dialogService: DialogService,
+  public ccTooltip = "Non puoi inserire destinatari CC se è attiva la funzione Destinatari privati";
+  public hideRecipientsTooltip = "Non puoi utilizzare la funzione Destinatari privati con destinatari CC: cancellali o rendili destinatari A";
+  constructor(
+    public config: DynamicDialogConfig,
+    public dialogService: DialogService,
     public draftService: DraftService) { }
 
   ngOnInit() {
@@ -214,16 +216,22 @@ export class NewMailComponent implements OnInit, AfterViewInit {
             if (!toForm.value.find((element) => element === tokenInput.value)) {
               toForm.push(new FormControl(tokenInput.value, Validators.email));
               this.toAutoComplete.writeValue(toForm.value);
+              if (this.mailForm.pristine) {
+                this.mailForm.markAsDirty();
+              }
             }
           } else if (formField === "cc") {
             const ccForm = this.mailForm.get("cc") as FormArray;
             if (!ccForm.value.find((element) => element === tokenInput.value)) {
               ccForm.push(new FormControl(tokenInput.value, Validators.email));
               this.ccAutoComplete.writeValue(ccForm.value);
-            }
-            if (ccForm.value && ccForm.value.length > 0) {
-              const hideRecipients = this.mailForm.get("hideRecipients");
-              hideRecipients.disable();
+              if (ccForm.value && ccForm.value.length > 0) {
+                const hideRecipients = this.mailForm.get("hideRecipients");
+                hideRecipients.disable();
+              }
+              if (this.mailForm.pristine) {
+                this.mailForm.markAsDirty();
+              }
             }
           }
         }
@@ -246,16 +254,22 @@ export class NewMailComponent implements OnInit, AfterViewInit {
         if (toForm.value.indexOf(item) === -1) {
           toForm.push(new FormControl(item, Validators.email));
           this.toAutoComplete.writeValue(toForm.value);
+          if (this.mailForm.pristine) {
+            this.mailForm.markAsDirty();
+          }
         }
       } else if (formField === "cc") {
         const ccForm = this.mailForm.get("cc") as FormArray;
         if (ccForm.value.indexOf(item) === -1) {
           ccForm.push(new FormControl(item, Validators.email));
           this.ccAutoComplete.writeValue(ccForm.value);
-        }
-        if (ccForm.value && ccForm.value.length > 0) {
-          const hideRecipients = this.mailForm.get("hideRecipients");
-          hideRecipients.disable();
+          if (ccForm.value && ccForm.value.length > 0) {
+            const hideRecipients = this.mailForm.get("hideRecipients");
+            hideRecipients.disable();
+          }
+          if (this.mailForm.pristine) {
+            this.mailForm.markAsDirty();
+          }
         }
       }
     }
@@ -278,6 +292,9 @@ export class NewMailComponent implements OnInit, AfterViewInit {
         hideRecipients.enable();
       }
     }
+    if (this.mailForm.pristine) {
+      this.mailForm.markAsDirty();
+    }
   }
   /* *
    * Metodo chiamato quando cambia il valore della checkbox destinatari privati (HiddenRecipients)
@@ -296,6 +313,9 @@ export class NewMailComponent implements OnInit, AfterViewInit {
     for (const file of event.target.files) {
       if (!fileForm.value.find((element) => element.name === file.name)) {
         fileForm.value.push(file);
+        if (this.mailForm.pristine) {
+          this.mailForm.markAsDirty();
+        }
       }
     }
     fileinput.value = null; // Reset dell'input
@@ -374,6 +394,14 @@ export class NewMailComponent implements OnInit, AfterViewInit {
     return formToSend;
   }
 
+  checkAndClose() {
+    if (!this.mailForm.pristine) {
+      this.display = true;
+    } else {
+      this.onClose();
+    }
+  }
+
   /* Invio mail */
   onSubmit() {
     console.log("FORM = ", this.mailForm.value);
@@ -398,7 +426,6 @@ export class NewMailComponent implements OnInit, AfterViewInit {
 
   onClose() {
     this.dialogService.dialogComponentRef.instance.close();
-    // this.ref.close();
   }
 
   formatSize(bytes) {
@@ -414,22 +441,22 @@ export class NewMailComponent implements OnInit, AfterViewInit {
   }
 
   /* Metodi per la ricerca nei campi indirizzi, saranno rivisti con l'introduzione della rubrica */
-  filterCountrySingle(event) {
+  filterAddressSingle(event) {
     let query = event.query;
-    this.filteredCountriesSingle = this.filterCountry(query, this.indirizziTest);
+    this.filteredAddressSingle = this.filterAddress(query, this.indirizziTest);
   }
 
-  filterCountryMultiple(event) {
+  filterAddressMultiple(event) {
       let query = event.query;
-      this.filteredCountriesMultiple = this.filterCountry(query, this.indirizziTest);
+      this.filteredAddressMultiple = this.filterAddress(query, this.indirizziTest);
   }
 
-  filterCountry(query, countries: any[]): any[] {
+  filterAddress(query, addresses: any[]): any[] {
       let filtered : any[] = [];
-      for (let i = 0; i < countries.length; i++) {
-          let country = countries[i];
-          if (country.toLowerCase().indexOf(query.toLowerCase()) == 0) {
-              filtered.push(country);
+      for (let i = 0; i < addresses.length; i++) {
+          let address = addresses[i];
+          if (address.toLowerCase().indexOf(query.toLowerCase()) == 0) {
+              filtered.push(address);
           }
       }
       return filtered;

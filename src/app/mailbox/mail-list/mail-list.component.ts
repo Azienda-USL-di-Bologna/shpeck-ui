@@ -539,13 +539,13 @@ export class MailListComponent implements OnInit, OnDestroy {
         this.dowloadMessage(this.mailListService.selectedMessages[0]);
         break;
       case "MessageReply":
-        this.toolBarService.newMail(this._selectedPec, TOOLBAR_ACTIONS.REPLY);
+        this.toolBarService.newMail(TOOLBAR_ACTIONS.REPLY);
         break;
       case "MessageReplyAll":
-        this.toolBarService.newMail(this._selectedPec, TOOLBAR_ACTIONS.REPLY_ALL);
+        this.toolBarService.newMail(TOOLBAR_ACTIONS.REPLY_ALL);
         break;
       case "MessageForward":
-        this.toolBarService.newMail(this._selectedPec, TOOLBAR_ACTIONS.FORWARD);
+        this.toolBarService.newMail(TOOLBAR_ACTIONS.FORWARD);
         break;
     }
   }
