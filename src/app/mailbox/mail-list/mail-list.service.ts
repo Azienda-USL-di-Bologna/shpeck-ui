@@ -127,7 +127,7 @@ export class MailListService {
    */
   public registerMessage(event) {
     console.log(event, this.selectedMessages);
-    window.open("www.google.it");
+    // window.open("www.google.it");
   }
 
   /**
