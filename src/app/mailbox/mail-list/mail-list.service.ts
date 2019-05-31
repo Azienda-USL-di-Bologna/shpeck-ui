@@ -9,6 +9,7 @@ import { NtJwtLoginService, UtenteUtilities } from "@bds/nt-jwt-login";
 import { BatchOperation, BatchOperationTypes } from "@nfa/next-sdr";
 import { BaseUrls, BaseUrlType } from "src/environments/app-constants";
 import { ShpeckMessageService } from "src/app/services/shpeck-message.service";
+import { FluxPermission } from '@bds/nt-communicator';
 
 @Injectable({
   providedIn: "root"
@@ -65,7 +66,7 @@ export class MailListService {
           subElementDisabled = true;
         } else if (selectedFolder && this.selectedMessages && this.selectedMessages.length === 1 &&
           this.selectedMessages[0].messageFolderList && this.selectedMessages[0].messageFolderList[0].idFolder.id === f.id) {
-            subElementDisabled = true;
+          subElementDisabled = true;
         } else {
           switch (f.type) {
             case FolderType.INBOX:
@@ -96,6 +97,38 @@ export class MailListService {
     return foldersSubCmItems;
   }
 
+
+  /**
+   * Questa funzione si occupa di creare un MenuItem[] che contenga come items la 
+   * lista delle aziende su cui l'utente loggato ha il permesso redige.
+   * @param command 
+   */
+  public buildRegistrationMenuItems(command: (any) => any): MenuItem[] {
+    const registrationItems = [];
+    this.loggedUser.getAziendeWithPermission(FluxPermission.REDIGE).forEach(codiceAzienda => {
+      registrationItems.push(
+        {
+          label: codiceAzienda,
+          id: "MessageRegistration",
+          disabled: false,
+          queryParams: {
+            codiceAzienda: codiceAzienda
+          },
+          command: event => command(event)
+        }
+      );
+    });
+    return registrationItems;
+  }
+
+  /**
+   * Questa funzione si occupa di iniziare la protocollazione del messaggio selezionato.
+   * @param event
+   */
+  public registerMessage(event) {
+    console.log(event, this.selectedMessages);
+    window.open("www.google.it");
+  }
 
   /**
    * Questa funzione ritorna un booleano che indica se i messaggi selezionati sono spostabili.
@@ -130,16 +163,16 @@ export class MailListService {
   public moveMessages(folder: Folder): void {
     if (folder && folder.id) {
       this.messageFolderService
-      .moveMessagesToFolder(
-        this.selectedMessages.map((message: Message) => {
-          return message.messageFolderList[0];  // Basta prendere il primo elemente perché ogni messaggio può essere in una sola cartella
-        }),
-        folder.id,
-        this.loggedUser.getUtente().id
-      )
-      .subscribe(res => {
-        this.messages = Utils.arrayDiff(this.messages, this.selectedMessages);
-      });
+        .moveMessagesToFolder(
+          this.selectedMessages.map((message: Message) => {
+            return message.messageFolderList[0];  // Basta prendere il primo elemente perché ogni messaggio può essere in una sola cartella
+          }),
+          folder.id,
+          this.loggedUser.getUtente().id
+        )
+        .subscribe(res => {
+          this.messages = Utils.arrayDiff(this.messages, this.selectedMessages);
+        });
     }
   }
 

@@ -17,7 +17,7 @@ export class AppComponent implements OnInit {
 
   private utenteConnesso: UtenteUtilities;
 
-  constructor(private loginService: NtJwtLoginService, public dialogService: DialogService, ) {}
+  constructor(private loginService: NtJwtLoginService, public dialogService: DialogService, ) { }
 
   ngOnInit() {
     this.headerFeaturesConfig = new HeaderFeaturesConfig();
@@ -37,6 +37,7 @@ export class AppComponent implements OnInit {
     this.loginService.loggedUser$.subscribe((utente: UtenteUtilities) => {
       if (utente) {
         this.utenteConnesso = utente;
+        console.log("loggedUser", this.utenteConnesso);
       }
     });
 
@@ -54,7 +55,7 @@ export class AppComponent implements OnInit {
       header: header,
       width: width,
       styleClass: "dialog-class",
-      contentStyle: {"max-height": "450px", "min-height": "250px", "overflow": "auto", "height": height, }
+      contentStyle: { "max-height": "450px", "min-height": "250px", "overflow": "auto", "height": height, }
     });
   }
 }

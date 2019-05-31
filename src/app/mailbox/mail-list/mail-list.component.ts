@@ -47,6 +47,7 @@ export class MailListComponent implements OnInit, OnDestroy {
   private subscriptions: Subscription[] = [];
   private previousFilter: FilterDefinition[] = [];
   private foldersSubCmItems: MenuItem[] = null;
+  private aziendeProtocollabiliSubCmItems: MenuItem[] = null;
 
   public cmItems: MenuItem[] = [
     {
@@ -75,6 +76,14 @@ export class MailListComponent implements OnInit, OnDestroy {
       id: "MessageForward",
       disabled: true,
       queryParams: {},
+      command: event => this.selectedContextMenuItem(event)
+    },
+    {
+      label: "Protocolla",
+      id: "MessageRegistration",
+      disabled: true,
+      queryParams: {},
+      items: this.aziendeProtocollabiliSubCmItems,
       command: event => this.selectedContextMenuItem(event)
     },
     {
@@ -256,9 +265,9 @@ export class MailListComponent implements OnInit, OnDestroy {
       });
   }
 
-  public buildTableEventFilters(filtersDefinition: FilterDefinition[] ): {[s: string]: FilterMetadata} {
+  public buildTableEventFilters(filtersDefinition: FilterDefinition[]): { [s: string]: FilterMetadata } {
     if (filtersDefinition && filtersDefinition.length > 0) {
-      const eventFilters: {[s: string]: FilterMetadata} = {};
+      const eventFilters: { [s: string]: FilterMetadata } = {};
       filtersDefinition.forEach(filter => {
         const filterMetadata: FilterMetadata = {
           value: filter.value,
@@ -274,7 +283,7 @@ export class MailListComponent implements OnInit, OnDestroy {
 
   private needLoading(event: LazyLoadEvent): boolean {
     let needLoading = this.pageConf.conf.limit !== event.rows ||
-    this.pageConf.conf.offset !== event.first;
+      this.pageConf.conf.offset !== event.first;
     if (!needLoading) {
       if (this._filters && !this.previousFilter || !this._filters && this.previousFilter) {
         needLoading = true;
@@ -282,8 +291,8 @@ export class MailListComponent implements OnInit, OnDestroy {
         for (const filter of this._filters) {
           if (this.previousFilter.findIndex(e =>
             e.field === filter.field && e.filterMatchMode === filter.filterMatchMode && e.value === filter.value) === -1) {
-              needLoading = true;
-              break;
+            needLoading = true;
+            break;
           }
         }
       }
@@ -291,9 +300,9 @@ export class MailListComponent implements OnInit, OnDestroy {
     return needLoading;
   }
 
-  public lazyLoad(event: LazyLoadEvent ) {
+  public lazyLoad(event: LazyLoadEvent) {
     console.log("lazyload", event);
-    const eventFilters: {[s: string]: FilterMetadata} = this.buildTableEventFilters(this._filters);
+    const eventFilters: { [s: string]: FilterMetadata } = this.buildTableEventFilters(this._filters);
     if (event) {
       if (eventFilters && Object.entries(eventFilters).length > 0) {
         event.filters = eventFilters;
@@ -409,7 +418,7 @@ export class MailListComponent implements OnInit, OnDestroy {
         addresRoleType = AddresRoleType.FROM;
     }
     message["fromOrTo"] = "";
-      if (message.messageAddressList) {
+    if (message.messageAddressList) {
       const messageAddressList: MessageAddress[] = message.messageAddressList.filter(
         (messageAddress: MessageAddress) =>
           messageAddress.addressRole === addresRoleType
@@ -506,6 +515,17 @@ export class MailListComponent implements OnInit, OnDestroy {
             element.disabled = true;
           }
           break;
+        case "MessageRegistration":
+          element.disabled = false;
+          if (this.mailListService.selectedMessages.length !== 1 ||
+            this.mailListService.selectedMessages[0].inOut !== InOut.IN ||
+            (this.mailListService.selectedMessages[0].messageType !== MessageType.MAIL && this.mailListService.selectedMessages[0].messageType !== MessageType.PEC)) {
+            element.disabled = true;
+            this.cmItems.find(f => f.id === "MessageRegistration").items = null;
+          } else {
+            this.cmItems.find(f => f.id === "MessageRegistration").items = this.mailListService.buildRegistrationMenuItems(this.selectedContextMenuItem);
+          }
+          break;
         case "MessageDownload":
           element.disabled = false;
           if (this.mailListService.selectedMessages.length > 1) {
@@ -534,6 +554,9 @@ export class MailListComponent implements OnInit, OnDestroy {
         break;
       case "MessageMove":
         this.mailListService.moveMessages(event.item.queryParams.folder);
+        break;
+      case "MessageRegistration":
+        this.mailListService.registerMessage(event);
         break;
       case "MessageDownload":
         this.dowloadMessage(this.mailListService.selectedMessages[0]);
@@ -569,7 +592,7 @@ export class MailListComponent implements OnInit, OnDestroy {
       accept: () => {
         this.mailListService.moveMessagesToTrash();
       },
-      reject: () => {}
+      reject: () => { }
     });
   }
 
