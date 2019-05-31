@@ -4,7 +4,7 @@ import { ButtonModule } from "primeng/button";
 import { TreeModule } from "primeng/tree";
 import { DataScrollerModule } from "primeng/datascroller";
 import { VirtualScrollerModule } from "primeng/virtualscroller";
-import { DropdownModule, CalendarModule, TooltipModule } from "primeng/primeng";
+import { DropdownModule, CalendarModule, TooltipModule, OverlayPanelModule } from "primeng/primeng";
 import { TableModule } from "primeng/table";
 import { AccordionModule } from "primeng/accordion";
 import { ToolbarModule } from "primeng/toolbar";
@@ -19,7 +19,9 @@ import { FileUploadModule } from "primeng/fileupload";
 import { ChipsModule } from "primeng/chips";
 import { LightboxModule } from "primeng/lightbox";
 import { ContextMenuModule } from "primeng/contextmenu";
+import {MenuModule} from "primeng/menu";
 import { ToastModule } from "primeng/toast";
+import { ConfirmDialogModule } from "primeng/confirmdialog";
 
 
 @NgModule({
@@ -38,6 +40,7 @@ import { ToastModule } from "primeng/toast";
         ToolbarModule,
         SplitButtonModule,
         DialogModule,
+        OverlayPanelModule,
         InputSwitchModule,
         AutoCompleteModule,
         CheckboxModule,
@@ -47,7 +50,9 @@ import { ToastModule } from "primeng/toast";
         ChipsModule,
         LightboxModule,
         ContextMenuModule,
-        ToastModule
+        MenuModule,
+        ToastModule,
+        ConfirmDialogModule
     ],
     exports: [
         DynamicDialogModule,
@@ -63,6 +68,7 @@ import { ToastModule } from "primeng/toast";
         ToolbarModule,
         SplitButtonModule,
         DialogModule,
+        OverlayPanelModule,
         InputSwitchModule,
         AutoCompleteModule,
         CheckboxModule,
@@ -72,7 +78,9 @@ import { ToastModule } from "primeng/toast";
         ChipsModule,
         LightboxModule,
         ContextMenuModule,
-        ToastModule
+        MenuModule,
+        ToastModule,
+        ConfirmDialogModule
     ]
 })
 export class PrimengModule { }

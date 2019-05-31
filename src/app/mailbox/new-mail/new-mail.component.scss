@@ -36,10 +36,12 @@ li {
   color: #ffffff;
 }
 /******* Chips *******/
-::ng-deep .ui-chips {
+::ng-deep #attachments .ui-chips {
   > ul.ui-inputtext,
   > ul.ui-inputtext:focus {
     min-height: 33px;
+    max-height: 100px;
+    overflow-y: overlay;
   }
   .ui-chips-input-token {
     display: none;  // Makes chips readonly
@@ -75,15 +77,21 @@ li {
 .attachment:hover {
   background-color: rgb(206, 206, 206);
 }
-
 ::ng-deep body .ui-autocomplete-panel .ui-autocomplete-items .ui-autocomplete-list-item.ui-state-highlight {
   background-color: #546069;
+}
+::ng-deep .ui-autocomplete-input-token input {
+  width: 14em;
 }
 
 /******* General rules *******/
 .flex-1,
 ::ng-deep p-editor {
   flex: 1;
+}
+
+.d-inline-block {
+  display: inline-block;
 }
 
 .margin-l-5, .margin-lr-5 {
@@ -96,6 +104,10 @@ li {
 
 .height-100 {
   height: 100%;
+}
+
+.justify-c-c {
+  justify-content: center;
 }
 
 ::ng-deep body .ui-autocomplete.ui-autocomplete-multiple .ui-autocomplete-multiple-container:not(.ui-state-disabled).ui-state-focus,
@@ -115,6 +127,10 @@ input:focus {
   // min-height: 250px;
 }
 
+p-editor {
+  // max-width: 50vw;
+}
+
 .min-height-0 {
   min-height: 0;  // Quickfix per l'overflow su firefox
 }
@@ -123,4 +139,21 @@ input:focus {
   height: 100%;
   display: flex;
   flex-flow: column;
+}
+
+/******* Close button *******/
+.close-button {
+  position: absolute;
+  top: -36px;
+  right: 11px;
+  color: slategray;
+}
+/******* Dialog classes ******/
+.confirm-buttons {
+  width: 110px !important;
+  margin: 0.25em !important;
+}
+
+.warn-class {
+  margin: 0 .5em 0 .5em;
 }

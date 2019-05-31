@@ -2,8 +2,9 @@ import { Component, OnInit, ViewChild, ElementRef, AfterViewInit, AfterViewCheck
 import { Subscription } from "rxjs";
 import { SettingsService } from "../services/settings.service";
 import { AppCustomization } from "src/environments/app-customization";
-import { Folder, Message } from "@bds/ng-internauta-model";
+import { Folder, Message, FolderType } from "@bds/ng-internauta-model";
 import { FilterDefinition } from "@nfa/next-sdr";
+import { MailFoldersService, PecFolder, PecFolderType } from "./mail-folders/mail-folders.service";
 
 @Component({
   selector: "app-mailbox",
@@ -16,6 +17,7 @@ export class MailboxComponent implements OnInit, AfterViewInit, AfterViewChecked
   public filtersSelected: FilterDefinition[];
   // @Output() message = new EventEmitter<any>();
   public message: Message;
+  public _selectedPecId: number;
   // @ViewChild("leftSide") private leftSide: ElementRef;
   @ViewChild("mailFolder") private mailFolder: ElementRef;
   @ViewChild("rightSide") private rightSide: ElementRef;
@@ -28,16 +30,16 @@ export class MailboxComponent implements OnInit, AfterViewInit, AfterViewChecked
   public flexGridClass = "p-col-8";
   public sliding: boolean = false;
   public hideDetail = false;
+  public componentToLoad: string = "mail-list";
 
   private enableSetLookCall = false;
   private MIN_X_MAIL_FOLDER: number = 5;
   private MAX_X_MAIL_FOLDER: number = 50;
   private MIN_X_RIGHTSIDE: number = 10;
   private MAX_X_RIGHTSIDE: number = 70;
-  private CR7 = 103;
   private subscriptions: Subscription[] = [];
 
-  constructor(private settingsService: SettingsService) {
+  constructor(private settingsService: SettingsService, private mailFoldersService: MailFoldersService) {
 
     this.rightSideVisible = true;
   }
@@ -49,6 +51,19 @@ export class MailboxComponent implements OnInit, AfterViewInit, AfterViewChecked
       this.hideDetail = newSettings[AppCustomization.shpeck.hideDetail] === "true";
       if (this.hideDetail) {
         this.mailList.nativeElement.style.flex = "1";
+      }
+    }));
+    this.subscriptions.push(this.mailFoldersService.pecFolderSelected.subscribe((pecFolderSelected: PecFolder) => {
+      if (pecFolderSelected) {
+        if (pecFolderSelected.type === PecFolderType.FOLDER) {
+          const selectedFolder: Folder = pecFolderSelected.data as Folder;
+          this._selectedPecId = selectedFolder.fk_idPec.id;
+          if (selectedFolder.type === FolderType.DRAFT) {
+            this.componentToLoad = "mail-draft";
+          } else {
+            this.componentToLoad = "mail-list";
+          }
+        }
       }
     }));
   }

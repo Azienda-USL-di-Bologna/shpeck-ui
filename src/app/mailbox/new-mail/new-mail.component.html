@@ -1,4 +1,8 @@
 <section class="height-100">
+  <a [ngClass]="'ui-dialog-titlebar-icon ui-dialog-titlebar-close ui-corner-all close-button'"
+    tabindex="0" role="button" (click)="checkAndClose()">
+      <span class="pi pi-times"></span>
+  </a>
   <!-- <div class="height-100"> -->
     <!-- Prevent default on form to avoid auto submit -->
     <form class="height-100 d-flex flex-dir-col" [formGroup]="mailForm">
@@ -7,11 +11,11 @@
         <li>
           <label for="to" style="padding-right: 9px">A: </label>
           <span class="ui-fluid flex-1 margin-lr-5">
-              <p-autoComplete
-                required="true" type="email"
-                id="to" formControlName="to" [suggestions]="filteredCountriesMultiple"
-                (completeMethod)="filterCountryMultiple($event)" (onKeyUp)="onKeyUp($event, 'addresses')"
-                (onSelect)="onSelect($event, 'addresses')"
+              <p-autoComplete #toAutoComplete
+                required="true" type="email" inputId="toInputId"
+                id="to" formControlArray="to" [suggestions]="filteredAddressMultiple"
+                (completeMethod)="filterAddressMultiple($event)" (onKeyUp)="onKeyUp($event, 'to')"
+                (onSelect)="onSelect($event, 'to')" (onUnselect)="onUnselect($event, 'to')" (onBlur)="onKeyUp($event, 'to')"
                 [minLength]="1" placeholder="Seleziona contatti..." [multiple]="true">
               </p-autoComplete>
           </span>
@@ -21,14 +25,14 @@
         </li>
         <!-- CC Addresses -->
         <li>
-          <label for="ccAddresses">CC: </label>
+          <label for="cc">CC: </label>
           <span class="ui-fluid flex-1 margin-lr-5">
-            <p-autoComplete
-              type="email"
-              id="cc" formControlName="cc" [suggestions]="filteredCountriesMultiple"
-              (completeMethod)="filterCountryMultiple($event)" (onKeyUp)="onKeyUp($event, 'ccAddresses')"
-              (onSelect)="onSelect($event, 'ccAddresses')" (onUnselect)="onUnselect($event)"
-              [pTooltip]="mailForm.get('hideRecipients').value ? ccTooltip : ''"
+            <p-autoComplete #ccAutoComplete
+              type="email" inputId="ccInputId"
+              id="cc" formControlArray="cc" [suggestions]="filteredAddressMultiple"
+              (completeMethod)="filterAddressMultiple($event)" (onKeyUp)="onKeyUp($event, 'cc')"
+              (onSelect)="onSelect($event, 'cc')" (onUnselect)="onUnselect($event, 'cc')" (onBlur)="onKeyUp($event, 'cc')"
+              [pTooltip]="mailForm.get('hideRecipients').value ? ccTooltip : ''" [disabled]="mailForm.get('hideRecipients')?.value"
               [minLength]="1" [multiple]="true" >
             </p-autoComplete>
           </span>
@@ -41,7 +45,6 @@
           <label for="hideRecipients">Destinatari privati: </label>
           <span class="ui-fluid margin-lr-5">
             <p-checkbox id="hideRecipients" formControlName="hideRecipients" binary="true"
-              (onChange)="onChange($event)"
               [pTooltip]="mailForm.get('cc').value.length > 0 ? hideRecipientsTooltip : ''" >
             </p-checkbox>
           </span>
@@ -56,7 +59,7 @@
         <!-- Allegati -->
         <li>
           <span
-            class="ui-fileupload-choose ui-button-secondary custom-border" style="height:33px"
+            class="ui-fileupload-choose ui-button-secondary custom-border" style="height:33px; min-width: 83.27px;"
             label="Allega" icon="pi pi-paperclip" pButton>
               <input #fileinput type="file" (change)="onFileChange($event, fileinput)" multiple="multiple">
           </span>
@@ -90,11 +93,33 @@
           label="Elimina" (click)="onDelete(true)">
         </button>
         <button
-          type="submit" pButton icon="fa fa-paper-plane"
+          type="button" pButton icon="fa fa-paper-plane"
           class="ui-button-raised ui-button-secondary button-styles custom-secondary-button"
-          label="Invia" (click)="onSubmit()">
+          label="Invia" (click)="onSubmit()" [disabled]="mailForm.invalid">
         </button>
       </p-footer>
     </form>
   <!-- </div> -->
 </section>
+<p-dialog
+  header="Conferma" [(visible)]="display" [modal]="true" [responsive]="true"
+  [style]="{width: '20vw !important'}" appendTo="body">
+    <i class="fas fa-exclamation-triangle warn-class"></i>
+    <p class="d-inline-block">Vuoi salvare il messaggio corrente?</p>
+    <p-footer class="d-flex justify-c-c">
+      <button
+        type="button"
+        class="confirm-buttons ui-button-raised ui-button-secondary custom-secondary-button"
+        pButton icon="fas fa-check" (click)="onSaveDraft()" label="Sì">
+      </button>
+      <button
+        type="button"
+        class="confirm-buttons ui-button-raised ui-button-secondary custom-secondary-button"
+        pButton icon="fas fa-times" (click)="onClose()" label="No"></button>
+      <button
+        type="button"
+        class="confirm-buttons ui-button-raised ui-button-secondary custom-secondary-button"
+        pButton icon="fas fa-undo-alt" (click)="display=false" label="Annulla">
+      </button>
+    </p-footer>
+</p-dialog>

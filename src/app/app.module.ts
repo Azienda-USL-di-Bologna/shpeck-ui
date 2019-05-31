@@ -32,6 +32,17 @@ import { MessageFolderService } from "./services/message-folder.service";
 import { DraftService } from "./services/draft.service";
 import { NextSdrModule } from "@nfa/next-sdr";
 
+// add support to italian language in application when using pipeDate
+import { LOCALE_ID } from "@angular/core";
+import { registerLocaleData } from "@angular/common";
+import localeIt from "@angular/common/locales/it";
+import localeItExtra from "@angular/common/locales/extra/it";
+import { MailDraftsComponent } from "./mailbox/mail-drafts/mail-drafts.component";
+import { StripeHtmlPipe } from "./pipes/stripe-html.pipe";
+import { MailListService } from "./mailbox/mail-list/mail-list.service";
+import { CommandManagerService } from "./services/command-manager.service";
+registerLocaleData(localeIt, "it-IT", localeItExtra);
+
 
 @NgModule({
   declarations: [
@@ -44,7 +55,9 @@ import { NextSdrModule } from "@nfa/next-sdr";
     ToolbarComponent,
     SettingsComponent,
     NewMailComponent,
-    RecepitsComponent
+    RecepitsComponent,
+    MailDraftsComponent,
+    StripeHtmlPipe
   ],
   imports: [
     NtJwtLoginModule.forRoot(loginModuleConfig),
@@ -57,9 +70,21 @@ import { NextSdrModule } from "@nfa/next-sdr";
     ReactiveFormsModule,
     NextSdrModule
   ],
-  providers: [DialogService, DatePipe, PecService, TagService, DraftService,
-    FolderService, MessageService, ShpeckMessageService, MessageFolderService],
+  providers: [
+    { provide: LOCALE_ID, useValue: "it-IT" },
+    DialogService,
+    DatePipe,
+    PecService,
+    TagService,
+    DraftService,
+    FolderService,
+    MessageService,
+    ShpeckMessageService,
+    MessageFolderService,
+    MailListService,
+    CommandManagerService
+  ],
   bootstrap: [AppComponent],
   entryComponents: [SettingsComponent, NewMailComponent]
 })
-export class AppModule { }
+export class AppModule {}

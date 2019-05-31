@@ -53,6 +53,14 @@
     // color: black !important;
     font-weight: normal !important;
 }
+
+::ng-deep .tree-node-style .ui-inputtext, 
+::ng-deep .root-tree-node-style .ui-inputtext,
+::ng-deep .root-tree-node-style-selected .ui-inputtext {
+    border: none !important;
+    font-size: 12px !important;
+}
+
 ::ng-deep .tree-node-style.ui-treenode-leaf .ui-treenode-label {
     background-color: white !important;
 }
@@ -77,6 +85,14 @@
     // color: black  !important;
     // font-weight: bold !important;
 }
+
+::ng-deep .context-menu-mail-folders {
+    margin: -128px 0 0 -8px;
+  }
+
+::ng-deep .folder-dialog {
+    left: 10px;
+  }
 
 // ::ng-deep .tree-node-style .ui-treenode-label {
 //     font-size: 12px !important;

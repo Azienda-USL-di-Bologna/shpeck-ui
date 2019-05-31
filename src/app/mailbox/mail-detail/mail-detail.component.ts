@@ -1,6 +1,6 @@
 import { Component, Input, ViewChild, ElementRef, OnInit, OnDestroy } from "@angular/core";
 import { ShpeckMessageService, MessageEvent, FullMessage } from "src/app/services/shpeck-message.service";
-import { Message, InOut, ENTITIES_STRUCTURE, MessageType, RecepitType } from "@bds/ng-internauta-model";
+import { Message, InOut, ENTITIES_STRUCTURE, MessageType, RecepitType, Draft } from "@bds/ng-internauta-model";
 import { ContentTypeList } from "src/app/utils/styles-constants";
 import { EmlData } from "src/app/classes/eml-data";
 import { EmlAttachment } from "src/app/classes/eml-attachment";
@@ -8,6 +8,8 @@ import { HttpClient } from "@angular/common/http";
 import { Subscription } from "rxjs";
 import { FiltersAndSorts, FilterDefinition, FILTER_TYPES, SortDefinition, SORT_MODES, PagingConf } from "@nfa/next-sdr";
 import { Utils } from "src/app/utils/utils";
+import { DraftService, DraftEvent } from "src/app/services/draft.service";
+import { EMLSOURCE } from "src/environments/app-constants";
 
 
 @Component({
@@ -29,26 +31,40 @@ export class MailDetailComponent implements OnInit, OnDestroy {
   @Input("message")
   set messageDetailed(message: Message) {
     if (message) {
-      this.messageService.manageMessageEvent(message);
+      this.messageService.manageMessageEvent(null, message);
     }
   }
 
   public fullMessage: FullMessage;
+  public message: Message;
   public accordionAttachmentsSelected: boolean = false;
   public recepitsVisible: boolean = false;
   get inOut() { return InOut; }
 
   @ViewChild("emliframe") private emliframe: ElementRef;
 
-  constructor(private messageService: ShpeckMessageService, private http: HttpClient) { }
+  constructor(private messageService: ShpeckMessageService, private draftService: DraftService, private http: HttpClient) { }
 
   public ngOnInit(): void {
     /* Mi sottoscrivo al messageEvent */
     this.subscription.push(this.messageService.messageEvent.subscribe(
       (messageEvent: MessageEvent) => {
         if (messageEvent && messageEvent.downloadedMessage) {
+          if (messageEvent.downloadedMessage.message) {
+            this.message = messageEvent.downloadedMessage.message as Message;
+          }
           this.manageDownloadedMessage(messageEvent.downloadedMessage);
         } else if (!messageEvent || !messageEvent.selectedMessages || !(messageEvent.selectedMessages.length > 1)) {
+          this.fullMessage = null;
+          this.setLook();
+        }
+      }
+    ));
+    this.subscription.push(this.draftService.draftEvent.subscribe(
+      (draftEvent: DraftEvent) => {
+        if (draftEvent && draftEvent.fullDraft) {
+          this.manageDownloadedMessage(draftEvent.fullDraft);
+        } else if (!draftEvent || !draftEvent.selectedDrafts || !(draftEvent.selectedDrafts.length > 1)) {
           this.fullMessage = null;
           this.setLook();
         }
@@ -69,39 +85,41 @@ export class MailDetailComponent implements OnInit, OnDestroy {
    * - Setto look generico dell'interfaccia.
    */
   private manageDownloadedMessage(fullMessage: FullMessage): void {
-    const data: EmlData = fullMessage.emlData;
-    /* Setto il conentType degli allegati e setto il nome a max 42 caratteri */
-    if (data.attachments && data.attachments.length > 0) {
-      data.attachments.forEach(a => {
-        a.contentType = a.mimeType.substr(0, a.mimeType.indexOf(";"));
-        a.simpleType = a.contentType.substr(0, a.contentType.indexOf("/"));
-        if (a.fileName.length > 42) {
-          a.displayName = a.fileName.substr(0, 34) + ".." + a.fileName.substr(a.fileName.length - 6, a.fileName.length) ;
-        } else {
-          a.displayName = a.fileName;
-        }
-      });
+    if (fullMessage.emlData) {
+      const data: EmlData = fullMessage.emlData;
+      /* Setto il conentType degli allegati e setto il nome a max 42 caratteri */
+      if (data.attachments && data.attachments.length > 0) {
+        data.attachments.forEach(a => {
+          a.contentType = a.mimeType.substr(0, a.mimeType.indexOf(";"));
+          a.simpleType = a.contentType.substr(0, a.contentType.indexOf("/"));
+          if (a.fileName.length > 42) {
+            a.displayName = a.fileName.substr(0, 34) + ".." + a.fileName.substr(a.fileName.length - 6, a.fileName.length) ;
+          } else {
+            a.displayName = a.fileName;
+          }
+        });
+      }
+      /* Sostituisco le newline con dei <br/> */
+      data.displayBody = data.htmlTextImgEmbedded != null ? data.htmlTextImgEmbedded : (
+        data.htmlText != null ? data.htmlText : data.plainText.replace(/\n/g, "<br/>")
+      );
     }
-    /* Sostituisco le newline con dei <br/> */
-    data.displayBody = data.htmlTextImgEmbedded != null ? data.htmlTextImgEmbedded : (
-      data.htmlText != null ? data.htmlText : data.plainText.replace(/\n/g, "<br/>")
-    );
 
     /* Per la posta inviata carico le ricevute */
     /* TODO: La chiamata deve essere senza paginazione senza limite */ /* <============================================================== */
-    if (fullMessage.message.inOut === InOut.OUT) {
+    if (fullMessage.message && (fullMessage.message as Message).inOut === InOut.OUT) {
       this.messageService.getData(
         ENTITIES_STRUCTURE.shpeck.message.customProjections.CustomRecepitWithAddressList,
         this.buildFilterAndSortRecepits(fullMessage), null, this.pageConfNoLimit).subscribe(
         res => {
-          fullMessage.message.idRelatedList = res.results;
+          (fullMessage.message as Message).idRelatedList = res.results;
           // Prendo la data di accetazione. La ricevuta di accetazione è al massimo una
-          fullMessage.emlData.acceptanceDate = fullMessage.message.idRelatedList.find(
+          fullMessage.emlData.acceptanceDate = (fullMessage.message as Message).idRelatedList.find(
             r =>
               r.idRecepit.recepitType === RecepitType.ACCETTAZIONE
           ).receiveTime;
           // Prendo le ricevute di consegna.
-          const deliveryRecepits = fullMessage.message.idRelatedList.filter(
+          const deliveryRecepits = (fullMessage.message as Message).idRelatedList.filter(
             r =>
               r.idRecepit.recepitType === RecepitType.CONSEGNA
           );
@@ -184,7 +202,7 @@ export class MailDetailComponent implements OnInit, OnDestroy {
    * @param preview indica se voglio l'anteprima dell'allegato qualora sia possibile.
    */
   public getEmlAttachment(attachment: EmlAttachment, preview: boolean = false): void {
-    this.messageService.downloadEmlAttachment(this.fullMessage.message, attachment).subscribe(
+    this.messageService.downloadEmlAttachment(this.fullMessage.message.id, attachment, this.fullMessage.emlSource).subscribe(
       response =>
         Utils.downLoadFile(response, attachment.contentType, attachment.fileName, preview)
     );
@@ -195,7 +213,7 @@ export class MailDetailComponent implements OnInit, OnDestroy {
    * Ne faccio partire poi il download.
    */
   public getAllEmlAttachment(): void {
-    this.messageService.downloadAllEmlAttachment(this.fullMessage.message).subscribe(
+    this.messageService.downloadAllEmlAttachment(this.fullMessage.message as Message, this.fullMessage.emlSource).subscribe(
       response =>
         Utils.downLoadFile(response, "application/zip", "allegati.zip")
     );
@@ -252,12 +270,12 @@ export class MailDetailComponent implements OnInit, OnDestroy {
    */
   public getFaClass(attachment: EmlAttachment): string {
     for (const field of Object.keys(ContentTypeList)) {
-      if (ContentTypeList[field].contentType.includes(attachment.contentType)) {
+      if (ContentTypeList[field].contentType.indexOf(attachment.contentType) > -1) {
         return field;
       }
     }
     for (const field of Object.keys(ContentTypeList)) {
-      if (ContentTypeList[field].simpleType.includes(attachment.simpleType)) {
+      if (ContentTypeList[field].simpleType.indexOf(attachment.simpleType) > -1) {
         return field;
       }
     }

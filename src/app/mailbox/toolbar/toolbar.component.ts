@@ -1,63 +1,136 @@
-import { Component, OnInit, OnDestroy} from "@angular/core";
-import { DialogService, TreeNode } from "primeng/api";
-import { NewMailComponent } from "../new-mail/new-mail.component";
-import { ShpeckMessageService, MessageEvent } from "src/app/services/shpeck-message.service";
-import { Subscription } from "rxjs";
+import { Component, OnDestroy, ViewChild, ElementRef} from "@angular/core";
+import { DialogService, ConfirmationService, MenuItem } from "primeng/api";
+import { Subscription, Observable } from "rxjs";
 import { TOOLBAR_ACTIONS } from "src/environments/app-constants";
-import { Pec, Draft, Folder } from "@bds/ng-internauta-model";
+import { Pec, Folder, FolderType } from "@bds/ng-internauta-model";
 import { PecService } from "src/app/services/pec.service";
-import { DraftService } from "src/app/services/draft.service";
 import { FilterDefinition, FILTER_TYPES } from "@nfa/next-sdr";
 import { ToolBarService } from "./toolbar.service";
-import { PecTreeNodeType, MailFoldersService } from "../mail-folders/mail-folders.service";
+import { MailFoldersService } from "../mail-folders/mail-folders.service";
+import { MailListService } from "../mail-list/mail-list.service";
+import { Menu } from "primeng/menu";
 
 @Component({
   selector: "app-toolbar",
   templateUrl: "./toolbar.component.html",
+  providers: [ConfirmationService],
   styleUrls: ["./toolbar.component.scss"]
 })
-export class ToolbarComponent implements OnInit, OnDestroy {
+export class ToolbarComponent implements OnDestroy {
   private subscriptions: Subscription[] = [];
   private myPecs: Pec[];
-  public messageEvent: MessageEvent;
+  private folders: Folder[];
+  private selectedFolder: Folder;
   private _selectedPec: Pec;
 
+  public buttonObs: Map<string, Observable<boolean>>;
+  public moveMenuItems: MenuItem[];
   // @Output("filtersEmitter") private filtersEmitter: EventEmitter<FilterDefinition[]> = new EventEmitter();
+
+  public showErrorDialog: boolean = false;
+
+  @ViewChild("closeDialog") closeField: ElementRef;
+  @ViewChild("search") searchField: ElementRef;
+  @ViewChild("moveMenu") private moveMenu: Menu;
 
   constructor(public dialogService: DialogService,
     private pecService: PecService,
-    private messageService: ShpeckMessageService,
-    private toolBarService: ToolBarService,
-    private draftService: DraftService,
-    private mailFoldersService: MailFoldersService
+    public toolBarService: ToolBarService,
+    private mailFoldersService: MailFoldersService,
+    private mailListService: MailListService,
+    private confirmationService: ConfirmationService
   ) { }
 
-  ngOnInit() {
-    this.subscriptions.push(this.messageService.messageEvent.subscribe((messageEvent: MessageEvent) => {
-      if (messageEvent) {
-        console.log("DATA = ", messageEvent);
-        this.messageEvent = messageEvent;
-      }
-    }));
-    this.subscriptions.push(this.mailFoldersService.pecTreeNodeSelected.subscribe((pecTreeNodeSelected: TreeNode) => {
-      if (pecTreeNodeSelected && this.myPecs && this.myPecs.length > 0) {
-        let idPec: number;
-        if (pecTreeNodeSelected.type === PecTreeNodeType.FOLDER) {
-          const selectedFolder: Folder = pecTreeNodeSelected.data;
-          idPec = selectedFolder.fk_idPec.id;
-        } else {
-          idPec = ((pecTreeNodeSelected.data) as Pec).id;
-        }
-        this._selectedPec = this.myPecs.filter(p => p.id === idPec)[0];
-      }
-    }));
-    this.subscriptions.push(this.pecService.myPecs.subscribe((pecs: Pec[]) => {
-      if (pecs) {
-        console.log("pecs = ", pecs);
-        this.myPecs = pecs;
-      }
-    }));
+  /**
+   * Manager del menu.
+   * @param event
+   * @param action
+   */
+  handleEvent(event, action) {
+    console.log("EVENTO = ", action);
+    switch (action) {
+      case TOOLBAR_ACTIONS.NEW:
+        this.toolBarService.newMail(action);
+        break;
+      case TOOLBAR_ACTIONS.EDIT:
+        this.toolBarService.editMail();
+        break;
+      case TOOLBAR_ACTIONS.REPLY:
+      case TOOLBAR_ACTIONS.REPLY_ALL:
+      case TOOLBAR_ACTIONS.FORWARD:
+      this.toolBarService.newMail(action);
+        break;
+      case TOOLBAR_ACTIONS.DELETE:
+        this.deletingConfirmation();
+        break;
+      case TOOLBAR_ACTIONS.MOVE:
+          this.moveMenuItems = this.toolBarService.buildMoveMenuItems();
+          this.moveMenu.toggle(event);
+        break;
+      case TOOLBAR_ACTIONS.ARCHIVE:
+        break;
+    }
   }
+
+
+  // Gestore del focus sulla ricerca.
+  public toggleDialogAndAddFocus() {
+    this.showErrorDialog = !this.showErrorDialog;
+    if (this.showErrorDialog === false) {
+      this.searchField.nativeElement.focus();
+      this.closeField.nativeElement.blur();
+    }
+  }
+
+
+  // Scatta al keydown nella ricerca. Fa il controllo sui tre caratteri e la fa partire.
+  public onEnter(value) {
+    if (value && value.length >= 3) {
+      const filter = [];
+      filter.push(new FilterDefinition("tscol", FILTER_TYPES.not_string.equals, value));
+      this.toolBarService.setFilterTyped(filter);
+    } else {
+      this.toggleDialogAndAddFocus();
+    }
+  }
+
+
+  /**
+   * Chiedo conferma sulla cancellazione dei messaggi selezioni.
+   * In caso affermativo faccio partire la cancellazione spostamento nel cestino).
+   */
+  private deletingConfirmation() {
+    let message: string;
+    if (this.toolBarService.selectedFolder.type === FolderType.DRAFT) {
+      message = "Vuoi eliminare definitivamente la bozza selezionata?";
+      const drafts = this.toolBarService.draftEvent.selectedDrafts;
+      if (drafts && drafts.length > 1) {
+        message = "Vuoi eliminare definitivamente le bozze selezionate?";
+      }
+    } else {
+      message = "Sei sicuro di voler eliminare i messaggi selezionati?";
+    }
+    this.confirmationService.confirm({
+      message: message,
+      header: "Conferma",
+      icon: "pi pi-exclamation-triangle",
+      accept: () => {
+        this.toolBarService.handleDelete();
+      },
+      reject: () => {}
+    });
+  }
+
+
+  ngOnDestroy() {
+    if (this.subscriptions && this.subscriptions.length > 0) {
+      this.subscriptions.forEach((subscription: Subscription) => {
+        subscription.unsubscribe();
+      });
+    }
+  }
+}
+
 
   // public onInput(event) {
   //   if (event && event.target) {
@@ -75,73 +148,3 @@ export class ToolbarComponent implements OnInit, OnDestroy {
     //   this.toolBarService.setFilterTyped(filter);
     // }, 600);
   // }
-
-  public onEnter(value) {
-    if (value && value.length > 0) {
-      const filter = [];
-      filter.push(new FilterDefinition("tscol", FILTER_TYPES.not_string.equals, value));
-      this.toolBarService.setFilterTyped(filter);
-    }
-  }
-
-  handleEvent(event, action) {
-    console.log("EVENTO = ", action);
-    switch (action) {
-      case TOOLBAR_ACTIONS.NEW:
-        this.newMail(action);
-        break;
-      case TOOLBAR_ACTIONS.REPLY:
-      case TOOLBAR_ACTIONS.REPLY_ALL:
-      case TOOLBAR_ACTIONS.FORWARD:
-        this.newMail(action, this.messageEvent);
-        break;
-      case TOOLBAR_ACTIONS.DELETE:
-          console.log("delete: ", this.myPecs);
-        break;
-      case TOOLBAR_ACTIONS.MOVE:
-        break;
-      case TOOLBAR_ACTIONS.ARCHIVE:
-        break;
-    }
-  }
-
-  newMail(action, messageEvent?: MessageEvent) {
-
-    const draftMessage = new Draft();
-    // draftMessage.messageRelatedType = MessageRelatedType.FORWARDED;
-    // draftMessage.idPec = this._selectedPec;
-    const pec: Pec = new Pec();
-    pec.id = this._selectedPec.id;
-    draftMessage.idPec = pec;
-    this.draftService.postHttpCall(draftMessage).subscribe((draft: Draft) => {
-      const ref = this.dialogService.open(NewMailComponent, {
-        data: {
-          fullMessage: messageEvent ? messageEvent.downloadedMessage : undefined,
-          idDraft: draft.id,
-          pec: pec,
-          action: action
-        },
-        header: "Nuova Mail",
-        width: "auto",
-        styleClass: "new-draft",
-        contentStyle: { "overflow": "auto", "height": "85vh" },
-        closable: false,
-        closeOnEscape: false
-      });
-      ref.onClose.subscribe((el) => {
-        if (el) {
-          console.log("Ref: ", el);
-        }
-      });
-    });
-  }
-
-  ngOnDestroy() {
-    if (this.subscriptions && this.subscriptions.length > 0) {
-      this.subscriptions.forEach((subscription: Subscription) => {
-        subscription.unsubscribe();
-      });
-    }
-  }
-
-}

@@ -1,25 +1,26 @@
-import { Component, OnInit, Input, Output, EventEmitter, ViewChild, ElementRef, AfterViewInit, AfterContentInit, AfterContentChecked, AfterViewChecked, OnChanges, OnDestroy } from "@angular/core";
+import { Component, OnInit, Output, EventEmitter, ViewChild, ElementRef, OnDestroy } from "@angular/core";
 import { buildLazyEventFiltersAndSorts } from "@bds/primeng-plugin";
-import { Message, ENTITIES_STRUCTURE, MessageAddress, AddresRoleType, Folder, FolderType, TagType, MessageTag, InOut, Tag, Pec, MessageFolder, MessageType } from "@bds/ng-internauta-model";
-import { ShpeckMessageService} from "src/app/services/shpeck-message.service";
-import { FiltersAndSorts, FilterDefinition, FILTER_TYPES, SortDefinition, SORT_MODES, PagingConf, PagingMode, BatchOperation, BatchOperationTypes } from "@nfa/next-sdr";
+import { Message, ENTITIES_STRUCTURE, MessageAddress, AddresRoleType, Folder, MessageTag, InOut, Tag, Pec, MessageType, FolderType } from "@bds/ng-internauta-model";
+import { ShpeckMessageService } from "src/app/services/shpeck-message.service";
+import { FiltersAndSorts, FilterDefinition, FILTER_TYPES, SortDefinition, SORT_MODES, PagingConf, BatchOperation, BatchOperationTypes } from "@nfa/next-sdr";
 import { TagService } from "src/app/services/tag.service";
 import { Observable, Subscription } from "rxjs";
 import { DatePipe } from "@angular/common";
 import { Table } from "primeng/table";
-import { BaseUrlType, BaseUrls } from "src/environments/app-constants";
-import { MenuItem, LazyLoadEvent, FilterMetadata, TreeNode } from "primeng/api";
-import { MessageFolderService } from "src/app/services/message-folder.service";
+import { TOOLBAR_ACTIONS, EMLSOURCE } from "src/environments/app-constants";
+import { MenuItem, LazyLoadEvent, FilterMetadata, ConfirmationService } from "primeng/api";
 import { Utils } from "src/app/utils/utils";
-import { MailFoldersService, PecTreeNodeType } from "../mail-folders/mail-folders.service";
+import { MailFoldersService, PecFolderType, PecFolder } from "../mail-folders/mail-folders.service";
 import { ToolBarService } from "../toolbar/toolbar.service";
+import { MailListService } from "./mail-list.service";
 
 @Component({
   selector: "app-mail-list",
   templateUrl: "./mail-list.component.html",
-  styleUrls: ["./mail-list.component.scss"]
+  styleUrls: ["./mail-list.component.scss"],
+  providers: [ConfirmationService]
 })
-export class MailListComponent implements OnInit, AfterViewChecked, OnChanges, OnDestroy {
+export class MailListComponent implements OnInit, OnDestroy {
 
   @Output() public messageClicked = new EventEmitter<Message>();
 
@@ -28,6 +29,7 @@ export class MailListComponent implements OnInit, AfterViewChecked, OnChanges, O
 
   public _selectedFolder: Folder;
   public _selectedPecId: number;
+  public _selectedPec: Pec;
   public _filters: FilterDefinition[];
 
   private selectedProjection: string =
@@ -44,6 +46,8 @@ export class MailListComponent implements OnInit, AfterViewChecked, OnChanges, O
 
   private subscriptions: Subscription[] = [];
   private previousFilter: FilterDefinition[] = [];
+  private foldersSubCmItems: MenuItem[] = null;
+  private aziendeProtocollabiliSubCmItems: MenuItem[] = null;
 
   public cmItems: MenuItem[] = [
     {
@@ -75,7 +79,23 @@ export class MailListComponent implements OnInit, AfterViewChecked, OnChanges, O
       command: event => this.selectedContextMenuItem(event)
     },
     {
-      label: "Elimina ",
+      label: "Protocolla",
+      id: "MessageRegistration",
+      disabled: true,
+      queryParams: {},
+      items: this.aziendeProtocollabiliSubCmItems,
+      command: event => this.selectedContextMenuItem(event)
+    },
+    {
+      label: "Sposta",
+      id: "MessageMove",
+      disabled: true,
+      queryParams: {},
+      items: this.foldersSubCmItems,
+      command: event => this.selectedContextMenuItem(event)
+    },
+    {
+      label: "Elimina",
       id: "MessageDelete",
       disabled: true,
       queryParams: {},
@@ -125,14 +145,13 @@ export class MailListComponent implements OnInit, AfterViewChecked, OnChanges, O
     }
   ];
 
-  public messages: Message[] = [];
+
   public fromOrTo: string;
   public tags = [];
   public loading = false;
   public virtualRowHeight: number = 70;
   public totalRecords: number;
   public rowsNmber = 10;
-  public selectedMessages: Message[];
   public cols = [
     {
       field: "subject",
@@ -145,23 +164,31 @@ export class MailListComponent implements OnInit, AfterViewChecked, OnChanges, O
 
   constructor(
     private messageService: ShpeckMessageService,
-    private messageFolderService: MessageFolderService,
+    private mailListService: MailListService,
     private tagService: TagService,
     private mailFoldersService: MailFoldersService,
     private toolBarService: ToolBarService,
-    private datepipe: DatePipe
-  ) {}
+    private datepipe: DatePipe,
+    private confirmationService: ConfirmationService
+  ) {
+    this.selectedContextMenuItem = this.selectedContextMenuItem.bind(this);
+  }
 
   ngOnInit() {
-    this.subscriptions.push(this.mailFoldersService.pecTreeNodeSelected.subscribe((pecTreeNodeSelected: TreeNode) => {
-      if (pecTreeNodeSelected) {
-        if (pecTreeNodeSelected.type === PecTreeNodeType.FOLDER) {
-          const selectedFolder: Folder = pecTreeNodeSelected.data;
-          this._selectedPecId = selectedFolder.fk_idPec.id;
-          this.setFolder(selectedFolder);
+    this.subscriptions.push(this.mailFoldersService.pecFolderSelected.subscribe((pecFolderSelected: PecFolder) => {
+      this.mailListService.selectedMessages = [];
+      if (pecFolderSelected) {
+        if (pecFolderSelected.type === PecFolderType.FOLDER) {
+          const selectedFolder: Folder = pecFolderSelected.data as Folder;
+          if (selectedFolder.type !== FolderType.DRAFT) {
+            this._selectedPecId = selectedFolder.fk_idPec.id;
+            this.setFolder(selectedFolder);
+          }
         } else {
-          const pec: Pec = pecTreeNodeSelected.data;
+          const pec: Pec = pecFolderSelected.data as Pec;
+          this._selectedPec = pec;
           this._selectedPecId = pec.id;
+          this.setFolder(null);
         }
       }
     }));
@@ -170,43 +197,13 @@ export class MailListComponent implements OnInit, AfterViewChecked, OnChanges, O
         this.setFilters(filters);
       }
     }));
-    // this.idFolder = 6;
-    // this.loadData(6);
-    // this.pageConf = {
-    //   mode: "LIMIT_OFFSET",
-    //   conf: {
-    //     limit: 0,
-    //     offset: this.rowsNmber * 2
-    //   }
-    // };
   }
 
-  ngAfterViewChecked() {
-    // console.log("ngAfterViewchecked", this.selRow.nativeElement.offsetHeight);
-  }
-
-  ngOnChanges() {
-    // console.log("filtes: ", this._filters);
-    // if (this._filters) {
-    //   this.filtering = true;
-    //   this._folder = null;
-    //   // let filters = [];
-    //   // Object.assign(filters, this._filters);
-    //   let filters = this._filters;
-    //   this._filters = null;
-    //   setTimeout(() => {
-    //     this._filters = filters;
-    //     this.lazyLoad(null);
-    //   }, 0);
-    //   this.resetPageConfig = true;
-    //   // this.dt.filter(null, null, null);
-    // }
-  }
 
   private setFolder(folder: Folder) {
     this._selectedFolder = null;
     this._filters = null;
-    this.selectedMessages = [];
+    this.mailListService.selectedMessages = [];
     // trucco per far si che la table vanga tolta e rimessa nel dom (in modo da essere resettata) altrimenti sminchia
     // NB: nell'html la visualizzazione della table è controllata da un *ngIf
     setTimeout(() => {
@@ -258,8 +255,8 @@ export class MailListComponent implements OnInit, AfterViewChecked, OnChanges, O
       .subscribe(data => {
         if (data && data.results) {
           this.totalRecords = data.page.totalElements;
-          this.messages = data.results;
-          this.setMailTagVisibility(this.messages);
+          this.mailListService.messages = data.results;
+          this.setMailTagVisibility(this.mailListService.messages);
         }
         this.loading = false;
         // setTimeout(() => {
@@ -268,9 +265,9 @@ export class MailListComponent implements OnInit, AfterViewChecked, OnChanges, O
       });
   }
 
-  public buildTableEventFilters(filtersDefinition: FilterDefinition[] ): {[s: string]: FilterMetadata} {
+  public buildTableEventFilters(filtersDefinition: FilterDefinition[]): { [s: string]: FilterMetadata } {
     if (filtersDefinition && filtersDefinition.length > 0) {
-      const eventFilters: {[s: string]: FilterMetadata} = {};
+      const eventFilters: { [s: string]: FilterMetadata } = {};
       filtersDefinition.forEach(filter => {
         const filterMetadata: FilterMetadata = {
           value: filter.value,
@@ -286,7 +283,7 @@ export class MailListComponent implements OnInit, AfterViewChecked, OnChanges, O
 
   private needLoading(event: LazyLoadEvent): boolean {
     let needLoading = this.pageConf.conf.limit !== event.rows ||
-    this.pageConf.conf.offset !== event.first;
+      this.pageConf.conf.offset !== event.first;
     if (!needLoading) {
       if (this._filters && !this.previousFilter || !this._filters && this.previousFilter) {
         needLoading = true;
@@ -294,8 +291,8 @@ export class MailListComponent implements OnInit, AfterViewChecked, OnChanges, O
         for (const filter of this._filters) {
           if (this.previousFilter.findIndex(e =>
             e.field === filter.field && e.filterMatchMode === filter.filterMatchMode && e.value === filter.value) === -1) {
-              needLoading = true;
-              break;
+            needLoading = true;
+            break;
           }
         }
       }
@@ -303,9 +300,9 @@ export class MailListComponent implements OnInit, AfterViewChecked, OnChanges, O
     return needLoading;
   }
 
-  public lazyLoad(event: LazyLoadEvent ) {
+  public lazyLoad(event: LazyLoadEvent) {
     console.log("lazyload", event);
-    const eventFilters: {[s: string]: FilterMetadata} = this.buildTableEventFilters(this._filters);
+    const eventFilters: { [s: string]: FilterMetadata } = this.buildTableEventFilters(this._filters);
     if (event) {
       if (eventFilters && Object.entries(eventFilters).length > 0) {
         event.filters = eventFilters;
@@ -421,7 +418,7 @@ export class MailListComponent implements OnInit, AfterViewChecked, OnChanges, O
         addresRoleType = AddresRoleType.FROM;
     }
     message["fromOrTo"] = "";
-      if (message.messageAddressList) {
+    if (message.messageAddressList) {
       const messageAddressList: MessageAddress[] = message.messageAddressList.filter(
         (messageAddress: MessageAddress) =>
           messageAddress.addressRole === addresRoleType
@@ -446,19 +443,21 @@ export class MailListComponent implements OnInit, AfterViewChecked, OnChanges, O
     console.log("handleEvent", name, event);
     switch (name) {
       // non c'è nella documentazione, ma pare che scatti sempre una sola volta anche nelle selezioni multiple.
-      // le righe selezionati sono in this.selectedMessages e anche in event
+      // le righe selezionati sono in this.mailListService.selectedMessages e anche in event
       case "selectionChange":
         // selezione di un singolo messaggio (o come click singolo oppure come click del primo messaggio con il ctrl)
-        if (this.selectedMessages.length === 1) {
-          const selectedMessage: Message = this.selectedMessages[0];
-          this.setSeen(selectedMessage);
+        if (this.mailListService.selectedMessages.length === 1) {
+          const selectedMessage: Message = this.mailListService.selectedMessages[0];
+          this.mailListService.setSeen(true);
+          const emlSource: string = this.getEmlSource(selectedMessage);
           this.messageService.manageMessageEvent(
+            emlSource,
             selectedMessage,
-            this.selectedMessages
+            this.mailListService.selectedMessages
           );
           // this.messageClicked.emit(selectedMessage);
         } else {
-          this.messageService.manageMessageEvent(null, this.selectedMessages);
+          this.messageService.manageMessageEvent(null, null, this.mailListService.selectedMessages);
         }
         break;
       case "onContextMenuSelect":
@@ -467,20 +466,27 @@ export class MailListComponent implements OnInit, AfterViewChecked, OnChanges, O
     }
   }
 
-  private setSeen(selectedMessage: Message) {
-    if (!!!selectedMessage.seen) {
-      selectedMessage.seen = true;
-      this.saveMessage(selectedMessage);
+  private getEmlSource(message: Message): string {
+    let emlSource: string;
+    if (message.messageFolderList && message.messageFolderList[0].idFolder.type === FolderType.OUTBOX) {
+      emlSource = EMLSOURCE.OUTBOX;
+    } else {
+      emlSource = EMLSOURCE.MESSAGE;
     }
+    return emlSource;
   }
 
+  /**
+   * Setto il look del menu contestuale.
+   * In particolare attivo e disattivo le varie voci.
+   */
   private setContextMenuItemLook() {
     this.cmItems.map(element => {
       // element.disabled = false;
       switch (element.id) {
         case "MessageSeen":
           if (
-            this.selectedMessages.some((message: Message) => !!!message.seen)
+            this.mailListService.selectedMessages.some((message: Message) => !!!message.seen)
           ) {
             element.label = "Letto";
             element.queryParams = { seen: true };
@@ -489,18 +495,40 @@ export class MailListComponent implements OnInit, AfterViewChecked, OnChanges, O
             element.queryParams = { seen: false };
           }
           break;
+        case "MessageMove":
+          element.disabled = false;
+          if (this.mailListService.selectedMessages.some((message: Message) => !message.messageFolderList || message.messageFolderList[0].idFolder.type === FolderType.TRASH)) {
+            element.disabled = true;
+            this.cmItems.find(f => f.id === "MessageMove").items = null;
+          } else {
+            this.cmItems.find(f => f.id === "MessageMove").items = this.mailListService.buildMoveMenuItems(this.mailListService.folders, this._selectedFolder, this.selectedContextMenuItem);
+          }
+          break;
         case "MessageDelete":
+          element.disabled = !this.mailListService.isMoveActive();
           break;
         case "MessageReply":
         case "MessageReplyAll":
+        case "MessageForward":
           element.disabled = false;
-          if (this.selectedMessages.length > 1) {
+          if (this.mailListService.selectedMessages.length > 1) {
             element.disabled = true;
+          }
+          break;
+        case "MessageRegistration":
+          element.disabled = false;
+          if (this.mailListService.selectedMessages.length !== 1 ||
+            this.mailListService.selectedMessages[0].inOut !== InOut.IN ||
+            (this.mailListService.selectedMessages[0].messageType !== MessageType.MAIL && this.mailListService.selectedMessages[0].messageType !== MessageType.PEC)) {
+            element.disabled = true;
+            this.cmItems.find(f => f.id === "MessageRegistration").items = null;
+          } else {
+            this.cmItems.find(f => f.id === "MessageRegistration").items = this.mailListService.buildRegistrationMenuItems(this.selectedContextMenuItem);
           }
           break;
         case "MessageDownload":
           element.disabled = false;
-          if (this.selectedMessages.length > 1) {
+          if (this.mailListService.selectedMessages.length > 1) {
             element.disabled = true;
           }
           break;
@@ -508,68 +536,73 @@ export class MailListComponent implements OnInit, AfterViewChecked, OnChanges, O
     });
   }
 
-  private aaa(messagesFolder: MessageFolder[]) {
-    console.log(messagesFolder);
-  }
 
+  /**
+   * Manager delle varie funzionalità del contextMenu.
+   * Si limita a chiamare il metodo giusto a seconda dell'ItemMenu selezionata.
+   * @param event
+   */
   private selectedContextMenuItem(event: any) {
     console.log("check: ", event);
     const menuItem: MenuItem = event.item;
     switch (menuItem.id) {
       case "MessageSeen":
-        const messagesToUpdate: BatchOperation[] = [];
-        this.selectedMessages.forEach((message: Message) => {
-          if (message.seen !== menuItem.queryParams.seen) {
-            message.seen = menuItem.queryParams.seen;
-            messagesToUpdate.push({
-              id: message.id,
-              operation: BatchOperationTypes.UPDATE,
-              entityPath:
-                BaseUrls.get(BaseUrlType.Shpeck) +
-                "/" +
-                ENTITIES_STRUCTURE.shpeck.message.path,
-              entityBody: message,
-              additionalData: null
-            });
-          }
-        });
-        if (messagesToUpdate.length > 0) {
-          this.messageService.batchHttpCall(messagesToUpdate).subscribe();
-        }
+        this.mailListService.setSeen(menuItem.queryParams.seen);
         break;
       case "MessageDelete":
-        this.messageFolderService
-          .moveToTrashMessages(
-            this.selectedMessages.map((message: Message) => {
-              return message.messageFolderList.filter(
-                (messageFolder: MessageFolder) =>
-                  (messageFolder.fk_idFolder.id = this._selectedFolder.id)
-              )[0];
-            }),
-            5
-          )
-          .subscribe();
+        this.deletingConfirmation();
         break;
-
+      case "MessageMove":
+        this.mailListService.moveMessages(event.item.queryParams.folder);
+        break;
+      case "MessageRegistration":
+        this.mailListService.registerMessage(event);
+        break;
       case "MessageDownload":
-        this.dowloadMessage(this.selectedMessages[0]);
+        this.dowloadMessage(this.mailListService.selectedMessages[0]);
+        break;
+      case "MessageReply":
+        this.toolBarService.newMail(TOOLBAR_ACTIONS.REPLY);
+        break;
+      case "MessageReplyAll":
+        this.toolBarService.newMail(TOOLBAR_ACTIONS.REPLY_ALL);
+        break;
+      case "MessageForward":
+        this.toolBarService.newMail(TOOLBAR_ACTIONS.FORWARD);
         break;
     }
   }
 
-  private saveMessage(selectedMessage: Message) {
-    this.messageService
-      .patchHttpCall(
-        selectedMessage,
-        selectedMessage.id,
-        this.selectedProjection,
-        null
-      )
-      .subscribe((message: Message) => {});
+
+  /**
+   * Chiedo conferma sulla cancellazione dei messaggi selezioni.
+   * In caso affermativo faccio partire la cancellazione spostamento nel cestino).
+   */
+  private deletingConfirmation() {
+    let message: string;
+    if (this.toolBarService.selectedFolder.type === FolderType.DRAFT) {
+      message = "Sei sicuro di voler eliminare le bozze selezionate?";
+    } else {
+      message = "Sei sicuro di voler eliminare i messaggi selezionati?";
+    }
+    this.confirmationService.confirm({
+      message: message,
+      header: "Conferma",
+      icon: "pi pi-exclamation-triangle",
+      accept: () => {
+        this.mailListService.moveMessagesToTrash();
+      },
+      reject: () => { }
+    });
   }
 
+
+  /**
+   * Scarico il messaggio passato
+   * @param selectedMessage
+   */
   private dowloadMessage(selectedMessage: Message): void {
-    this.messageService.downloadEml(selectedMessage).subscribe(response => {
+    this.messageService.downloadEml(selectedMessage.id, this.getEmlSource(selectedMessage)).subscribe(response => {
       const nomeEmail = "Email_" + selectedMessage.subject + "_" + selectedMessage.id + ".eml";
       Utils.downLoadFile(response, "message/rfc822", nomeEmail, false);
     });
