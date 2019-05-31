@@ -40,6 +40,8 @@ li {
   > ul.ui-inputtext,
   > ul.ui-inputtext:focus {
     min-height: 33px;
+    max-height: 100px;
+    overflow-y: overlay;
   }
   .ui-chips-input-token {
     display: none;  // Makes chips readonly
@@ -88,6 +90,10 @@ li {
   flex: 1;
 }
 
+.d-inline-block {
+  display: inline-block;
+}
+
 .margin-l-5, .margin-lr-5 {
   margin-left: 5px;
 }
@@ -98,6 +104,10 @@ li {
 
 .height-100 {
   height: 100%;
+}
+
+.justify-c-c {
+  justify-content: center;
 }
 
 ::ng-deep body .ui-autocomplete.ui-autocomplete-multiple .ui-autocomplete-multiple-container:not(.ui-state-disabled).ui-state-focus,
@@ -118,7 +128,7 @@ input:focus {
 }
 
 p-editor {
-  max-width: 50vw;
+  // max-width: 50vw;
 }
 
 .min-height-0 {
@@ -129,4 +139,21 @@ p-editor {
   height: 100%;
   display: flex;
   flex-flow: column;
+}
+
+/******* Close button *******/
+.close-button {
+  position: absolute;
+  top: -36px;
+  right: 11px;
+  color: slategray;
+}
+/******* Dialog classes ******/
+.confirm-buttons {
+  width: 110px !important;
+  margin: 0.25em !important;
+}
+
+.warn-class {
+  margin: 0 .5em 0 .5em;
 }

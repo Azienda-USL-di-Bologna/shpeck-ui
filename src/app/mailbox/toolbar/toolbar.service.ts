@@ -134,7 +134,7 @@ export class ToolBarService {
   public handleDelete() {
     if (this.selectedFolder.type === FolderType.DRAFT) {
       if (this.draftEvent.fullDraft) {
-        this.draftService.deleteDraftMessage(this.draftEvent.fullDraft.message.id, true);
+        this.draftService.deleteDraftMessage(this.draftEvent.fullDraft.message.id, true, true);
       } else if (this.draftEvent.selectedDrafts && this.draftEvent.selectedDrafts.length > 0) {
         this.draftService.deleteDrafts(this.draftEvent.selectedDrafts, true);
       }
@@ -143,12 +143,12 @@ export class ToolBarService {
     }
   }
 
-  public newMail(pec: Pec, action) {
+  public newMail(action) {
 
     const draftMessage = new Draft();
     /* const pec: Pec = new Pec();
     pec.id = pecId; */
-    draftMessage.idPec = pec;
+    draftMessage.idPec = this._selectedPec;
     if (action !== TOOLBAR_ACTIONS.NEW) {
       if (!this.messageEvent || !this.messageEvent.downloadedMessage) {
         this.messagePrimeService.add(
@@ -161,14 +161,14 @@ export class ToolBarService {
         data: {
           fullMessage: this.messageEvent ? this.messageEvent.downloadedMessage : undefined,
           idDraft: draft.id,
-          pec: pec,
+          pec: this._selectedPec,
           action: action,
           reloadOnDelete: false
         },
         header: "Nuova Mail",
         width: "auto",
         styleClass: "new-draft",
-        contentStyle: { "overflow": "auto", "height": "85vh" },
+        contentStyle: { "overflow": "visible", "height": "85vh" },
         closable: false,
         closeOnEscape: false
       });
@@ -193,7 +193,7 @@ export class ToolBarService {
         header: "Modifica bozza",
         width: "auto",
         styleClass: "new-draft",
-        contentStyle: { "overflow": "auto", "height": "85vh" },
+        contentStyle: { "overflow": "visible", "height": "85vh" },
         closable: false,
         closeOnEscape: false
       });

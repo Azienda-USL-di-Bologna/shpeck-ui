@@ -50,7 +50,7 @@ export class ToolbarComponent implements OnDestroy {
     console.log("EVENTO = ", action);
     switch (action) {
       case TOOLBAR_ACTIONS.NEW:
-        this.toolBarService.newMail(this._selectedPec, action);
+        this.toolBarService.newMail(action);
         break;
       case TOOLBAR_ACTIONS.EDIT:
         this.toolBarService.editMail();
@@ -58,7 +58,7 @@ export class ToolbarComponent implements OnDestroy {
       case TOOLBAR_ACTIONS.REPLY:
       case TOOLBAR_ACTIONS.REPLY_ALL:
       case TOOLBAR_ACTIONS.FORWARD:
-      this.toolBarService.newMail(this._selectedPec, action);
+      this.toolBarService.newMail(action);
         break;
       case TOOLBAR_ACTIONS.DELETE:
         this.deletingConfirmation();
@@ -102,10 +102,10 @@ export class ToolbarComponent implements OnDestroy {
   private deletingConfirmation() {
     let message: string;
     if (this.toolBarService.selectedFolder.type === FolderType.DRAFT) {
-      message = "Sei sicuro di voler eliminare la bozza selezionata?";
+      message = "Vuoi eliminare definitivamente la bozza selezionata?";
       const drafts = this.toolBarService.draftEvent.selectedDrafts;
       if (drafts && drafts.length > 1) {
-        message = "Sei sicuro di voler eliminare le bozze selezionate?";
+        message = "Vuoi eliminare definitivamente le bozze selezionate?";
       }
     } else {
       message = "Sei sicuro di voler eliminare i messaggi selezionati?";
