@@ -362,6 +362,7 @@ export class MailFoldersComponent implements OnInit, OnDestroy {
   private selectRootNode(node: MyTreeNode, changeOnlyStyle: boolean) {
     if (node.data.type === PecFolderType.PEC) {
       node.styleClass = MailFoldersComponent.ROOT_NODE_SELECTED_STYLE_CLASS;
+      node.expanded = true;
       if (!!!changeOnlyStyle) {
         this.selectedNode = node;
       }

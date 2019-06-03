@@ -87,7 +87,10 @@
     </ng-template> -->
 
 </p-table>
-
+<div *ngIf="!(_selectedFolder || _filters)" class="flex-1 message-align flex-direction-col">
+    <p style="margin: 0">Non ci sono elementi da visualizzare.</p>
+    <p style="margin: 0.5em">Selezionare una cartella o effettuare una ricerca.</p>
+</div>
 <p-contextMenu #cm [model]="cmItems" styleClass = "context-menu-mail-list"></p-contextMenu>
 
 <p-confirmDialog acceptLabel="Sì" rejectLabel="No" [style]="{width: '20vw', top: '40%'}"></p-confirmDialog>
