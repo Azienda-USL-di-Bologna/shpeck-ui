@@ -63,6 +63,8 @@ export class MailboxComponent implements OnInit, AfterViewInit, AfterViewChecked
           } else {
             this.componentToLoad = "mail-list";
           }
+        } else {
+          this.componentToLoad = "mail-list";
         }
       }
     }));
