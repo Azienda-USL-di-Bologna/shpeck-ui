@@ -1,5 +1,5 @@
 import { Injectable } from "@angular/core";
-import { Folder, Message, FolderType, InOut, ENTITIES_STRUCTURE } from "@bds/ng-internauta-model";
+import { Folder, Message, FolderType, InOut, ENTITIES_STRUCTURE, FluxPermission } from "@bds/ng-internauta-model";
 import { MenuItem } from "primeng/api";
 import { Utils } from "src/app/utils/utils";
 import { MessageFolderService } from "src/app/services/message-folder.service";
@@ -9,7 +9,6 @@ import { NtJwtLoginService, UtenteUtilities } from "@bds/nt-jwt-login";
 import { BatchOperation, BatchOperationTypes } from "@nfa/next-sdr";
 import { BaseUrls, BaseUrlType } from "src/environments/app-constants";
 import { ShpeckMessageService } from "src/app/services/shpeck-message.service";
-import { FluxPermission } from '@bds/nt-communicator';
 
 @Injectable({
   providedIn: "root"
@@ -99,9 +98,9 @@ export class MailListService {
 
 
   /**
-   * Questa funzione si occupa di creare un MenuItem[] che contenga come items la 
+   * Questa funzione si occupa di creare un MenuItem[] che contenga come items la
    * lista delle aziende su cui l'utente loggato ha il permesso redige.
-   * @param command 
+   * @param command
    */
   public buildRegistrationMenuItems(command: (any) => any): MenuItem[] {
     const registrationItems = [];

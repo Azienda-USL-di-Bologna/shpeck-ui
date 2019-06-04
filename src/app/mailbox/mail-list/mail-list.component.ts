@@ -215,7 +215,7 @@ export class MailListComponent implements OnInit, OnDestroy {
   }
 
   private setFilters(filters: FilterDefinition[]) {
-    this._selectedFolder = null;
+    // this._selectedFolder = null;
     this._filters = null;
     setTimeout(() => {
       this._filters = filters;

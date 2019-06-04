@@ -71,7 +71,7 @@
                 <div class = "display-block extra-margin">
                     <span *ngIf="!message?.seen" class="fas fa-envelope display-icon envelope-icon"></span>
                     <span *ngIf="message?.seen" class="far fa-envelope-open display-icon envelope-icon"></span>
-                    <span *ngIf="_filters" class="display-text text-background">{{message?.messageFolderList[0]?.idFolder.description}}</span>
+                    <span *ngIf="_filters && !_selectedFolder" class="display-text text-background">{{message?.messageFolderList[0]?.idFolder.description}}</span>
                     <span class="display-text" [ngClass]="{'display-bold':!message.seen}">{{message.subject}}</span>
                     <!-- <div class="display-text" [ngClass]="{'display-bold':!message.seen}">{{message.id + " -- " + message.subject}}</div>  -->
                 </div>

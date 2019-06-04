@@ -82,15 +82,14 @@ export class MailFoldersComponent implements OnInit, OnDestroy {
           }
           this.selectedNode = this.mailfolders[0];
           this.mailFoldersService.selectedPecFolder(this.mailfolders[0].data, this.mailfolders[0].children.map((c: MyTreeNode) => c.data.data) as Folder[]);
-          // this.;
         }
       }
     ));
-    this.subscriptions.push(this.toolBarService.getFilterTyped.subscribe((filter: FilterDefinition[]) => {
-      if (filter) {
-        this.selectRootNode(this.selectedNode, false);
-      }
-    }));
+    // this.subscriptions.push(this.toolBarService.getFilterTyped.subscribe((filter: FilterDefinition[]) => {
+    //   if (filter) {
+    //     this.selectRootNode(this.selectedNode, false);
+    //   }
+    // }));
   }
 
   private buildFolderInitialFilterAndSort(): FiltersAndSorts {
