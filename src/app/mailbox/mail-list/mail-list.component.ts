@@ -497,7 +497,7 @@ export class MailListComponent implements OnInit, OnDestroy {
           break;
         case "MessageMove":
           element.disabled = false;
-          if (this.mailListService.selectedMessages.some((message: Message) => !message.messageFolderList || message.messageFolderList[0].idFolder.type === FolderType.TRASH)) {
+          if (!this.mailListService.isMoveActive()) {
             element.disabled = true;
             this.cmItems.find(f => f.id === "MessageMove").items = null;
           } else {
@@ -505,7 +505,7 @@ export class MailListComponent implements OnInit, OnDestroy {
           }
           break;
         case "MessageDelete":
-          element.disabled = !this.mailListService.isMoveActive();
+          element.disabled = !this.mailListService.isDeleteActive();
           break;
         case "MessageReply":
         case "MessageReplyAll":

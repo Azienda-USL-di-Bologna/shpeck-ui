@@ -1,5 +1,5 @@
 import { Injectable } from "@angular/core";
-import { Folder, Message, FolderType, InOut, ENTITIES_STRUCTURE, FluxPermission } from "@bds/ng-internauta-model";
+import { Folder, Message, FolderType, InOut, ENTITIES_STRUCTURE, FluxPermission, PecPermission } from "@bds/ng-internauta-model";
 import { MenuItem } from "primeng/api";
 import { Utils } from "src/app/utils/utils";
 import { MessageFolderService } from "src/app/services/message-folder.service";
@@ -145,11 +145,7 @@ export class MailListService {
    * Questa funzione ritorna un booleano che indica se i messaggi selezionati sono cancellabili (spostabili nel cestino).
    */
   public isDeleteActive(): boolean {
-    if (!this.selectedMessages || this.selectedMessages.length === 0) {
-      return false;
-    } else {
-      return !this.selectedMessages.some((message: Message) => !message.messageFolderList || message.messageFolderList[0].idFolder.type === FolderType.TRASH);
-    }
+    return this.isMoveActive() && this.loggedUser.hasPecPermission(this.selectedMessages[0].fk_idPec.id, PecPermission.ELIMINA);
   }
 
 
