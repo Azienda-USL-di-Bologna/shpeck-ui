@@ -127,7 +127,13 @@ export class MailListService {
    */
   public registerMessage(event) {
     console.log(event, this.selectedMessages);
-    // window.open("www.google.it");
+    console.log("loggedUser", this.loggedUser);
+    let decodedUrl = decodeURI(this.loggedUser.getUtente()["aziendaLogin"]["urlCommand"]);
+    decodedUrl = decodedUrl.replace("[id_pec]", this.selectedMessages[0].id.toString());
+
+    console.log("command", decodedUrl);
+
+    window.open(decodedUrl);
   }
 
   /**
