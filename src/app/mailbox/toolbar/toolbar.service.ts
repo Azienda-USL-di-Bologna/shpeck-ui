@@ -7,7 +7,7 @@ import { DialogService, MessageService, MenuItem } from "primeng/api";
 import { MessageEvent, ShpeckMessageService } from "src/app/services/shpeck-message.service";
 import { DraftService, DraftEvent } from "src/app/services/draft.service";
 import { TOOLBAR_ACTIONS } from "src/environments/app-constants";
-import { PecFolderType, MailFoldersService, PecFolder } from "../mail-folders/mail-folders.service";
+import { PecFolderType, MailFoldersService, PecFolder, FoldersAndTags } from "../mail-folders/mail-folders.service";
 import { PecService } from "src/app/services/pec.service";
 import { MailListService } from "../mail-list/mail-list.service";
 
@@ -69,13 +69,15 @@ export class ToolBarService {
           this.myPecs = pecs;
         }
       }));
-      this.subscriptions.push(this.mailFoldersService.pecFolders.subscribe((folders: Folder[]) => {
-        this.folders = folders;
-      }));
-      this.buttonObs = new Map();
-      this.buttonsObservables.forEach((value, key) => {
-        this.buttonObs.set(key, value);
-      });
+    this.subscriptions.push(this.mailFoldersService.pecFoldersAndTags.subscribe((foldersAndPec: FoldersAndTags) => {
+      if (foldersAndPec && foldersAndPec.folders) {
+        this.folders = foldersAndPec.folders;
+      }
+    }));
+    this.buttonObs = new Map();
+    this.buttonsObservables.forEach((value, key) => {
+      this.buttonObs.set(key, value);
+    });
 
     this.subscriptions.push(this.messageService.messageEvent.subscribe((messageEvent: MessageEvent) => {
       if (messageEvent) {

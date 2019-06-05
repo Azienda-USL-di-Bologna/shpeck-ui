@@ -100,7 +100,7 @@
   //align-items: stretch;
   //flex-direction: row;
   height: 70px !important;
-  //white-space-collapsing: collapse; 
+  //white-space-collapsing: collapse;
   //text-wrap: none;
   white-space: nowrap;
   //overflow: scroll;
@@ -111,11 +111,39 @@
   // border-color:cornflowerblue !important;
 }
 
-.material-icons.mail-icons { 
-  // color: rgb(250, 250, 250); 
+.material-icons.mail-icons {
+  // color: rgb(250, 250, 250);
   font-size: 18px;
+}
+.material-icons.fa-icons {
+  // color: rgb(250, 250, 250);
+  font-size: 16px;
+  color: #393939
 }
 
 ::ng-deep .context-menu-mail-list {
   margin: -128px 0 0 -312px;
+}
+
+/******* Close button *******/
+.close-button {
+  position: absolute;
+  top: -36px;
+  right: 11px;
+  color: slategray;
+}
+
+.message-align {
+  justify-content: center;
+  align-items: center;
+}
+
+.confirm-buttons {
+  width: 110px !important;
+  margin: 0 0 0 0.5em !important;
+}
+
+.note-area {
+  font-family: sans-serif;
+  resize: none;
 }

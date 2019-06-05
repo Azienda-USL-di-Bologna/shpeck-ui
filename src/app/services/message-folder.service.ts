@@ -4,7 +4,7 @@ import { DatePipe } from "@angular/common";
 import { HttpClient } from "@angular/common/http";
 import { ENTITIES_STRUCTURE, Message, MessageFolder } from "@bds/ng-internauta-model";
 import { getInternautaUrl, BaseUrlType, BaseUrls } from "src/environments/app-constants";
-import { Observable } from 'rxjs';
+import { Observable } from "rxjs";
 
 @Injectable({
   providedIn: "root"

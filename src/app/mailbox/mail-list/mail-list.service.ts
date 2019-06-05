@@ -1,15 +1,14 @@
 import { Injectable } from "@angular/core";
-import { Folder, Message, FolderType, InOut, ENTITIES_STRUCTURE } from "@bds/ng-internauta-model";
+import { Tag, Folder, Message, FolderType, InOut, ENTITIES_STRUCTURE, FluxPermission, PecPermission, Note, MessageTag, Utente } from "@bds/ng-internauta-model";
 import { MenuItem } from "primeng/api";
 import { Utils } from "src/app/utils/utils";
 import { MessageFolderService } from "src/app/services/message-folder.service";
 import { Subscription } from "rxjs";
-import { MailFoldersService } from "../mail-folders/mail-folders.service";
+import { MailFoldersService, FoldersAndTags } from "../mail-folders/mail-folders.service";
 import { NtJwtLoginService, UtenteUtilities } from "@bds/nt-jwt-login";
 import { BatchOperation, BatchOperationTypes } from "@nfa/next-sdr";
 import { BaseUrls, BaseUrlType } from "src/environments/app-constants";
 import { ShpeckMessageService } from "src/app/services/shpeck-message.service";
-import { FluxPermission } from '@bds/nt-communicator';
 
 @Injectable({
   providedIn: "root"
@@ -18,7 +17,9 @@ export class MailListService {
 
   public messages: Message[] = [];
   public folders: Folder[] = [];
+  public tags: Tag[] = [];
   public trashFolder: Folder;
+  public annotedTag: Tag;
   public selectedMessages: Message[] = [];
   public loggedUser: UtenteUtilities;
 
@@ -37,13 +38,16 @@ export class MailListService {
         }
       }
     }));
-    this.subscriptions.push(this.mailFoldersService.pecFolders.subscribe((folders: Folder[]) => {
-      if (!folders) {
+    this.subscriptions.push(this.mailFoldersService.pecFoldersAndTags.subscribe((foldersAndTags: FoldersAndTags) => {
+      if (!foldersAndTags) {
         this.folders = [];
         this.trashFolder = null;
+        this.annotedTag = null;
       } else {
-        this.folders = folders;
+        this.folders = foldersAndTags.folders;
+        this.tags = foldersAndTags.tags;
         this.trashFolder = this.folders.find(f => f.type === FolderType.TRASH);
+        this.annotedTag = this.tags.find(t => t.name === "annotated");
       }
     }));
   }
@@ -99,9 +103,9 @@ export class MailListService {
 
 
   /**
-   * Questa funzione si occupa di creare un MenuItem[] che contenga come items la 
+   * Questa funzione si occupa di creare un MenuItem[] che contenga come items la
    * lista delle aziende su cui l'utente loggato ha il permesso redige.
-   * @param command 
+   * @param command
    */
   public buildRegistrationMenuItems(command: (any) => any): MenuItem[] {
     const registrationItems = [];
@@ -152,11 +156,7 @@ export class MailListService {
    * Questa funzione ritorna un booleano che indica se i messaggi selezionati sono cancellabili (spostabili nel cestino).
    */
   public isDeleteActive(): boolean {
-    if (!this.selectedMessages || this.selectedMessages.length === 0) {
-      return false;
-    } else {
-      return !this.selectedMessages.some((message: Message) => !message.messageFolderList || message.messageFolderList[0].idFolder.type === FolderType.TRASH);
-    }
+    return this.isMoveActive() && this.loggedUser.hasPecPermission(this.selectedMessages[0].fk_idPec.id, PecPermission.ELIMINA);
   }
 
 
@@ -217,5 +217,73 @@ export class MailListService {
     if (messagesToUpdate.length > 0) {
       this.messageService.batchHttpCall(messagesToUpdate).subscribe();
     }
+  }
+
+  public saveNote(noteObj: Note) {
+    const message: Message = new Message();
+    message.id = this.selectedMessages[0].id;
+    const batchOperations: BatchOperation[] = [];
+    noteObj.idUtente = { id: this.loggedUser.getUtente().id } as Utente;
+    noteObj.memo = noteObj.memo.trim();
+    if (noteObj.id && noteObj.memo !== "") {
+      batchOperations.push({
+        id: noteObj.id,
+        operation: BatchOperationTypes.UPDATE,
+        entityPath:
+          BaseUrls.get(BaseUrlType.Shpeck) + "/" + ENTITIES_STRUCTURE.shpeck.note.path,
+        entityBody: noteObj,
+        additionalData: null
+      });
+    } else if (noteObj.id && noteObj.memo === "") {
+      batchOperations.push({
+        id: noteObj.id,
+        operation: BatchOperationTypes.DELETE,
+        entityPath:
+          BaseUrls.get(BaseUrlType.Shpeck) + "/" + ENTITIES_STRUCTURE.shpeck.note.path,
+        entityBody: null,
+        additionalData: null
+      });
+    } else if (noteObj.memo !== "") {
+      noteObj.idMessage = message;
+      batchOperations.push({
+        id: null,
+        operation: BatchOperationTypes.INSERT,
+        entityPath:
+          BaseUrls.get(BaseUrlType.Shpeck) + "/" + ENTITIES_STRUCTURE.shpeck.note.path,
+        entityBody: noteObj,
+        additionalData: null
+      });
+    }
+    let messageTag: MessageTag = null;
+    if (this.selectedMessages[0].messageTagList !== null) {
+      messageTag = this.selectedMessages[0].messageTagList.find(mt => mt.idTag.name === "annotated");
+    }
+    const isAnnotedTagPresent = messageTag !== null;
+    if (!isAnnotedTagPresent && noteObj.memo !== "" ) { // Insert
+      batchOperations.push({
+        id: null,
+        operation: BatchOperationTypes.INSERT,
+        entityPath:
+          BaseUrls.get(BaseUrlType.Shpeck) + "/" + ENTITIES_STRUCTURE.shpeck.messagetag.path,
+        entityBody: {
+          idMessage: message,
+          idUtente: { id: this.loggedUser.getUtente().id } as Utente,
+          idTag: {id: this.annotedTag.id } as Tag
+        } as MessageTag,
+        additionalData: null
+      });
+    } else if (isAnnotedTagPresent && noteObj.memo === "") {  // Delete
+      batchOperations.push({
+        id: messageTag.id,
+        operation: BatchOperationTypes.DELETE,
+        entityPath:
+          BaseUrls.get(BaseUrlType.Shpeck) +
+          "/" +
+          ENTITIES_STRUCTURE.shpeck.messagetag.path,
+        entityBody: null,
+        additionalData: null
+      });
+    }
+    return this.messageService.batchHttpCall(batchOperations);
   }
 }
