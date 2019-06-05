@@ -609,12 +609,12 @@ export class MailListComponent implements OnInit, OnDestroy {
         err => {
           console.log("RES = ", err);
         }
-        );
-      } else {
-        this.displayNote = true;
-        setTimeout(() => {
-          this.noteArea.nativeElement.focus();
-        }, 50);
+      );
+    } else {
+      this.displayNote = true;
+      setTimeout(() => {
+        this.noteArea.nativeElement.focus();
+      }, 50);
     }
   }
 
@@ -667,7 +667,19 @@ export class MailListComponent implements OnInit, OnDestroy {
     this.displayNote = false;
   }
 
-  private chooseRegistrationType(event, registrationType) {
+  /**
+   * Scarico il messaggio passato
+   * @param selectedMessage
+   */
+  private dowloadMessage(selectedMessage: Message): void {
+    this.messageService.downloadEml(selectedMessage.id, this.getEmlSource(selectedMessage)).subscribe(response => {
+      const nomeEmail = "Email_" + selectedMessage.subject + "_" + selectedMessage.id + ".eml";
+      Utils.downLoadFile(response, "message/rfc822", nomeEmail, false);
+    });
+  }
+
+
+  public chooseRegistrationType(event, registrationType) {
     if (!registrationType && event) {
       if (!event.item.items) {
         this.displayProtocollaDialog = true;
@@ -680,17 +692,6 @@ export class MailListComponent implements OnInit, OnDestroy {
       }
       this.displayProtocollaDialog = false;
     }
-  }
-
-  /**
-   * Scarico il messaggio passato
-   * @param selectedMessage
-   */
-  private dowloadMessage(selectedMessage: Message): void {
-    this.messageService.downloadEml(selectedMessage.id, this.getEmlSource(selectedMessage)).subscribe(response => {
-      const nomeEmail = "Email_" + selectedMessage.subject + "_" + selectedMessage.id + ".eml";
-      Utils.downLoadFile(response, "message/rfc822", nomeEmail, false);
-    });
   }
 
   public ngOnDestroy() {
