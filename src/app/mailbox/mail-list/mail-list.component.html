@@ -27,52 +27,54 @@
     [rowTrackBy]="trackByFn"
     > -->
 
-<p-table #dt *ngIf="_selectedFolder || _filters"
-    [lazy]="true" (onLazyLoad)="lazyLoad($event)"
-    scrollHeight="100%"
-    [value]="mailListService.messages"
-    [columns]="cols"
-    [paginator]="false"
-    [loading]="loading"
-    [autoLayout]="true"
-    [responsive]="true"
-    [totalRecords]="totalRecords"
-    [(selection)]="mailListService.selectedMessages"
-    contextMenuSelectionMode="joint"
-    selectionMode="multiple"
-    [metaKeySelection]="true"
-    [lazyLoadOnInit] = "false"
-    [rows]="rowsNmber"
-    [rowTrackBy]="trackByFn"
-    [contextMenu]="cm"
-    [scrollable]="true" [virtualRowHeight]="virtualRowHeight" [virtualScroll]="true" [virtualScrollDelay]="150"
+<p-table #dt *ngIf="_selectedFolder || _filters" [lazy]="true" (onLazyLoad)="lazyLoad($event)" scrollHeight="100%"
+    [value]="mailListService.messages" [columns]="cols" [paginator]="false" [loading]="loading" [autoLayout]="true"
+    [responsive]="true" [totalRecords]="totalRecords" [(selection)]="mailListService.selectedMessages"
+    contextMenuSelectionMode="joint" selectionMode="multiple" [metaKeySelection]="true" [lazyLoadOnInit]="false"
+    [rows]="rowsNmber" [rowTrackBy]="trackByFn" [contextMenu]="cm" [scrollable]="true"
+    [virtualRowHeight]="virtualRowHeight" [virtualScroll]="true" [virtualScrollDelay]="150"
     (onRowSelect)="handleEvent('onRowSelect', $event)" (onRowUnselect)="handleEvent('onRowUnselect', $event)"
     (selectionChange)="handleEvent('selectionChange', $event)"
-    (onContextMenuSelect)="handleEvent('onContextMenuSelect', $event)"
-    >
+    (onContextMenuSelect)="handleEvent('onContextMenuSelect', $event)">
     <ng-template pTemplate="body" let-rowData let-message let-rowIndex="rowIndex">
-        <tr #selRow class="message-row" [pSelectableRow]="rowData" [pSelectableRowIndex]="rowIndex" [pContextMenuRow]="rowData" >
+        <tr #selRow class="message-row" [pSelectableRow]="rowData" [pSelectableRowIndex]="rowIndex"
+            [pContextMenuRow]="rowData">
             <td>
-                <div class = "mail-icons-container">
+                <div class="mail-icons-container">
                     <span *ngIf="message?.iconsVisibility?.replied || message?.iconsVisibility?.replied_all">
-                        <span class="mail-icon" [ngClass]="{'visibility-hidden':!message['iconsVisibility']['replied_all'] && !message['iconsVisibility']['replied']}">
-                            <i [pTooltip]="getTagDescription('replied_all')" tooltipPosition="top" *ngIf="message['iconsVisibility']['replied_all']; else reply_single" class="material-icons mail-icons">reply_all</i>
-                            <ng-template #reply_single><i [pTooltip]="getTagDescription('replied')" tooltipPosition="top" class="material-icons mail-icons">reply</i></ng-template>
+                        <span class="mail-icon"
+                            [ngClass]="{'visibility-hidden':!message['iconsVisibility']['replied_all'] && !message['iconsVisibility']['replied']}">
+                            <i [pTooltip]="getTagDescription('replied_all')" tooltipPosition="top"
+                                *ngIf="message['iconsVisibility']['replied_all']; else reply_single"
+                                class="material-icons mail-icons">reply_all</i>
+                            <ng-template #reply_single><i [pTooltip]="getTagDescription('replied')"
+                                    tooltipPosition="top" class="material-icons mail-icons">reply</i></ng-template>
                         </span>
                     </span>
-                    <span *ngIf="!message?.iconsVisibility?.replied && !message?.iconsVisibility?.replied_all" class="mail-icon visibility-hidden"><i class="material-icons mail-icons">reply_all</i></span>
-                    <span class="mail-icon" [ngClass]="{'visibility-hidden':!message?.iconsVisibility?.forwarded}"><i [pTooltip]="getTagDescription('forwarded')" tooltipPosition="top" class="material-icons mail-icons">forward</i></span>
-                    <span class="mail-icon" [ngClass]="{'visibility-hidden':!message?.iconsVisibility?.assigned}"><i [pTooltip]="getTagDescription('assigned')" tooltipPosition="top" class="material-icons mail-icons">merge_type</i></span>
-                    <span class="mail-icon" [ngClass]="{'visibility-hidden':!message?.iconsVisibility?.readdressed}"><i [pTooltip]="getTagDescription('readdressed')" tooltipPosition="top" class="material-icons mail-icons">fast_forward</i></span>
-                    <span class="mail-icon" [ngClass]="{'visibility-hidden':!message?.iconsVisibility?.annotated}"><i [pTooltip]="getTagDescription('annotated')" tooltipPosition="top" class="material-icons fa-icons fas fa-sticky-note"></i></span>
+                    <span *ngIf="!message?.iconsVisibility?.replied && !message?.iconsVisibility?.replied_all"
+                        class="mail-icon visibility-hidden"><i class="material-icons mail-icons">reply_all</i></span>
+                    <span class="mail-icon" [ngClass]="{'visibility-hidden':!message?.iconsVisibility?.forwarded}"><i
+                            [pTooltip]="getTagDescription('forwarded')" tooltipPosition="top"
+                            class="material-icons mail-icons">forward</i></span>
+                    <span class="mail-icon" [ngClass]="{'visibility-hidden':!message?.iconsVisibility?.assigned}"><i
+                            [pTooltip]="getTagDescription('assigned')" tooltipPosition="top"
+                            class="material-icons mail-icons">merge_type</i></span>
+                    <span class="mail-icon" [ngClass]="{'visibility-hidden':!message?.iconsVisibility?.readdressed}"><i
+                            [pTooltip]="getTagDescription('readdressed')" tooltipPosition="top"
+                            class="material-icons mail-icons">fast_forward</i></span>
+                    <span class="mail-icon" [ngClass]="{'visibility-hidden':!message?.iconsVisibility?.annotated}"><i
+                            [pTooltip]="getTagDescription('annotated')" tooltipPosition="top"
+                            class="material-icons fa-icons fas fa-sticky-note"></i></span>
                 </div>
-                <div class = "display-block">
-                    <span class = "pi pi-user display-icon"></span> <div class="display-text" [ngClass]="{'display-bold':!message.seen}">{{message.fromOrTo}}</div>
+                <div class="display-block">
+                    <span class="pi pi-user display-icon"></span>
+                    <div class="display-text" [ngClass]="{'display-bold':!message.seen}">{{message.fromOrTo}}</div>
                 </div>
-                <div class = "display-block extra-margin">
+                <div class="display-block extra-margin">
                     <span *ngIf="!message?.seen" class="fas fa-envelope display-icon envelope-icon"></span>
                     <span *ngIf="message?.seen" class="far fa-envelope-open display-icon envelope-icon"></span>
-                    <span *ngIf="_filters && !_selectedFolder" class="display-text text-background">{{message?.messageFolderList[0]?.idFolder.description}}</span>
+                    <span *ngIf="_filters && !_selectedFolder"
+                        class="display-text text-background">{{message?.messageFolderList[0]?.idFolder.description}}</span>
                     <span class="display-text" [ngClass]="{'display-bold':!message.seen}">{{message.subject}}</span>
                     <!-- <div class="display-text" [ngClass]="{'display-bold':!message.seen}">{{message.id + " -- " + message.subject}}</div>  -->
                 </div>
@@ -92,28 +94,46 @@
     <p style="margin: 0">Non ci sono elementi da visualizzare.</p>
     <p style="margin: 0.5em">Selezionare una cartella o effettuare una ricerca.</p>
 </div>
-<p-contextMenu #cm [model]="cmItems" styleClass = "context-menu-mail-list"></p-contextMenu>
+<p-contextMenu #cm [model]="cmItems" styleClass="context-menu-mail-list"></p-contextMenu>
 
 <p-confirmDialog acceptLabel="Sì" rejectLabel="No" [style]="{width: '20vw', top: '40%'}"></p-confirmDialog>
 <!-- "{'margin': '-128px 0 0 -312px'}" -->
-<p-dialog
-    header="Nota messaggio" [(visible)]="displayNote" [modal]="true" [closable]="false"
-    [responsive]="true" [style]="{width: '350px', minWidth: '264px'}"
-    [minY]="60" [baseZIndex]="10000">
-        <div class="flex-1" style="height: 100%; min-height: 80px;">
-            <textarea class="flex-1 note-area" pInputTextarea placeholder="Inserisci nota"
+<p-dialog header="Nota messaggio" [(visible)]="displayNote" [modal]="true" [closable]="false" [responsive]="true"
+    [style]="{width: '350px', minWidth: '264px'}" [minY]="60" [baseZIndex]="10000">
+    <div class="flex-1" style="height: 100%; min-height: 80px;">
+        <textarea class="flex-1 note-area" pInputTextarea placeholder="Inserisci nota"
             [(ngModel)]="noteObject.memo"></textarea>
+    </div>
+    <p-footer>
+        <button type="button" pButton icon="pi pi-check" (click)="handleEvent('saveNote', '')" label="Conferma"
+            class="confirm-buttons ui-button-raised ui-button-secondary custom-secondary-button">
+        </button>
+        <button type="button" pButton icon="pi pi-times" (click)="displayNote=false" label="Annulla"
+            class="confirm-buttons ui-button-raised ui-button-secondary custom-secondary-button">
+        </button>
+    </p-footer>
+</p-dialog>
+
+<p-dialog [(visible)]="displayProtocollaDialog" [visible]="displayProtocollaDialog">
+    <p-header>
+        Protocolla Pec
+    </p-header>
+    <div style="height: 50px; padding-top: 10px;">
+        Vuoi creare un nuovo documento, oppure aggiungere ad una bozza già creata?
+    </div>
+    <p-footer>
+        <div class="p-grid p-justify-even">
+
+            <button type="button" pButton (click)="chooseRegistrationType(null, 'NEW')" label="Crea Nuovo"
+                class="ui-button-raised ui-button-secondary custom-secondary-button">
+            </button>
+
+
+            <button type="button" pButton (click)="chooseRegistrationType(null, 'ADD')"
+                label="Aggiungi a bozza già creata"
+                class="ui-button-raised ui-button-secondary custom-secondary-button">
+            </button>
+
         </div>
-        <p-footer>
-            <button
-                type="button" pButton
-                icon="pi pi-check" (click)="handleEvent('saveNote', '')" label="Conferma"
-                class="confirm-buttons ui-button-raised ui-button-secondary custom-secondary-button">
-            </button>
-            <button
-                type="button" pButton
-                icon="pi pi-times" (click)="displayNote=false" label="Annulla"
-                class="confirm-buttons ui-button-raised ui-button-secondary custom-secondary-button">
-            </button>
-        </p-footer>
+    </p-footer>
 </p-dialog>

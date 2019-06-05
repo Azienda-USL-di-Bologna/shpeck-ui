@@ -21,7 +21,7 @@
     "@angular/platform-browser": "~7.2.0",
     "@angular/platform-browser-dynamic": "~7.2.0",
     "@angular/router": "~7.2.0",
-    "@bds/ng-internauta-model": "0.0.52",
+    "@bds/ng-internauta-model": "0.0.53",
     "@bds/nt-communicator": "0.0.29",
     "@bds/nt-jwt-login": "0.0.34",
     "@bds/primeng-plugin": "0.0.14",

@@ -1,5 +1,5 @@
 import { Injectable } from "@angular/core";
-import { Tag, Folder, Message, FolderType, InOut, ENTITIES_STRUCTURE, FluxPermission, PecPermission, Note, MessageTag, Utente } from "@bds/ng-internauta-model";
+import { Tag, Folder, Message, FolderType, InOut, ENTITIES_STRUCTURE, FluxPermission, PecPermission, Note, MessageTag, Utente, Azienda } from "@bds/ng-internauta-model";
 import { MenuItem } from "primeng/api";
 import { Utils } from "src/app/utils/utils";
 import { MessageFolderService } from "src/app/services/message-folder.service";
@@ -110,9 +110,10 @@ export class MailListService {
   public buildRegistrationMenuItems(command: (any) => any): MenuItem[] {
     const registrationItems = [];
     this.loggedUser.getAziendeWithPermission(FluxPermission.REDIGE).forEach(codiceAzienda => {
+      const azienda = this.loggedUser.getUtente().aziende.find(a => a.codice === codiceAzienda);
       registrationItems.push(
         {
-          label: codiceAzienda,
+          label: azienda.nome,
           id: "MessageRegistration",
           disabled: false,
           queryParams: {
@@ -129,10 +130,17 @@ export class MailListService {
    * Questa funzione si occupa di iniziare la protocollazione del messaggio selezionato.
    * @param event
    */
-  public registerMessage(event) {
+  public registerMessage(event, registrationType) {
     console.log(event, this.selectedMessages);
     console.log("loggedUser", this.loggedUser);
-    let decodedUrl = decodeURI(this.loggedUser.getUtente()["aziendaLogin"]["urlCommand"]);
+    const azienda: Azienda = this.loggedUser.getUtente().aziende.find(a => a.codice === event.item.queryParams.codiceAzienda);
+
+    let decodedUrl = "";
+    if (registrationType === "NEW") {
+      decodedUrl = decodeURI(azienda.urlCommands["PROTOCOLLA_PEC_NEW"]); // mi dovrei fare le costanti
+    } else if (registrationType === "ADD") {
+      decodedUrl = decodeURI(azienda.urlCommands["PROTOCOLLA_PEC_ADD"]); // mi dovrei fare le costanti
+    }
     decodedUrl = decodedUrl.replace("[id_pec]", this.selectedMessages[0].id.toString());
 
     console.log("command", decodedUrl);
@@ -259,7 +267,7 @@ export class MailListService {
       messageTag = this.selectedMessages[0].messageTagList.find(mt => mt.idTag.name === "annotated");
     }
     const isAnnotedTagPresent = messageTag !== null;
-    if (!isAnnotedTagPresent && noteObj.memo !== "" ) { // Insert
+    if (!isAnnotedTagPresent && noteObj.memo !== "") { // Insert
       batchOperations.push({
         id: null,
         operation: BatchOperationTypes.INSERT,
@@ -268,7 +276,7 @@ export class MailListService {
         entityBody: {
           idMessage: message,
           idUtente: { id: this.loggedUser.getUtente().id } as Utente,
-          idTag: {id: this.annotedTag.id } as Tag
+          idTag: { id: this.annotedTag.id } as Tag
         } as MessageTag,
         additionalData: null
       });

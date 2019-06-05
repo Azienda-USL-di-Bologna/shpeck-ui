@@ -52,6 +52,7 @@ export class MailListComponent implements OnInit, OnDestroy {
   private foldersSubCmItems: MenuItem[] = null;
   private aziendeProtocollabiliSubCmItems: MenuItem[] = null;
   private utenteConnesso: UtenteUtilities;
+  private registerMessageEvent: any = null;
 
   public cmItems: MenuItem[] = [
     {
@@ -150,6 +151,7 @@ export class MailListComponent implements OnInit, OnDestroy {
   ];
 
   public displayNote: boolean = false;
+  public displayProtocollaDialog = false;
   public noteObject: Note = new Note();
   public fromOrTo: string;
   public tags = [];
@@ -566,7 +568,7 @@ export class MailListComponent implements OnInit, OnDestroy {
         this.mailListService.moveMessages(event.item.queryParams.folder);
         break;
       case "MessageRegistration":
-        this.mailListService.registerMessage(event);
+        this.chooseRegistrationType(event, null);
         break;
       case "MessageDownload":
         this.dowloadMessage(this.mailListService.selectedMessages[0]);
@@ -648,6 +650,21 @@ export class MailListComponent implements OnInit, OnDestroy {
           { severity: "error", summary: "Errore", detail: "Errore durante il salvaggio, contattare BabelCare", life: 3500 });
       });
     this.displayNote = false;
+  }
+
+  private chooseRegistrationType(event, registrationType) {
+    if (!registrationType && event) {
+      if (!event.item.items) {
+        this.displayProtocollaDialog = true;
+        this.registerMessageEvent = event;
+      }
+    } else {
+      if (this.registerMessageEvent) {
+        this.mailListService.registerMessage(this.registerMessageEvent, registrationType);
+        this.registerMessageEvent = null;
+      }
+      this.displayProtocollaDialog = false;
+    }
   }
 
   public checkAndClose(event) {
