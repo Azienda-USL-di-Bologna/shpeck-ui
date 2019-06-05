@@ -72,7 +72,7 @@ export class MailFoldersComponent implements OnInit, OnDestroy {
     private toolBarService: ToolBarService) { }
 
   ngOnInit() {
-    this.subscriptions.push(this.pecService.getMyPecs(ENTITIES_STRUCTURE.baborg.pec.standardProjections.PecWithFolderList, this.buildFolderInitialFilterAndSort(), null, null).subscribe(
+    this.subscriptions.push(this.pecService.getMyPecs(ENTITIES_STRUCTURE.baborg.pec.standardProjections.PecWithFolderListAndTagList, this.buildFolderInitialFilterAndSort(), null, null).subscribe(
       (myPecs: Pec[]) => {
         if (myPecs) {
           for (const pec of myPecs) {
@@ -81,7 +81,9 @@ export class MailFoldersComponent implements OnInit, OnDestroy {
             }
           }
           this.selectedNode = this.mailfolders[0];
-          this.mailFoldersService.selectedPecFolder(this.mailfolders[0].data, this.mailfolders[0].children.map((c: MyTreeNode) => c.data.data) as Folder[]);
+          this.mailFoldersService.selectedPecFolder(this.mailfolders[0].data,
+            this.mailfolders[0].children.map((c: MyTreeNode) => c.data.data) as Folder[],
+          (this.mailfolders[0].data.data as Pec).tagList);
         }
       }
     ));
@@ -209,11 +211,19 @@ export class MailFoldersComponent implements OnInit, OnDestroy {
 
         if (event.node.data && (event.node as MyTreeNode).data.type === PecFolderType.PEC) {
           this.cmItems = this.pecCmItems;
-          this.mailFoldersService.selectedPecFolder(event.node.data, event.node.children.map((c: MyTreeNode) => c.data.data) as Folder[]);
+          this.mailFoldersService.selectedPecFolder(
+            event.node.data,
+            event.node.children.map((c: MyTreeNode) => c.data.data) as Folder[],
+            (event.node.data.data as Pec).tagList
+          );
         } else {
           this.disableNotSelectableFolderContextMenuItems(event.node.data.data as Folder);
           this.cmItems = this.folderCmItems;
-          this.mailFoldersService.selectedPecFolder(event.node.data, event.node.parent.children.map((c: MyTreeNode) => c.data.data) as Folder[]);
+          this.mailFoldersService.selectedPecFolder(
+            event.node.data,
+            event.node.parent.children.map((c: MyTreeNode) => c.data.data) as Folder[],
+            (event.node.parent.data.data as Pec).tagList
+          );
         }
       } else {
         this.cmItems = [];
@@ -245,9 +255,16 @@ export class MailFoldersComponent implements OnInit, OnDestroy {
         this.selectRootNode(event.node, true);
 
         if (event.node.data && (event.node as MyTreeNode).data.type === PecFolderType.PEC) {
-          this.mailFoldersService.selectedPecFolder(event.node.data, event.node.children.map((c: MyTreeNode) => c.data.data) as Folder[]);
+          this.mailFoldersService.selectedPecFolder(
+            event.node.data,
+            event.node.children.map((c: MyTreeNode) => c.data.data) as Folder[],
+            (event.node.data.data as Pec).tagList
+          );
         } else {
-          this.mailFoldersService.selectedPecFolder(event.node.data, event.node.parent.children.map((c: MyTreeNode) => c.data.data) as Folder[]);
+          this.mailFoldersService.selectedPecFolder(
+            event.node.data,
+            event.node.parent.children.map((c: MyTreeNode) => c.data.data) as Folder[],
+            (event.node.parent.data.data as Pec).tagList);
         }
       }
     break;
@@ -293,7 +310,11 @@ export class MailFoldersComponent implements OnInit, OnDestroy {
               const pecFolderList: Folder[] = (this.selectedNode.parent.data.data as Pec).folderList;
               const index = pecFolderList.findIndex(childFolder => f.id === childFolder.id);
               pecFolderList[index] = f;
-              this.mailFoldersService.selectedPecFolder(this.selectedNode.data, this.selectedNode.parent.children.map((c: MyTreeNode) => c.data.data) as Folder[]);
+              this.mailFoldersService.selectedPecFolder(
+                this.selectedNode.data,
+                this.selectedNode.parent.children.map((c: MyTreeNode) => c.data.data) as Folder[],
+                (this.selectedNode.parent.data.data as Pec).tagList
+              );
             });
           } else {
             // Questo assegnamento è per prevenire il caso in cui il salvataggio parta contemporanemanete al cambiamento del selectedNode.
@@ -305,7 +326,11 @@ export class MailFoldersComponent implements OnInit, OnDestroy {
               const pecFolderList: Folder[] = (this.previousSelectedNode.parent.data.data as Pec).folderList;
               pecFolderList.push(f);
               this.previousSelectedNode.key = PecFolderType.FOLDER + "_" + f.id;
-              this.mailFoldersService.selectedPecFolder(this.previousSelectedNode.data, this.previousSelectedNode.parent.children.map((c: MyTreeNode) => c.data.data) as Folder[]);
+              this.mailFoldersService.selectedPecFolder(
+                this.previousSelectedNode.data,
+                this.previousSelectedNode.parent.children.map((c: MyTreeNode) => c.data.data) as Folder[],
+                (this.previousSelectedNode.parent.data.data as Pec).tagList
+              );
             });
           }
         }
@@ -329,7 +354,7 @@ export class MailFoldersComponent implements OnInit, OnDestroy {
         const folderElementIndex = pec.folderList.findIndex(element => element.id === folder.id);
         pec.folderList.splice(folderElementIndex, 1);
         this.selectRootNode(this.selectedNode.parent, false);
-        this.mailFoldersService.selectedPecFolder(this.selectedNode.data, pec.folderList);
+        this.mailFoldersService.selectedPecFolder(this.selectedNode.data, pec.folderList, pec.tagList);
         this.selectedNode = null;
       },
       (error) => {

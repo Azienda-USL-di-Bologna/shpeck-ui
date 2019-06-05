@@ -1,7 +1,7 @@
 import { Injectable } from "@angular/core";
 import { TreeNode } from "primeng/api";
 import { BehaviorSubject, Observable } from "rxjs";
-import { Pec, Folder } from "@bds/ng-internauta-model";
+import { Pec, Folder, Tag } from "@bds/ng-internauta-model";
 
 @Injectable({
   providedIn: "root"
@@ -11,26 +11,29 @@ export class MailFoldersService {
 
 
   private _pecFolderSelected: BehaviorSubject<PecFolder> = new BehaviorSubject<PecFolder>(null);
-  private _pecFolders: BehaviorSubject<Folder[]> = new BehaviorSubject<Folder[]>(null);
+  private _pecFoldersAndTags: BehaviorSubject<FoldersAndTags> = new BehaviorSubject<FoldersAndTags>(null);
 
   constructor() {
   }
 
-  public selectedPecFolder(node: PecFolder, folders: Folder[]): void {
+  public selectedPecFolder(node: PecFolder, folders: Folder[], tags: Tag[]): void {
     this._pecFolderSelected.next(node);
-    this.setPecFolders(folders);
+    this.setPecFoldersAndTags(folders, tags);
   }
 
   public get pecFolderSelected(): Observable<PecFolder> {
     return this._pecFolderSelected.asObservable();
   }
 
-  public setPecFolders(folders: Folder[]): void {
-    this._pecFolders.next(folders);
+  public setPecFoldersAndTags(folders: Folder[], tags: Tag[]): void {
+    this._pecFoldersAndTags.next({
+      folders: folders,
+      tags: tags
+    });
   }
 
-  public get pecFolders(): Observable<Folder[]> {
-    return this._pecFolders.asObservable();
+  public get pecFoldersAndTags(): Observable<FoldersAndTags> {
+    return this._pecFoldersAndTags.asObservable();
   }
 }
 
@@ -42,4 +45,9 @@ export enum PecFolderType {
 export interface PecFolder {
   type: PecFolderType;
   data: Pec | Folder;
+}
+
+export interface FoldersAndTags {
+  folders: Folder[];
+  tags: Tag[];
 }

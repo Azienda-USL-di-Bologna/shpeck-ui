@@ -1,6 +1,6 @@
 import { Component, OnInit, Output, EventEmitter, ViewChild, ElementRef, OnDestroy } from "@angular/core";
 import { buildLazyEventFiltersAndSorts } from "@bds/primeng-plugin";
-import { Message, ENTITIES_STRUCTURE, MessageAddress, AddresRoleType, Folder, MessageTag, InOut, Tag, Pec, MessageType, FolderType } from "@bds/ng-internauta-model";
+import { Message, ENTITIES_STRUCTURE, MessageAddress, AddresRoleType, Folder, MessageTag, InOut, Tag, Pec, MessageType, FolderType, Note, Utente } from "@bds/ng-internauta-model";
 import { ShpeckMessageService } from "src/app/services/shpeck-message.service";
 import { FiltersAndSorts, FilterDefinition, FILTER_TYPES, SortDefinition, SORT_MODES, PagingConf, BatchOperation, BatchOperationTypes } from "@nfa/next-sdr";
 import { TagService } from "src/app/services/tag.service";
@@ -8,11 +8,14 @@ import { Observable, Subscription } from "rxjs";
 import { DatePipe } from "@angular/common";
 import { Table } from "primeng/table";
 import { TOOLBAR_ACTIONS, EMLSOURCE } from "src/environments/app-constants";
-import { MenuItem, LazyLoadEvent, FilterMetadata, ConfirmationService } from "primeng/api";
+import { MenuItem, LazyLoadEvent, FilterMetadata, ConfirmationService, MessageService } from "primeng/api";
 import { Utils } from "src/app/utils/utils";
 import { MailFoldersService, PecFolderType, PecFolder } from "../mail-folders/mail-folders.service";
 import { ToolBarService } from "../toolbar/toolbar.service";
 import { MailListService } from "./mail-list.service";
+import { NoteService } from "src/app/services/note.service";
+import { NtJwtLoginService, UtenteUtilities } from "@bds/nt-jwt-login";
+import { InputTextarea } from "primeng/primeng";
 
 @Component({
   selector: "app-mail-list",
@@ -48,6 +51,7 @@ export class MailListComponent implements OnInit, OnDestroy {
   private previousFilter: FilterDefinition[] = [];
   private foldersSubCmItems: MenuItem[] = null;
   private aziendeProtocollabiliSubCmItems: MenuItem[] = null;
+  private utenteConnesso: UtenteUtilities;
 
   public cmItems: MenuItem[] = [
     {
@@ -111,7 +115,7 @@ export class MailListComponent implements OnInit, OnDestroy {
     {
       label: "Nota",
       id: "MessageNote",
-      disabled: true,
+      disabled: false,
       queryParams: {},
       command: event => this.selectedContextMenuItem(event)
     },
@@ -145,7 +149,8 @@ export class MailListComponent implements OnInit, OnDestroy {
     }
   ];
 
-
+  public displayNote: boolean = false;
+  public noteObject: Note = new Note();
   public fromOrTo: string;
   public tags = [];
   public loading = false;
@@ -169,7 +174,9 @@ export class MailListComponent implements OnInit, OnDestroy {
     private mailFoldersService: MailFoldersService,
     private toolBarService: ToolBarService,
     private datepipe: DatePipe,
-    private confirmationService: ConfirmationService
+    private confirmationService: ConfirmationService,
+    private messagePrimeService: MessageService,
+    private noteService: NoteService
   ) {
     this.selectedContextMenuItem = this.selectedContextMenuItem.bind(this);
   }
@@ -463,6 +470,9 @@ export class MailListComponent implements OnInit, OnDestroy {
       case "onContextMenuSelect":
         this.setContextMenuItemLook();
         break;
+      case "saveNote":
+        this.saveNote();
+        break;
     }
   }
 
@@ -570,9 +580,38 @@ export class MailListComponent implements OnInit, OnDestroy {
       case "MessageForward":
         this.toolBarService.newMail(TOOLBAR_ACTIONS.FORWARD);
         break;
+      case "MessageNote":
+        this.noteHandler();
+        break;
     }
   }
 
+  private noteHandler() {
+    // Todo leggere dalle Note non vengon tirate su con i Messaggi anymore
+    // Todo il salvataggio dovrebbe funzionare così com'è
+    // Todo nella callback bisogna sistemare l'array dei tag, Toglierlo o inserirlo a seconda dell'operazione
+
+    this.noteService.loadNote(this.mailListService.selectedMessages[0].id).subscribe(
+      res => {
+        console.log("RES = ", res);
+        if (res && res.results && res.results.length > 0) {
+          const notes: Note[] = res.results;
+          this.noteObject = notes[0];
+        } else {
+          this.noteObject.memo = "";
+        }
+        this.displayNote = true;
+      },
+      err => {
+        console.log("RES = ", err);
+      }
+    );
+    // if (this.mailListService.selectedMessages[0].noteList.length > 0) {
+    //   this.noteText = this.mailListService.selectedMessages[0].noteList[0].memo;
+    // } else {
+    //   this.noteText = "";
+    // }
+  }
 
   /**
    * Chiedo conferma sulla cancellazione dei messaggi selezioni.
@@ -596,6 +635,32 @@ export class MailListComponent implements OnInit, OnDestroy {
     });
   }
 
+  private saveNote() {
+    this.mailListService.saveNote(this.noteObject).subscribe(
+      res => {
+        console.log("BATCH RES = ", res);
+        this.messagePrimeService.add(
+          { severity: "success", summary: "Successo", detail: "Nota salvata correttamente" });
+      },
+      err => {
+        console.log(err);
+        this.messagePrimeService.add(
+          { severity: "error", summary: "Errore", detail: "Errore durante il salvaggio, contattare BabelCare", life: 3500 });
+      });
+    this.displayNote = false;
+  }
+
+  public checkAndClose(event) {
+    console.log("EVENT = ", event);
+    this.confirmationService.confirm({
+      message: "Vuoi chiudere?",
+      header: "Conferma",
+      icon: "pi pi-exclamation-triangle",
+      accept: () => {
+      },
+      reject: () => { }
+    });
+  }
 
   /**
    * Scarico il messaggio passato

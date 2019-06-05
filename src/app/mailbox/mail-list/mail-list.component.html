@@ -64,6 +64,7 @@
                     <span class="mail-icon" [ngClass]="{'visibility-hidden':!message?.iconsVisibility?.forwarded}"><i [pTooltip]="getTagDescription('forwarded')" tooltipPosition="top" class="material-icons mail-icons">forward</i></span>
                     <span class="mail-icon" [ngClass]="{'visibility-hidden':!message?.iconsVisibility?.assigned}"><i [pTooltip]="getTagDescription('assigned')" tooltipPosition="top" class="material-icons mail-icons">merge_type</i></span>
                     <span class="mail-icon" [ngClass]="{'visibility-hidden':!message?.iconsVisibility?.readdressed}"><i [pTooltip]="getTagDescription('readdressed')" tooltipPosition="top" class="material-icons mail-icons">fast_forward</i></span>
+                    <span class="mail-icon" [ngClass]="{'visibility-hidden':!message?.iconsVisibility?.annotated}"><i [pTooltip]="getTagDescription('annotated')" tooltipPosition="top" class="material-icons fa-icons fas fa-sticky-note"></i></span>
                 </div>
                 <div class = "display-block">
                     <span class = "pi pi-user display-icon"></span> <div class="display-text" [ngClass]="{'display-bold':!message.seen}">{{message.fromOrTo}}</div>
@@ -95,3 +96,24 @@
 
 <p-confirmDialog acceptLabel="Sì" rejectLabel="No" [style]="{width: '20vw', top: '40%'}"></p-confirmDialog>
 <!-- "{'margin': '-128px 0 0 -312px'}" -->
+<p-dialog
+    header="Nota messaggio" [(visible)]="displayNote" [modal]="true" [closable]="false"
+    [responsive]="true" [style]="{width: '350px', minWidth: '264px'}"
+    [minY]="60" [baseZIndex]="10000">
+        <div class="flex-1" style="height: 100%; min-height: 80px;">
+            <textarea class="flex-1 note-area" pInputTextarea placeholder="Inserisci nota"
+            [(ngModel)]="noteObject.memo"></textarea>
+        </div>
+        <p-footer>
+            <button
+                type="button" pButton
+                icon="pi pi-check" (click)="handleEvent('saveNote', '')" label="Conferma"
+                class="confirm-buttons ui-button-raised ui-button-secondary custom-secondary-button">
+            </button>
+            <button
+                type="button" pButton
+                icon="pi pi-times" (click)="displayNote=false" label="Annulla"
+                class="confirm-buttons ui-button-raised ui-button-secondary custom-secondary-button">
+            </button>
+        </p-footer>
+</p-dialog>
