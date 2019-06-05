@@ -1,21 +1,19 @@
 import { Component, OnInit, Output, EventEmitter, ViewChild, ElementRef, OnDestroy } from "@angular/core";
 import { buildLazyEventFiltersAndSorts } from "@bds/primeng-plugin";
-import { Message, ENTITIES_STRUCTURE, MessageAddress, AddresRoleType, Folder, MessageTag, InOut, Tag, Pec, MessageType, FolderType, Note, Utente } from "@bds/ng-internauta-model";
+import { Message, ENTITIES_STRUCTURE, MessageAddress, AddresRoleType, Folder, MessageTag, InOut, Tag, Pec, MessageType, FolderType, Note } from "@bds/ng-internauta-model";
 import { ShpeckMessageService } from "src/app/services/shpeck-message.service";
 import { FiltersAndSorts, FilterDefinition, FILTER_TYPES, SortDefinition, SORT_MODES, PagingConf, BatchOperation, BatchOperationTypes } from "@nfa/next-sdr";
 import { TagService } from "src/app/services/tag.service";
 import { Observable, Subscription } from "rxjs";
 import { DatePipe } from "@angular/common";
 import { Table } from "primeng/table";
-import { TOOLBAR_ACTIONS, EMLSOURCE } from "src/environments/app-constants";
+import { TOOLBAR_ACTIONS, EMLSOURCE, BaseUrls, BaseUrlType } from "src/environments/app-constants";
 import { MenuItem, LazyLoadEvent, FilterMetadata, ConfirmationService, MessageService } from "primeng/api";
 import { Utils } from "src/app/utils/utils";
 import { MailFoldersService, PecFolderType, PecFolder } from "../mail-folders/mail-folders.service";
 import { ToolBarService } from "../toolbar/toolbar.service";
 import { MailListService } from "./mail-list.service";
 import { NoteService } from "src/app/services/note.service";
-import { NtJwtLoginService, UtenteUtilities } from "@bds/nt-jwt-login";
-import { InputTextarea } from "primeng/primeng";
 
 @Component({
   selector: "app-mail-list",
@@ -29,6 +27,7 @@ export class MailListComponent implements OnInit, OnDestroy {
 
   @ViewChild("selRow") private selRow: ElementRef;
   @ViewChild("dt") private dt: Table;
+  @ViewChild("noteArea") private noteArea;
 
   public _selectedFolder: Folder;
   public _selectedPecId: number;
@@ -51,7 +50,6 @@ export class MailListComponent implements OnInit, OnDestroy {
   private previousFilter: FilterDefinition[] = [];
   private foldersSubCmItems: MenuItem[] = null;
   private aziendeProtocollabiliSubCmItems: MenuItem[] = null;
-  private utenteConnesso: UtenteUtilities;
 
   public cmItems: MenuItem[] = [
     {
@@ -587,30 +585,35 @@ export class MailListComponent implements OnInit, OnDestroy {
   }
 
   private noteHandler() {
-    // Todo leggere dalle Note non vengon tirate su con i Messaggi anymore
-    // Todo il salvataggio dovrebbe funzionare così com'è
-    // Todo nella callback bisogna sistemare l'array dei tag, Toglierlo o inserirlo a seconda dell'operazione
-
-    this.noteService.loadNote(this.mailListService.selectedMessages[0].id).subscribe(
-      res => {
-        console.log("RES = ", res);
-        if (res && res.results && res.results.length > 0) {
-          const notes: Note[] = res.results;
-          this.noteObject = notes[0];
-        } else {
-          this.noteObject.memo = "";
+    let messageTag: MessageTag = null;
+    this.noteObject = new Note();
+    this.noteObject.memo = "";
+    if (this.mailListService.selectedMessages[0].messageTagList !== null) {
+      messageTag = this.mailListService.selectedMessages[0].messageTagList.find(mt => mt.idTag.name === "annotated");
+    }
+    if (messageTag) {
+      this.noteService.loadNote(this.mailListService.selectedMessages[0].id).subscribe(
+        res => {
+          console.log("RES = ", res);
+          if (res && res.results && res.results.length > 0) {
+            const notes: Note[] = res.results;
+            this.noteObject = notes[0];
+          }
+          this.displayNote = true;
+          setTimeout(() => {
+            this.noteArea.nativeElement.focus();
+          }, 50);
+        },
+        err => {
+          console.log("RES = ", err);
         }
+        );
+      } else {
         this.displayNote = true;
-      },
-      err => {
-        console.log("RES = ", err);
-      }
-    );
-    // if (this.mailListService.selectedMessages[0].noteList.length > 0) {
-    //   this.noteText = this.mailListService.selectedMessages[0].noteList[0].memo;
-    // } else {
-    //   this.noteText = "";
-    // }
+        setTimeout(() => {
+          this.noteArea.nativeElement.focus();
+        }, 50);
+    }
   }
 
   /**
@@ -636,9 +639,21 @@ export class MailListComponent implements OnInit, OnDestroy {
   }
 
   private saveNote() {
-    this.mailListService.saveNote(this.noteObject).subscribe(
-      res => {
+    const previousMessage = this.mailListService.selectedMessages[0];
+    this.mailListService.saveNoteAndUpdateTag(this.noteObject).subscribe(
+      (res: BatchOperation[]) => {
         console.log("BATCH RES = ", res);
+        const messageTag = res.find(op =>
+          op.entityPath === BaseUrls.get(BaseUrlType.Shpeck) + "/" + ENTITIES_STRUCTURE.shpeck.messagetag.path);
+        if (messageTag && messageTag.operation === BatchOperationTypes.INSERT) {
+          if (!previousMessage.messageTagList) {
+            previousMessage.messageTagList = [];
+          }
+          previousMessage.messageTagList.push(messageTag.entityBody as MessageTag);
+        } else if (messageTag && messageTag.operation === BatchOperationTypes.DELETE) {
+          previousMessage.messageTagList = previousMessage.messageTagList.filter(m => m.id !== messageTag.id);
+        }
+        this.setIconsVisibility(previousMessage);
         this.messagePrimeService.add(
           { severity: "success", summary: "Successo", detail: "Nota salvata correttamente" });
       },
@@ -648,18 +663,6 @@ export class MailListComponent implements OnInit, OnDestroy {
           { severity: "error", summary: "Errore", detail: "Errore durante il salvaggio, contattare BabelCare", life: 3500 });
       });
     this.displayNote = false;
-  }
-
-  public checkAndClose(event) {
-    console.log("EVENT = ", event);
-    this.confirmationService.confirm({
-      message: "Vuoi chiudere?",
-      header: "Conferma",
-      icon: "pi pi-exclamation-triangle",
-      accept: () => {
-      },
-      reject: () => { }
-    });
   }
 
   /**

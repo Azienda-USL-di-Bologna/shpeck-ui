@@ -14,6 +14,10 @@ export class NoteService extends NextSDREntityProvider {
     super(http, datepipe, ENTITIES_STRUCTURE.shpeck.note, getInternautaUrl(BaseUrlType.Shpeck));
   }
 
+  /**
+   * Carica la nota (se presente) associata ad un messaggio
+   * @param idMessage
+   */
   public loadNote(idMessage: number) {
     const filtersAndSorts: FiltersAndSorts = new FiltersAndSorts();
     filtersAndSorts.addFilter(

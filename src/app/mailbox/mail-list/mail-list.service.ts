@@ -219,7 +219,11 @@ export class MailListService {
     }
   }
 
-  public saveNote(noteObj: Note) {
+  /**
+   * Salva la nota aggiunta ad un messaggio e aggiorna il tag associato
+   * @param noteObj L'oggetto nota da salvare
+   */
+  public saveNoteAndUpdateTag(noteObj: Note) {
     const message: Message = new Message();
     message.id = this.selectedMessages[0].id;
     const batchOperations: BatchOperation[] = [];
@@ -258,7 +262,7 @@ export class MailListService {
     if (this.selectedMessages[0].messageTagList !== null) {
       messageTag = this.selectedMessages[0].messageTagList.find(mt => mt.idTag.name === "annotated");
     }
-    const isAnnotedTagPresent = messageTag !== null;
+    const isAnnotedTagPresent = messageTag !== null && messageTag !== undefined;
     if (!isAnnotedTagPresent && noteObj.memo !== "" ) { // Insert
       batchOperations.push({
         id: null,

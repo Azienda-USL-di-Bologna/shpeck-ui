@@ -101,7 +101,7 @@
     [responsive]="true" [style]="{width: '350px', minWidth: '264px'}"
     [minY]="60" [baseZIndex]="10000">
         <div class="flex-1" style="height: 100%; min-height: 80px;">
-            <textarea class="flex-1 note-area" pInputTextarea placeholder="Inserisci nota"
+            <textarea #noteArea class="flex-1 note-area" pInputTextarea placeholder="Inserisci nota"
             [(ngModel)]="noteObject.memo"></textarea>
         </div>
         <p-footer>
