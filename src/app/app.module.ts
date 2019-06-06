@@ -18,6 +18,7 @@ import { loginModuleConfig } from "./config/module-config";
 import { PrimengPluginModule } from "@bds/primeng-plugin";
 import { DialogService } from "primeng/api";
 import { MessageService } from "primeng/api";
+import { TooltipModule } from "primeng/tooltip";
 import { MailFoldersComponent } from "./mailbox/mail-folders/mail-folders.component";
 import { SanitizeHtmlPipe } from "./utils/sanitize-html-pipe";
 import { ToolbarComponent } from "./mailbox/toolbar/toolbar.component";
@@ -67,6 +68,7 @@ registerLocaleData(localeIt, "it-IT", localeItExtra);
     AppRoutingModule,
     PrimengModule,
     PrimengPluginModule,
+    TooltipModule,
     ReactiveFormsModule,
     NextSdrModule
   ],
@@ -87,4 +89,4 @@ registerLocaleData(localeIt, "it-IT", localeItExtra);
   bootstrap: [AppComponent],
   entryComponents: [SettingsComponent, NewMailComponent]
 })
-export class AppModule {}
+export class AppModule { }

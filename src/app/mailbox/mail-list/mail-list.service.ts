@@ -1,5 +1,5 @@
 import { Injectable } from "@angular/core";
-import { Tag, Folder, Message, FolderType, InOut, ENTITIES_STRUCTURE, FluxPermission, PecPermission, Note, MessageTag, Utente, Azienda } from "@bds/ng-internauta-model";
+import { Tag, Folder, Message, FolderType, InOut, ENTITIES_STRUCTURE, FluxPermission, PecPermission, Note, MessageTag, Utente, Azienda, Pec } from "@bds/ng-internauta-model";
 import { MenuItem } from "primeng/api";
 import { Utils } from "src/app/utils/utils";
 import { MessageFolderService } from "src/app/services/message-folder.service";
@@ -99,53 +99,6 @@ export class MailListService {
       }
     });
     return foldersSubCmItems;
-  }
-
-
-  /**
-   * Questa funzione si occupa di creare un MenuItem[] che contenga come items la
-   * lista delle aziende su cui l'utente loggato ha il permesso redige.
-   * @param command
-   */
-  public buildRegistrationMenuItems(command: (any) => any): MenuItem[] {
-    const registrationItems = [];
-    this.loggedUser.getAziendeWithPermission(FluxPermission.REDIGE).forEach(codiceAzienda => {
-      const azienda = this.loggedUser.getUtente().aziende.find(a => a.codice === codiceAzienda);
-      registrationItems.push(
-        {
-          label: azienda.nome,
-          id: "MessageRegistration",
-          disabled: false,
-          queryParams: {
-            codiceAzienda: codiceAzienda
-          },
-          command: event => command(event)
-        }
-      );
-    });
-    return registrationItems;
-  }
-
-  /**
-   * Questa funzione si occupa di iniziare la protocollazione del messaggio selezionato.
-   * @param event
-   */
-  public registerMessage(event, registrationType) {
-    console.log(event, this.selectedMessages);
-    console.log("loggedUser", this.loggedUser);
-    const azienda: Azienda = this.loggedUser.getUtente().aziende.find(a => a.codice === event.item.queryParams.codiceAzienda);
-
-    let decodedUrl = "";
-    if (registrationType === "NEW") {
-      decodedUrl = decodeURI(azienda.urlCommands["PROTOCOLLA_PEC_NEW"]); // mi dovrei fare le costanti
-    } else if (registrationType === "ADD") {
-      decodedUrl = decodeURI(azienda.urlCommands["PROTOCOLLA_PEC_ADD"]); // mi dovrei fare le costanti
-    }
-    decodedUrl = decodedUrl.replace("[id_pec]", this.selectedMessages[0].id.toString());
-
-    console.log("command", decodedUrl);
-
-    window.open(decodedUrl);
   }
 
   /**

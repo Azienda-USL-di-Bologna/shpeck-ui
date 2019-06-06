@@ -1,6 +1,6 @@
 import { Component, OnInit, Output, EventEmitter, ViewChild, ElementRef, OnDestroy } from "@angular/core";
 import { buildLazyEventFiltersAndSorts } from "@bds/primeng-plugin";
-import { Message, ENTITIES_STRUCTURE, MessageAddress, AddresRoleType, Folder, MessageTag, InOut, Tag, Pec, MessageType, FolderType, Note } from "@bds/ng-internauta-model";
+import { Message, ENTITIES_STRUCTURE, MessageAddress, AddresRoleType, Folder, MessageTag, InOut, Tag, Pec, MessageType, FolderType, Note, FluxPermission, Azienda } from "@bds/ng-internauta-model";
 import { ShpeckMessageService } from "src/app/services/shpeck-message.service";
 import { FiltersAndSorts, FilterDefinition, FILTER_TYPES, SortDefinition, SORT_MODES, PagingConf, BatchOperation, BatchOperationTypes } from "@nfa/next-sdr";
 import { TagService } from "src/app/services/tag.service";
@@ -14,6 +14,8 @@ import { MailFoldersService, PecFolderType, PecFolder } from "../mail-folders/ma
 import { ToolBarService } from "../toolbar/toolbar.service";
 import { MailListService } from "./mail-list.service";
 import { NoteService } from "src/app/services/note.service";
+import { NtJwtLoginService, UtenteUtilities } from '@bds/nt-jwt-login';
+import { query } from '@angular/core/src/render3';
 
 @Component({
   selector: "app-mail-list",
@@ -51,6 +53,7 @@ export class MailListComponent implements OnInit, OnDestroy {
   private foldersSubCmItems: MenuItem[] = null;
   private aziendeProtocollabiliSubCmItems: MenuItem[] = null;
   private registerMessageEvent: any = null;
+  private loggedUser: UtenteUtilities;
 
   public cmItems: MenuItem[] = [
     {
@@ -176,7 +179,8 @@ export class MailListComponent implements OnInit, OnDestroy {
     private datepipe: DatePipe,
     private confirmationService: ConfirmationService,
     private messagePrimeService: MessageService,
-    private noteService: NoteService
+    private noteService: NoteService,
+    private loginService: NtJwtLoginService
   ) {
     this.selectedContextMenuItem = this.selectedContextMenuItem.bind(this);
   }
@@ -202,6 +206,13 @@ export class MailListComponent implements OnInit, OnDestroy {
     this.subscriptions.push(this.toolBarService.getFilterTyped.subscribe((filters: FilterDefinition[]) => {
       if (filters) {
         this.setFilters(filters);
+      }
+    }));
+    this.subscriptions.push(this.loginService.loggedUser$.subscribe((utente: UtenteUtilities) => {
+      if (utente) {
+        if (!this.loggedUser || utente.getUtente().id !== this.loggedUser.getUtente().id) {
+          this.loggedUser = utente;
+        }
       }
     }));
   }
@@ -533,7 +544,7 @@ export class MailListComponent implements OnInit, OnDestroy {
             element.disabled = true;
             this.cmItems.find(f => f.id === "MessageRegistration").items = null;
           } else {
-            this.cmItems.find(f => f.id === "MessageRegistration").items = this.mailListService.buildRegistrationMenuItems(this.selectedContextMenuItem);
+            this.cmItems.find(f => f.id === "MessageRegistration").items = this.buildRegistrationMenuItems(this.selectedContextMenuItem);
           }
           break;
         case "MessageDownload":
@@ -544,6 +555,63 @@ export class MailListComponent implements OnInit, OnDestroy {
           break;
       }
     });
+  }
+
+
+  /**
+   * Questa funzione si occupa di creare un MenuItem[] che contenga come items la
+   * lista delle aziende su cui l'utente loggato ha il permesso redige per la funzione protocolla Pec.
+   * Con un futuro refactoring si potrebbe spostare tutto quello che riguarda la protocollazione nel mail-list.service
+   * @param command
+   */
+  public buildRegistrationMenuItems(command: (any) => any): MenuItem[] {
+    const registrationItems = [];
+    this.loggedUser.getAziendeWithPermission(FluxPermission.REDIGE).forEach(codiceAzienda => {
+      const azienda = this.loggedUser.getUtente().aziende.find(a => a.codice === codiceAzienda);
+      let pIspecDellAzienda = true;
+      let pIcon = "";
+      let pTitle = "";
+      if (!this._selectedPec.pecAziendaList.find(pecAzienda => pecAzienda.fk_idAzienda.id === azienda.id)) {
+        pIspecDellAzienda = false;
+        pIcon = "pi pi-exclamation-triangle";
+        pTitle = "L'azienda non è associata alla casella del messaggio selezionato."
+      }
+      registrationItems.push(
+        {
+          label: azienda.nome,
+          icon: pIcon,
+          id: "MessageRegistration",
+          title: pTitle,
+          disabled: false,
+          queryParams: {
+            codiceAzienda: codiceAzienda,
+            isPecDellAzienda: pIspecDellAzienda,
+          },
+          command: event => command(event)
+        }
+      );
+    });
+    return registrationItems;
+  }
+
+  /**
+   * Questa funzione si occupa di iniziare la protocollazione del messaggio selezionato.
+   * @param event
+   */
+  public registerMessage(event: any, registrationType: string) {
+    console.log("selectedMessages", event, this.mailListService.selectedMessages);
+    console.log("loggedUser", this.loggedUser);
+    const azienda: Azienda = this.loggedUser.getUtente().aziende.find(a => a.codice === event.item.queryParams.codiceAzienda);
+    let decodedUrl = "";
+    if (registrationType === "NEW") {
+      decodedUrl = decodeURI(azienda.urlCommands["PROTOCOLLA_PEC_NEW"]); // mi dovrei fare le costanti
+    } else if (registrationType === "ADD") {
+      decodedUrl = decodeURI(azienda.urlCommands["PROTOCOLLA_PEC_ADD"]); // mi dovrei fare le costanti
+    }
+    decodedUrl = decodedUrl.replace("[id_pec]", this.mailListService.selectedMessages[0].id.toString());
+
+    console.log("command", decodedUrl);
+    window.open(decodedUrl);
   }
 
 
@@ -680,14 +748,27 @@ export class MailListComponent implements OnInit, OnDestroy {
 
 
   public chooseRegistrationType(event, registrationType) {
-    if (!registrationType && event) {
+    if (!registrationType && event) { // vengo dal click sul menu
       if (!event.item.items) {
-        this.displayProtocollaDialog = true;
-        this.registerMessageEvent = event;
+        if (event.item.queryParams.isPecDellAzienda === false) {
+          this.confirmationService.confirm({
+            header: "Conferma",
+            message: "<b>Attenzione! Stai avviando la protocollazione su una azienda non associata alla casella selezionata.</b><br/><br/>Sei sicuro?",
+            icon: "pi pi-exclamation-triangle",
+            accept: () => {
+              this.displayProtocollaDialog = true;
+              this.registerMessageEvent = event;
+            }
+          });
+        } else {
+          this.displayProtocollaDialog = true;
+          this.registerMessageEvent = event;
+        }
       }
-    } else {
+    } else if (registrationType && !event) { // vengo dalla dialog di conferma
+      // this.registerMessageEvent questo mi aspetto che sia popolato in quanto devo essere passato al giro prima dal click sul menu
       if (this.registerMessageEvent) {
-        this.mailListService.registerMessage(this.registerMessageEvent, registrationType);
+        this.registerMessage(this.registerMessageEvent, registrationType);
         this.registerMessageEvent = null;
       }
       this.displayProtocollaDialog = false;
