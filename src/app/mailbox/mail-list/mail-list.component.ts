@@ -601,20 +601,14 @@ export class MailListComponent implements OnInit, OnDestroy {
             const notes: Note[] = res.results;
             this.noteObject = notes[0];
           }
-          this.displayNote = true;
-          setTimeout(() => {
-            this.noteArea.nativeElement.focus();
-          }, 50);
+          this.showNotePopup();
         },
         err => {
-          console.log("RES = ", err);
+          console.log("ERR = ", err);
         }
       );
     } else {
-      this.displayNote = true;
-      setTimeout(() => {
-        this.noteArea.nativeElement.focus();
-      }, 50);
+      this.showNotePopup();
     }
   }
 
@@ -640,6 +634,13 @@ export class MailListComponent implements OnInit, OnDestroy {
     });
   }
 
+  private showNotePopup() {
+    this.displayNote = true;
+    setTimeout(() => {
+      this.noteArea.nativeElement.focus();
+    }, 50);
+  }
+
   private saveNote() {
     const previousMessage = this.mailListService.selectedMessages[0];
     this.mailListService.saveNoteAndUpdateTag(this.noteObject).subscribe(
@@ -660,7 +661,7 @@ export class MailListComponent implements OnInit, OnDestroy {
           { severity: "success", summary: "Successo", detail: "Nota salvata correttamente" });
       },
       err => {
-        console.log(err);
+        console.log("ERR = ", err);
         this.messagePrimeService.add(
           { severity: "error", summary: "Errore", detail: "Errore durante il salvaggio, contattare BabelCare", life: 3500 });
       });
