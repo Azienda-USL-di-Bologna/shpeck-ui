@@ -9,7 +9,7 @@ import { FiltersAndSorts, SortDefinition, SORT_MODES, FilterDefinition, FILTER_T
 import { NtJwtLoginService, UtenteUtilities } from "@bds/nt-jwt-login";
 import { HttpClient } from "@angular/common/http";
 import { CUSTOM_SERVER_METHODS, BaseUrlType, getInternautaUrl } from "src/environments/app-constants";
-import { MailListService } from '../mail-list/mail-list.service';
+
 
 @Component({
   selector: "app-readdress",
@@ -18,7 +18,7 @@ import { MailListService } from '../mail-list/mail-list.service';
 })
 export class ReaddressComponent implements OnInit, OnDestroy {
   private subscriptions: Subscription[] = [];
-  private myPecs: Pec[];
+  public myPecs: Pec[];
   public readdressForm: FormGroup;
   private utenteConnesso: UtenteUtilities;
 
