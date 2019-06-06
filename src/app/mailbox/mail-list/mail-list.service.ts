@@ -104,6 +104,7 @@ export class MailListService {
     return foldersSubCmItems;
   }
 
+  /*
    * Questa funzione ritorna un booleano che indica se il messaggio selezionato è protocollabile.
    */
   public isRegisterActive(selectedFolder: Folder): boolean {
@@ -281,7 +282,7 @@ export class MailListService {
       },
       header: "Reindirizza",
       width: "auto",
-      contentStyle: { }
+      contentStyle: {}
     });
   }
 
@@ -295,7 +296,7 @@ export class MailListService {
       selectedFolder.type === "TRASH" ||
       (this.selectedMessages[0].messageTagList && this.selectedMessages[0].messageTagList
         .some(messageTag => messageTag.idTag.name === "readdressed_out" || messageTag.idTag.name === "registered"))) {
-        return false;
+      return false;
     } else {
       return true;
     }

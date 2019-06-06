@@ -72,7 +72,7 @@ export class MailFoldersComponent implements OnInit, OnDestroy {
     private toolBarService: ToolBarService) { }
 
   ngOnInit() {
-    this.subscriptions.push(this.pecService.getMyPecs(ENTITIES_STRUCTURE.baborg.pec.standardProjections.PecWithFolderListAndPecAziendaListAndTagList, this.buildFolderInitialFilterAndSort(), null, null).subscribe(
+    this.subscriptions.push(this.pecService.getMyPecs().subscribe(
       (myPecs: Pec[]) => {
         if (myPecs) {
           for (const pec of myPecs) {
