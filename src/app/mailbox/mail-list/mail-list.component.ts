@@ -538,18 +538,23 @@ export class MailListComponent implements OnInit, OnDestroy {
           break;
         case "MessageRegistration":
           element.disabled = false;
-          if (this.mailListService.selectedMessages.length !== 1 ||
-            this.mailListService.selectedMessages[0].inOut !== InOut.IN ||
-            (this.mailListService.selectedMessages[0].messageType !== MessageType.MAIL && this.mailListService.selectedMessages[0].messageType !== MessageType.PEC)) {
+          if (!this.mailListService.isRegisterActive(this._selectedFolder)) {
             element.disabled = true;
             this.cmItems.find(f => f.id === "MessageRegistration").items = null;
           } else {
             this.cmItems.find(f => f.id === "MessageRegistration").items = this.buildRegistrationMenuItems(this.selectedContextMenuItem);
           }
           break;
+        case "MessageNote":
         case "MessageDownload":
           element.disabled = false;
           if (this.mailListService.selectedMessages.length > 1) {
+            element.disabled = true;
+          }
+          break;
+        case "MessageReaddress":
+          element.disabled = false;
+          if (!this.mailListService.isReaddressActive(this._selectedFolder)) {
             element.disabled = true;
           }
           break;
@@ -648,6 +653,9 @@ export class MailListComponent implements OnInit, OnDestroy {
       case "MessageForward":
         this.toolBarService.newMail(TOOLBAR_ACTIONS.FORWARD);
         break;
+      case "MessageReaddress":
+        this.mailListService.readdressMessage();
+        break;
       case "MessageNote":
         this.noteHandler();
         break;
@@ -669,20 +677,14 @@ export class MailListComponent implements OnInit, OnDestroy {
             const notes: Note[] = res.results;
             this.noteObject = notes[0];
           }
-          this.displayNote = true;
-          setTimeout(() => {
-            this.noteArea.nativeElement.focus();
-          }, 50);
+          this.showNotePopup();
         },
         err => {
-          console.log("RES = ", err);
+          console.log("ERR = ", err);
         }
       );
     } else {
-      this.displayNote = true;
-      setTimeout(() => {
-        this.noteArea.nativeElement.focus();
-      }, 50);
+      this.showNotePopup();
     }
   }
 
@@ -708,6 +710,13 @@ export class MailListComponent implements OnInit, OnDestroy {
     });
   }
 
+  private showNotePopup() {
+    this.displayNote = true;
+    setTimeout(() => {
+      this.noteArea.nativeElement.focus();
+    }, 50);
+  }
+
   private saveNote() {
     const previousMessage = this.mailListService.selectedMessages[0];
     this.mailListService.saveNoteAndUpdateTag(this.noteObject).subscribe(
@@ -728,7 +737,7 @@ export class MailListComponent implements OnInit, OnDestroy {
           { severity: "success", summary: "Successo", detail: "Nota salvata correttamente" });
       },
       err => {
-        console.log(err);
+        console.log("ERR = ", err);
         this.messagePrimeService.add(
           { severity: "error", summary: "Errore", detail: "Errore durante il salvaggio, contattare BabelCare", life: 3500 });
       });

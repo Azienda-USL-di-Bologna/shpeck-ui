@@ -94,13 +94,6 @@ export class MailFoldersComponent implements OnInit, OnDestroy {
     // }));
   }
 
-  private buildFolderInitialFilterAndSort(): FiltersAndSorts {
-    const filter = new FiltersAndSorts();
-    filter.addSort(new SortDefinition("indirizzo", SORT_MODES.asc));
-    filter.addAdditionalData(new AdditionalDataDefinition("OperationRequested", "FilterPecPerStandardPermissions"));
-    return filter;
-  }
-
   private buildNode(pec: Pec): any {
     const children: MyTreeNode[] = [];
     if (pec.folderList) {
