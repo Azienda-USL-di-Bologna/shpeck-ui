@@ -72,7 +72,7 @@ export class MailFoldersComponent implements OnInit, OnDestroy {
     private toolBarService: ToolBarService) { }
 
   ngOnInit() {
-    this.subscriptions.push(this.pecService.getMyPecs(ENTITIES_STRUCTURE.baborg.pec.standardProjections.PecWithFolderListAndTagList, this.buildFolderInitialFilterAndSort(), null, null).subscribe(
+    this.subscriptions.push(this.pecService.getMyPecs().subscribe(
       (myPecs: Pec[]) => {
         if (myPecs) {
           for (const pec of myPecs) {
@@ -92,13 +92,6 @@ export class MailFoldersComponent implements OnInit, OnDestroy {
     //     this.selectRootNode(this.selectedNode, false);
     //   }
     // }));
-  }
-
-  private buildFolderInitialFilterAndSort(): FiltersAndSorts {
-    const filter = new FiltersAndSorts();
-    filter.addSort(new SortDefinition("indirizzo", SORT_MODES.asc));
-    filter.addAdditionalData(new AdditionalDataDefinition("OperationRequested", "FilterPecPerStandardPermissions"));
-    return filter;
   }
 
   private buildNode(pec: Pec): any {

@@ -527,9 +527,7 @@ export class MailListComponent implements OnInit, OnDestroy {
           break;
         case "MessageRegistration":
           element.disabled = false;
-          if (this.mailListService.selectedMessages.length !== 1 ||
-            this.mailListService.selectedMessages[0].inOut !== InOut.IN ||
-            (this.mailListService.selectedMessages[0].messageType !== MessageType.MAIL && this.mailListService.selectedMessages[0].messageType !== MessageType.PEC)) {
+          if (!this.mailListService.isRegisterActive(this._selectedFolder)) {
             element.disabled = true;
             this.cmItems.find(f => f.id === "MessageRegistration").items = null;
           } else {
@@ -540,6 +538,12 @@ export class MailListComponent implements OnInit, OnDestroy {
         case "MessageDownload":
           element.disabled = false;
           if (this.mailListService.selectedMessages.length > 1) {
+            element.disabled = true;
+          }
+          break;
+        case "MessageReaddress":
+          element.disabled = false;
+          if (!this.mailListService.isReaddressActive(this._selectedFolder)) {
             element.disabled = true;
           }
           break;
@@ -580,6 +584,9 @@ export class MailListComponent implements OnInit, OnDestroy {
         break;
       case "MessageForward":
         this.toolBarService.newMail(TOOLBAR_ACTIONS.FORWARD);
+        break;
+      case "MessageReaddress":
+        this.mailListService.readdressMessage();
         break;
       case "MessageNote":
         this.noteHandler();

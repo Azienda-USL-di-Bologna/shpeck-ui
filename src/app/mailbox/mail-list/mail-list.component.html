@@ -59,8 +59,8 @@
                     <span class="mail-icon" [ngClass]="{'visibility-hidden':!message?.iconsVisibility?.assigned}"><i
                             [pTooltip]="getTagDescription('assigned')" tooltipPosition="top"
                             class="material-icons mail-icons">merge_type</i></span>
-                    <span class="mail-icon" [ngClass]="{'visibility-hidden':!message?.iconsVisibility?.readdressed}"><i
-                            [pTooltip]="getTagDescription('readdressed')" tooltipPosition="top"
+                    <span class="mail-icon" [ngClass]="{'visibility-hidden':!message?.iconsVisibility?.readdressed_out && !message?.iconsVisibility?.readdressed_in}"><i
+                            [pTooltip]="getTagDescription('readdressed_in')" tooltipPosition="top"
                             class="material-icons mail-icons">fast_forward</i></span>
                     <span class="mail-icon" [ngClass]="{'visibility-hidden':!message?.iconsVisibility?.annotated}"><i
                             [pTooltip]="getTagDescription('annotated')" tooltipPosition="top"

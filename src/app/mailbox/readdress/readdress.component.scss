@@ -1,0 +1,17 @@
+::ng-deep #readdress {
+    width: min-content;
+    .ui-g {
+        margin-bottom: 1em;
+        max-height: 50vh;
+        overflow: auto;
+        min-width: 420px;
+        .ui-g-12 {
+            padding: .3em;
+            min-width: 410px;
+        }
+    }
+    p-footer {
+        display: flex;
+        justify-content: space-between;
+    }
+}

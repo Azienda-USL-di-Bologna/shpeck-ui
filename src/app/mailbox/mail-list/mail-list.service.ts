@@ -1,5 +1,5 @@
 import { Injectable } from "@angular/core";
-import { Tag, Folder, Message, FolderType, InOut, ENTITIES_STRUCTURE, FluxPermission, PecPermission, Note, MessageTag, Utente, Azienda } from "@bds/ng-internauta-model";
+import { Tag, Folder, Message, FolderType, InOut, ENTITIES_STRUCTURE, FluxPermission, PecPermission, Note, MessageTag, Utente, Azienda, MessageType } from "@bds/ng-internauta-model";
 import { MenuItem } from "primeng/api";
 import { Utils } from "src/app/utils/utils";
 import { MessageFolderService } from "src/app/services/message-folder.service";
@@ -9,6 +9,8 @@ import { NtJwtLoginService, UtenteUtilities } from "@bds/nt-jwt-login";
 import { BatchOperation, BatchOperationTypes } from "@nfa/next-sdr";
 import { BaseUrls, BaseUrlType } from "src/environments/app-constants";
 import { ShpeckMessageService } from "src/app/services/shpeck-message.service";
+import { DialogService } from "primeng/api";
+import { ReaddressComponent } from '../readdress/readdress.component';
 
 @Injectable({
   providedIn: "root"
@@ -27,6 +29,7 @@ export class MailListService {
 
 
   constructor(
+    private dialogService: DialogService,
     private messageFolderService: MessageFolderService,
     private mailFoldersService: MailFoldersService,
     private loginService: NtJwtLoginService,
@@ -124,6 +127,22 @@ export class MailListService {
       );
     });
     return registrationItems;
+  }
+
+  /**
+   * Questa funzione ritorna un booleano che indica se il messaggio selezionato è protocollabile.
+   */
+  public isRegisterActive(selectedFolder: Folder): boolean {
+    if (this.selectedMessages.length !== 1 ||
+      this.selectedMessages[0].inOut !== InOut.IN ||
+      (this.selectedMessages[0].messageType !== MessageType.MAIL && this.selectedMessages[0].messageType !== MessageType.PEC) ||
+      selectedFolder.type === "TRASH" ||
+      (this.selectedMessages[0].messageTagList && this.selectedMessages[0].messageTagList
+        .some(messageTag => messageTag.idTag.name === "readdressed_out" || messageTag.idTag.name === "registered"))) {
+      return false;
+    } else {
+      return true;
+    }
   }
 
   /**
@@ -298,4 +317,35 @@ export class MailListService {
     }
     return this.messageService.batchHttpCall(batchOperations);
   }
+
+  /**
+   * Questa funzione si occupa di aprire la dialog per il reindirizzamento
+   */
+  public readdressMessage() {
+    const ref = this.dialogService.open(ReaddressComponent, {
+      data: {
+        message: this.selectedMessages[0]
+      },
+      header: "Reindirizza",
+      width: "auto",
+      contentStyle: { }
+    });
+  }
+
+  /**
+   * Questa funzione ritorna un booleano che indica se i messaggi selezionati sono reindirizzabili.
+   * @param selectedFolder 
+   */
+  public isReaddressActive(selectedFolder: Folder): boolean {
+    if (this.selectedMessages.length !== 1 ||
+      this.selectedMessages[0].inOut !== "IN" ||
+      selectedFolder.type === "TRASH" ||
+      (this.selectedMessages[0].messageTagList && this.selectedMessages[0].messageTagList
+        .some(messageTag => messageTag.idTag.name === "readdressed_out" || messageTag.idTag.name === "registered"))) {
+        return false;
+    } else {
+      return true;
+    }
+  }
+
 }

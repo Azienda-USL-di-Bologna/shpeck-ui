@@ -10,6 +10,7 @@ import { PrimengModule } from "./primeng.module";
 import { MailboxComponent } from "./mailbox/mailbox.component";
 import { MailListComponent } from "./mailbox/mail-list/mail-list.component";
 import { MailDetailComponent } from "./mailbox/mail-detail/mail-detail.component";
+import { ReaddressComponent } from "./mailbox/readdress/readdress.component";
 
 /* Login */
 import { NtJwtLoginModule } from "@bds/nt-jwt-login";
@@ -41,6 +42,7 @@ import { MailDraftsComponent } from "./mailbox/mail-drafts/mail-drafts.component
 import { StripeHtmlPipe } from "./pipes/stripe-html.pipe";
 import { MailListService } from "./mailbox/mail-list/mail-list.service";
 import { CommandManagerService } from "./services/command-manager.service";
+
 registerLocaleData(localeIt, "it-IT", localeItExtra);
 
 
@@ -57,7 +59,8 @@ registerLocaleData(localeIt, "it-IT", localeItExtra);
     NewMailComponent,
     RecepitsComponent,
     MailDraftsComponent,
-    StripeHtmlPipe
+    StripeHtmlPipe,
+    ReaddressComponent
   ],
   imports: [
     NtJwtLoginModule.forRoot(loginModuleConfig),
@@ -85,6 +88,6 @@ registerLocaleData(localeIt, "it-IT", localeItExtra);
     CommandManagerService
   ],
   bootstrap: [AppComponent],
-  entryComponents: [SettingsComponent, NewMailComponent]
+  entryComponents: [SettingsComponent, NewMailComponent, ReaddressComponent]
 })
 export class AppModule {}
