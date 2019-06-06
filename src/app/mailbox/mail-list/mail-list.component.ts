@@ -536,6 +536,7 @@ export class MailListComponent implements OnInit, OnDestroy {
             this.cmItems.find(f => f.id === "MessageRegistration").items = this.mailListService.buildRegistrationMenuItems(this.selectedContextMenuItem);
           }
           break;
+        case "MessageNote":
         case "MessageDownload":
           element.disabled = false;
           if (this.mailListService.selectedMessages.length > 1) {
