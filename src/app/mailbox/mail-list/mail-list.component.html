@@ -71,6 +71,12 @@
                     <span class="mail-icon" [ngClass]="{'visibility-hidden':!message?.iconsVisibility?.annotated}"><i
                             [pTooltip]="getTagDescription('annotated')" tooltipPosition="top"
                             class="material-icons fa-icons fas fa-sticky-note"></i></span>
+
+                    <!-- iconcina degli allegati -->
+                    <span class="second-line-icon" [ngClass]="{'visibility-hidden':message?.attachmentsNumber === 0}"><i
+                        [pTooltip]="message?.attachmentsNumber + ' allegati'" tooltipPosition="top"
+                        class="material-icons second-line-icon">attach_file</i></span>
+
                     <!-- data della mail -->
                     <span class="mail-date">
                         {{message.receiveTime | date: 'EE d MMM y, H:mm'}}
@@ -81,10 +87,15 @@
                     <div class="display-text" [ngClass]="{'display-bold':!message.seen}">{{message.fromOrTo}}</div>
                 </div>
                 <div class="display-block extra-margin">
+                    <!-- iconcina della mail -->
                     <span *ngIf="!message?.seen" class="fas fa-envelope display-icon envelope-icon"></span>
                     <span *ngIf="message?.seen" class="far fa-envelope-open display-icon envelope-icon"></span>
+
+                    <!-- nome della cartella in cui si trova la mail in caso di risultati di una ricerca su tutta la casella -->
                     <span *ngIf="_filters && !_selectedFolder"
                         class="display-text text-background">{{message?.messageFolderList[0]?.idFolder.description}}</span>
+                    
+                    <!-- oggetto della mail -->
                     <span class="display-text" [ngClass]="{'display-bold':!message.seen}">{{message.subject}}</span>
                     <!-- <div class="display-text" [ngClass]="{'display-bold':!message.seen}">{{message.id + " -- " + message.subject}}</div>  -->
                 </div>

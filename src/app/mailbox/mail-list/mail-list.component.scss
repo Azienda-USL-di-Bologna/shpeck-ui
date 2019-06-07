@@ -65,9 +65,16 @@
   //width: 20px;
 }
 
+.second-line-icon {
+  font-size: 18px;
+  display: block;
+  float: right;
+}
+
 .mail-date {
-  position: absolute;
-  right: 1%;
+  // position: absolute;
+  // right: 1%;
+  float: right;
 }
 
 .visibility-hidden {
@@ -84,6 +91,8 @@
 
 .display-text {
   margin-left: 20px;
+  display: inline-block;
+  position: relative;
 }
 
 .display-bold {
