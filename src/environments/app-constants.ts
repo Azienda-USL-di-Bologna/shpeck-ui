@@ -46,7 +46,8 @@ export const CUSTOM_SERVER_METHODS = {
     downloadAllEmlAttachment: "downloadAllEmlAttachment",
     saveDraftMessage: "saveDraftMessage",
     sendMessage: "sendMessage",
-    readdressMessage: "readdressMessage"
+    readdressMessage: "readdressMessage",
+    countMessageInFolder: "countMessageInFolder"
 };
 
 export const EMLSOURCE = {

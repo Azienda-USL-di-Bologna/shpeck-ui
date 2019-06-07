@@ -49,8 +49,12 @@ export class MailListService {
       } else {
         this.folders = foldersAndTags.folders;
         this.tags = foldersAndTags.tags;
-        this.trashFolder = this.folders.find(f => f.type === FolderType.TRASH);
-        this.annotedTag = this.tags.find(t => t.name === "annotated");
+        if (this.folders) {
+          this.trashFolder = this.folders.find(f => f.type === FolderType.TRASH);
+        }
+        if (this.tags) {
+          this.annotedTag = this.tags.find(t => t.name === "annotated");
+        }
       }
     }));
   }

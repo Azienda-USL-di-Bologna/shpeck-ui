@@ -41,6 +41,7 @@
             [pContextMenuRow]="rowData">
             <td>
                 <div class="mail-icons-container">
+                    <!-- se c'è risposto/risposto a tutti metto quello giusto risposto a tutti vince -->
                     <span *ngIf="message?.iconsVisibility?.replied || message?.iconsVisibility?.replied_all">
                         <span class="mail-icon"
                             [ngClass]="{'visibility-hidden':!message['iconsVisibility']['replied_all'] && !message['iconsVisibility']['replied']}">
@@ -51,20 +52,29 @@
                                     tooltipPosition="top" class="material-icons mail-icons">reply</i></ng-template>
                         </span>
                     </span>
+                    <!-- se non c'è nè risposto, nè risposto a tutti lascio lo spazio vuoto -->
                     <span *ngIf="!message?.iconsVisibility?.replied && !message?.iconsVisibility?.replied_all"
                         class="mail-icon visibility-hidden"><i class="material-icons mail-icons">reply_all</i></span>
+                    <!-- inoltra (se non c'è mette visibility-hidden per lasciare lo spazio vuoto ) -->  
                     <span class="mail-icon" [ngClass]="{'visibility-hidden':!message?.iconsVisibility?.forwarded}"><i
                             [pTooltip]="getTagDescription('forwarded')" tooltipPosition="top"
                             class="material-icons mail-icons">forward</i></span>
+                    <!-- assegnato (se non c'è mette visibility-hidden per lasciare lo spazio vuoto ) --> 
                     <span class="mail-icon" [ngClass]="{'visibility-hidden':!message?.iconsVisibility?.assigned}"><i
                             [pTooltip]="getTagDescription('assigned')" tooltipPosition="top"
                             class="material-icons mail-icons">merge_type</i></span>
+                    <!-- reindirizzato (se non c'è mette visibility-hidden per lasciare lo spazio vuoto ) --> 
                     <span class="mail-icon" [ngClass]="{'visibility-hidden':!message?.iconsVisibility?.readdressed_out && !message?.iconsVisibility?.readdressed_in}"><i
                             [pTooltip]="getTagDescription('readdressed_in')" tooltipPosition="top"
                             class="material-icons mail-icons">fast_forward</i></span>
+                    <!-- annotato (se non c'è mette visibility-hidden per lasciare lo spazio vuoto ) --> 
                     <span class="mail-icon" [ngClass]="{'visibility-hidden':!message?.iconsVisibility?.annotated}"><i
                             [pTooltip]="getTagDescription('annotated')" tooltipPosition="top"
                             class="material-icons fa-icons fas fa-sticky-note"></i></span>
+                    <!-- data della mail -->
+                    <span >
+                        
+                    </span>
                 </div>
                 <div class="display-block">
                     <span class="pi pi-user display-icon"></span>

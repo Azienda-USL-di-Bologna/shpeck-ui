@@ -1,8 +1,7 @@
-import { Component, OnInit, ViewEncapsulation, Output, EventEmitter, OnDestroy, ViewChild, Input, ElementRef, ViewChildren } from "@angular/core";
-import { FiltersAndSorts, SortDefinition, SORT_MODES, AdditionalDataDefinition, FilterDefinition } from "@nfa/next-sdr";
-import { Pec, ENTITIES_STRUCTURE, Folder, FolderType } from "@bds/ng-internauta-model";
+import { Component, OnInit, ViewEncapsulation, OnDestroy, ViewChild, ElementRef, ViewChildren } from "@angular/core";
+import { Pec, Folder, FolderType } from "@bds/ng-internauta-model";
 import { PecService } from "src/app/services/pec.service";
-import { TreeNode, MenuItem } from "primeng/api";
+import { TreeNode, MenuItem, MessageService } from "primeng/api";
 import { MailFoldersService, PecFolder, PecFolderType } from "./mail-folders.service";
 import { ToolBarService } from "../toolbar/toolbar.service";
 import { Subscription } from "rxjs";
@@ -69,6 +68,7 @@ export class MailFoldersComponent implements OnInit, OnDestroy {
     private pecService: PecService,
     private folderService: FolderService,
     private mailFoldersService: MailFoldersService,
+    private primeMessageService: MessageService,
     private toolBarService: ToolBarService) { }
 
   ngOnInit() {
@@ -147,7 +147,17 @@ export class MailFoldersComponent implements OnInit, OnDestroy {
         case "DeleteFolder":
           const folderToDelete: Folder = this.selectedNode.data.data as Folder;
           if (folderToDelete.type === FolderType.CUSTOM) {
-            this.deleteFolder(folderToDelete);
+            this.mailFoldersService.countMessageInFolder(folderToDelete.id).subscribe(messageNumber => {
+              if (messageNumber === 0) {
+                this.deleteFolder(folderToDelete);
+              } else {
+                this.primeMessageService.add(
+                  { severity: "error", summary: "Errore", detail: "Non puoi eliminare una cartella piena, prima svuotala!", life: 3500 });
+              }
+            });
+          } else {
+            this.primeMessageService.add(
+              { severity: "error", summary: "Errore", detail: "Non puoi eliminare una cartella di sistema!", life: 3500 });
           }
           break;
       }
@@ -351,7 +361,8 @@ export class MailFoldersComponent implements OnInit, OnDestroy {
         this.selectedNode = null;
       },
       (error) => {
-        // TODO: mostrare errore
+        this.primeMessageService.add(
+          { severity: "error", summary: "Errore", detail: "Errore nell'eliminazione della cartella. Riprova tra poco e se il problema persiste contatta BabelCare.", life: 3500 });
       }
     );
   }
