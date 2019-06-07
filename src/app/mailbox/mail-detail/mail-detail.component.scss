@@ -63,8 +63,13 @@
 }
 
 /* ============ DETTAGLI ============ */
-.send-date {
-  align-self: flex-end;
+.idPec {
+  margin-right: 4px;
+  background-color:rgb(247, 247, 247);
+}
+.id-date {
+  display: flex;
+  justify-content: space-between;
   font-size: 12;
 }
 .elenco-dettagli {
