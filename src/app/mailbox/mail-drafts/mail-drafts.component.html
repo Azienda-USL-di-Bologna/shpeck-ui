@@ -32,7 +32,11 @@
                     <span *ngIf="draft?.toAddresses">
                       <span *ngFor="let address of draft.toAddresses">{{address}}; </span>
                     </span>
-                    <span *ngIf="!(message?.toAddresses)"></span>
+                    <!-- <span *ngIf="!(draft?.toAddresses)"></span> -->
+                    <!-- data della bozza -->
+                    <span class="mail-date">
+                            {{draft?.updateTime | date: 'EE d MMM y, H:mm'}}
+                    </span>
                 </div>
                 <div class = "display-block extra-margin">
                     <span class="fa fa-envelope-open-text display-icon envelope-icon"></span>

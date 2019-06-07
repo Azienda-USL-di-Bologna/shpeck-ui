@@ -72,8 +72,8 @@
                             [pTooltip]="getTagDescription('annotated')" tooltipPosition="top"
                             class="material-icons fa-icons fas fa-sticky-note"></i></span>
                     <!-- data della mail -->
-                    <span >
-                        
+                    <span class="mail-date">
+                        {{message.receiveTime | date: 'EE d MMM y, H:mm'}}
                     </span>
                 </div>
                 <div class="display-block">
