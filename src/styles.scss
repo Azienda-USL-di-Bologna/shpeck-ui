@@ -46,3 +46,38 @@ body .custom-primary-button:hover {
 body .custom-border, body .custom-secondary-button {
     border: 1px solid #a6a6a6 !important;
 }
+
+// menu right-click
+body {
+    p-menu {
+        .ui-menu {
+            background-color: #203142;
+            .ui-menuitem-link {
+                .ui-menuitem-text {
+                    color: #F4F4F4;
+                }
+            }
+        }
+    }
+    p-contextmenu {
+        .ui-contextmenu {
+            background-color: #203142;
+            .ui-menuitem {
+                .ui-menuitem-link {
+                    color: #F4F4F4;
+                    .ui-menuitem-text {
+                        color: #F4F4F4;
+                    }
+                }
+            }
+        }
+    }
+
+    .ui-contextmenu .ui-submenu-list {
+        background-color: #203142;
+    }
+
+    .ui-contextmenu .ui-menuitem.ui-menuitem-active > .ui-menuitem-link .ui-menuitem-text {
+        font-weight: bold;
+    }
+}
