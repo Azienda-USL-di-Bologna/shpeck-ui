@@ -4,11 +4,12 @@ import { ShpeckMessageService } from "src/app/services/shpeck-message.service";
 import { DynamicDialogRef, DynamicDialogConfig, DialogService } from "primeng/api";
 import { Subscription, Observable } from "rxjs";
 import { PecService } from "src/app/services/pec.service";
-import { Pec, Folder, ENTITIES_STRUCTURE, Tag } from "@bds/ng-internauta-model";
+import { Pec, Folder, ENTITIES_STRUCTURE, Tag, Message, MessageTag } from "@bds/ng-internauta-model";
 import { FiltersAndSorts, SortDefinition, SORT_MODES, FilterDefinition, FILTER_TYPES } from "@nfa/next-sdr";
 import { NtJwtLoginService, UtenteUtilities } from "@bds/nt-jwt-login";
 import { HttpClient } from "@angular/common/http";
 import { CUSTOM_SERVER_METHODS, BaseUrlType, getInternautaUrl } from "src/environments/app-constants";
+import { checkNoChangesInRootView } from '@angular/core/src/render3/instructions';
 
 
 @Component({
@@ -72,7 +73,20 @@ export class ReaddressComponent implements OnInit, OnDestroy {
     this.http.post(apiUrl, form).subscribe(
       res => {
         console.log(res);
-        this.config.data.message["iconsVisibility"]["readdressed_out"] = true;
+        const message = this.config.data.message as Message;
+        message["iconsVisibility"]["readdressed_out"] = true;
+        const newTag = new Tag();
+        newTag.idPec = message.idPec;
+        newTag.description = "Reindirizzato";
+        newTag.name = "readdressed_out";
+        newTag.type = "SYSTEM_NOT_INSERTABLE_NOT_DELETABLE";
+        const newMessageTag = new MessageTag();
+        newMessageTag.idMessage = message;
+        newMessageTag.idTag = newTag;
+        if (!message.messageTagList) {
+          message.messageTagList = [];
+        }
+        message.messageTagList.push(newMessageTag);
       },
       err => {
         console.log(err);
