@@ -394,13 +394,6 @@ export class MailListComponent implements OnInit, OnDestroy {
         MessageType.MAIL
       )
     );
-    filtersAndSorts.addFilter(
-      new FilterDefinition(
-        "messageType",
-        FILTER_TYPES.not_string.equals,
-        MessageType.PEC
-      )
-    );
     // filtersAndSorts.addSort(new SortDefinition("receiveTime", SORT_MODES.desc));
     filtersAndSorts.addSort(new SortDefinition("id", SORT_MODES.desc));
     return filtersAndSorts;
