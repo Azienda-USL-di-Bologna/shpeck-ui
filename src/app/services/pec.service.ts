@@ -19,7 +19,7 @@ export class PecService extends NextSDREntityProvider {
   }
 
   public getMyPecs(): Observable<Pec[]> {
-    return super.getData(ENTITIES_STRUCTURE.baborg.pec.standardProjections.PecWithFolderListAndPecAziendaList, this.buildFolderInitialFilterAndSort(), null, null).pipe(
+    return super.getData(ENTITIES_STRUCTURE.baborg.pec.standardProjections.PecWithFolderListAndPecAziendaListAndTagList, this.buildFolderInitialFilterAndSort(), null, null).pipe(
       map(data => {
         if (data && data.results) {
           return data.results;
