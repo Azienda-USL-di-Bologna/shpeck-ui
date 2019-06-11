@@ -38,6 +38,7 @@
   </div>
   <p-accordion [multiple]="true" class="multi-accordion-eml-detail">
       <p-accordionTab header="Dettagli" class="accordion-dettagli"
+        selected = true;
         [disabled]="fullMessage?.emlData == null">
         <div *ngIf="fullMessage?.emlData" class="id-date">
           <div>
@@ -64,8 +65,9 @@
         </ul>
       </p-accordionTab>
       <p-accordionTab
+        *ngIf="fullMessage?.emlData?.attachments.length > 0"
         header="Allegati"
-        [(selected)]="accordionAttachmentsSelected"
+        selected="fullMessage?.emlData?.attachments.length > 0"
         [disabled]="fullMessage?.emlData?.attachments == null"
         class="accordion-allegati">
         <div class="box-allegati">
