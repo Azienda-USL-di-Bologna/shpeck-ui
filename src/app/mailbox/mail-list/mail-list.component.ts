@@ -1,6 +1,6 @@
 import { Component, OnInit, Output, EventEmitter, ViewChild, ElementRef, OnDestroy } from "@angular/core";
 import { buildLazyEventFiltersAndSorts } from "@bds/primeng-plugin";
-import { Message, ENTITIES_STRUCTURE, MessageAddress, AddresRoleType, Folder, MessageTag, InOut, Tag, Pec, MessageType, FolderType, Note, FluxPermission, Azienda } from "@bds/ng-internauta-model";
+import { Message, ENTITIES_STRUCTURE, MessageAddress, AddresRoleType, Folder, MessageTag, InOut, Tag, Pec, MessageType, FolderType, Note, FluxPermission, Azienda, MessageStatus } from "@bds/ng-internauta-model";
 import { ShpeckMessageService } from "src/app/services/shpeck-message.service";
 import { FiltersAndSorts, FilterDefinition, FILTER_TYPES, SortDefinition, SORT_MODES, PagingConf, BatchOperation, BatchOperationTypes } from "@nfa/next-sdr";
 import { TagService } from "src/app/services/tag.service";
@@ -163,7 +163,6 @@ export class MailListComponent implements OnInit, OnDestroy {
   public displayProtocollaDialog = false;
   public noteObject: Note = new Note();
   public fromOrTo: string;
-  public tags = [];
   public loading = false;
   public virtualRowHeight: number = 70;
   public totalRecords: number;
@@ -274,10 +273,13 @@ export class MailListComponent implements OnInit, OnDestroy {
   }
 
   public getTagDescription(tagName: string) {
-    if (this.tags && this.tags[tagName]) {
-      return this.tags[tagName].description;
-    } else {
-      return null;
+    if (this.mailListService.tags) {
+      const tag = this.mailListService.tags.find(t => t.name === tagName);
+      if (tag) {
+        return tag.description;
+      } else {
+        return null;
+      }
     }
   }
 
@@ -439,19 +441,19 @@ export class MailListComponent implements OnInit, OnDestroy {
   private setMailTagVisibility(messages: Message[]) {
     messages.map((message: Message) => {
       this.setFromOrTo(message);
-      this.setIconsVisibility(message);
+      this.mailListService.setIconsVisibility(message);
     });
   }
 
-  private setIconsVisibility(message: Message) {
-    message["iconsVisibility"] = [];
-    if (message.messageTagList && message.messageTagList.length > 0) {
-      message.messageTagList.forEach((messageTag: MessageTag) => {
-        message["iconsVisibility"][messageTag.idTag.name] = true;
-        this.tags[messageTag.idTag.name] = messageTag.idTag;
-      });
-    }
-  }
+  // private setIconsVisibility(message: Message) {
+  //   message["iconsVisibility"] = [];
+  //   if (message.messageTagList && message.messageTagList.length > 0) {
+  //     message.messageTagList.forEach((messageTag: MessageTag) => {
+  //       message["iconsVisibility"][messageTag.idTag.name] = true;
+  //       this.tags[messageTag.idTag.name] = messageTag.idTag;
+  //     });
+  //   }
+  // }
 
   private setFromOrTo(message: Message) {
     let addresRoleType: string;
@@ -585,18 +587,26 @@ export class MailListComponent implements OnInit, OnDestroy {
         case "ToggleErrorTrue":
           element.disabled = false;
           element.disabled = this.mailListService.selectedMessages.some(mess => {
-            if (mess.messageTagList) {
-              return mess.messageTagList.find(messageTag => messageTag.idTag.name === "in_error") !== undefined;
+            if (mess.messageStatus === MessageStatus.ERROR) {
+              if (mess.messageTagList) {
+                return mess.messageTagList.find(messageTag => messageTag.idTag.name === "in_error") !== undefined;
+              } else {
+                return false;
+              }
             } else {
-              return false;
+              return true;
             }
           });
           break;
         case "ToggleErrorFalse":
           element.disabled = false;
           element.disabled = !this.mailListService.selectedMessages.some(mess => {
-            if (mess.messageTagList) {
-              return mess.messageTagList.find(messageTag => messageTag.idTag.name === "in_error") !== undefined;
+            if (mess.messageStatus === MessageStatus.ERROR) {
+              if (mess.messageTagList) {
+                return mess.messageTagList.find(messageTag => messageTag.idTag.name === "in_error") !== undefined;
+              } else {
+                return false;
+              }
             } else {
               return false;
             }
@@ -788,7 +798,7 @@ export class MailListComponent implements OnInit, OnDestroy {
         } else if (messageTag && messageTag.operation === BatchOperationTypes.DELETE) {
           previousMessage.messageTagList = previousMessage.messageTagList.filter(m => m.id !== messageTag.id);
         }
-        this.setIconsVisibility(previousMessage);
+        this.mailListService.setIconsVisibility(previousMessage);
         this.messagePrimeService.add(
           { severity: "success", summary: "Successo", detail: "Nota salvata correttamente" });
       },

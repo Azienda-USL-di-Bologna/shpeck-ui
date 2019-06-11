@@ -70,7 +70,7 @@
                     <!-- annotato (se non c'è mette visibility-hidden per lasciare lo spazio vuoto ) -->
                     <span class="mail-icon" [ngClass]="{'visibility-hidden':!message?.iconsVisibility?.annotated}"><i
                             [pTooltip]="getTagDescription('annotated')" tooltipPosition="top"
-                            class="material-icons mail-icons">description</i></span>
+                            class="material-icons mail-icons">insert_comment</i></span>
                     <!-- in errore (se non c'è mette visibility-hidden per lasciare lo spazio vuoto ) -->
                     <span class="mail-icon"
                         [ngClass]="{'visibility-hidden':!(message?.iconsVisibility?.in_error || message.messageStatus === 'ERROR'),'warn-color': message?.iconsVisibility?.in_error}">

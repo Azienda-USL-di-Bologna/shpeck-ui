@@ -195,7 +195,8 @@ export class MailListService {
             "/" +
             ENTITIES_STRUCTURE.shpeck.message.path,
           entityBody: message,
-          additionalData: null
+          additionalData: null,
+          returnProjection: null
         });
       }
     });
@@ -210,7 +211,8 @@ export class MailListService {
   */
   public toggleError(seen: boolean): void {
     const messageTagOperations: BatchOperation[] = [];
-    let idTag;
+    const mtp: MessageTagOp[] = [];
+    let idTag;  // Id del tag nella TagList
     for (const message of this.selectedMessages) {
       if (seen) {
         const mTag: MessageTag = new MessageTag();
@@ -218,32 +220,48 @@ export class MailListService {
         mTag.idUtente = { id: this.loggedUser.getUtente().id } as Utente;
         mTag.idTag = this.tags.find(tag => tag.name === "in_error");
         idTag = mTag.idTag.id;
+        mtp.push({ message: message, operation: "INSERT" });
         messageTagOperations.push({
           id: null,
           operation: BatchOperationTypes.INSERT,
           entityPath:
             BaseUrls.get(BaseUrlType.Shpeck) + "/" + ENTITIES_STRUCTURE.shpeck.messagetag.path,
           entityBody: mTag,
-          additionalData: null
+          additionalData: null,
+          returnProjection: ENTITIES_STRUCTURE.shpeck.messagetag.standardProjections.MessageTagWithIdTagAndIdUtente
         });
       } else {
         const mTag: MessageTag = message.messageTagList.find(messageTag => messageTag.idTag.name === "in_error");
         if (mTag) {
           idTag = mTag.idTag.id;
+          mtp.push({ message: message, operation: "DELETE", messageTag: mTag });
           messageTagOperations.push({
             id: mTag.id,
             operation: BatchOperationTypes.DELETE,
             entityPath:
               BaseUrls.get(BaseUrlType.Shpeck) + "/" + ENTITIES_STRUCTURE.shpeck.messagetag.path,
             entityBody: null,
-            additionalData: null
+            additionalData: null,
+            returnProjection: null
           });
         }
       }
     }
     if (messageTagOperations.length > 0) {
-      this.messageService.batchHttpCall(messageTagOperations).subscribe(() => {
+      this.messageService.batchHttpCall(messageTagOperations).subscribe((res: BatchOperation[]) => {
+        console.log("REEADS = ", res);
         this.mailFoldersService.doReloadTag(idTag);
+        mtp.forEach((item) => {
+          if (item.operation === "INSERT" && res) {
+            const messageTagToPush: MessageTag =
+              res.find(bo => (bo.entityBody as MessageTag).fk_idMessage.id === item.message.id).entityBody as MessageTag
+            item.message.messageTagList.push(messageTagToPush);
+            this.setIconsVisibility(item.message);
+          } else if (item.operation === "DELETE" && res) {
+            item.message.messageTagList.splice(item.message.messageTagList.indexOf(item.messageTag), 1);
+            this.setIconsVisibility(item.message);
+          }
+        });
       });
     }
   }
@@ -265,7 +283,8 @@ export class MailListService {
         entityPath:
           BaseUrls.get(BaseUrlType.Shpeck) + "/" + ENTITIES_STRUCTURE.shpeck.note.path,
         entityBody: noteObj,
-        additionalData: null
+        additionalData: null,
+        returnProjection: null
       });
     } else if (noteObj.id && noteObj.memo === "") {
       batchOperations.push({
@@ -274,7 +293,8 @@ export class MailListService {
         entityPath:
           BaseUrls.get(BaseUrlType.Shpeck) + "/" + ENTITIES_STRUCTURE.shpeck.note.path,
         entityBody: null,
-        additionalData: null
+        additionalData: null,
+        returnProjection: null
       });
     } else if (noteObj.memo !== "") {
       noteObj.idMessage = message;
@@ -284,7 +304,8 @@ export class MailListService {
         entityPath:
           BaseUrls.get(BaseUrlType.Shpeck) + "/" + ENTITIES_STRUCTURE.shpeck.note.path,
         entityBody: noteObj,
-        additionalData: null
+        additionalData: null,
+        returnProjection: null
       });
     }
     let messageTag: MessageTag = null;
@@ -303,7 +324,8 @@ export class MailListService {
           idUtente: { id: this.loggedUser.getUtente().id } as Utente,
           idTag: { id: this.annotedTag.id } as Tag
         } as MessageTag,
-        additionalData: null
+        additionalData: null,
+        returnProjection: null
       });
     } else if (isAnnotedTagPresent && noteObj.memo === "") {  // Delete
       batchOperations.push({
@@ -314,7 +336,8 @@ export class MailListService {
           "/" +
           ENTITIES_STRUCTURE.shpeck.messagetag.path,
         entityBody: null,
-        additionalData: null
+        additionalData: null,
+        returnProjection: null
       });
     }
     return this.messageService.batchHttpCall(batchOperations);
@@ -350,4 +373,18 @@ export class MailListService {
     }
   }
 
+  public setIconsVisibility(message: Message) {
+    message["iconsVisibility"] = [];
+    if (message.messageTagList && message.messageTagList.length > 0) {
+      message.messageTagList.forEach((messageTag: MessageTag) => {
+        message["iconsVisibility"][messageTag.idTag.name] = true;
+      });
+    }
+  }
+}
+
+interface MessageTagOp {
+  message: Message;
+  operation: "INSERT" | "DELETE";
+  messageTag?: MessageTag;
 }

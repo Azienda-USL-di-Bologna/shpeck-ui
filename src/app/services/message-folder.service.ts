@@ -37,6 +37,7 @@ export class MessageFolderService extends NextSDREntityProvider {
             }
           },
           additionalData: null,
+          returnProjection: null
         });
       }
     });
