@@ -14,8 +14,8 @@ import { MailFoldersService, PecFolderType, PecFolder } from "../mail-folders/ma
 import { ToolBarService } from "../toolbar/toolbar.service";
 import { MailListService } from "./mail-list.service";
 import { NoteService } from "src/app/services/note.service";
-import { NtJwtLoginService, UtenteUtilities } from '@bds/nt-jwt-login';
-import { query } from '@angular/core/src/render3';
+import { NtJwtLoginService, UtenteUtilities } from "@bds/nt-jwt-login";
+import { query } from "@angular/core/src/render3";
 
 @Component({
   selector: "app-mail-list",
@@ -31,6 +31,7 @@ export class MailListComponent implements OnInit, OnDestroy {
   @ViewChild("dt") private dt: Table;
   @ViewChild("noteArea") private noteArea;
 
+  public _selectedTag: Tag;
   public _selectedFolder: Folder;
   public _selectedPecId: number;
   public _selectedPec: Pec;
@@ -108,8 +109,15 @@ export class MailListComponent implements OnInit, OnDestroy {
       command: event => this.selectedContextMenuItem(event)
     },
     {
-      label: "Assegnata???",
-      id: "MessageAssigned",
+      label: "Segna come in errore",
+      id: "ToggleErrorTrue",
+      disabled: true,
+      queryParams: {},
+      command: event => this.selectedContextMenuItem(event)
+    },
+    {
+      label: "Segna errore come visto",
+      id: "ToggleErrorFalse",
       disabled: true,
       queryParams: {},
       command: event => this.selectedContextMenuItem(event)
@@ -195,6 +203,10 @@ export class MailListComponent implements OnInit, OnDestroy {
             this._selectedPecId = selectedFolder.fk_idPec.id;
             this.setFolder(selectedFolder);
           }
+        } else if (pecFolderSelected.type === PecFolderType.TAG) {
+          const selectedTag: Tag = pecFolderSelected.data as Tag;
+          this._selectedPecId = selectedTag.idPec.id;
+          this.setTag(selectedTag);
         } else {
           const pec: Pec = pecFolderSelected.data as Pec;
           this._selectedPec = pec;
@@ -218,8 +230,24 @@ export class MailListComponent implements OnInit, OnDestroy {
   }
 
 
+  private setTag(tag: Tag) {
+    this._selectedTag = null;
+    this._selectedFolder = null;
+    this._filters = null;
+    this.mailListService.selectedMessages = [];
+    // trucco per far si che la table vanga tolta e rimessa nel dom (in modo da essere resettata) altrimenti sminchia
+    // NB: nell'html la visualizzazione della table è controllata da un *ngIf
+    setTimeout(() => {
+      this._selectedTag = tag;
+      if (tag) {
+        this.lazyLoad(null);
+      }
+    }, 0);
+  }
+
   private setFolder(folder: Folder) {
     this._selectedFolder = null;
+    this._selectedTag = null;
     this._filters = null;
     this.mailListService.selectedMessages = [];
     // trucco per far si che la table vanga tolta e rimessa nel dom (in modo da essere resettata) altrimenti sminchia
@@ -261,12 +289,12 @@ export class MailListComponent implements OnInit, OnDestroy {
     return this.tagService.getData(null, filtersAndSorts, null, null);
   }
 
-  private loadData(pageCong: PagingConf, lazyFilterAndSort?: FiltersAndSorts, folder?: Folder) {
+  private loadData(pageCong: PagingConf, lazyFilterAndSort?: FiltersAndSorts, folder?: Folder, tag?: Tag) {
     this.loading = true;
     this.messageService
       .getData(
         this.selectedProjection,
-        this.buildInitialFilterAndSort(folder),
+        this.buildInitialFilterAndSort(folder, tag),
         lazyFilterAndSort,
         pageCong
       )
@@ -341,7 +369,7 @@ export class MailListComponent implements OnInit, OnDestroy {
           this.datepipe
         );
 
-        this.loadData(this.pageConf, filtersAndSorts, this._selectedFolder);
+        this.loadData(this.pageConf, filtersAndSorts, this._selectedFolder, this._selectedTag);
       }
     } else {
       if (eventFilters) {
@@ -359,7 +387,7 @@ export class MailListComponent implements OnInit, OnDestroy {
         this.datepipe
       );
 
-      this.loadData(this.pageConf, filtersAndSorts, this._selectedFolder);
+      this.loadData(this.pageConf, filtersAndSorts, this._selectedFolder, this._selectedTag);
     }
     this.previousFilter = this._filters;
     // this.filtering = false;
@@ -369,7 +397,7 @@ export class MailListComponent implements OnInit, OnDestroy {
     return item.id;
   }
 
-  buildInitialFilterAndSort(folder: Folder): FiltersAndSorts {
+  buildInitialFilterAndSort(folder: Folder, tag: Tag): FiltersAndSorts {
     const filtersAndSorts: FiltersAndSorts = new FiltersAndSorts();
     if (folder) {
       filtersAndSorts.addFilter(
@@ -377,6 +405,15 @@ export class MailListComponent implements OnInit, OnDestroy {
           "messageFolderList.idFolder.id",
           FILTER_TYPES.not_string.equals,
           folder.id
+        )
+      );
+    }
+    if (tag) {
+      filtersAndSorts.addFilter(
+        new FilterDefinition(
+          "messageTagList.idTag.id",
+          FILTER_TYPES.not_string.equals,
+          tag.id
         )
       );
     }
@@ -531,7 +568,7 @@ export class MailListComponent implements OnInit, OnDestroy {
           break;
         case "MessageRegistration":
           element.disabled = false;
-          if (!this.mailListService.isRegisterActive(this._selectedFolder)) {
+          if (!this.mailListService.isRegisterActive()) {
             element.disabled = true;
             this.cmItems.find(f => f.id === "MessageRegistration").items = null;
           } else {
@@ -545,9 +582,29 @@ export class MailListComponent implements OnInit, OnDestroy {
             element.disabled = true;
           }
           break;
+        case "ToggleErrorTrue":
+          element.disabled = false;
+          element.disabled = this.mailListService.selectedMessages.some(mess => {
+            if (mess.messageTagList) {
+              return mess.messageTagList.find(messageTag => messageTag.idTag.name === "in_error") !== undefined;
+            } else {
+              return false;
+            }
+          });
+          break;
+        case "ToggleErrorFalse":
+          element.disabled = false;
+          element.disabled = !this.mailListService.selectedMessages.some(mess => {
+            if (mess.messageTagList) {
+              return mess.messageTagList.find(messageTag => messageTag.idTag.name === "in_error") !== undefined;
+            } else {
+              return false;
+            }
+          });
+          break;
         case "MessageReaddress":
           element.disabled = false;
-          if (!this.mailListService.isReaddressActive(this._selectedFolder)) {
+          if (!this.mailListService.isReaddressActive()) {
             element.disabled = true;
           }
           break;
@@ -651,6 +708,12 @@ export class MailListComponent implements OnInit, OnDestroy {
         break;
       case "MessageNote":
         this.noteHandler();
+        break;
+      case "ToggleErrorTrue":
+          this.mailListService.toggleError(true);
+        break;
+      case "ToggleErrorFalse":
+          this.mailListService.toggleError(false);
         break;
     }
   }

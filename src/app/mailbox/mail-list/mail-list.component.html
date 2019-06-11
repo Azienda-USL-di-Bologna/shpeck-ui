@@ -27,7 +27,7 @@
     [rowTrackBy]="trackByFn"
     > -->
 
-<p-table #dt *ngIf="_selectedFolder || _filters" [lazy]="true" (onLazyLoad)="lazyLoad($event)" scrollHeight="100%"
+<p-table #dt *ngIf="_selectedTag || _selectedFolder || _filters" [lazy]="true" (onLazyLoad)="lazyLoad($event)" scrollHeight="100%"
     [value]="mailListService.messages" [columns]="cols" [paginator]="false" [loading]="loading" [autoLayout]="true"
     [responsive]="true" [totalRecords]="totalRecords" [(selection)]="mailListService.selectedMessages"
     contextMenuSelectionMode="joint" selectionMode="multiple" [metaKeySelection]="true" [lazyLoadOnInit]="false"
@@ -55,22 +55,27 @@
                     <!-- se non c'è nè risposto, nè risposto a tutti lascio lo spazio vuoto -->
                     <span *ngIf="!message?.iconsVisibility?.replied && !message?.iconsVisibility?.replied_all"
                         class="mail-icon visibility-hidden"><i class="material-icons mail-icons">reply_all</i></span>
-                    <!-- inoltra (se non c'è mette visibility-hidden per lasciare lo spazio vuoto ) -->  
+                    <!-- inoltra (se non c'è mette visibility-hidden per lasciare lo spazio vuoto ) -->
                     <span class="mail-icon" [ngClass]="{'visibility-hidden':!message?.iconsVisibility?.forwarded}"><i
                             [pTooltip]="getTagDescription('forwarded')" tooltipPosition="top"
                             class="material-icons mail-icons">forward</i></span>
-                    <!-- assegnato (se non c'è mette visibility-hidden per lasciare lo spazio vuoto ) --> 
+                    <!-- assegnato (se non c'è mette visibility-hidden per lasciare lo spazio vuoto ) -->
                     <span class="mail-icon" [ngClass]="{'visibility-hidden':!message?.iconsVisibility?.assigned}"><i
                             [pTooltip]="getTagDescription('assigned')" tooltipPosition="top"
                             class="material-icons mail-icons">merge_type</i></span>
-                    <!-- reindirizzato (se non c'è mette visibility-hidden per lasciare lo spazio vuoto ) --> 
-                    <span class="mail-icon" [ngClass]="{'visibility-hidden':!message?.iconsVisibility?.readdressed_out && !message?.iconsVisibility?.readdressed_in}"><i
+                    <!-- reindirizzato (se non c'è mette visibility-hidden per lasciare lo spazio vuoto ) -->
+                    <span class="mail-icon" [ngClass]="{'visibility-hidden':!message?.iconsVisibility?.readdressed_out || !message?.iconsVisibility?.readdressed_in}"><i
                             [pTooltip]="getTagDescription('readdressed_in')" tooltipPosition="top"
                             class="material-icons mail-icons">fast_forward</i></span>
-                    <!-- annotato (se non c'è mette visibility-hidden per lasciare lo spazio vuoto ) --> 
+                    <!-- annotato (se non c'è mette visibility-hidden per lasciare lo spazio vuoto ) -->
                     <span class="mail-icon" [ngClass]="{'visibility-hidden':!message?.iconsVisibility?.annotated}"><i
                             [pTooltip]="getTagDescription('annotated')" tooltipPosition="top"
-                            class="material-icons fa-icons fas fa-sticky-note"></i></span>
+                            class="material-icons mail-icons">description</i></span>
+                    <!-- in errore (se non c'è mette visibility-hidden per lasciare lo spazio vuoto ) -->
+                    <span class="mail-icon"
+                        [ngClass]="{'visibility-hidden':!(message?.iconsVisibility?.in_error || message.messageStatus === 'ERROR'),'warn-color': message?.iconsVisibility?.in_error}">
+                        <i [pTooltip]="getTagDescription('in_error')" tooltipPosition="top"
+                            class="material-icons mail-icons">warning</i></span>
 
                     <!-- iconcina degli allegati -->
                     <span class="second-line-icon" [ngClass]="{'visibility-hidden':message?.attachmentsNumber === 0}"><i
@@ -92,9 +97,9 @@
                     <span *ngIf="message?.seen" class="far fa-envelope-open display-icon envelope-icon"></span>
 
                     <!-- nome della cartella in cui si trova la mail in caso di risultati di una ricerca su tutta la casella -->
-                    <span *ngIf="_filters && !_selectedFolder"
+                    <span *ngIf="(_filters && !_selectedFolder) || _selectedTag"
                         class="display-text text-background">{{message?.messageFolderList[0]?.idFolder.description}}</span>
-                    
+
                     <!-- oggetto della mail -->
                     <span class="display-text" [ngClass]="{'display-bold':!message.seen}">{{message.subject}}</span>
                     <!-- <div class="display-text" [ngClass]="{'display-bold':!message.seen}">{{message.id + " -- " + message.subject}}</div>  -->
@@ -111,7 +116,7 @@
     </ng-template> -->
 
 </p-table>
-<div *ngIf="!(_selectedFolder || _filters)" class="flex-1 message-align flex-direction-col">
+<div *ngIf="!(_selectedTag || _selectedFolder || _filters)" class="flex-1 message-align flex-direction-col">
     <p style="margin: 0">Non ci sono elementi da visualizzare.</p>
     <p style="margin: 0.5em">Selezionare una cartella o effettuare una ricerca.</p>
 </div>

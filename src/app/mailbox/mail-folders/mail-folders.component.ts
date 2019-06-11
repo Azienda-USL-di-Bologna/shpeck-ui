@@ -1,5 +1,5 @@
 import { Component, OnInit, ViewEncapsulation, OnDestroy, ViewChild, ElementRef, ViewChildren } from "@angular/core";
-import { Pec, Folder, FolderType } from "@bds/ng-internauta-model";
+import { Pec, Folder, FolderType, Tag } from "@bds/ng-internauta-model";
 import { PecService } from "src/app/services/pec.service";
 import { TreeNode, MenuItem, MessageService } from "primeng/api";
 import { MailFoldersService, PecFolder, PecFolderType } from "./mail-folders.service";
@@ -96,12 +96,44 @@ export class MailFoldersComponent implements OnInit, OnDestroy {
 
   private buildNode(pec: Pec): any {
     const children: MyTreeNode[] = [];
+    const folderCustom: Folder[] = [];
     if (pec.folderList) {
       for (const folder of pec.folderList) {
-        const p: Pec = new Pec();
-        p.id = pec.id;
-        folder.idPec = p;
-        children.push(this.buildFolderNode(folder));
+        if (folder.type !== FolderType.CUSTOM) {
+          const p: Pec = new Pec();
+          p.id = pec.id;
+          folder.idPec = p;
+          children.push(this.buildFolderNode(folder));
+        } else {
+          folderCustom.push(folder);
+        }
+      }
+    }
+    if (pec.tagList) {
+      for (const tag of pec.tagList) {
+        if (tag.firstLevel && tag.visible) {
+          const p: Pec = new Pec();
+          p.id = pec.id;
+          tag.idPec = p;
+          switch (tag.name) {
+            case "in_error":
+              children.push(this.buildTagNode(tag, "folder_error"));
+              break;
+            case "registered":
+              // Tag con icona per il protocollato
+              break;
+          }
+        }
+      }
+    }
+    if (folderCustom.length > 0) {
+      for (const folder of folderCustom) {
+        if (folder.type === FolderType.CUSTOM) {
+          const p: Pec = new Pec();
+          p.id = pec.id;
+          folder.idPec = p;
+          children.push(this.buildFolderNode(folder));
+        }
       }
     }
     return {
@@ -191,6 +223,31 @@ export class MailFoldersComponent implements OnInit, OnDestroy {
       editable: editable,
       key: PecFolderType.FOLDER + "_" + (folder.id ? folder.id : "new")
     };
+  }
+
+  private buildTagNode(tag: Tag, icon: string): MyTreeNode {
+
+    const treeNode: MyTreeNode = {
+      label: "Errori ", // tag.description,
+      data: {
+        type: PecFolderType.TAG,
+        data: tag
+      } as PecFolder,
+      expandedIcon: "fas fa-exclamation-triangle",
+      collapsedIcon: "fas fa-exclamation-triangle",
+      styleClass: "tree-node-style",
+      editable: false,
+      key: PecFolderType.TAG + "_" + (tag.id ? tag.id : "new")
+    };
+
+    this.mailFoldersService.getReloadTag(tag.id).subscribe(res => {
+      res > 0 ? treeNode.styleClass = "tree-node-style tree-node-error" : treeNode.styleClass = "tree-node-style";
+      treeNode.label = "Errori " + `(${res})`;
+    });
+    setTimeout(() => {
+      this.mailFoldersService.doReloadTag(tag.id);
+    });
+    return treeNode;
   }
 
   private disableNotSelectableFolderContextMenuItems(selectedFolder: Folder) {

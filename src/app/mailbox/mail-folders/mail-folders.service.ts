@@ -1,9 +1,9 @@
 import { Injectable } from "@angular/core";
 import { TreeNode } from "primeng/api";
-import { BehaviorSubject, Observable } from "rxjs";
+import { BehaviorSubject, Observable, Subject } from "rxjs";
 import { Pec, Folder, Tag } from "@bds/ng-internauta-model";
 import { HttpClient } from "@angular/common/http";
-import { getInternautaUrl, BaseUrlType, CUSTOM_SERVER_METHODS } from 'src/environments/app-constants';
+import { getInternautaUrl, BaseUrlType, CUSTOM_SERVER_METHODS } from "src/environments/app-constants";
 
 @Injectable({
   providedIn: "root"
@@ -14,6 +14,7 @@ export class MailFoldersService {
 
   private _pecFolderSelected: BehaviorSubject<PecFolder> = new BehaviorSubject<PecFolder>(null);
   private _pecFoldersAndTags: BehaviorSubject<FoldersAndTags> = new BehaviorSubject<FoldersAndTags>(null);
+  private _reloadTag: Subject<number>[] = [];
 
   constructor(
     private http: HttpClient
@@ -36,6 +37,22 @@ export class MailFoldersService {
     });
   }
 
+  public getReloadTag(idTag: number): Observable<number> {
+    if (!this._reloadTag[idTag]) {
+      this._reloadTag[idTag] = new Subject<number>();
+    }
+    return this._reloadTag[idTag].asObservable();
+  }
+
+  public doReloadTag(idTag: number): void {
+    const url = getInternautaUrl(BaseUrlType.Shpeck) + "/" + CUSTOM_SERVER_METHODS.countMessageInTag + "/" + idTag;
+    this.http.get(url).subscribe(
+      (res: number) => {
+        this._reloadTag[idTag].next(res);
+      }
+    );
+  }
+
   public get pecFoldersAndTags(): Observable<FoldersAndTags> {
     return this._pecFoldersAndTags.asObservable();
   }
@@ -48,12 +65,13 @@ export class MailFoldersService {
 
 export enum PecFolderType {
   PEC = "pec",
-  FOLDER = "folder"
+  FOLDER = "folder",
+  TAG = "tag"
 }
 
 export interface PecFolder {
   type: PecFolderType;
-  data: Pec | Folder;
+  data: Pec | Folder | Tag;
 }
 
 export interface FoldersAndTags {

@@ -22,8 +22,7 @@
 }
 
 .mail-date {
-  position: absolute;
-  right: 1%;
+  float: right;
 }
 
 .display-icon {
@@ -78,6 +77,16 @@
 .material-icons.mail-icons {
   // color: rgb(250, 250, 250);
   font-size: 18px;
+}
+
+.second-line-icon {
+  font-size: 18px;
+  display: block;
+  float: right;
+}
+
+.visibility-hidden {
+  visibility: hidden !important;
 }
 
 ::ng-deep .context-menu-mail-list {

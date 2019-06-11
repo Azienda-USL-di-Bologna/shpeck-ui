@@ -137,8 +137,11 @@
 
 ::ng-deep .context-menu-mail-list {
   margin: -128px 0 0 -312px;
+  width: 195px;
 }
-
+.warn-color {
+  color: #993366;
+}
 /******* Close button *******/
 .close-button {
   position: absolute;

@@ -10,7 +10,7 @@ import { BatchOperation, BatchOperationTypes } from "@nfa/next-sdr";
 import { BaseUrls, BaseUrlType } from "src/environments/app-constants";
 import { ShpeckMessageService } from "src/app/services/shpeck-message.service";
 import { DialogService } from "primeng/api";
-import { ReaddressComponent } from '../readdress/readdress.component';
+import { ReaddressComponent } from "../readdress/readdress.component";
 
 @Injectable({
   providedIn: "root"
@@ -111,11 +111,11 @@ export class MailListService {
   /*
    * Questa funzione ritorna un booleano che indica se il messaggio selezionato è protocollabile.
    */
-  public isRegisterActive(selectedFolder: Folder): boolean {
+  public isRegisterActive(): boolean {
     if (this.selectedMessages.length !== 1 ||
       this.selectedMessages[0].inOut !== InOut.IN ||
       (this.selectedMessages[0].messageType !== MessageType.MAIL && this.selectedMessages[0].messageType !== MessageType.PEC) ||
-      selectedFolder.type === "TRASH" ||
+      this.selectedMessages[0].messageFolderList[0].idFolder.type === FolderType.TRASH ||
       (this.selectedMessages[0].messageTagList && this.selectedMessages[0].messageTagList
         .some(messageTag => messageTag.idTag.name === "readdressed_out" || messageTag.idTag.name === "registered"))) {
       return false;
@@ -201,6 +201,50 @@ export class MailListService {
     });
     if (messagesToUpdate.length > 0) {
       this.messageService.batchHttpCall(messagesToUpdate).subscribe();
+    }
+  }
+
+  /**
+   * Questa funzione si occupa di settare un messaggio come in Errore o no
+   * @param seen Boolean per aggiungere il tag Errore (true) o toglierlo (false)
+  */
+  public toggleError(seen: boolean): void {
+    const messageTagOperations: BatchOperation[] = [];
+    let idTag;
+    for (const message of this.selectedMessages) {
+      if (seen) {
+        const mTag: MessageTag = new MessageTag();
+        mTag.idMessage = message;
+        mTag.idUtente = { id: this.loggedUser.getUtente().id } as Utente;
+        mTag.idTag = this.tags.find(tag => tag.name === "in_error");
+        idTag = mTag.idTag.id;
+        messageTagOperations.push({
+          id: null,
+          operation: BatchOperationTypes.INSERT,
+          entityPath:
+            BaseUrls.get(BaseUrlType.Shpeck) + "/" + ENTITIES_STRUCTURE.shpeck.messagetag.path,
+          entityBody: mTag,
+          additionalData: null
+        });
+      } else {
+        const mTag: MessageTag = message.messageTagList.find(messageTag => messageTag.idTag.name === "in_error");
+        if (mTag) {
+          idTag = mTag.idTag.id;
+          messageTagOperations.push({
+            id: mTag.id,
+            operation: BatchOperationTypes.DELETE,
+            entityPath:
+              BaseUrls.get(BaseUrlType.Shpeck) + "/" + ENTITIES_STRUCTURE.shpeck.messagetag.path,
+            entityBody: null,
+            additionalData: null
+          });
+        }
+      }
+    }
+    if (messageTagOperations.length > 0) {
+      this.messageService.batchHttpCall(messageTagOperations).subscribe(() => {
+        this.mailFoldersService.doReloadTag(idTag);
+      });
     }
   }
 
@@ -292,12 +336,12 @@ export class MailListService {
 
   /**
    * Questa funzione ritorna un booleano che indica se i messaggi selezionati sono reindirizzabili.
-   * @param selectedFolder 
+   * @param selectedFolder
    */
-  public isReaddressActive(selectedFolder: Folder): boolean {
+  public isReaddressActive(): boolean {
     if (this.selectedMessages.length !== 1 ||
       this.selectedMessages[0].inOut !== "IN" ||
-      selectedFolder.type === "TRASH" ||
+      this.selectedMessages[0].messageFolderList[0].idFolder.type === FolderType.TRASH ||
       (this.selectedMessages[0].messageTagList && this.selectedMessages[0].messageTagList
         .some(messageTag => messageTag.idTag.name === "readdressed_out" || messageTag.idTag.name === "registered"))) {
       return false;

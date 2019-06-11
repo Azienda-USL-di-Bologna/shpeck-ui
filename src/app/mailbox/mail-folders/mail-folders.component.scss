@@ -54,7 +54,7 @@
     font-weight: normal !important;
 }
 
-::ng-deep .tree-node-style .ui-inputtext, 
+::ng-deep .tree-node-style .ui-inputtext,
 ::ng-deep .root-tree-node-style .ui-inputtext,
 ::ng-deep .root-tree-node-style-selected .ui-inputtext {
     border: none !important;
@@ -94,6 +94,15 @@
     left: 10px;
   }
 
+::ng-deep .fa-exclamation-triangle {
+    color: #993366 !important;
+}
+::ng-deep .tree-node-error span div {
+    background: #993366 !important;
+    border-radius: 30px;
+    padding: 0 0.6em 0 0.6em;
+    color: white;
+}
 // ::ng-deep .tree-node-style .ui-treenode-label {
 //     font-size: 12px !important;
 //     background-color: white !important;
