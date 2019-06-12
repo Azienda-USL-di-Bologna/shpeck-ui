@@ -3,7 +3,7 @@
 @import '../node_modules/primeng/resources/primeng.min.css';
 @import '../node_modules/primeicons/primeicons.css';
 @import '../node_modules/primeflex/primeflex.css';
-@import '../node_modules/material-design-icons/iconfont/material-icons.css';
+// @import '../node_modules/material-design-icons/iconfont/material-icons.css';
 
 .ui-button:enabled:focus {
     box-shadow: none !important;
@@ -109,19 +109,14 @@ body {
     font-family: 'Material Icons';
     font-style: normal;
     font-weight: 400;
-    src: url(https://example.com/MaterialIcons-Regular.eot); /* For IE6-8 */
-    src: local('Material Icons'),
-      local('MaterialIcons-Regular'),
-      url(https://example.com/MaterialIcons-Regular.woff2) format('woff2'),
-      url(https://example.com/MaterialIcons-Regular.woff) format('woff'),
-      url(https://example.com/MaterialIcons-Regular.ttf) format('truetype');
-}
+    src: url(assets/fonts/material-icons.woff2) format('woff2');
+  }
 
 @font-face {
     font-family: 'Material Icons Outlined';
     font-style: normal;
     font-weight: 400;
-    src: url(https://fonts.gstatic.com/s/materialiconsoutlined/v8/gok-H7zzDkdnRel8-DQ6KAXJ69wP1tGnf4ZGhUce.woff2) format('woff2');
+    src: url(assets/fonts/material-icons-outlined.woff2) format('woff2');
 }
 
 .material-icons {
