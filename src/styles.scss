@@ -80,4 +80,27 @@ body {
     .ui-contextmenu .ui-menuitem.ui-menuitem-active > .ui-menuitem-link .ui-menuitem-text {
         font-weight: bold;
     }
+    .ui-menu:hover { color:black !important}
+    .ui-menu {
+        background-color: #203142;
+        .ui-menuitem {
+            color: black !important;
+        }
+        .ui-menuitem {
+            .ui-menuitem-link:hover {
+                color: black !important;
+                font-weight: bold;
+            }
+            .ui-menuitem-link {
+                color: #F4F4F4;
+                .ui-menuitem-text {
+                    color: inherit;
+                }
+                .ui-menuitem-text:hover {
+                    color: black !important;
+                    font-weight: bold;
+                }
+            }
+        }
+    }
 }

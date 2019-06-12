@@ -111,12 +111,13 @@ export class MailListService {
   /*
    * Questa funzione ritorna un booleano che indica se il messaggio selezionato è protocollabile.
    */
-  public isRegisterActive(): boolean {
-    if (this.selectedMessages.length !== 1 ||
-      this.selectedMessages[0].inOut !== InOut.IN ||
-      (this.selectedMessages[0].messageType !== MessageType.MAIL && this.selectedMessages[0].messageType !== MessageType.PEC) ||
-      this.selectedMessages[0].messageFolderList[0].idFolder.type === FolderType.TRASH ||
-      (this.selectedMessages[0].messageTagList && this.selectedMessages[0].messageTagList
+  public isRegisterActive(specificMessage?: Message): boolean {
+    const message: Message = specificMessage ? specificMessage : this.selectedMessages[0];
+    if ((!specificMessage && this.selectedMessages.length !== 1) ||
+      message.inOut !== InOut.IN ||
+      (message.messageType !== MessageType.MAIL && message.messageType !== MessageType.PEC) ||
+      message.messageFolderList[0].idFolder.type === "TRASH" ||
+      (message.messageTagList && message.messageTagList
         .some(messageTag => messageTag.idTag.name === "readdressed_out" || messageTag.idTag.name === "registered"))) {
       return false;
     } else {
@@ -346,10 +347,10 @@ export class MailListService {
   /**
    * Questa funzione si occupa di aprire la dialog per il reindirizzamento
    */
-  public readdressMessage() {
+  public readdressMessage(message?: Message) {
     const ref = this.dialogService.open(ReaddressComponent, {
       data: {
-        message: this.selectedMessages[0]
+        message: message ? message : this.selectedMessages[0]
       },
       header: "Reindirizza",
       width: "auto",
@@ -359,13 +360,13 @@ export class MailListService {
 
   /**
    * Questa funzione ritorna un booleano che indica se i messaggi selezionati sono reindirizzabili.
-   * @param selectedFolder
    */
-  public isReaddressActive(): boolean {
-    if (this.selectedMessages.length !== 1 ||
-      this.selectedMessages[0].inOut !== "IN" ||
-      this.selectedMessages[0].messageFolderList[0].idFolder.type === FolderType.TRASH ||
-      (this.selectedMessages[0].messageTagList && this.selectedMessages[0].messageTagList
+  public isReaddressActive(specificMessage?: Message): boolean {
+    const message: Message = specificMessage ? specificMessage : this.selectedMessages[0];
+    if ((!specificMessage && this.selectedMessages.length !== 1) ||
+      message.inOut !== "IN" ||
+      message.messageFolderList[0].idFolder.type === "TRASH" ||
+      (message.messageTagList && message.messageTagList
         .some(messageTag => messageTag.idTag.name === "readdressed_out" || messageTag.idTag.name === "registered"))) {
       return false;
     } else {

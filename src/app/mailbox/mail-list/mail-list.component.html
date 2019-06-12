@@ -41,6 +41,57 @@
             [pContextMenuRow]="rowData">
             <td>
                 <div class="mail-icons-container">
+                    <!-- ICONE AZIONE -->
+                    <!-- protocollato--> 
+                    <span class="mail-icon">
+                        <ng-template  #registrationTemplate let-registrationstatus>
+                            <i  
+                                [pTooltip]="registrationstatus === 'REGISTERED' ? 'Vedi dettagli protocollazione' : 
+                                    (registrationstatus === 'REGISTABLE' ? 'Protocolla il messaggio' : 'Il messaggio non può essere protocollato')"
+                                tooltipPosition="top"
+                                class="material-icons mail-icons icon-enabled"
+                                [ngClass]="{'icon-disabled': registrationstatus === 'NOT_REGISTABLE', 'icon-used': registrationstatus === 'REGISTERED'}"
+                                (click)="iconRegistrationClicked($event, message, registrationstatus)">
+                                {{registrationstatus === 'REGISTERED' ? "assignment_turned_in" : 
+                                    (registrationstatus === "REGISTABLE" ? "assignment_returned" : "assignment_late")}}
+                            </i>
+                            <p-menu appendTo="body" #registrationMenu [popup]="true" [model]="aziendeProtocollabiliSubCmItems"></p-menu>
+                        </ng-template>
+                        <ng-template [ngTemplateOutlet]="registrationTemplate" 
+                            [ngTemplateOutletContext]="{$implicit: getRegistrationStatus(message)}">
+                        </ng-template>
+                    </span>
+                    <!-- reindirizzato -->
+                    <span class="mail-icon">
+                        <ng-template  #readdressTemplate let-readdressstatus>
+                            <i [pTooltip]="readdressstatus === 'NOT_READDRESSABLE' ? 'Il messaggio non può essere reindirizzato' : 
+                                readdressstatus === 'READDRESSABLE' ? 'Reindirizza il messaggio' : 'Vedi dettagli reindirizzamento'"
+                                tooltipPosition="top"
+                                class="material-icons mail-icons icon-enabled" 
+                                [ngClass]="{'icon-disabled': readdressstatus === 'NOT_READDRESSABLE', 'icon-used': (readdressstatus !== 'NOT_READDRESSABLE' && readdressstatus !== 'READDRESSABLE')}"
+                                (click)="iconReaddressClicked($event, message, readdressstatus)">
+                                {{readdressstatus === 'NOT_READDRESSABLE' ? 'call_split' : 
+                                    readdressstatus === 'READDRESSABLE' ? 'call_split' : 'shuffle'}}
+                            </i>
+                        </ng-template>
+                        <ng-template [ngTemplateOutlet]="readdressTemplate" 
+                            [ngTemplateOutletContext]="{$implicit: getReaddressStatus(message)}">
+                        </ng-template>
+                    </span>
+                    <!-- annotato --> 
+                    <span class="mail-icon">
+                        <i  [pTooltip]="isAlreadyTagged(message, 'annotated') ? 'Visualizza la nota' : 'Aggiungi una nota'"
+                            tooltipPosition="top"
+                            class="material-icons mail-icons icon-enabled"
+                            (click)="noteHandler(message)">
+                            {{isAlreadyTagged(message, "annotated") ? "insert_drive_file" : "note_add"}}
+                        </i>
+                    </span>
+
+                    <!-- SEPARATORE -->
+                    <span class="separatore">|</span>
+
+                    <!-- ICONE INFORMATIVE -->
                     <!-- se c'è risposto/risposto a tutti metto quello giusto risposto a tutti vince -->
                     <span *ngIf="message?.iconsVisibility?.replied || message?.iconsVisibility?.replied_all">
                         <span class="mail-icon"
@@ -63,14 +114,6 @@
                     <span class="mail-icon" [ngClass]="{'visibility-hidden':!message?.iconsVisibility?.assigned}"><i
                             [pTooltip]="getTagDescription('assigned')" tooltipPosition="top"
                             class="material-icons mail-icons">merge_type</i></span>
-                    <!-- reindirizzato (se non c'è mette visibility-hidden per lasciare lo spazio vuoto ) -->
-                    <span class="mail-icon" [ngClass]="{'visibility-hidden':!message?.iconsVisibility?.readdressed_out || !message?.iconsVisibility?.readdressed_in}"><i
-                            [pTooltip]="getTagDescription('readdressed_in')" tooltipPosition="top"
-                            class="material-icons mail-icons">fast_forward</i></span>
-                    <!-- annotato (se non c'è mette visibility-hidden per lasciare lo spazio vuoto ) -->
-                    <span class="mail-icon" [ngClass]="{'visibility-hidden':!message?.iconsVisibility?.annotated}"><i
-                            [pTooltip]="getTagDescription('annotated')" tooltipPosition="top"
-                            class="material-icons mail-icons">insert_comment</i></span>
                     <!-- in errore (se non c'è mette visibility-hidden per lasciare lo spazio vuoto ) -->
                     <span class="mail-icon"
                         [ngClass]="{'visibility-hidden':!(message?.iconsVisibility?.in_error || message.messageStatus === 'ERROR'),'warn-color': message?.iconsVisibility?.in_error}">
@@ -84,7 +127,7 @@
 
                     <!-- data della mail -->
                     <span class="mail-date">
-                        {{message.receiveTime | date: 'EE d MMM y, H:mm'}}
+                        {{message.receiveTime | date: 'EE d MMM y, H:mm' | titlecase}}
                     </span>
                 </div>
                 <div class="display-block">
@@ -140,6 +183,8 @@
     </p-footer>
 </p-dialog>
 
+
+<!-- DIALOG DI PROTOCOLLAZIONE -->
 <p-dialog [(visible)]="displayProtocollaDialog" [visible]="displayProtocollaDialog">
     <p-header>
         Protocolla Pec
@@ -149,17 +194,46 @@
     </div>
     <p-footer>
         <div class="p-grid p-justify-even">
-
             <button type="button" pButton (click)="chooseRegistrationType(null, 'NEW')" label="Crea Nuovo"
                 class="ui-button-raised ui-button-secondary custom-secondary-button">
             </button>
-
-
             <button type="button" pButton (click)="chooseRegistrationType(null, 'ADD')"
                 label="Aggiungi a bozza già creata"
                 class="ui-button-raised ui-button-secondary custom-secondary-button">
             </button>
-
         </div>
+    </p-footer>
+</p-dialog>
+
+<!-- DIALOG CHE MOSTRA IL DETTAGLIO DELLA PROTOCOLLAZIONE -->
+<p-dialog [(visible)]="displayRegistrationDetail">
+    <p-header>
+        Dettaglio protocollazione
+    </p-header>
+    Questo è il dettalgio della rptocovmfsoijbvi
+    <p-footer>
+        <button type="button" pButton (click)="displayRegistrationDetail = false" label="Ok"></button>
+    </p-footer>
+</p-dialog>
+
+<!-- DIALOG CHE MOSTRA IL DETTAGLIO DEL REINDIRIZZAMENTO -->
+<p-dialog [(visible)]="readdressDetail.displayReaddressDetail">
+    <p-header>
+        Dettaglio reindirizzamenti
+    </p-header>
+    <li *ngIf="readdressDetail.testo?.in" [innerHTML]="readdressDetail.testo.in"></li>
+    <li *ngIf="readdressDetail.testo?.out" [innerHTML]="readdressDetail.testo.out"></li>
+    <p-footer class="button-readdress">
+        <button *ngIf="readdressDetail.buttonReaddress" type="button" pButton 
+            (click)="iconReaddressClicked($event, readdressDetail.message, 'READDRESSABLE')"
+            (click)="readdressDetail.displayReaddressDetail = false"
+            label="Aggiungi"
+            class="ui-button-raised ui-button-secondary button-styles custom-secondary-button">
+        </button>
+        <button type="button" pButton 
+            (click)="readdressDetail.displayReaddressDetail = false" 
+            label="Ok" 
+            class="ui-button-raised ui-button-secondary button-styles custom-secondary-button">
+        </button>
     </p-footer>
 </p-dialog>

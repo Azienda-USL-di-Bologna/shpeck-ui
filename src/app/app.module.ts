@@ -44,6 +44,9 @@ import { StripeHtmlPipe } from "./pipes/stripe-html.pipe";
 import { MailListService } from "./mailbox/mail-list/mail-list.service";
 import { CommandManagerService } from "./services/command-manager.service";
 
+// incon - font - styles
+import { MatIconModule } from "@angular/material/icon";
+
 registerLocaleData(localeIt, "it-IT", localeItExtra);
 
 
@@ -73,7 +76,8 @@ registerLocaleData(localeIt, "it-IT", localeItExtra);
     PrimengPluginModule,
     TooltipModule,
     ReactiveFormsModule,
-    NextSdrModule
+    NextSdrModule,
+    MatIconModule
   ],
   providers: [
     { provide: LOCALE_ID, useValue: "it-IT" },

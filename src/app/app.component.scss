@@ -43,6 +43,12 @@
   color: black !important;
 }
 
+/* tutti i footer  */
+::ng-deep p-footer {
+  display: flex;
+  justify-content: space-around;
+}
+
 /* Download button */
 ::ng-deep .download-button {
   background-color: transparent !important;

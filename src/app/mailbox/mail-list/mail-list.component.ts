@@ -16,6 +16,7 @@ import { MailListService } from "./mail-list.service";
 import { NoteService } from "src/app/services/note.service";
 import { NtJwtLoginService, UtenteUtilities } from "@bds/nt-jwt-login";
 import { query } from "@angular/core/src/render3";
+import { Menu } from "primeng/menu";
 
 @Component({
   selector: "app-mail-list",
@@ -25,11 +26,27 @@ import { query } from "@angular/core/src/render3";
 })
 export class MailListComponent implements OnInit, OnDestroy {
 
+  constructor(
+    private messageService: ShpeckMessageService,
+    private mailListService: MailListService,
+    private tagService: TagService,
+    private mailFoldersService: MailFoldersService,
+    private toolBarService: ToolBarService,
+    private datepipe: DatePipe,
+    private confirmationService: ConfirmationService,
+    private messagePrimeService: MessageService,
+    private noteService: NoteService,
+    private loginService: NtJwtLoginService
+  ) {
+    this.selectedContextMenuItem = this.selectedContextMenuItem.bind(this);
+  }
+
   @Output() public messageClicked = new EventEmitter<Message>();
 
   @ViewChild("selRow") private selRow: ElementRef;
   @ViewChild("dt") private dt: Table;
   @ViewChild("noteArea") private noteArea;
+  @ViewChild("registrationMenu") private registrationMenu: Menu;
 
   public _selectedTag: Tag;
   public _selectedFolder: Folder;
@@ -108,7 +125,7 @@ export class MailListComponent implements OnInit, OnDestroy {
       queryParams: {},
       command: event => this.selectedContextMenuItem(event)
     },
-    {
+    /* {
       label: "Segna come errore visto",
       id: "ToggleErrorFalse",
       disabled: true,
@@ -121,7 +138,7 @@ export class MailListComponent implements OnInit, OnDestroy {
       disabled: true,
       queryParams: {},
       command: event => this.selectedContextMenuItem(event)
-    },
+    }, */
     {
       label: "Nota",
       id: "MessageNote",
@@ -161,6 +178,15 @@ export class MailListComponent implements OnInit, OnDestroy {
 
   public displayNote: boolean = false;
   public displayProtocollaDialog = false;
+  public displayRegistrationDetail = false;
+  public readdressDetail: any = {
+    displayReaddressDetail: false,
+    buttonReaddress: false,
+    testo: {
+      in: null,
+      out: null
+    }
+  };
   public noteObject: Note = new Note();
   public fromOrTo: string;
   public loading = false;
@@ -177,20 +203,6 @@ export class MailListComponent implements OnInit, OnDestroy {
     }
   ];
 
-  constructor(
-    private messageService: ShpeckMessageService,
-    private mailListService: MailListService,
-    private tagService: TagService,
-    private mailFoldersService: MailFoldersService,
-    private toolBarService: ToolBarService,
-    private datepipe: DatePipe,
-    private confirmationService: ConfirmationService,
-    private messagePrimeService: MessageService,
-    private noteService: NoteService,
-    private loginService: NtJwtLoginService
-  ) {
-    this.selectedContextMenuItem = this.selectedContextMenuItem.bind(this);
-  }
 
   ngOnInit() {
     this.subscriptions.push(this.mailFoldersService.pecFolderSelected.subscribe((pecFolderSelected: PecFolder) => {
@@ -639,7 +651,7 @@ export class MailListComponent implements OnInit, OnDestroy {
       if (!this._selectedPec.pecAziendaList.find(pecAzienda => pecAzienda.fk_idAzienda.id === azienda.id)) {
         pIspecDellAzienda = false;
         pIcon = "pi pi-exclamation-triangle";
-        pTitle = "L'azienda non è associata alla casella del messaggio selezionato."
+        pTitle = "L'azienda non è associata alla casella del messaggio selezionato.";
       }
       registrationItems.push(
         {
@@ -728,7 +740,12 @@ export class MailListComponent implements OnInit, OnDestroy {
     }
   }
 
-  private noteHandler() {
+
+
+  private noteHandler(specificMessage?: Message) {
+    if (specificMessage) {
+      this.mailListService.selectedMessages[0] = specificMessage;
+    }
     let messageTag: MessageTag = null;
     this.noteObject = new Note();
     this.noteObject.memo = "";
@@ -856,4 +873,133 @@ export class MailListComponent implements OnInit, OnDestroy {
     }
     this.subscriptions = [];
   }
+
+
+  /**
+   * Dato un message torno lo stato di protocollazione dello stesso
+   * @param message
+   */
+  public getRegistrationStatus(message: Message): string {
+    if (!message.messageTagList) {
+      return this.mailListService.isRegisterActive(message) ? "REGISTABLE" : "NOT_REGISTABLE";
+    }
+    return message.messageTagList.find(mt => mt.idTag.name === "registered") ? "REGISTERED" :
+      this.mailListService.isRegisterActive(message) ? "REGISTABLE" : "NOT_REGISTABLE";
+  }
+
+  /**
+   * Questa funzione scatta al click sull'icona di protocollazione.
+   * A seconda dello stato del message vengono eseguite diverse azioni.
+   * @param event
+   * @param message
+   * @param registrable
+   */
+  public iconRegistrationClicked(event: any, message: Message, registrationStatus: string) {
+    switch (registrationStatus) {
+      case "REGISTERED":
+        // TODO: aprire popup con dettaglio protocollazione
+        this.displayRegistrationDetail = true;
+        break;
+      case "REGISTABLE":
+        this.aziendeProtocollabiliSubCmItems = this.buildRegistrationMenuItems(this.selectedContextMenuItem);
+        this.registrationMenu.toggle(event);
+        break;
+      case "NOT_REGISTABLE":
+        this.messagePrimeService.add({
+          severity: "warn",
+          summary: "Attenzione",
+          detail: "Questo messaggio non può essere protocollato.", life: 3500 });
+        break;
+    }
+  }
+
+  /**
+   * Dato un message torno lo stato di reindirizzamento dello stesso
+   * @param message
+   */
+  public getReaddressStatus(message: Message): string {
+    if (!message.messageTagList) {
+      return this.mailListService.isReaddressActive(message) ? "READDRESSABLE" : "NOT_READDRESSABLE";
+    }
+    const readdrresedIn = message.messageTagList.find(mt => mt.idTag.name === "readdressed_in");
+    const readdrresedOut = message.messageTagList.find(mt => mt.idTag.name === "readdressed_out");
+    if (readdrresedIn && readdrresedOut) {
+      return "FULL_READDRESSED";
+    }
+    if (readdrresedIn) {
+      return "READDRESSED_IN";
+    }
+    if (readdrresedOut) {
+      return "READDRESSED_OUT";
+    }
+    return "NOT_READDRESSABLE";
+  }
+
+  /**
+   * Questa funzione scatta al click sull'icona di reindirizzamento.
+   * A seconda dello stato del message vengono eseguite diverse azioni.
+   * @param event
+   * @param message
+   * @param registrable
+   */
+  public iconReaddressClicked(event: any, message: Message, readdressStatus: string) {
+    switch (readdressStatus) {
+      case "FULL_READDRESSED":
+      case "READDRESSED_IN":
+      case "READDRESSED_OUT":
+        this.prepareAndOpenDialogReaddressDetail(message, readdressStatus);
+        break;
+      case "READDRESSABLE":
+        this.mailListService.readdressMessage(message);
+        break;
+      case "NOT_READDRESSABLE":
+        this.messagePrimeService.add({
+          severity: "warn",
+          summary: "Attenzione",
+          detail: "Questo messaggio non può essere reindirizzato.", life: 3500 });
+        break;
+    }
+  }
+
+  /**
+   * Perapato e mostro la popup del dettaglio reindirizzamenti
+   * @param message
+   * @param readdressStatus
+   */
+  public prepareAndOpenDialogReaddressDetail(message: Message, readdressStatus: string) {
+    this.readdressDetail = {
+      displayReaddressDetail: false,
+      buttonReaddress: false,
+      testo: {
+        in: null,
+        out: null
+      },
+      message: message
+    };
+    this.readdressDetail.buttonReaddress = true;
+    if (readdressStatus === "READDRESSED_IN" || readdressStatus === "FULL_READDRESSED") {
+      const mtIn = message.messageTagList.find(mt => mt.idTag.name === "readdressed_in");
+      const mtInAdditionalData = JSON.parse(mtIn.additionalData);
+      this.readdressDetail.testo.in =  `<b>${new Date(mtIn.inserted).toLocaleDateString("it-IT", {hour: "numeric", minute: "numeric"})}</b>: `
+        + `da ${mtInAdditionalData["idUtente"]["descrizione"]}`
+        + ` (${mtInAdditionalData["idPecSrc"]["indirizzo"]}).`;
+    }
+    if (readdressStatus === "READDRESSED_OUT" || readdressStatus === "FULL_READDRESSED") {
+      this.readdressDetail.buttonReaddress = false;
+      const mtOut = message.messageTagList.find(mt => mt.idTag.name === "readdressed_out");
+      const mtOutAdditionalData = JSON.parse(mtOut.additionalData);
+      this.readdressDetail.testo.out =  `<b>${new Date(mtOut.inserted).toLocaleDateString("it-IT", {hour: "numeric", minute: "numeric"})}</b>: `
+        + `da ${mtOutAdditionalData["idUtente"]["descrizione"]}`
+        + ` (${mtOutAdditionalData["idPecDst"]["indirizzo"]}).`;
+    }
+    this.readdressDetail.displayReaddressDetail = true;
+  }
+
+  public isAlreadyTagged(message: Message, tagname: string): boolean {
+    if (!message.messageTagList) { return false; }
+    return message.messageTagList.some(mt => mt.idTag.name === tagname) ? true : false;
+  }
+
+// lightseagreen
+// orange note
 }
