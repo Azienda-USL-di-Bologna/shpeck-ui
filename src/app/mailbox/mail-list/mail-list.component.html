@@ -42,43 +42,43 @@
             <td>
                 <div class="mail-icons-container">
                     <!-- ICONE AZIONE -->
-                    <!-- protocollato--> 
+                    <!-- protocollato-->
                     <span class="mail-icon">
                         <ng-template  #registrationTemplate let-registrationstatus>
-                            <i  
-                                [pTooltip]="registrationstatus === 'REGISTERED' ? 'Vedi dettagli protocollazione' : 
+                            <i
+                                [pTooltip]="registrationstatus === 'REGISTERED' ? 'Vedi dettagli protocollazione' :
                                     (registrationstatus === 'REGISTABLE' ? 'Protocolla il messaggio' : 'Il messaggio non può essere protocollato')"
                                 tooltipPosition="top"
-                                class="material-icons mail-icons icon-enabled"
+                                class="material-icons-outlined mail-icons icon-enabled"
                                 [ngClass]="{'icon-disabled': registrationstatus === 'NOT_REGISTABLE', 'icon-used': registrationstatus === 'REGISTERED'}"
                                 (click)="iconRegistrationClicked($event, message, registrationstatus)">
-                                {{registrationstatus === 'REGISTERED' ? "assignment_turned_in" : 
+                                {{registrationstatus === 'REGISTERED' ? "assignment_turned_in" :
                                     (registrationstatus === "REGISTABLE" ? "assignment_returned" : "assignment_late")}}
                             </i>
                             <p-menu appendTo="body" #registrationMenu [popup]="true" [model]="aziendeProtocollabiliSubCmItems"></p-menu>
                         </ng-template>
-                        <ng-template [ngTemplateOutlet]="registrationTemplate" 
+                        <ng-template [ngTemplateOutlet]="registrationTemplate"
                             [ngTemplateOutletContext]="{$implicit: getRegistrationStatus(message)}">
                         </ng-template>
                     </span>
                     <!-- reindirizzato -->
                     <span class="mail-icon">
                         <ng-template  #readdressTemplate let-readdressstatus>
-                            <i [pTooltip]="readdressstatus === 'NOT_READDRESSABLE' ? 'Il messaggio non può essere reindirizzato' : 
+                            <i [pTooltip]="readdressstatus === 'NOT_READDRESSABLE' ? 'Il messaggio non può essere reindirizzato' :
                                 readdressstatus === 'READDRESSABLE' ? 'Reindirizza il messaggio' : 'Vedi dettagli reindirizzamento'"
                                 tooltipPosition="top"
-                                class="material-icons mail-icons icon-enabled" 
+                                class="material-icons mail-icons icon-enabled"
                                 [ngClass]="{'icon-disabled': readdressstatus === 'NOT_READDRESSABLE', 'icon-used': (readdressstatus !== 'NOT_READDRESSABLE' && readdressstatus !== 'READDRESSABLE')}"
                                 (click)="iconReaddressClicked($event, message, readdressstatus)">
-                                {{readdressstatus === 'NOT_READDRESSABLE' ? 'call_split' : 
+                                {{readdressstatus === 'NOT_READDRESSABLE' ? 'call_split' :
                                     readdressstatus === 'READDRESSABLE' ? 'call_split' : 'shuffle'}}
                             </i>
                         </ng-template>
-                        <ng-template [ngTemplateOutlet]="readdressTemplate" 
+                        <ng-template [ngTemplateOutlet]="readdressTemplate"
                             [ngTemplateOutletContext]="{$implicit: getReaddressStatus(message)}">
                         </ng-template>
                     </span>
-                    <!-- annotato --> 
+                    <!-- annotato -->
                     <span class="mail-icon">
                         <i  [pTooltip]="isAlreadyTagged(message, 'annotated') ? 'Visualizza la nota' : 'Aggiungi una nota'"
                             tooltipPosition="top"
@@ -224,15 +224,15 @@
     <li *ngIf="readdressDetail.testo?.in" [innerHTML]="readdressDetail.testo.in"></li>
     <li *ngIf="readdressDetail.testo?.out" [innerHTML]="readdressDetail.testo.out"></li>
     <p-footer class="button-readdress">
-        <button *ngIf="readdressDetail.buttonReaddress" type="button" pButton 
+        <button *ngIf="readdressDetail.buttonReaddress" type="button" pButton
             (click)="iconReaddressClicked($event, readdressDetail.message, 'READDRESSABLE')"
             (click)="readdressDetail.displayReaddressDetail = false"
             label="Aggiungi"
             class="ui-button-raised ui-button-secondary button-styles custom-secondary-button">
         </button>
-        <button type="button" pButton 
-            (click)="readdressDetail.displayReaddressDetail = false" 
-            label="Ok" 
+        <button type="button" pButton
+            (click)="readdressDetail.displayReaddressDetail = false"
+            label="Ok"
             class="ui-button-raised ui-button-secondary button-styles custom-secondary-button">
         </button>
     </p-footer>
