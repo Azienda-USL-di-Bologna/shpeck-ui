@@ -231,7 +231,7 @@ export class MailListService {
           additionalData: null,
           returnProjection: ENTITIES_STRUCTURE.shpeck.messagetag.standardProjections.MessageTagWithIdTagAndIdUtente
         });
-      } else {
+      } else if (message.messageTagList && message.messageTagList.length > 0) {
         const mTag: MessageTag = message.messageTagList.find(messageTag => messageTag.idTag.name === "in_error");
         if (mTag) {
           idTag = mTag.idTag.id;

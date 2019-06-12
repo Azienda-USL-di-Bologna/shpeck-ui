@@ -125,7 +125,7 @@ export class MailListComponent implements OnInit, OnDestroy {
       queryParams: {},
       command: event => this.selectedContextMenuItem(event)
     },
-    /* {
+    {
       label: "Segna come errore visto",
       id: "ToggleErrorFalse",
       disabled: true,
@@ -138,7 +138,7 @@ export class MailListComponent implements OnInit, OnDestroy {
       disabled: true,
       queryParams: {},
       command: event => this.selectedContextMenuItem(event)
-    }, */
+    },
     {
       label: "Nota",
       id: "MessageNote",
