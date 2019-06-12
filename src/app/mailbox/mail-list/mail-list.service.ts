@@ -207,15 +207,15 @@ export class MailListService {
   }
 
   /**
-   * Questa funzione si occupa di settare un messaggio come in Errore o no
-   * @param seen Boolean per aggiungere il tag Errore (true) o toglierlo (false)
+   * Questa funzione si occupa di aggiungere o rimuovere il tag in Errore ad uno o più messaggi
+   * @param toInsert Boolean per aggiungere il tag Errore (true) o toglierlo (false)
   */
-  public toggleError(seen: boolean): void {
+  public toggleError(toInsert: boolean): void {
     const messageTagOperations: BatchOperation[] = [];
     const mtp: MessageTagOp[] = [];
-    let idTag;  // Id del tag nella TagList
+    let idTag;  // Conterrà l'id del tag nella TagList della PEC per fare la reload nella callback
     for (const message of this.selectedMessages) {
-      if (seen) {
+      if (toInsert) {
         const mTag: MessageTag = new MessageTag();
         mTag.idMessage = message;
         mTag.idUtente = { id: this.loggedUser.getUtente().id } as Utente;
@@ -250,12 +250,16 @@ export class MailListService {
     }
     if (messageTagOperations.length > 0) {
       this.messageService.batchHttpCall(messageTagOperations).subscribe((res: BatchOperation[]) => {
-        console.log("REEADS = ", res);
         this.mailFoldersService.doReloadTag(idTag);
+        /* Aggiungiamo o rimuoviamo il tag in base all'operazione ad ogni
+         * messaggio precedentemente selezionato */
         mtp.forEach((item) => {
           if (item.operation === "INSERT" && res) {
             const messageTagToPush: MessageTag =
-              res.find(bo => (bo.entityBody as MessageTag).fk_idMessage.id === item.message.id).entityBody as MessageTag
+              res.find(bo => (bo.entityBody as MessageTag).fk_idMessage.id === item.message.id).entityBody as MessageTag;
+            if (!item.message.messageTagList) {
+              item.message.messageTagList = [];
+            }
             item.message.messageTagList.push(messageTagToPush);
             this.setIconsVisibility(item.message);
           } else if (item.operation === "DELETE" && res) {
@@ -263,7 +267,8 @@ export class MailListService {
             this.setIconsVisibility(item.message);
           }
         });
-      });
+      },
+      err => console.log("error during the operation -> ", err));
     }
   }
 
