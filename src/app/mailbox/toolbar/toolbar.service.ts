@@ -148,9 +148,7 @@ export class ToolBarService {
   public newMail(action) {
 
     const draftMessage = new Draft();
-    /* const pec: Pec = new Pec();
-    pec.id = pecId; */
-    draftMessage.idPec = this._selectedPec;
+    draftMessage.idPec = {id: this._selectedPec.id} as Pec;
     if (action !== TOOLBAR_ACTIONS.NEW) {
       if (!this.messageEvent || !this.messageEvent.downloadedMessage) {
         this.messagePrimeService.add(

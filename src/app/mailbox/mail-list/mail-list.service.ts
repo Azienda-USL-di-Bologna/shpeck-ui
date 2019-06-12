@@ -256,6 +256,9 @@ export class MailListService {
           if (item.operation === "INSERT" && res) {
             const messageTagToPush: MessageTag =
               res.find(bo => (bo.entityBody as MessageTag).fk_idMessage.id === item.message.id).entityBody as MessageTag;
+            if (!item.message.messageTagList) {
+              item.message.messageTagList = [];
+            }
             item.message.messageTagList.push(messageTagToPush);
             this.setIconsVisibility(item.message);
           } else if (item.operation === "DELETE" && res) {
