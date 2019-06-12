@@ -598,31 +598,11 @@ export class MailListComponent implements OnInit, OnDestroy {
           break;
         case "ToggleErrorTrue":
           element.disabled = false;
-          element.disabled = this.mailListService.selectedMessages.some(mess => {
-            if (mess.messageStatus === MessageStatus.ERROR) {
-              if (mess.messageTagList) {
-                return mess.messageTagList.find(messageTag => messageTag.idTag.name === "in_error") !== undefined;
-              } else {
-                return false;
-              }
-            } else {
-              return true;
-            }
-          });
+          element.disabled = this.mailListService.isToggleErrorDisabled(true);
           break;
         case "ToggleErrorFalse":
           element.disabled = false;
-          element.disabled = !this.mailListService.selectedMessages.some(mess => {
-            if (mess.messageStatus === MessageStatus.ERROR) {
-              if (mess.messageTagList) {
-                return mess.messageTagList.find(messageTag => messageTag.idTag.name === "in_error") !== undefined;
-              } else {
-                return false;
-              }
-            } else {
-              return false;
-            }
-          });
+          element.disabled = !this.mailListService.isToggleErrorDisabled(false);
           break;
         case "MessageReaddress":
           element.disabled = false;

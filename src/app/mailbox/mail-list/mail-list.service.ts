@@ -1,5 +1,5 @@
 import { Injectable } from "@angular/core";
-import { Tag, Folder, Message, FolderType, InOut, ENTITIES_STRUCTURE, FluxPermission, PecPermission, Note, MessageTag, Utente, Azienda, MessageType } from "@bds/ng-internauta-model";
+import { Tag, Folder, Message, FolderType, InOut, ENTITIES_STRUCTURE, FluxPermission, PecPermission, Note, MessageTag, Utente, Azienda, MessageType, MessageStatus } from "@bds/ng-internauta-model";
 import { MenuItem } from "primeng/api";
 import { Utils } from "src/app/utils/utils";
 import { MessageFolderService } from "src/app/services/message-folder.service";
@@ -377,6 +377,26 @@ export class MailListService {
     } else {
       return true;
     }
+  }
+  /**
+   * Abilita/Disabilita il pulsante ToggleError.
+   * Viene disabilitato e ritorna TRUE se il messaggio non è in errore e se il tag è già presente.
+   * @param toggleTrue Boolean per indicare il caso in cui si deve aggiungere il tag
+   */
+  public isToggleErrorDisabled(toggleTrue: boolean): boolean {
+    return this.selectedMessages.some(mess => {
+      if (mess.messageStatus === MessageStatus.ERROR) {
+        if (mess.messageTagList) {
+          return mess.messageTagList.find(messageTag => messageTag.idTag.name === "in_error") !== undefined;
+        } else {
+          return false;
+        }
+      } else {
+        // Se il messaggio non è in errore ritorna TRUE per il caso di aggiunta e FALSE
+        // per l'altro caso in quanto il metodo viene usato con la negazione
+        return toggleTrue ? true : false;
+      }
+    });
   }
 
   public setIconsVisibility(message: Message) {
