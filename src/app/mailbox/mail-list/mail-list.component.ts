@@ -109,15 +109,15 @@ export class MailListComponent implements OnInit, OnDestroy {
       command: event => this.selectedContextMenuItem(event)
     },
     {
-      label: "Segna come in errore",
-      id: "ToggleErrorTrue",
+      label: "Segna come errore visto",
+      id: "ToggleErrorFalse",
       disabled: true,
       queryParams: {},
       command: event => this.selectedContextMenuItem(event)
     },
     {
-      label: "Segna errore come visto",
-      id: "ToggleErrorFalse",
+      label: "Segna come errore non visto",
+      id: "ToggleErrorTrue",
       disabled: true,
       queryParams: {},
       command: event => this.selectedContextMenuItem(event)
