@@ -224,7 +224,7 @@
     <p-header>
         Dettaglio protocollazione
     </p-header>
-    <div>Il {{registrationDetail?.data}}: {{idUtente}} ha protocollato il messaggio.</div>
+    <div>Il {{registrationDetail?.data}}: {{registrationDetail.idUtente}} ha protocollato il messaggio.</div>
     <div>Oggetto: {{registrationDetail?.oggetto}}</div>
     <div *ngIf="registrationDetail?.numeroProtocollo">La registrazione è avvenuta con il numero {{registrationDetail?.numeroProtocollo}}</div>
     <div *ngIf="!registrationDetail?.numeroProtocollo">Il documento è ancora una proposta, con numero: {{registrationDetail?.numeroProposta}}</div>
