@@ -665,7 +665,11 @@ export class MailListComponent implements OnInit, OnDestroy {
     } else if (registrationType === "ADD") {
       decodedUrl = decodeURI(azienda.urlCommands["PROTOCOLLA_PEC_ADD"]); // mi dovrei fare le costanti
     }
-    decodedUrl = decodedUrl.replace("[id_pec]", this.mailListService.selectedMessages[0].id.toString());
+    decodedUrl = decodedUrl.replace("[id_message]", this.mailListService.selectedMessages[0].id.toString());
+
+    const idTag = this._selectedPec.tagList.find(t => t.name === "registered"); // TODO: lista valori per i TAG
+    // decodedUrl = decodedUrl.replace("[id_tag]", idTag.id.toString());
+    decodedUrl = decodedUrl.replace("[pec_ricezione]", this._selectedPec.indirizzo);
 
     console.log("command", decodedUrl);
     window.open(decodedUrl);
