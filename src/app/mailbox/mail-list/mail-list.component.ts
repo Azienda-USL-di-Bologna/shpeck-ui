@@ -998,7 +998,7 @@ export class MailListComponent implements OnInit, OnDestroy {
       const mtIn = message.messageTagList.find(mt => mt.idTag.name === "readdressed_in");
       const mtInAdditionalData = JSON.parse(mtIn.additionalData);
       this.readdressDetail.testo.in = `<b>${new Date(mtIn.inserted).toLocaleDateString("it-IT", { hour: "numeric", minute: "numeric" })}</b>: `
-        + `da ${mtInAdditionalData["idUtente"]["descrizione"]}`
+        + `reindirizzato da ${mtInAdditionalData["idUtente"]["descrizione"]}`
         + ` (${mtInAdditionalData["idPecSrc"]["indirizzo"]}).`;
     }
     if (readdressStatus === "READDRESSED_OUT" || readdressStatus === "FULL_READDRESSED") {
@@ -1006,8 +1006,8 @@ export class MailListComponent implements OnInit, OnDestroy {
       const mtOut = message.messageTagList.find(mt => mt.idTag.name === "readdressed_out");
       const mtOutAdditionalData = JSON.parse(mtOut.additionalData);
       this.readdressDetail.testo.out = `<b>${new Date(mtOut.inserted).toLocaleDateString("it-IT", { hour: "numeric", minute: "numeric" })}</b>: `
-        + `da ${mtOutAdditionalData["idUtente"]["descrizione"]}`
-        + ` (${mtOutAdditionalData["idPecDst"]["indirizzo"]}).`;
+        + ` ${mtOutAdditionalData["idUtente"]["descrizione"]} ha reindirizzato a ${mtOutAdditionalData["idPecDst"]["indirizzo"]}`
+        + `.`;
     }
     this.readdressDetail.displayReaddressDetail = true;
   }
@@ -1019,4 +1019,19 @@ export class MailListComponent implements OnInit, OnDestroy {
 
   // lightseagreen
   // orange note
+// #bfe3ff
+// # ffcbe5
+// f2d9e6
+// f7e7ef
+
+/*
+
+background-color: #d9f2e6 !important;
+background-color: #ffcbe5 !important;
+background-color: #f2d9e6 !important;
+background-color: #f7e7ef !important;
+background-color: #bfe3ff !important;
+background-color: #f0ffc4 !important;
+
+*/
 }

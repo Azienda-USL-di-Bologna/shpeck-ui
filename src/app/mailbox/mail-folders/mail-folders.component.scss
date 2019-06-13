@@ -13,17 +13,32 @@
 }
 ::ng-deep .general-style-folder {
     color: #2e4a65 !important;
-}
-::ng-deep .material-icons-outlined.readdressed-icon, 
-::ng-deep .material-icons-outlined.registered-icon {
     font-size: 1.25em;
 }
+/* ::ng-deep .material-icons-outlined.readdressed-icon, 
+::ng-deep .material-icons-outlined.registered-icon {
+    font-size: 1.25em;
+} */
 ::ng-deep .readdressed-icon::before {
-    content: 'shuffle';
-   
+    content: 'low_priority';
 }
 ::ng-deep .registered-icon::before {
     content: 'assignment_turned_in';
+}
+::ng-deep .inbox-icon::before {
+    content: 'inbox';
+}
+::ng-deep .outbox-icon::before {
+    content: 'hourglass_empty';
+}
+::ng-deep .sent-icon::before {
+    content: 'send';
+}
+::ng-deep .draft-icon::before {
+    content: 'drafts';
+}
+::ng-deep .trash-icon::before {
+    content: 'delete';
 }
 
 // :host .tree-style-box.body.ui-tree {

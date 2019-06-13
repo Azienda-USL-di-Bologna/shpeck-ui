@@ -103,7 +103,7 @@ export class MailFoldersComponent implements OnInit, OnDestroy {
           const p: Pec = new Pec();
           p.id = pec.id;
           folder.idPec = p;
-          children.push(this.buildFolderNode(folder));
+          children.push(this.buildFolderNode(folder, this.buildFolderIcons(folder)));
         } else {
           folderCustom.push(folder);
         }
@@ -132,7 +132,7 @@ export class MailFoldersComponent implements OnInit, OnDestroy {
           const p: Pec = new Pec();
           p.id = pec.id;
           folder.idPec = p;
-          children.push(this.buildFolderNode(folder));
+          children.push(this.buildFolderNode(folder, this.buildFolderIcons(folder)));
         }
       }
     }
@@ -159,7 +159,7 @@ export class MailFoldersComponent implements OnInit, OnDestroy {
         case "NewFolder":
           // console.log("new folder", this.selectedNode);
           const folderToInsert = this.buildCustomFolder(this.selectedNode.data.data as Pec, "Nuova Cartella");
-          this.selectedNode.children.push(this.buildFolderNode(folderToInsert, true));
+          this.selectedNode.children.push(this.buildFolderNode(folderToInsert, {expandedIcon: "pi pi-folder-open", collapsedIcon: "pi pi-folder"}, true));
           setTimeout(() => {
             const a = this.folderInput;
             a.find(e => e.nativeElement.id === this.selectedNode.key).nativeElement.focus();
@@ -210,7 +210,35 @@ export class MailFoldersComponent implements OnInit, OnDestroy {
     return folder;
   }
 
-  private buildFolderNode(folder: Folder, editable: boolean = false): MyTreeNode {
+  private buildFolderIcons(folder: Folder): any {
+    let expandedIcon = "pi pi-folder-open";
+    let collapsedIcon = "pi pi-folder";
+    if (folder.name === "readdressed") {
+      collapsedIcon = "material-icons-outlined readdressed-icon";
+      expandedIcon =  "material-icons-outlined readdressed-icon";
+    } else if (folder.name === "registered") {
+      collapsedIcon = "material-icons-outlined registered-icon";
+      expandedIcon =  "material-icons-outlined registered-icon";
+    } else if (folder.name === "inbox") {
+      collapsedIcon = "material-icons-outlined inbox-icon";
+      expandedIcon =  "material-icons-outlined inbox-icon";
+    } else if (folder.name === "outbox") {
+      collapsedIcon = "material-icons-outlined outbox-icon";
+      expandedIcon =  "material-icons-outlined outbox-icon";
+    } else if (folder.name === "sent") {
+      collapsedIcon = "material-icons-outlined sent-icon";
+      expandedIcon =  "material-icons-outlined sent-icon";
+    } else if (folder.name === "draft") {
+      collapsedIcon = "material-icons-outlined draft-icon";
+      expandedIcon =  "material-icons-outlined draft-icon";
+    } else if (folder.name === "trash") {
+      collapsedIcon = "fa fa-trash";
+      expandedIcon =  "fa fa-trash";
+    }
+    return {expandedIcon: expandedIcon, collapsedIcon: collapsedIcon};
+  }
+
+  private buildFolderNode(folder: Folder, folderIcons: any, editable: boolean = false): MyTreeNode {
     let expandedIcon = "pi pi-folder-open";
     let collapsedIcon = "pi pi-folder";
     if (folder.name === "readdressed") {
@@ -226,8 +254,8 @@ export class MailFoldersComponent implements OnInit, OnDestroy {
         type: PecFolderType.FOLDER,
         data: folder
       } as PecFolder,
-      expandedIcon: expandedIcon + " general-style-folder",
-      collapsedIcon: collapsedIcon + " general-style-folder",
+      expandedIcon: folderIcons.expandedIcon + " general-style-folder",
+      collapsedIcon: folderIcons.collapsedIcon + " general-style-folder",
       styleClass: "tree-node-style",
       editable: editable,
       key: PecFolderType.FOLDER + "_" + (folder.id ? folder.id : "new")
