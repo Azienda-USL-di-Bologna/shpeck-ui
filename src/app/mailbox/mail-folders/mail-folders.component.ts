@@ -232,8 +232,8 @@ export class MailFoldersComponent implements OnInit, OnDestroy {
       collapsedIcon = "material-icons-outlined draft-icon";
       expandedIcon =  "material-icons-outlined draft-icon";
     } else if (folder.name === "trash") {
-      collapsedIcon = "fa fa-trash";
-      expandedIcon =  "fa fa-trash";
+      collapsedIcon = "material-icons-outlined trash-icon";
+      expandedIcon =  "material-icons-outlined trash-icon";
     }
     return {expandedIcon: expandedIcon, collapsedIcon: collapsedIcon};
   }

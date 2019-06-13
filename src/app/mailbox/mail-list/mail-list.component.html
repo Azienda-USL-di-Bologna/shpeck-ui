@@ -50,7 +50,7 @@
                                     (registrationstatus === 'REGISTABLE' ? 'Protocolla il messaggio' : registrationstatus === 'IN_REGISTRATION' ? 'In protocollazione' : 'Il messaggio non può essere protocollato')"
                                 tooltipPosition="top"
                                 class="material-icons-outlined mail-icons icon-enabled"
-                                [ngClass]="{'icon-disabled': registrationstatus === 'NOT_REGISTABLE', 'icon-used': registrationstatus === 'REGISTERED'}"
+                                [ngClass]="{'icon-disabled': registrationstatus === 'NOT_REGISTABLE', 'icon-used': (registrationstatus === 'REGISTERED' || registrationstatus === 'IN_REGISTRATION')}"
                                 [ngStyle]="registrationstatus === 'REGISTERED' && {'color': 'darkcyan'} || registrationstatus === 'IN_REGISTRATION' && {'color': 'orange'}"
                                 (click)="iconRegistrationClicked($event, message, registrationstatus)">
                                 {{registrationstatus === 'REGISTERED' || registrationstatus === 'IN_REGISTRATION' ? "assignment_turned_in" : "assignment"}}
@@ -74,8 +74,9 @@
                                     readdressstatus === 'READDRESSED_IN' || 
                                     readdressstatus === 'READDRESSED_OUT') && {'color': 'darkcyan'}"
                                 (click)="iconReaddressClicked($event, message, readdressstatus)">
-                                {{readdressstatus === 'NOT_READDRESSABLE' ? 'call_split' :
-                                    readdressstatus === 'READDRESSABLE' ? 'call_split' : 'low_priority'}}
+                                low_priority
+                               <!--  {{readdressstatus === 'NOT_READDRESSABLE' ? 'call_split' :
+                                    readdressstatus === 'READDRESSABLE' ? 'call_split' : 'low_priority'}} -->
                             </i>
                         </ng-template>
                         <ng-template [ngTemplateOutlet]="readdressTemplate"
@@ -224,7 +225,7 @@
         Dettaglio protocollazione
     </p-header>
     <div>Il {{registrationDetail?.data}}: {{registrationDetail?.idUtente?.descrizione}} ha protocollato il messaggio.</div>
-    <div *ngIf="registrationDetail?.numeroProtocollo">{{registrationDetail?.registro}}{{registrationDetail?.numeroProtocollo}}/{{registrationDetail?.anno}}: {{registrationDetail?.oggetto}}</div>
+    <div *ngIf="registrationDetail?.numeroProtocollo">{{registrationDetail?.codiceRegistro}}{{registrationDetail?.numeroProtocollo}}/{{registrationDetail?.anno}}: {{registrationDetail?.oggetto}}</div>
     <div *ngIf="!registrationDetail?.numeroProtocollo">Prop. {{registrationDetail?.numeroProposta}}: {{registrationDetail?.oggetto}}</div>
     <p-footer>
         <button type="button" pButton (click)="displayRegistrationDetail = false" label="Ok"></button>

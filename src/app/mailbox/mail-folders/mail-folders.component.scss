@@ -37,6 +37,11 @@
 ::ng-deep .draft-icon::before {
     content: 'drafts';
 }
+::ng-deep .trash-icon {
+    font-size: 1.60em !important;
+    margin-left: -2px !important;
+    margin-right: 0px !important;
+}
 ::ng-deep .trash-icon::before {
     content: 'delete';
 }

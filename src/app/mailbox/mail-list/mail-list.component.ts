@@ -675,6 +675,20 @@ export class MailListComponent implements OnInit, OnDestroy {
 
     console.log("command", decodedUrl);
     window.open(decodedUrl);
+    // Setto subito il tag in modo che l'icona cambi
+    if (!this.mailListService.selectedMessages[0].messageTagList) {
+      this.mailListService.selectedMessages[0].messageTagList = [];
+    }
+    const newTag = new Tag();
+    newTag.idPec = this.mailListService.selectedMessages[0].idPec;
+    newTag.description = "In protocollazione";
+    newTag.name = "in_registration";
+    newTag.type = "SYSTEM_NOT_INSERTABLE_NOT_DELETABLE";
+    const newMessageTag = new MessageTag();
+    newMessageTag.idMessage =  this.mailListService.selectedMessages[0];
+    newMessageTag.idTag = newTag;
+    newMessageTag.inserted = new Date();
+    this.mailListService.selectedMessages[0].messageTagList.push(newMessageTag);
   }
 
 
@@ -891,10 +905,11 @@ export class MailListComponent implements OnInit, OnDestroy {
    * @param registrable
    */
   public iconRegistrationClicked(event: any, message: Message, registrationStatus: string) {
+    let messageTag = null;
     switch (registrationStatus) {
       case "REGISTERED":
-        this.prepareAndOpenDialogRegistrationDetail(message);
-
+        messageTag = message.messageTagList.find(mt => mt.idTag.name === "registered");
+        this.prepareAndOpenDialogRegistrationDetail(messageTag, JSON.parse(messageTag.additionalData));
         break;
       case "REGISTABLE":
         this.aziendeProtocollabiliSubCmItems = this.buildRegistrationMenuItems(this.selectedContextMenuItem);
@@ -908,17 +923,20 @@ export class MailListComponent implements OnInit, OnDestroy {
         });
         break;
       case "IN_REGISTRATION":
-        this.messagePrimeService.add({
-          severity: "warn",
-          summary: "Attenzione",
-          detail: "Questo messaggio è in fase di protocollazione.", life: 3500 });
+        messageTag = message.messageTagList.find(mt => mt.idTag.name === "in_registration");
+        if (!messageTag.additionalData || messageTag.additionalData === "{}") {
+          this.messagePrimeService.add({
+            severity: "warn",
+            summary: "Attenzione",
+            detail: "Questo messaggio è in fase di protocollazione.", life: 3500 });
+        } else {
+          this.prepareAndOpenDialogRegistrationDetail(messageTag, JSON.parse(messageTag.additionalData));
+        }
         break;
     }
   }
 
-  public prepareAndOpenDialogRegistrationDetail(message: Message) {
-    const messageTag = message.messageTagList.find(mt => mt.idTag.name === "registered");
-    const additionalData = JSON.parse(messageTag.additionalData);
+  public prepareAndOpenDialogRegistrationDetail(messageTag: MessageTag, additionalData: any) {
     this.registrationDetail = {
       numeroProposta: additionalData.numero_proposta,
       numeroProtocollo: additionalData.numero_protocollo,
@@ -983,7 +1001,7 @@ export class MailListComponent implements OnInit, OnDestroy {
    * @param message
    * @param readdressStatus
    */
-  public prepareAndOpenDialogReaddressDetail(message: Message, readdressStatus: string) {
+    private prepareAndOpenDialogReaddressDetail(message: Message, readdressStatus: string) {
     this.readdressDetail = {
       displayReaddressDetail: false,
       buttonReaddress: false,
@@ -993,45 +1011,32 @@ export class MailListComponent implements OnInit, OnDestroy {
       },
       message: message
     };
-    this.readdressDetail.buttonReaddress = true;
-    if (readdressStatus === "READDRESSED_IN" || readdressStatus === "FULL_READDRESSED") {
-      const mtIn = message.messageTagList.find(mt => mt.idTag.name === "readdressed_in");
-      const mtInAdditionalData = JSON.parse(mtIn.additionalData);
-      this.readdressDetail.testo.in = `<b>${new Date(mtIn.inserted).toLocaleDateString("it-IT", { hour: "numeric", minute: "numeric" })}</b>: `
-        + `reindirizzato da ${mtInAdditionalData["idUtente"]["descrizione"]}`
-        + ` (${mtInAdditionalData["idPecSrc"]["indirizzo"]}).`;
-    }
-    if (readdressStatus === "READDRESSED_OUT" || readdressStatus === "FULL_READDRESSED") {
-      this.readdressDetail.buttonReaddress = false;
-      const mtOut = message.messageTagList.find(mt => mt.idTag.name === "readdressed_out");
-      const mtOutAdditionalData = JSON.parse(mtOut.additionalData);
-      this.readdressDetail.testo.out = `<b>${new Date(mtOut.inserted).toLocaleDateString("it-IT", { hour: "numeric", minute: "numeric" })}</b>: `
-        + ` ${mtOutAdditionalData["idUtente"]["descrizione"]} ha reindirizzato a ${mtOutAdditionalData["idPecDst"]["indirizzo"]}`
-        + `.`;
-    }
+    this.readdressDetail.buttonReaddress = this.mailListService.isReaddressActive(message);
+    this.readdressDetail.testo.in = this.buildMessageReaddres(message, "readdressed_in");
+    this.readdressDetail.testo.out = this.buildMessageReaddres(message, "readdressed_out");
     this.readdressDetail.displayReaddressDetail = true;
+  }
+
+  private buildMessageReaddres(message, tagName): string {
+    let testo = null;
+    const messageTag = message.messageTagList.find(mt => mt.idTag.name === tagName);
+    if (messageTag) {
+      const mtAdditionalData = JSON.parse(messageTag.additionalData);
+      if (tagName === "readdressed_in") {
+        testo = `<b>${new Date(messageTag.inserted).toLocaleDateString("it-IT", { hour: "numeric", minute: "numeric" })}</b>: `
+        + `reindirizzato da ${mtAdditionalData["idUtente"]["descrizione"]}`
+        + ` (${mtAdditionalData["idPec"]["indirizzo"]}).`;
+      } else if (tagName === "readdressed_out") {
+        testo = `<b>${new Date(messageTag.inserted).toLocaleDateString("it-IT", { hour: "numeric", minute: "numeric" })}</b>: `
+        + ` ${mtAdditionalData["idUtente"]["descrizione"]} ha reindirizzato a `
+        + `${mtAdditionalData["idPec"]["indirizzo"]}.`;
+      }
+    }
+    return testo;
   }
 
   public isAlreadyTagged(message: Message, tagname: string): boolean {
     if (!message.messageTagList) { return false; }
     return message.messageTagList.some(mt => mt.idTag.name === tagname) ? true : false;
   }
-
-  // lightseagreen
-  // orange note
-// #bfe3ff
-// # ffcbe5
-// f2d9e6
-// f7e7ef
-
-/*
-
-background-color: #d9f2e6 !important;
-background-color: #ffcbe5 !important;
-background-color: #f2d9e6 !important;
-background-color: #f7e7ef !important;
-background-color: #bfe3ff !important;
-background-color: #f0ffc4 !important;
-
-*/
 }
