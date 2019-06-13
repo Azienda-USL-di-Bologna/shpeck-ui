@@ -630,7 +630,7 @@ export class MailListComponent implements OnInit, OnDestroy {
       let pTitle = "";
       if (!this._selectedPec.pecAziendaList.find(pecAzienda => pecAzienda.fk_idAzienda.id === azienda.id)) {
         pIspecDellAzienda = false;
-        pIcon = "pi pi-exclamation-triangle";
+        pIcon = "pi pi-question-circle";
         pTitle = "L'azienda non è associata alla casella del messaggio selezionato.";
       }
       registrationItems.push(
@@ -716,10 +716,10 @@ export class MailListComponent implements OnInit, OnDestroy {
         this.noteHandler();
         break;
       case "ToggleErrorTrue":
-          this.mailListService.toggleError(true);
+        this.mailListService.toggleError(true);
         break;
       case "ToggleErrorFalse":
-          this.mailListService.toggleError(false);
+        this.mailListService.toggleError(false);
         break;
     }
   }
@@ -892,7 +892,8 @@ export class MailListComponent implements OnInit, OnDestroy {
         this.messagePrimeService.add({
           severity: "warn",
           summary: "Attenzione",
-          detail: "Questo messaggio non può essere protocollato.", life: 3500 });
+          detail: "Questo messaggio non può essere protocollato.", life: 3500
+        });
         break;
     }
   }
@@ -940,7 +941,8 @@ export class MailListComponent implements OnInit, OnDestroy {
         this.messagePrimeService.add({
           severity: "warn",
           summary: "Attenzione",
-          detail: "Questo messaggio non può essere reindirizzato.", life: 3500 });
+          detail: "Questo messaggio non può essere reindirizzato.", life: 3500
+        });
         break;
     }
   }
@@ -964,7 +966,7 @@ export class MailListComponent implements OnInit, OnDestroy {
     if (readdressStatus === "READDRESSED_IN" || readdressStatus === "FULL_READDRESSED") {
       const mtIn = message.messageTagList.find(mt => mt.idTag.name === "readdressed_in");
       const mtInAdditionalData = JSON.parse(mtIn.additionalData);
-      this.readdressDetail.testo.in =  `<b>${new Date(mtIn.inserted).toLocaleDateString("it-IT", {hour: "numeric", minute: "numeric"})}</b>: `
+      this.readdressDetail.testo.in = `<b>${new Date(mtIn.inserted).toLocaleDateString("it-IT", { hour: "numeric", minute: "numeric" })}</b>: `
         + `da ${mtInAdditionalData["idUtente"]["descrizione"]}`
         + ` (${mtInAdditionalData["idPecSrc"]["indirizzo"]}).`;
     }
@@ -972,7 +974,7 @@ export class MailListComponent implements OnInit, OnDestroy {
       this.readdressDetail.buttonReaddress = false;
       const mtOut = message.messageTagList.find(mt => mt.idTag.name === "readdressed_out");
       const mtOutAdditionalData = JSON.parse(mtOut.additionalData);
-      this.readdressDetail.testo.out =  `<b>${new Date(mtOut.inserted).toLocaleDateString("it-IT", {hour: "numeric", minute: "numeric"})}</b>: `
+      this.readdressDetail.testo.out = `<b>${new Date(mtOut.inserted).toLocaleDateString("it-IT", { hour: "numeric", minute: "numeric" })}</b>: `
         + `da ${mtOutAdditionalData["idUtente"]["descrizione"]}`
         + ` (${mtOutAdditionalData["idPecDst"]["indirizzo"]}).`;
     }
@@ -984,6 +986,6 @@ export class MailListComponent implements OnInit, OnDestroy {
     return message.messageTagList.some(mt => mt.idTag.name === tagname) ? true : false;
   }
 
-// lightseagreen
-// orange note
+  // lightseagreen
+  // orange note
 }
