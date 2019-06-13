@@ -103,6 +103,11 @@ body {
             }
         }
     }
+
+    .ui-contextmenu .ui-menuitem-link .ui-menuitem-icon {
+        color: #F4F4F4;
+        font-size: 1.7em;
+    }
 }
 
 @font-face {
@@ -110,7 +115,7 @@ body {
     font-style: normal;
     font-weight: 400;
     src: url(assets/fonts/material-icons.woff2) format('woff2');
-  }
+}
 
 @font-face {
     font-family: 'Material Icons Outlined';
