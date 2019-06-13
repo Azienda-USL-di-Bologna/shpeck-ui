@@ -142,8 +142,8 @@ export class MailFoldersComponent implements OnInit, OnDestroy {
         type: PecFolderType.PEC,
         data: pec
       } as PecFolder,
-      expandedIcon: "pi pi-folder-open",
-      collapsedIcon: "pi pi-folder",
+      expandedIcon: "pi pi-folder-open" + " general-style-folder",
+      collapsedIcon: "pi pi-folder" + " general-style-folder",
       children: children,
       selectable: true,
       styleClass: MailFoldersComponent.ROOT_NODE_NOT_SELECTED_STYLE_CLASS,
@@ -211,14 +211,23 @@ export class MailFoldersComponent implements OnInit, OnDestroy {
   }
 
   private buildFolderNode(folder: Folder, editable: boolean = false): MyTreeNode {
+    let expandedIcon = "pi pi-folder-open";
+    let collapsedIcon = "pi pi-folder";
+    if (folder.name === "readdressed") {
+      collapsedIcon = "material-icons-outlined readdressed-icon";
+      expandedIcon =  "material-icons-outlined readdressed-icon";
+    } else if (folder.name === "registered") {
+      collapsedIcon = "material-icons-outlined registered-icon";
+      expandedIcon =  "material-icons-outlined registered-icon";
+    }
     return {
       label: folder.description,
       data: {
         type: PecFolderType.FOLDER,
         data: folder
       } as PecFolder,
-      expandedIcon: "pi pi-folder-open",
-      collapsedIcon: "pi pi-folder",
+      expandedIcon: expandedIcon + " general-style-folder",
+      collapsedIcon: collapsedIcon + " general-style-folder",
       styleClass: "tree-node-style",
       editable: editable,
       key: PecFolderType.FOLDER + "_" + (folder.id ? folder.id : "new")

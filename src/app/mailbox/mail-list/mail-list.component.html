@@ -51,9 +51,10 @@
                                 tooltipPosition="top"
                                 class="material-icons-outlined mail-icons icon-enabled"
                                 [ngClass]="{'icon-disabled': registrationstatus === 'NOT_REGISTABLE', 'icon-used': registrationstatus === 'REGISTERED'}"
+                                [ngStyle]="registrationstatus === 'REGISTERED' && {'color': 'darkcyan'} || registrationstatus === 'IN_REGISTRATION' && {'color': 'orange'}"
                                 (click)="iconRegistrationClicked($event, message, registrationstatus)">
-                                {{registrationstatus === 'REGISTERED' ? "assignment_turned_in" :
-                                    (registrationstatus === "REGISTABLE" ? "assignment_returned" : "assignment_late")}}
+                                {{registrationstatus === 'REGISTERED' || registrationstatus === 'IN_REGISTRATION' ? "assignment_turned_in" : "assignment_returned"}}
+                                    <!-- (registrationstatus === "REGISTABLE" ? "assignment_returned" : "assignment_returned")}} -->
                             </i>
                             <p-menu appendTo="body" #registrationMenu [popup]="true" [model]="aziendeProtocollabiliSubCmItems"></p-menu>
                         </ng-template>
@@ -69,6 +70,9 @@
                                 tooltipPosition="top"
                                 class="material-icons mail-icons icon-enabled"
                                 [ngClass]="{'icon-disabled': readdressstatus === 'NOT_READDRESSABLE', 'icon-used': (readdressstatus !== 'NOT_READDRESSABLE' && readdressstatus !== 'READDRESSABLE')}"
+                                [ngStyle]="(readdressstatus === 'FULL_READDRESSED' || 
+                                    readdressstatus === 'READDRESSED_IN' || 
+                                    readdressstatus === 'READDRESSED_OUT') && {'color': 'darkcyan'}"
                                 (click)="iconReaddressClicked($event, message, readdressstatus)">
                                 {{readdressstatus === 'NOT_READDRESSABLE' ? 'call_split' :
                                     readdressstatus === 'READDRESSABLE' ? 'call_split' : 'shuffle'}}
@@ -80,12 +84,18 @@
                     </span>
                     <!-- annotato -->
                     <span class="mail-icon">
-                        <i  [pTooltip]="isAlreadyTagged(message, 'annotated') ? 'Visualizza la nota' : 'Aggiungi una nota'"
-                            tooltipPosition="top"
-                            class="material-icons mail-icons icon-enabled"
-                            (click)="noteHandler(message)">
-                            {{isAlreadyTagged(message, "annotated") ? "insert_drive_file" : "note_add"}}
-                        </i>
+                        <ng-template  #annotatedTemplate let-annotatedstatus>
+                            <i  [pTooltip]="annotatedstatus ? 'Visualizza la nota' : 'Aggiungi una nota'"
+                                tooltipPosition="top"
+                                class="material-icons-outlined mail-icons icon-enabled"
+                                [ngStyle]="annotatedstatus && {'color': 'darkcyan'}"
+                                (click)="noteHandler(message)">
+                                {{annotatedstatus ? "insert_drive_file" : "note_add"}}
+                            </i>
+                        </ng-template>
+                        <ng-template [ngTemplateOutlet]="annotatedTemplate"
+                            [ngTemplateOutletContext]="{$implicit: isAlreadyTagged(message, 'annotated')}">
+                        </ng-template>
                     </span>
 
                     <!-- SEPARATORE -->
@@ -115,20 +125,24 @@
                             [pTooltip]="getTagDescription('assigned')" tooltipPosition="top"
                             class="material-icons mail-icons">merge_type</i></span>
                     <!-- in errore (se non c'è mette visibility-hidden per lasciare lo spazio vuoto ) -->
-                    <span class="mail-icon"
+                    <!-- <span class="mail-icon"
                         [ngClass]="{'visibility-hidden':!(message?.iconsVisibility?.in_error || message.messageStatus === 'ERROR'),'warn-color': message?.iconsVisibility?.in_error}">
                         <i [pTooltip]="getTagDescription('in_error')" tooltipPosition="top"
-                            class="material-icons mail-icons">warning</i></span>
-
-                    <!-- iconcina degli allegati -->
-                    <span class="second-line-icon" [ngClass]="{'visibility-hidden':message?.attachmentsNumber === 0}"><i
-                        [pTooltip]="message?.attachmentsNumber + ' allegati'" tooltipPosition="top"
-                        class="material-icons second-line-icon">attach_file</i></span>
+                            class="material-icons mail-icons">warning</i></span> -->
+                        <span class="second-line-icon"
+                            [ngClass]="{'visibility-hidden':!(message?.iconsVisibility?.in_error || message.messageStatus === 'ERROR'),'warn-color': message?.iconsVisibility?.in_error}">
+                            <i [pTooltip]="getTagDescription('in_error')" tooltipPosition="top"
+                                class="material-icons second-line-icon">warning</i></span>
+                    
 
                     <!-- data della mail -->
                     <span class="mail-date">
                         {{message.receiveTime | date: 'EE d MMM y, H:mm' | titlecase}}
                     </span>
+                    <!-- iconcina degli allegati -->
+                    <span class="second-line-icon" [ngClass]="{'visibility-hidden':message?.attachmentsNumber === 0}"><i
+                        [pTooltip]="message?.attachmentsNumber + ' allegati'" tooltipPosition="top"
+                        class="material-icons second-line-icon">attach_file</i></span>
                 </div>
                 <div class="display-block">
                     <span class="pi pi-user display-icon"></span>
@@ -210,7 +224,10 @@
     <p-header>
         Dettaglio protocollazione
     </p-header>
-    Questo è il dettalgio della rptocovmfsoijbvi
+    <div>Il {{registrationDetail?.data}}: {{registrationDetail?.idUtente}} ha protocollato il messaggio.</div>
+    <div>Oggetto: {{registrationDetail?.oggetto}}</div>
+    <div *ngIf="registrationDetail?.numeroProtocollo">La registrazione è avvenuta con il numero {{registrationDetail?.numeroProtocollo}}</div>
+    <div *ngIf="!registrationDetail?.numeroProtocollo">Il documento è ancora una proposta, con numero: {{registrationDetail?.numeroProposta}}</div>
     <p-footer>
         <button type="button" pButton (click)="displayRegistrationDetail = false" label="Ok"></button>
     </p-footer>

@@ -187,6 +187,7 @@ export class MailListComponent implements OnInit, OnDestroy {
       out: null
     }
   };
+  public registrationDetail: any = null;
   public noteObject: Note = new Note();
   public fromOrTo: string;
   public loading = false;
@@ -317,6 +318,7 @@ export class MailListComponent implements OnInit, OnDestroy {
           this.totalRecords = data.page.totalElements;
           this.mailListService.messages = data.results;
           this.setMailTagVisibility(this.mailListService.messages);
+          this.mailFoldersService.doReloadTag(this.mailListService.tags.find(t => t.name === "in_error").id);
         }
         this.loading = false;
         // setTimeout(() => {
@@ -795,7 +797,16 @@ export class MailListComponent implements OnInit, OnDestroy {
           if (!previousMessage.messageTagList) {
             previousMessage.messageTagList = [];
           }
-          previousMessage.messageTagList.push(messageTag.entityBody as MessageTag);
+          const newTag = new Tag();
+          newTag.idPec = previousMessage.idPec;
+          newTag.description = "Annotato";
+          newTag.name = "annotated";
+          newTag.type = "SYSTEM_NOT_INSERTABLE_NOT_DELETABLE";
+          const newMessageTag = messageTag.entityBody as MessageTag;
+          newMessageTag.idMessage = previousMessage;
+          newMessageTag.idTag = newTag;
+          newMessageTag.inserted = new Date();
+          previousMessage.messageTagList.push(newMessageTag);
         } else if (messageTag && messageTag.operation === BatchOperationTypes.DELETE) {
           previousMessage.messageTagList = previousMessage.messageTagList.filter(m => m.id !== messageTag.id);
         }
@@ -868,7 +879,8 @@ export class MailListComponent implements OnInit, OnDestroy {
       return this.mailListService.isRegisterActive(message) ? "REGISTABLE" : "NOT_REGISTABLE";
     }
     return message.messageTagList.find(mt => mt.idTag.name === "registered") ? "REGISTERED" :
-      this.mailListService.isRegisterActive(message) ? "REGISTABLE" : "NOT_REGISTABLE";
+      message.messageTagList.find(mt => mt.idTag.name === "in_registration") ? "IN_REGISTRATION" :
+        this.mailListService.isRegisterActive(message) ? "REGISTABLE" : "NOT_REGISTABLE";
   }
 
   /**
@@ -881,8 +893,8 @@ export class MailListComponent implements OnInit, OnDestroy {
   public iconRegistrationClicked(event: any, message: Message, registrationStatus: string) {
     switch (registrationStatus) {
       case "REGISTERED":
-        // TODO: aprire popup con dettaglio protocollazione
-        this.displayRegistrationDetail = true;
+        this.prepareAndOpenDialogRegistrationDetail(message);
+
         break;
       case "REGISTABLE":
         this.aziendeProtocollabiliSubCmItems = this.buildRegistrationMenuItems(this.selectedContextMenuItem);
@@ -895,7 +907,26 @@ export class MailListComponent implements OnInit, OnDestroy {
           detail: "Questo messaggio non può essere protocollato.", life: 3500
         });
         break;
+      case "IN_REGISTRATION":
+        this.messagePrimeService.add({
+          severity: "warn",
+          summary: "Attenzione",
+          detail: "Questo messaggio è in fase di protocollazione.", life: 3500 });
+        break;
     }
+  }
+
+  public prepareAndOpenDialogRegistrationDetail(message: Message) {
+    const messageTag = message.messageTagList.find(mt => mt.idTag.name === "registered");
+    const additionalData = JSON.parse(messageTag.additionalData);
+    this.registrationDetail = {
+      numeroProposta: additionalData.numero_proposta,
+      numeroProtocollo: additionalData.numero_protocollo,
+      oggetto: additionalData.oggetto_documento,
+      idUtente: messageTag.idUtente,
+      data: new Date(messageTag.inserted).toLocaleDateString("it-IT", {hour: "numeric", minute: "numeric"})
+    };
+    this.displayRegistrationDetail = true;
   }
 
   /**
