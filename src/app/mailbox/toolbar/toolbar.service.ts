@@ -1,7 +1,7 @@
 import { Injectable } from "@angular/core";
 import { BehaviorSubject, Observable, Subscription } from "rxjs";
 import { FilterDefinition } from "@nfa/next-sdr";
-import { Draft, Pec, Folder, Message, FolderType } from "@bds/ng-internauta-model";
+import { Draft, Pec, Folder, Message, FolderType, Tag } from "@bds/ng-internauta-model";
 import { NewMailComponent } from "../new-mail/new-mail.component";
 import { DialogService, MessageService, MenuItem } from "primeng/api";
 import { MessageEvent, ShpeckMessageService } from "src/app/services/shpeck-message.service";
@@ -56,6 +56,8 @@ export class ToolBarService {
             this.buttonsObservables.get("buttonsActive").next(false);
             this.buttonsObservables.get("editVisible").next(false);
             this.buttonsObservables.get("deleteActive").next(false);
+          } else if (pecFolderSelected.type === PecFolderType.TAG) {
+            idPec = ((pecFolderSelected.data) as Tag).idPec.id;
           } else {
             idPec = ((pecFolderSelected.data) as Pec).id;
           }

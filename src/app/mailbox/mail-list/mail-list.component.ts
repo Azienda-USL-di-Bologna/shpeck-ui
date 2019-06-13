@@ -318,6 +318,7 @@ export class MailListComponent implements OnInit, OnDestroy {
           this.totalRecords = data.page.totalElements;
           this.mailListService.messages = data.results;
           this.setMailTagVisibility(this.mailListService.messages);
+          this.mailFoldersService.doReloadTag(this.mailListService.tags.find(t => t.name === "in_error").id);
         }
         this.loading = false;
         // setTimeout(() => {
