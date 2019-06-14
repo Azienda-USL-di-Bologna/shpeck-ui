@@ -854,7 +854,7 @@ export class MailListComponent implements OnInit, OnDestroy {
         if (event.item.queryParams.isPecDellAzienda === false) {
           this.confirmationService.confirm({
             header: "Conferma",
-            message: "<b>Attenzione! Stai avviando la protocollazione su una azienda non associata alla casella selezionata.</b><br/><br/>Sei sicuro?",
+            message: "<b>Attenzione! Stai avviando la protocollazione su una azienda non associata alla casella selezionata su cui è arrivato il messaggio.</b><br/><br/>Sei sicuro?",
             icon: "pi pi-exclamation-triangle",
             accept: () => {
               this.displayProtocollaDialog = true;
@@ -944,6 +944,7 @@ export class MailListComponent implements OnInit, OnDestroy {
       descrizioneUtente: additionalData.idUtente.descrizione,
       codiceRegistro: additionalData.idDocumento.codiceRegistro,
       anno: additionalData.idDocumento.anno,
+      descrizioneAzienda: additionalData.idAzienda.descrizione,
       data: new Date(messageTag.inserted).toLocaleDateString("it-IT", {hour: "numeric", minute: "numeric"})
     };
     this.displayRegistrationDetail = true;
