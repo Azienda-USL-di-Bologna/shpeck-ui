@@ -1,18 +1,22 @@
 import { Component, OnInit, Output, EventEmitter, ViewChild, ElementRef, OnDestroy } from "@angular/core";
 import { buildLazyEventFiltersAndSorts } from "@bds/primeng-plugin";
-import { Message, ENTITIES_STRUCTURE, MessageAddress, AddresRoleType, Folder, MessageTag, InOut, Tag, Pec, MessageType, FolderType } from "@bds/ng-internauta-model";
+import { Message, ENTITIES_STRUCTURE, MessageAddress, AddresRoleType, Folder, MessageTag, InOut, Tag, Pec, MessageType, FolderType, Note, FluxPermission, Azienda, MessageStatus } from "@bds/ng-internauta-model";
 import { ShpeckMessageService } from "src/app/services/shpeck-message.service";
 import { FiltersAndSorts, FilterDefinition, FILTER_TYPES, SortDefinition, SORT_MODES, PagingConf, BatchOperation, BatchOperationTypes } from "@nfa/next-sdr";
 import { TagService } from "src/app/services/tag.service";
 import { Observable, Subscription } from "rxjs";
 import { DatePipe } from "@angular/common";
 import { Table } from "primeng/table";
-import { TOOLBAR_ACTIONS, EMLSOURCE } from "src/environments/app-constants";
-import { MenuItem, LazyLoadEvent, FilterMetadata, ConfirmationService } from "primeng/api";
+import { TOOLBAR_ACTIONS, EMLSOURCE, BaseUrls, BaseUrlType } from "src/environments/app-constants";
+import { MenuItem, LazyLoadEvent, FilterMetadata, ConfirmationService, MessageService } from "primeng/api";
 import { Utils } from "src/app/utils/utils";
 import { MailFoldersService, PecFolderType, PecFolder } from "../mail-folders/mail-folders.service";
 import { ToolBarService } from "../toolbar/toolbar.service";
 import { MailListService } from "./mail-list.service";
+import { NoteService } from "src/app/services/note.service";
+import { NtJwtLoginService, UtenteUtilities } from "@bds/nt-jwt-login";
+import { query } from "@angular/core/src/render3";
+import { Menu } from "primeng/menu";
 
 @Component({
   selector: "app-mail-list",
@@ -22,11 +26,29 @@ import { MailListService } from "./mail-list.service";
 })
 export class MailListComponent implements OnInit, OnDestroy {
 
+  constructor(
+    private messageService: ShpeckMessageService,
+    private mailListService: MailListService,
+    private tagService: TagService,
+    private mailFoldersService: MailFoldersService,
+    private toolBarService: ToolBarService,
+    private datepipe: DatePipe,
+    private confirmationService: ConfirmationService,
+    private messagePrimeService: MessageService,
+    private noteService: NoteService,
+    private loginService: NtJwtLoginService
+  ) {
+    this.selectedContextMenuItem = this.selectedContextMenuItem.bind(this);
+  }
+
   @Output() public messageClicked = new EventEmitter<Message>();
 
   @ViewChild("selRow") private selRow: ElementRef;
   @ViewChild("dt") private dt: Table;
+  @ViewChild("noteArea") private noteArea;
+  @ViewChild("registrationMenu") private registrationMenu: Menu;
 
+  public _selectedTag: Tag;
   public _selectedFolder: Folder;
   public _selectedPecId: number;
   public _selectedPec: Pec;
@@ -48,6 +70,8 @@ export class MailListComponent implements OnInit, OnDestroy {
   private previousFilter: FilterDefinition[] = [];
   private foldersSubCmItems: MenuItem[] = null;
   private aziendeProtocollabiliSubCmItems: MenuItem[] = null;
+  private registerMessageEvent: any = null;
+  private loggedUser: UtenteUtilities;
 
   public cmItems: MenuItem[] = [
     {
@@ -102,8 +126,15 @@ export class MailListComponent implements OnInit, OnDestroy {
       command: event => this.selectedContextMenuItem(event)
     },
     {
-      label: "Assegnata???",
-      id: "MessageAssigned",
+      label: "Segna come errore visto",
+      id: "ToggleErrorFalse",
+      disabled: true,
+      queryParams: {},
+      command: event => this.selectedContextMenuItem(event)
+    },
+    {
+      label: "Segna come errore non visto",
+      id: "ToggleErrorTrue",
       disabled: true,
       queryParams: {},
       command: event => this.selectedContextMenuItem(event)
@@ -111,7 +142,7 @@ export class MailListComponent implements OnInit, OnDestroy {
     {
       label: "Nota",
       id: "MessageNote",
-      disabled: true,
+      disabled: false,
       queryParams: {},
       command: event => this.selectedContextMenuItem(event)
     },
@@ -145,9 +176,20 @@ export class MailListComponent implements OnInit, OnDestroy {
     }
   ];
 
-
+  public displayNote: boolean = false;
+  public displayProtocollaDialog = false;
+  public displayRegistrationDetail = false;
+  public readdressDetail: any = {
+    displayReaddressDetail: false,
+    buttonReaddress: false,
+    testo: {
+      in: null,
+      out: null
+    }
+  };
+  public registrationDetail: any = null;
+  public noteObject: Note = new Note();
   public fromOrTo: string;
-  public tags = [];
   public loading = false;
   public virtualRowHeight: number = 70;
   public totalRecords: number;
@@ -162,17 +204,6 @@ export class MailListComponent implements OnInit, OnDestroy {
     }
   ];
 
-  constructor(
-    private messageService: ShpeckMessageService,
-    private mailListService: MailListService,
-    private tagService: TagService,
-    private mailFoldersService: MailFoldersService,
-    private toolBarService: ToolBarService,
-    private datepipe: DatePipe,
-    private confirmationService: ConfirmationService
-  ) {
-    this.selectedContextMenuItem = this.selectedContextMenuItem.bind(this);
-  }
 
   ngOnInit() {
     this.subscriptions.push(this.mailFoldersService.pecFolderSelected.subscribe((pecFolderSelected: PecFolder) => {
@@ -184,6 +215,10 @@ export class MailListComponent implements OnInit, OnDestroy {
             this._selectedPecId = selectedFolder.fk_idPec.id;
             this.setFolder(selectedFolder);
           }
+        } else if (pecFolderSelected.type === PecFolderType.TAG) {
+          const selectedTag: Tag = pecFolderSelected.data as Tag;
+          this._selectedPecId = selectedTag.idPec.id;
+          this.setTag(selectedTag);
         } else {
           const pec: Pec = pecFolderSelected.data as Pec;
           this._selectedPec = pec;
@@ -197,11 +232,34 @@ export class MailListComponent implements OnInit, OnDestroy {
         this.setFilters(filters);
       }
     }));
+    this.subscriptions.push(this.loginService.loggedUser$.subscribe((utente: UtenteUtilities) => {
+      if (utente) {
+        if (!this.loggedUser || utente.getUtente().id !== this.loggedUser.getUtente().id) {
+          this.loggedUser = utente;
+        }
+      }
+    }));
   }
 
 
+  private setTag(tag: Tag) {
+    this._selectedTag = null;
+    this._selectedFolder = null;
+    this._filters = null;
+    this.mailListService.selectedMessages = [];
+    // trucco per far si che la table vanga tolta e rimessa nel dom (in modo da essere resettata) altrimenti sminchia
+    // NB: nell'html la visualizzazione della table è controllata da un *ngIf
+    setTimeout(() => {
+      this._selectedTag = tag;
+      if (tag) {
+        this.lazyLoad(null);
+      }
+    }, 0);
+  }
+
   private setFolder(folder: Folder) {
     this._selectedFolder = null;
+    this._selectedTag = null;
     this._filters = null;
     this.mailListService.selectedMessages = [];
     // trucco per far si che la table vanga tolta e rimessa nel dom (in modo da essere resettata) altrimenti sminchia
@@ -215,7 +273,7 @@ export class MailListComponent implements OnInit, OnDestroy {
   }
 
   private setFilters(filters: FilterDefinition[]) {
-    this._selectedFolder = null;
+    // this._selectedFolder = null;
     this._filters = null;
     setTimeout(() => {
       this._filters = filters;
@@ -228,10 +286,13 @@ export class MailListComponent implements OnInit, OnDestroy {
   }
 
   public getTagDescription(tagName: string) {
-    if (this.tags && this.tags[tagName]) {
-      return this.tags[tagName].description;
-    } else {
-      return null;
+    if (this.mailListService.tags) {
+      const tag = this.mailListService.tags.find(t => t.name === tagName);
+      if (tag) {
+        return tag.description;
+      } else {
+        return null;
+      }
     }
   }
 
@@ -243,12 +304,12 @@ export class MailListComponent implements OnInit, OnDestroy {
     return this.tagService.getData(null, filtersAndSorts, null, null);
   }
 
-  private loadData(pageCong: PagingConf, lazyFilterAndSort?: FiltersAndSorts, folder?: Folder) {
+  private loadData(pageCong: PagingConf, lazyFilterAndSort?: FiltersAndSorts, folder?: Folder, tag?: Tag) {
     this.loading = true;
     this.messageService
       .getData(
         this.selectedProjection,
-        this.buildInitialFilterAndSort(folder),
+        this.buildInitialFilterAndSort(folder, tag),
         lazyFilterAndSort,
         pageCong
       )
@@ -257,6 +318,7 @@ export class MailListComponent implements OnInit, OnDestroy {
           this.totalRecords = data.page.totalElements;
           this.mailListService.messages = data.results;
           this.setMailTagVisibility(this.mailListService.messages);
+          this.mailFoldersService.doReloadTag(this.mailListService.tags.find(t => t.name === "in_error").id);
         }
         this.loading = false;
         // setTimeout(() => {
@@ -323,7 +385,7 @@ export class MailListComponent implements OnInit, OnDestroy {
           this.datepipe
         );
 
-        this.loadData(this.pageConf, filtersAndSorts, this._selectedFolder);
+        this.loadData(this.pageConf, filtersAndSorts, this._selectedFolder, this._selectedTag);
       }
     } else {
       if (eventFilters) {
@@ -341,7 +403,7 @@ export class MailListComponent implements OnInit, OnDestroy {
         this.datepipe
       );
 
-      this.loadData(this.pageConf, filtersAndSorts, this._selectedFolder);
+      this.loadData(this.pageConf, filtersAndSorts, this._selectedFolder, this._selectedTag);
     }
     this.previousFilter = this._filters;
     // this.filtering = false;
@@ -351,7 +413,7 @@ export class MailListComponent implements OnInit, OnDestroy {
     return item.id;
   }
 
-  buildInitialFilterAndSort(folder: Folder): FiltersAndSorts {
+  buildInitialFilterAndSort(folder: Folder, tag: Tag): FiltersAndSorts {
     const filtersAndSorts: FiltersAndSorts = new FiltersAndSorts();
     if (folder) {
       filtersAndSorts.addFilter(
@@ -359,6 +421,15 @@ export class MailListComponent implements OnInit, OnDestroy {
           "messageFolderList.idFolder.id",
           FILTER_TYPES.not_string.equals,
           folder.id
+        )
+      );
+    }
+    if (tag) {
+      filtersAndSorts.addFilter(
+        new FilterDefinition(
+          "messageTagList.idTag.id",
+          FILTER_TYPES.not_string.equals,
+          tag.id
         )
       );
     }
@@ -376,13 +447,6 @@ export class MailListComponent implements OnInit, OnDestroy {
         MessageType.MAIL
       )
     );
-    filtersAndSorts.addFilter(
-      new FilterDefinition(
-        "messageType",
-        FILTER_TYPES.not_string.equals,
-        MessageType.PEC
-      )
-    );
     // filtersAndSorts.addSort(new SortDefinition("receiveTime", SORT_MODES.desc));
     filtersAndSorts.addSort(new SortDefinition("id", SORT_MODES.desc));
     return filtersAndSorts;
@@ -391,19 +455,19 @@ export class MailListComponent implements OnInit, OnDestroy {
   private setMailTagVisibility(messages: Message[]) {
     messages.map((message: Message) => {
       this.setFromOrTo(message);
-      this.setIconsVisibility(message);
+      this.mailListService.setIconsVisibility(message);
     });
   }
 
-  private setIconsVisibility(message: Message) {
-    message["iconsVisibility"] = [];
-    if (message.messageTagList && message.messageTagList.length > 0) {
-      message.messageTagList.forEach((messageTag: MessageTag) => {
-        message["iconsVisibility"][messageTag.idTag.name] = true;
-        this.tags[messageTag.idTag.name] = messageTag.idTag;
-      });
-    }
-  }
+  // private setIconsVisibility(message: Message) {
+  //   message["iconsVisibility"] = [];
+  //   if (message.messageTagList && message.messageTagList.length > 0) {
+  //     message.messageTagList.forEach((messageTag: MessageTag) => {
+  //       message["iconsVisibility"][messageTag.idTag.name] = true;
+  //       this.tags[messageTag.idTag.name] = messageTag.idTag;
+  //     });
+  //   }
+  // }
 
   private setFromOrTo(message: Message) {
     let addresRoleType: string;
@@ -463,6 +527,9 @@ export class MailListComponent implements OnInit, OnDestroy {
       case "onContextMenuSelect":
         this.setContextMenuItemLook();
         break;
+      case "saveNote":
+        this.saveNote();
+        break;
     }
   }
 
@@ -497,7 +564,7 @@ export class MailListComponent implements OnInit, OnDestroy {
           break;
         case "MessageMove":
           element.disabled = false;
-          if (this.mailListService.selectedMessages.some((message: Message) => !message.messageFolderList || message.messageFolderList[0].idFolder.type === FolderType.TRASH)) {
+          if (!this.mailListService.isMoveActive()) {
             element.disabled = true;
             this.cmItems.find(f => f.id === "MessageMove").items = null;
           } else {
@@ -505,7 +572,7 @@ export class MailListComponent implements OnInit, OnDestroy {
           }
           break;
         case "MessageDelete":
-          element.disabled = !this.mailListService.isMoveActive();
+          element.disabled = !this.mailListService.isDeleteActive();
           break;
         case "MessageReply":
         case "MessageReplyAll":
@@ -517,23 +584,111 @@ export class MailListComponent implements OnInit, OnDestroy {
           break;
         case "MessageRegistration":
           element.disabled = false;
-          if (this.mailListService.selectedMessages.length !== 1 ||
-            this.mailListService.selectedMessages[0].inOut !== InOut.IN ||
-            (this.mailListService.selectedMessages[0].messageType !== MessageType.MAIL && this.mailListService.selectedMessages[0].messageType !== MessageType.PEC)) {
+          if (!this.mailListService.isRegisterActive()) {
             element.disabled = true;
             this.cmItems.find(f => f.id === "MessageRegistration").items = null;
           } else {
-            this.cmItems.find(f => f.id === "MessageRegistration").items = this.mailListService.buildRegistrationMenuItems(this.selectedContextMenuItem);
+            this.cmItems.find(f => f.id === "MessageRegistration").items = this.buildRegistrationMenuItems(this.selectedContextMenuItem);
           }
           break;
+        case "MessageNote":
         case "MessageDownload":
           element.disabled = false;
           if (this.mailListService.selectedMessages.length > 1) {
             element.disabled = true;
           }
           break;
+        case "ToggleErrorTrue":
+          element.disabled = false;
+          element.disabled = this.mailListService.isToggleErrorDisabled(true);
+          break;
+        case "ToggleErrorFalse":
+          element.disabled = false;
+          element.disabled = !this.mailListService.isToggleErrorDisabled(false);
+          break;
+        case "MessageReaddress":
+          element.disabled = false;
+          if (!this.mailListService.isReaddressActive()) {
+            element.disabled = true;
+          }
+          break;
       }
     });
+  }
+
+
+  /**
+   * Questa funzione si occupa di creare un MenuItem[] che contenga come items la
+   * lista delle aziende su cui l'utente loggato ha il permesso redige per la funzione protocolla Pec.
+   * Con un futuro refactoring si potrebbe spostare tutto quello che riguarda la protocollazione nel mail-list.service
+   * @param command
+   */
+  public buildRegistrationMenuItems(command: (any) => any): MenuItem[] {
+    const registrationItems = [];
+    this.loggedUser.getAziendeWithPermission(FluxPermission.REDIGE).forEach(codiceAzienda => {
+      const azienda = this.loggedUser.getUtente().aziende.find(a => a.codice === codiceAzienda);
+      let pIspecDellAzienda = true;
+      let pIcon = "";
+      let pTitle = "";
+      if (!this._selectedPec.pecAziendaList.find(pecAzienda => pecAzienda.fk_idAzienda.id === azienda.id)) {
+        pIspecDellAzienda = false;
+        pIcon = "pi pi-question-circle";
+        pTitle = "L'azienda non è associata alla casella del messaggio selezionato.";
+      }
+      registrationItems.push(
+        {
+          label: azienda.nome,
+          icon: pIcon,
+          id: "MessageRegistration",
+          title: pTitle,
+          disabled: false,
+          queryParams: {
+            codiceAzienda: codiceAzienda,
+            isPecDellAzienda: pIspecDellAzienda,
+          },
+          command: event => command(event)
+        }
+      );
+    });
+    return registrationItems;
+  }
+
+  /**
+   * Questa funzione si occupa di iniziare la protocollazione del messaggio selezionato.
+   * @param event
+   */
+  public registerMessage(event: any, registrationType: string) {
+    console.log("selectedMessages", event, this.mailListService.selectedMessages);
+    console.log("loggedUser", this.loggedUser);
+    const azienda: Azienda = this.loggedUser.getUtente().aziende.find(a => a.codice === event.item.queryParams.codiceAzienda);
+    let decodedUrl = "";
+    if (registrationType === "NEW") {
+      decodedUrl = decodeURI(azienda.urlCommands["PROTOCOLLA_PEC_NEW"]); // mi dovrei fare le costanti
+    } else if (registrationType === "ADD") {
+      decodedUrl = decodeURI(azienda.urlCommands["PROTOCOLLA_PEC_ADD"]); // mi dovrei fare le costanti
+    }
+    decodedUrl = decodedUrl.replace("[id_message]", this.mailListService.selectedMessages[0].id.toString());
+
+    const idTag = this._selectedPec.tagList.find(t => t.name === "registered"); // TODO: lista valori per i TAG
+    // decodedUrl = decodedUrl.replace("[id_tag]", idTag.id.toString());
+    decodedUrl = decodedUrl.replace("[pec_ricezione]", this._selectedPec.indirizzo);
+
+    console.log("command", decodedUrl);
+    window.open(decodedUrl);
+    // Setto subito il tag in modo che l'icona cambi
+    if (!this.mailListService.selectedMessages[0].messageTagList) {
+      this.mailListService.selectedMessages[0].messageTagList = [];
+    }
+    const newTag = new Tag();
+    newTag.idPec = this.mailListService.selectedMessages[0].idPec;
+    newTag.description = "In protocollazione";
+    newTag.name = "in_registration";
+    newTag.type = "SYSTEM_NOT_INSERTABLE_NOT_DELETABLE";
+    const newMessageTag = new MessageTag();
+    newMessageTag.idMessage =  this.mailListService.selectedMessages[0];
+    newMessageTag.idTag = newTag;
+    newMessageTag.inserted = new Date();
+    this.mailListService.selectedMessages[0].messageTagList.push(newMessageTag);
   }
 
 
@@ -556,7 +711,7 @@ export class MailListComponent implements OnInit, OnDestroy {
         this.mailListService.moveMessages(event.item.queryParams.folder);
         break;
       case "MessageRegistration":
-        this.mailListService.registerMessage(event);
+        this.chooseRegistrationType(event, null);
         break;
       case "MessageDownload":
         this.dowloadMessage(this.mailListService.selectedMessages[0]);
@@ -570,9 +725,51 @@ export class MailListComponent implements OnInit, OnDestroy {
       case "MessageForward":
         this.toolBarService.newMail(TOOLBAR_ACTIONS.FORWARD);
         break;
+      case "MessageReaddress":
+        this.mailListService.readdressMessage();
+        break;
+      case "MessageNote":
+        this.noteHandler();
+        break;
+      case "ToggleErrorTrue":
+        this.mailListService.toggleError(true);
+        break;
+      case "ToggleErrorFalse":
+        this.mailListService.toggleError(false);
+        break;
     }
   }
 
+
+
+  private noteHandler(specificMessage?: Message) {
+    if (specificMessage) {
+      this.mailListService.selectedMessages[0] = specificMessage;
+    }
+    let messageTag: MessageTag = null;
+    this.noteObject = new Note();
+    this.noteObject.memo = "";
+    if (this.mailListService.selectedMessages[0].messageTagList !== null) {
+      messageTag = this.mailListService.selectedMessages[0].messageTagList.find(mt => mt.idTag.name === "annotated");
+    }
+    if (messageTag) {
+      this.noteService.loadNote(this.mailListService.selectedMessages[0].id).subscribe(
+        res => {
+          console.log("RES = ", res);
+          if (res && res.results && res.results.length > 0) {
+            const notes: Note[] = res.results;
+            this.noteObject = notes[0];
+          }
+          this.showNotePopup();
+        },
+        err => {
+          console.log("ERR = ", err);
+        }
+      );
+    } else {
+      this.showNotePopup();
+    }
+  }
 
   /**
    * Chiedo conferma sulla cancellazione dei messaggi selezioni.
@@ -596,6 +793,48 @@ export class MailListComponent implements OnInit, OnDestroy {
     });
   }
 
+  private showNotePopup() {
+    this.displayNote = true;
+    setTimeout(() => {
+      this.noteArea.nativeElement.focus();
+    }, 50);
+  }
+
+  private saveNote() {
+    const previousMessage = this.mailListService.selectedMessages[0];
+    this.mailListService.saveNoteAndUpdateTag(this.noteObject).subscribe(
+      (res: BatchOperation[]) => {
+        console.log("BATCH RES = ", res);
+        const messageTag = res.find(op =>
+          op.entityPath === BaseUrls.get(BaseUrlType.Shpeck) + "/" + ENTITIES_STRUCTURE.shpeck.messagetag.path);
+        if (messageTag && messageTag.operation === BatchOperationTypes.INSERT) {
+          if (!previousMessage.messageTagList) {
+            previousMessage.messageTagList = [];
+          }
+          const newTag = new Tag();
+          newTag.idPec = previousMessage.idPec;
+          newTag.description = "Annotato";
+          newTag.name = "annotated";
+          newTag.type = "SYSTEM_NOT_INSERTABLE_NOT_DELETABLE";
+          const newMessageTag = messageTag.entityBody as MessageTag;
+          newMessageTag.idMessage = previousMessage;
+          newMessageTag.idTag = newTag;
+          newMessageTag.inserted = new Date();
+          previousMessage.messageTagList.push(newMessageTag);
+        } else if (messageTag && messageTag.operation === BatchOperationTypes.DELETE) {
+          previousMessage.messageTagList = previousMessage.messageTagList.filter(m => m.id !== messageTag.id);
+        }
+        this.mailListService.setIconsVisibility(previousMessage);
+        this.messagePrimeService.add(
+          { severity: "success", summary: "Successo", detail: "Nota salvata correttamente" });
+      },
+      err => {
+        console.log("ERR = ", err);
+        this.messagePrimeService.add(
+          { severity: "error", summary: "Errore", detail: "Errore durante il salvaggio, contattare BabelCare", life: 3500 });
+      });
+    this.displayNote = false;
+  }
 
   /**
    * Scarico il messaggio passato
@@ -608,10 +847,204 @@ export class MailListComponent implements OnInit, OnDestroy {
     });
   }
 
+
+  public chooseRegistrationType(event, registrationType) {
+    if (!registrationType && event) { // vengo dal click sul menu
+      if (!event.item.items) {
+        if (event.item.queryParams.isPecDellAzienda === false) {
+          this.confirmationService.confirm({
+            header: "Conferma",
+            message: "<b>Attenzione! Stai avviando la protocollazione su una azienda non associata alla casella selezionata su cui è arrivato il messaggio.</b><br/><br/>Sei sicuro?",
+            icon: "pi pi-exclamation-triangle",
+            accept: () => {
+              this.displayProtocollaDialog = true;
+              this.registerMessageEvent = event;
+            }
+          });
+        } else {
+          this.displayProtocollaDialog = true;
+          this.registerMessageEvent = event;
+        }
+      }
+    } else if (registrationType && !event) { // vengo dalla dialog di conferma
+      // this.registerMessageEvent questo mi aspetto che sia popolato in quanto devo essere passato al giro prima dal click sul menu
+      if (this.registerMessageEvent) {
+        this.registerMessage(this.registerMessageEvent, registrationType);
+        this.registerMessageEvent = null;
+      }
+      this.displayProtocollaDialog = false;
+    }
+  }
+
   public ngOnDestroy() {
     for (const s of this.subscriptions) {
       s.unsubscribe();
     }
     this.subscriptions = [];
   }
+
+
+  /**
+   * Dato un message torno lo stato di protocollazione dello stesso
+   * @param message
+   */
+  public getRegistrationStatus(message: Message): string {
+    if (!message.messageTagList) {
+      return this.mailListService.isRegisterActive(message) ? "REGISTABLE" : "NOT_REGISTABLE";
+    }
+    return message.messageTagList.find(mt => mt.idTag.name === "registered") ? "REGISTERED" :
+      message.messageTagList.find(mt => mt.idTag.name === "in_registration") ? "IN_REGISTRATION" :
+        this.mailListService.isRegisterActive(message) ? "REGISTABLE" : "NOT_REGISTABLE";
+  }
+
+  /**
+   * Questa funzione scatta al click sull'icona di protocollazione.
+   * A seconda dello stato del message vengono eseguite diverse azioni.
+   * @param event
+   * @param message
+   * @param registrable
+   */
+  public iconRegistrationClicked(event: any, message: Message, registrationStatus: string) {
+    let messageTag = null;
+    switch (registrationStatus) {
+      case "REGISTERED":
+        messageTag = message.messageTagList.find(mt => mt.idTag.name === "registered");
+        this.prepareAndOpenDialogRegistrationDetail(messageTag, JSON.parse(messageTag.additionalData));
+        break;
+      case "REGISTABLE":
+        this.aziendeProtocollabiliSubCmItems = this.buildRegistrationMenuItems(this.selectedContextMenuItem);
+        this.registrationMenu.toggle(event);
+        break;
+      case "NOT_REGISTABLE":
+        this.messagePrimeService.add({
+          severity: "warn",
+          summary: "Attenzione",
+          detail: "Questo messaggio non può essere protocollato.", life: 3500
+        });
+        break;
+      case "IN_REGISTRATION":
+        messageTag = message.messageTagList.find(mt => mt.idTag.name === "in_registration");
+        if (!messageTag.additionalData || messageTag.additionalData === "{}") {
+          this.messagePrimeService.add({
+            severity: "warn",
+            summary: "Attenzione",
+            detail: "Questo messaggio è in fase di protocollazione.", life: 3500 });
+        } else {
+          this.prepareAndOpenDialogRegistrationDetail(messageTag, JSON.parse(messageTag.additionalData));
+        }
+        break;
+    }
+  }
+
+  public prepareAndOpenDialogRegistrationDetail(messageTag: MessageTag, additionalData: any) {
+    this.registrationDetail = {
+      numeroProposta: additionalData.idDocumento.numeroProposta,
+      numeroProtocollo: additionalData.idDocumento.numeroProtocollo,
+      oggetto: additionalData.idDocumento.oggetto,
+      descrizioneUtente: additionalData.idUtente.descrizione,
+      codiceRegistro: additionalData.idDocumento.codiceRegistro,
+      anno: additionalData.idDocumento.anno,
+      descrizioneAzienda: additionalData.idAzienda.descrizione,
+      data: new Date(messageTag.inserted).toLocaleDateString("it-IT", {hour: "numeric", minute: "numeric"})
+    };
+    this.displayRegistrationDetail = true;
+  }
+
+  /**
+   * Dato un message torno lo stato di reindirizzamento dello stesso
+   * @param message
+   */
+  public getReaddressStatus(message: Message): string {
+    if (!message.messageTagList) {
+      return this.mailListService.isReaddressActive(message) ? "READDRESSABLE" : "NOT_READDRESSABLE";
+    }
+    const readdrresedIn = message.messageTagList.find(mt => mt.idTag.name === "readdressed_in");
+    const readdrresedOut = message.messageTagList.find(mt => mt.idTag.name === "readdressed_out");
+    if (readdrresedIn && readdrresedOut) {
+      return "FULL_READDRESSED";
+    }
+    if (readdrresedIn) {
+      return "READDRESSED_IN";
+    }
+    if (readdrresedOut) {
+      return "READDRESSED_OUT";
+    }
+    return "NOT_READDRESSABLE";
+  }
+
+  /**
+   * Questa funzione scatta al click sull'icona di reindirizzamento.
+   * A seconda dello stato del message vengono eseguite diverse azioni.
+   * @param event
+   * @param message
+   * @param registrable
+   */
+  public iconReaddressClicked(event: any, message: Message, readdressStatus: string) {
+    switch (readdressStatus) {
+      case "FULL_READDRESSED":
+      case "READDRESSED_IN":
+      case "READDRESSED_OUT":
+        this.prepareAndOpenDialogReaddressDetail(message, readdressStatus);
+        break;
+      case "READDRESSABLE":
+        this.mailListService.readdressMessage(message);
+        break;
+      case "NOT_READDRESSABLE":
+        this.messagePrimeService.add({
+          severity: "warn",
+          summary: "Attenzione",
+          detail: "Questo messaggio non può essere reindirizzato.", life: 3500
+        });
+        break;
+    }
+  }
+
+  /**
+   * Perapato e mostro la popup del dettaglio reindirizzamenti
+   * @param message
+   * @param readdressStatus
+   */
+    private prepareAndOpenDialogReaddressDetail(message: Message, readdressStatus: string) {
+    this.readdressDetail = {
+      displayReaddressDetail: false,
+      buttonReaddress: false,
+      testo: {
+        in: null,
+        out: null
+      },
+      message: message
+    };
+    this.readdressDetail.buttonReaddress = this.mailListService.isReaddressActive(message);
+    this.readdressDetail.testo.in = this.buildMessageReaddres(message, "readdressed_in");
+    this.readdressDetail.testo.out = this.buildMessageReaddres(message, "readdressed_out");
+    this.readdressDetail.displayReaddressDetail = true;
+  }
+
+  private buildMessageReaddres(message, tagName): string {
+    let testo = null;
+    const messageTag = message.messageTagList.find(mt => mt.idTag.name === tagName);
+    if (messageTag) {
+      const mtAdditionalData = JSON.parse(messageTag.additionalData);
+      if (tagName === "readdressed_in") {
+        testo = `<b>${new Date(messageTag.inserted).toLocaleDateString("it-IT", { hour: "numeric", minute: "numeric" })}</b>: `
+        + `reindirizzato da ${mtAdditionalData["idUtente"]["descrizione"]}`
+        + ` (${mtAdditionalData["idPec"]["indirizzo"]}).`;
+      } else if (tagName === "readdressed_out") {
+        testo = `<b>${new Date(messageTag.inserted).toLocaleDateString("it-IT", { hour: "numeric", minute: "numeric" })}</b>: `
+        + ` ${mtAdditionalData["idUtente"]["descrizione"]} ha reindirizzato a `
+        + `${mtAdditionalData["idPec"]["indirizzo"]}.`;
+      }
+    }
+    return testo;
+  }
+
+  public isAlreadyTagged(message: Message, tagname: string): boolean {
+    if (!message.messageTagList) { return false; }
+    return message.messageTagList.some(mt => mt.idTag.name === tagname) ? true : false;
+  }
+
+  /*
+
+    background-color: rgba(153,51,102,0.1) !important;
+  */
 }

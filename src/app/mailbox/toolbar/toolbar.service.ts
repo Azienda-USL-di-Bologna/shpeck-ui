@@ -1,13 +1,13 @@
 import { Injectable } from "@angular/core";
 import { BehaviorSubject, Observable, Subscription } from "rxjs";
 import { FilterDefinition } from "@nfa/next-sdr";
-import { Draft, Pec, Folder, Message, FolderType } from "@bds/ng-internauta-model";
+import { Draft, Pec, Folder, Message, FolderType, Tag } from "@bds/ng-internauta-model";
 import { NewMailComponent } from "../new-mail/new-mail.component";
 import { DialogService, MessageService, MenuItem } from "primeng/api";
 import { MessageEvent, ShpeckMessageService } from "src/app/services/shpeck-message.service";
 import { DraftService, DraftEvent } from "src/app/services/draft.service";
 import { TOOLBAR_ACTIONS } from "src/environments/app-constants";
-import { PecFolderType, MailFoldersService, PecFolder } from "../mail-folders/mail-folders.service";
+import { PecFolderType, MailFoldersService, PecFolder, FoldersAndTags } from "../mail-folders/mail-folders.service";
 import { PecService } from "src/app/services/pec.service";
 import { MailListService } from "../mail-list/mail-list.service";
 
@@ -56,6 +56,8 @@ export class ToolBarService {
             this.buttonsObservables.get("buttonsActive").next(false);
             this.buttonsObservables.get("editVisible").next(false);
             this.buttonsObservables.get("deleteActive").next(false);
+          } else if (pecFolderSelected.type === PecFolderType.TAG) {
+            idPec = ((pecFolderSelected.data) as Tag).idPec.id;
           } else {
             idPec = ((pecFolderSelected.data) as Pec).id;
           }
@@ -69,13 +71,15 @@ export class ToolBarService {
           this.myPecs = pecs;
         }
       }));
-      this.subscriptions.push(this.mailFoldersService.pecFolders.subscribe((folders: Folder[]) => {
-        this.folders = folders;
-      }));
-      this.buttonObs = new Map();
-      this.buttonsObservables.forEach((value, key) => {
-        this.buttonObs.set(key, value);
-      });
+    this.subscriptions.push(this.mailFoldersService.pecFoldersAndTags.subscribe((foldersAndPec: FoldersAndTags) => {
+      if (foldersAndPec && foldersAndPec.folders) {
+        this.folders = foldersAndPec.folders;
+      }
+    }));
+    this.buttonObs = new Map();
+    this.buttonsObservables.forEach((value, key) => {
+      this.buttonObs.set(key, value);
+    });
 
     this.subscriptions.push(this.messageService.messageEvent.subscribe((messageEvent: MessageEvent) => {
       if (messageEvent) {
@@ -146,9 +150,7 @@ export class ToolBarService {
   public newMail(action) {
 
     const draftMessage = new Draft();
-    /* const pec: Pec = new Pec();
-    pec.id = pecId; */
-    draftMessage.idPec = this._selectedPec;
+    draftMessage.idPec = {id: this._selectedPec.id} as Pec;
     if (action !== TOOLBAR_ACTIONS.NEW) {
       if (!this.messageEvent || !this.messageEvent.downloadedMessage) {
         this.messagePrimeService.add(

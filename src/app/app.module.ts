@@ -10,6 +10,7 @@ import { PrimengModule } from "./primeng.module";
 import { MailboxComponent } from "./mailbox/mailbox.component";
 import { MailListComponent } from "./mailbox/mail-list/mail-list.component";
 import { MailDetailComponent } from "./mailbox/mail-detail/mail-detail.component";
+import { ReaddressComponent } from "./mailbox/readdress/readdress.component";
 
 /* Login */
 import { NtJwtLoginModule } from "@bds/nt-jwt-login";
@@ -18,6 +19,7 @@ import { loginModuleConfig } from "./config/module-config";
 import { PrimengPluginModule } from "@bds/primeng-plugin";
 import { DialogService } from "primeng/api";
 import { MessageService } from "primeng/api";
+import { TooltipModule } from "primeng/tooltip";
 import { MailFoldersComponent } from "./mailbox/mail-folders/mail-folders.component";
 import { SanitizeHtmlPipe } from "./utils/sanitize-html-pipe";
 import { ToolbarComponent } from "./mailbox/toolbar/toolbar.component";
@@ -41,6 +43,10 @@ import { MailDraftsComponent } from "./mailbox/mail-drafts/mail-drafts.component
 import { StripeHtmlPipe } from "./pipes/stripe-html.pipe";
 import { MailListService } from "./mailbox/mail-list/mail-list.service";
 import { CommandManagerService } from "./services/command-manager.service";
+
+// incon - font - styles
+import { MatIconModule } from "@angular/material/icon";
+
 registerLocaleData(localeIt, "it-IT", localeItExtra);
 
 
@@ -57,7 +63,8 @@ registerLocaleData(localeIt, "it-IT", localeItExtra);
     NewMailComponent,
     RecepitsComponent,
     MailDraftsComponent,
-    StripeHtmlPipe
+    StripeHtmlPipe,
+    ReaddressComponent
   ],
   imports: [
     NtJwtLoginModule.forRoot(loginModuleConfig),
@@ -67,8 +74,10 @@ registerLocaleData(localeIt, "it-IT", localeItExtra);
     AppRoutingModule,
     PrimengModule,
     PrimengPluginModule,
+    TooltipModule,
     ReactiveFormsModule,
-    NextSdrModule
+    NextSdrModule,
+    MatIconModule
   ],
   providers: [
     { provide: LOCALE_ID, useValue: "it-IT" },
@@ -85,6 +94,6 @@ registerLocaleData(localeIt, "it-IT", localeItExtra);
     CommandManagerService
   ],
   bootstrap: [AppComponent],
-  entryComponents: [SettingsComponent, NewMailComponent]
+  entryComponents: [SettingsComponent, NewMailComponent, ReaddressComponent]
 })
-export class AppModule {}
+export class AppModule { }

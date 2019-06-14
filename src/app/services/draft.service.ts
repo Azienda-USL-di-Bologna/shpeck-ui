@@ -88,7 +88,8 @@ export class DraftService extends NextSDREntityProvider {
           operation: BatchOperationTypes.DELETE,
           entityPath: BaseUrls.get(BaseUrlType.Shpeck) + "/" + ENTITIES_STRUCTURE.shpeck.draft.path,
           entityBody: null,
-          additionalData: null
+          additionalData: null,
+          returnProjection: null
         });
       }
     }

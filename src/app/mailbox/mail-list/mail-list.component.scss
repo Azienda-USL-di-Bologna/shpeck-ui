@@ -2,21 +2,33 @@
   display: flex;
   flex: 1;
 }
-
 .d-flex {
   display: flex;
 }
-
 .buttons-bar {
   height: 50px;
   display: block;
   width: 100%;
 }
-
 .flex-direction-col {
   flex-direction: column;
 }
-
+.separatore {
+  color: #595959;
+  margin-left: 7px;
+  margin-right: 3px;
+  vertical-align: super;
+}
+.icon-enabled {
+  cursor: pointer !important;
+}
+.icon-disabled {
+  color: darkgrey;
+  cursor: not-allowed !important;
+}
+.icon-used {
+  cursor: help !important;
+}
 
 //body .ui-table .ui-table-tbody > tr > td
 
@@ -45,7 +57,18 @@
 .mail-icons-container {
 
   //margin-left: 11px;
-  display: block
+  // display: block;
+  display: flex;
+  flex-direction: row;
+  flex-wrap: nowrap;
+  justify-content: space-between;
+  // align-items:
+}
+.prima-riga-destra {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: nowrap;
+  justify-content: flex-end;
 }
 
 .text-background {
@@ -56,13 +79,29 @@
   font-weight: bold;
   color: #fff;
 }
-
+.icon-default-color {
+  color: #2e4a65;
+}
 .mail-icon {
   padding-left: 5px;
+  color: #2e4a65;
   //position: absolute;
   //margin-left: 11px;
   // display: inline-block;
   //width: 20px;
+}
+
+.second-line-icon {
+  font-size: 18px;
+  display: block;
+  // float: right;
+}
+
+.mail-date {
+  // position: absolute;
+  // right: 1%;
+  //float: right;
+  margin: 0 7px;
 }
 
 .visibility-hidden {
@@ -79,6 +118,8 @@
 
 .display-text {
   margin-left: 20px;
+  display: inline-block;
+  position: relative;
 }
 
 .display-bold {
@@ -100,10 +141,14 @@
   //align-items: stretch;
   //flex-direction: row;
   height: 70px !important;
-  //white-space-collapsing: collapse; 
+  //white-space-collapsing: collapse;
   //text-wrap: none;
   white-space: nowrap;
   //overflow: scroll;
+}
+
+.button-readdress button {
+  width: 100px;
 }
 
 ::ng-deep .message-row:focus {
@@ -111,11 +156,42 @@
   // border-color:cornflowerblue !important;
 }
 
-.material-icons.mail-icons { 
-  // color: rgb(250, 250, 250); 
+.material-icons.mail-icons,  .material-icons-outlined.mail-icons{
+  // color: rgb(250, 250, 250);
   font-size: 18px;
+}
+.material-icons.fa-icons {
+  // color: rgb(250, 250, 250);
+  font-size: 16px;
+  color: #393939
 }
 
 ::ng-deep .context-menu-mail-list {
   margin: -128px 0 0 -312px;
+  width: 226px;
+}
+.warn-color {
+  color: #993366 !important;
+}
+/******* Close button *******/
+.close-button {
+  position: absolute;
+  top: -36px;
+  right: 11px;
+  color: slategray;
+}
+
+.message-align {
+  justify-content: center;
+  align-items: center;
+}
+
+.confirm-buttons {
+  width: 110px !important;
+  margin: 0 0 0 0.5em !important;
+}
+
+.note-area {
+  font-family: sans-serif;
+  resize: none;
 }

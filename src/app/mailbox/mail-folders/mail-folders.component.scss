@@ -11,6 +11,40 @@
 .aaa > div{
     top: 50%;
 }
+::ng-deep .general-style-folder {
+    color: #2e4a65 !important;
+    font-size: 1.25em;
+}
+/* ::ng-deep .material-icons-outlined.readdressed-icon, 
+::ng-deep .material-icons-outlined.registered-icon {
+    font-size: 1.25em;
+} */
+::ng-deep .readdressed-icon::before {
+    content: 'low_priority';
+}
+::ng-deep .registered-icon::before {
+    content: 'assignment_turned_in';
+}
+::ng-deep .inbox-icon::before {
+    content: 'inbox';
+}
+::ng-deep .outbox-icon::before {
+    content: 'hourglass_empty';
+}
+::ng-deep .sent-icon::before {
+    content: 'send';
+}
+::ng-deep .draft-icon::before {
+    content: 'drafts';
+}
+::ng-deep .trash-icon {
+    font-size: 1.60em !important;
+    margin-left: -2px !important;
+    margin-right: 0px !important;
+}
+::ng-deep .trash-icon::before {
+    content: 'delete';
+}
 
 // :host .tree-style-box.body.ui-tree {
 //     cursor: e-resize !important;
@@ -54,7 +88,7 @@
     font-weight: normal !important;
 }
 
-::ng-deep .tree-node-style .ui-inputtext, 
+::ng-deep .tree-node-style .ui-inputtext,
 ::ng-deep .root-tree-node-style .ui-inputtext,
 ::ng-deep .root-tree-node-style-selected .ui-inputtext {
     border: none !important;
@@ -94,6 +128,15 @@
     left: 10px;
   }
 
+::ng-deep .fa-exclamation-triangle {
+    color: #993366 !important;
+}
+::ng-deep .tree-node-error span div {
+    background: #993366 !important;
+    border-radius: 30px;
+    padding: 0 0.6em 0 0.6em;
+    color: white;
+}
 // ::ng-deep .tree-node-style .ui-treenode-label {
 //     font-size: 12px !important;
 //     background-color: white !important;

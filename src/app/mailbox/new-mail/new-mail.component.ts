@@ -397,6 +397,8 @@ export class NewMailComponent implements OnInit, AfterViewInit {
   checkAndClose() {
     if (!this.mailForm.pristine) {
       this.display = true;
+    } else if (this.config.data.action !== "edit") { // In caso di mail futile elimina la bozza
+      this.onDelete(false);
     } else {
       this.onClose();
     }

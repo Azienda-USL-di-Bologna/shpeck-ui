@@ -1,7 +1,9 @@
 import { Injectable } from "@angular/core";
 import { TreeNode } from "primeng/api";
-import { BehaviorSubject, Observable } from "rxjs";
-import { Pec, Folder } from "@bds/ng-internauta-model";
+import { BehaviorSubject, Observable, Subject } from "rxjs";
+import { Pec, Folder, Tag } from "@bds/ng-internauta-model";
+import { HttpClient } from "@angular/common/http";
+import { getInternautaUrl, BaseUrlType, CUSTOM_SERVER_METHODS } from "src/environments/app-constants";
 
 @Injectable({
   providedIn: "root"
@@ -11,35 +13,68 @@ export class MailFoldersService {
 
 
   private _pecFolderSelected: BehaviorSubject<PecFolder> = new BehaviorSubject<PecFolder>(null);
-  private _pecFolders: BehaviorSubject<Folder[]> = new BehaviorSubject<Folder[]>(null);
+  private _pecFoldersAndTags: BehaviorSubject<FoldersAndTags> = new BehaviorSubject<FoldersAndTags>(null);
+  private _reloadTag: Subject<number>[] = [];
 
-  constructor() {
+  constructor(
+    private http: HttpClient
+  ) {
   }
 
-  public selectedPecFolder(node: PecFolder, folders: Folder[]): void {
+  public selectedPecFolder(node: PecFolder, folders: Folder[], tags: Tag[]): void {
     this._pecFolderSelected.next(node);
-    this.setPecFolders(folders);
+    this.setPecFoldersAndTags(folders, tags);
   }
 
   public get pecFolderSelected(): Observable<PecFolder> {
     return this._pecFolderSelected.asObservable();
   }
 
-  public setPecFolders(folders: Folder[]): void {
-    this._pecFolders.next(folders);
+  public setPecFoldersAndTags(folders: Folder[], tags: Tag[]): void {
+    this._pecFoldersAndTags.next({
+      folders: folders,
+      tags: tags
+    });
   }
 
-  public get pecFolders(): Observable<Folder[]> {
-    return this._pecFolders.asObservable();
+  public getReloadTag(idTag: number): Observable<number> {
+    if (!this._reloadTag[idTag]) {
+      this._reloadTag[idTag] = new Subject<number>();
+    }
+    return this._reloadTag[idTag].asObservable();
+  }
+
+  public doReloadTag(idTag: number): void {
+    const url = getInternautaUrl(BaseUrlType.Shpeck) + "/" + CUSTOM_SERVER_METHODS.countMessageInTag + "/" + idTag;
+    this.http.get(url).subscribe(
+      (res: number) => {
+        this._reloadTag[idTag].next(res);
+      }
+    );
+  }
+
+  public get pecFoldersAndTags(): Observable<FoldersAndTags> {
+    return this._pecFoldersAndTags.asObservable();
+  }
+
+  public countMessageInFolder(folderId: number): Observable<number> {
+    const url = getInternautaUrl(BaseUrlType.Shpeck) + "/" + CUSTOM_SERVER_METHODS.countMessageInFolder + "/" + folderId;
+    return this.http.get(url) as Observable<number>;
   }
 }
 
 export enum PecFolderType {
   PEC = "pec",
-  FOLDER = "folder"
+  FOLDER = "folder",
+  TAG = "tag"
 }
 
 export interface PecFolder {
   type: PecFolderType;
-  data: Pec | Folder;
+  data: Pec | Folder | Tag;
+}
+
+export interface FoldersAndTags {
+  folders: Folder[];
+  tags: Tag[];
 }

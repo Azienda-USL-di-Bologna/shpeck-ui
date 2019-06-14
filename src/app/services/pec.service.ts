@@ -3,7 +3,7 @@ import { HttpClient } from "@angular/common/http";
 import { DatePipe } from "@angular/common";
 import { getInternautaUrl, BaseUrlType } from "src/environments/app-constants";
 import { ENTITIES_STRUCTURE, Pec } from "@bds/ng-internauta-model";
-import { NextSDREntityProvider, FiltersAndSorts, PagingConf } from "@nfa/next-sdr";
+import { NextSDREntityProvider, FiltersAndSorts, PagingConf, SortDefinition, SORT_MODES, AdditionalDataDefinition } from "@nfa/next-sdr";
 import { BehaviorSubject, Observable, concat } from "rxjs";
 import { tap, map } from "rxjs/operators";
 
@@ -18,8 +18,8 @@ export class PecService extends NextSDREntityProvider {
     super(_http, _datepipe, ENTITIES_STRUCTURE.baborg.pec, getInternautaUrl(BaseUrlType.Baborg));
   }
 
-  public getMyPecs(projection?: string, initialFiltersAndSorts?: FiltersAndSorts, lazyEventFiltersAndSorts?: FiltersAndSorts, pagingConf?: PagingConf): Observable<Pec[]> {
-    return super.getData(projection, initialFiltersAndSorts, lazyEventFiltersAndSorts, pagingConf).pipe(
+  public getMyPecs(): Observable<Pec[]> {
+    return super.getData(ENTITIES_STRUCTURE.baborg.pec.standardProjections.PecWithFolderListAndPecAziendaListAndTagList, this.buildFolderInitialFilterAndSort(), null, null).pipe(
       map(data => {
         if (data && data.results) {
           return data.results;
@@ -28,6 +28,13 @@ export class PecService extends NextSDREntityProvider {
         this._myPecsSubject.next(pecs);
       })
     );
+  }
+
+  private buildFolderInitialFilterAndSort(): FiltersAndSorts {
+    const filter = new FiltersAndSorts();
+    filter.addSort(new SortDefinition("indirizzo", SORT_MODES.asc));
+    filter.addAdditionalData(new AdditionalDataDefinition("OperationRequested", "FilterPecPerStandardPermissions"));
+    return filter;
   }
 
   public get myPecs(): Observable<Pec[]> {
