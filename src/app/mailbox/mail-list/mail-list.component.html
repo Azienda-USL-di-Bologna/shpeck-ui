@@ -41,108 +41,120 @@
             [pContextMenuRow]="rowData">
             <td>
                 <div class="mail-icons-container">
-                    <!-- ICONE AZIONE -->
-                    <!-- protocollato-->
-                    <span class="mail-icon">
-                        <ng-template  #registrationTemplate let-registrationstatus>
+                    <span class="prima-riga-sinistra">
+                        <!-- ICONE AZIONE -->
+                        <!-- protocollato-->
+                        <span class="mail-icon">
+                            <ng-template  #registrationTemplate let-registrationstatus>
+                                <i
+                                    [pTooltip]="registrationstatus === 'REGISTERED' ? 'Vedi dettagli protocollazione' :
+                                        (registrationstatus === 'REGISTABLE' ? 'Protocolla il messaggio' : registrationstatus === 'IN_REGISTRATION' ? 'In protocollazione' : 'Il messaggio non può essere protocollato')"
+                                    tooltipPosition="top"
+                                    class="material-icons-outlined mail-icons icon-enabled"
+                                    [ngClass]="{'icon-disabled': registrationstatus === 'NOT_REGISTABLE', 'icon-used': (registrationstatus === 'REGISTERED' || registrationstatus === 'IN_REGISTRATION')}"
+                                    [ngStyle]="registrationstatus === 'REGISTERED' && {'color': 'darkcyan'} || registrationstatus === 'IN_REGISTRATION' && {'color': 'orange'}"
+                                    (click)="iconRegistrationClicked($event, message, registrationstatus)">
+                                    {{registrationstatus === 'REGISTERED' || registrationstatus === 'IN_REGISTRATION' ? "assignment_turned_in" : "assignment"}}
+                                        <!-- (registrationstatus === "REGISTABLE" ? "assignment_returned" : "assignment_returned")}} -->
+                                </i>
+                                <p-menu appendTo="body" #registrationMenu [popup]="true" [model]="aziendeProtocollabiliSubCmItems"></p-menu>
+                            </ng-template>
+                            <ng-template [ngTemplateOutlet]="registrationTemplate"
+                                [ngTemplateOutletContext]="{$implicit: getRegistrationStatus(message)}">
+                            </ng-template>
+                        </span>
+                        <!-- reindirizzato -->
+                        <span class="mail-icon">
+                            <ng-template  #readdressTemplate let-readdressstatus>
+                                <i [pTooltip]="readdressstatus === 'NOT_READDRESSABLE' ? 'Il messaggio non può essere reindirizzato' :
+                                    readdressstatus === 'READDRESSABLE' ? 'Reindirizza il messaggio' : 'Vedi dettagli reindirizzamento'"
+                                    tooltipPosition="top"
+                                    class="material-icons mail-icons icon-enabled"
+                                    [ngClass]="{'icon-disabled': readdressstatus === 'NOT_READDRESSABLE', 'icon-used': (readdressstatus !== 'NOT_READDRESSABLE' && readdressstatus !== 'READDRESSABLE')}"
+                                    [ngStyle]="(readdressstatus === 'FULL_READDRESSED' || 
+                                        readdressstatus === 'READDRESSED_IN' || 
+                                        readdressstatus === 'READDRESSED_OUT') && {'color': 'darkcyan'}"
+                                    (click)="iconReaddressClicked($event, message, readdressstatus)">
+                                    low_priority
+                                <!--  {{readdressstatus === 'NOT_READDRESSABLE' ? 'call_split' :
+                                        readdressstatus === 'READDRESSABLE' ? 'call_split' : 'low_priority'}} -->
+                                </i>
+                            </ng-template>
+                            <ng-template [ngTemplateOutlet]="readdressTemplate"
+                                [ngTemplateOutletContext]="{$implicit: getReaddressStatus(message)}">
+                            </ng-template>
+                        </span>
+                        <!-- annotato -->
+                        <span class="mail-icon">
+                            <ng-template  #annotatedTemplate let-annotatedstatus>
+                                <i  [pTooltip]="annotatedstatus ? 'Visualizza la nota' : 'Aggiungi una nota'"
+                                    tooltipPosition="top"
+                                    class="material-icons-outlined mail-icons icon-enabled"
+                                    [ngStyle]="annotatedstatus && {'color': 'darkcyan'}"
+                                    (click)="noteHandler(message)">
+                                    {{annotatedstatus ? "insert_drive_file" : "note_add"}}
+                                </i>
+                            </ng-template>
+                            <ng-template [ngTemplateOutlet]="annotatedTemplate"
+                                [ngTemplateOutletContext]="{$implicit: isAlreadyTagged(message, 'annotated')}">
+                            </ng-template>
+                        </span>
+
+                        <!-- SEPARATORE -->
+                        <span *ngIf="message?.iconsVisibility?.replied  ||
+                            message?.iconsVisibility?.replied_all ||
+                            message?.iconsVisibility?.forwarded"
+                            class="separatore">|
+                        </span>
+
+                        <!-- ICONE INFORMATIVE -->
+                        <!-- se c'è risposto/risposto a tutti metto quello giusto risposto a tutti vince -->
+                        <span *ngIf="message?.iconsVisibility?.replied || message?.iconsVisibility?.replied_all">
+                            <span class="mail-icon"
+                                [ngClass]="{'visibility-hidden':!message['iconsVisibility']['replied_all'] && !message['iconsVisibility']['replied']}">
+                                <i [pTooltip]="getTagDescription('replied_all')" tooltipPosition="top"
+                                    *ngIf="message['iconsVisibility']['replied_all']; else reply_single"
+                                    class="material-icons mail-icons">reply_all</i>
+                                <ng-template #reply_single><i [pTooltip]="getTagDescription('replied')"
+                                        tooltipPosition="top" class="material-icons mail-icons">reply</i></ng-template>
+                            </span>
+                        </span>
+                        <!-- se non c'è nè risposto, nè risposto a tutti lascio lo spazio vuoto -->
+                        <span *ngIf="!message?.iconsVisibility?.replied && !message?.iconsVisibility?.replied_all"
+                            class="mail-icon visibility-hidden"><i class="material-icons mail-icons">reply_all</i></span>
+                        <!-- inoltra (se non c'è mette visibility-hidden per lasciare lo spazio vuoto ) -->
+                        <span class="mail-icon" [ngClass]="{'visibility-hidden':!message?.iconsVisibility?.forwarded}"><i
+                                [pTooltip]="getTagDescription('forwarded')" tooltipPosition="top"
+                                class="material-icons mail-icons">forward</i></span>
+                        <!-- assegnato (se non c'è mette visibility-hidden per lasciare lo spazio vuoto ) -->
+                        <!-- <span class="mail-icon" [ngClass]="{'visibility-hidden':!message?.iconsVisibility?.assigned}"><i
+                                [pTooltip]="getTagDescription('assigned')" tooltipPosition="top"
+                                class="material-icons mail-icons">merge_type</i></span> -->
+                    </span>
+                    <span class="prima-riga-destra">
+                        <!-- iconcina degli allegati -->
+                        <span class="second-line-icon" [ngClass]="{'visibility-hidden':message?.attachmentsNumber === 0}">
                             <i
-                                [pTooltip]="registrationstatus === 'REGISTERED' ? 'Vedi dettagli protocollazione' :
-                                    (registrationstatus === 'REGISTABLE' ? 'Protocolla il messaggio' : registrationstatus === 'IN_REGISTRATION' ? 'In protocollazione' : 'Il messaggio non può essere protocollato')"
-                                tooltipPosition="top"
-                                class="material-icons-outlined mail-icons icon-enabled"
-                                [ngClass]="{'icon-disabled': registrationstatus === 'NOT_REGISTABLE', 'icon-used': (registrationstatus === 'REGISTERED' || registrationstatus === 'IN_REGISTRATION')}"
-                                [ngStyle]="registrationstatus === 'REGISTERED' && {'color': 'darkcyan'} || registrationstatus === 'IN_REGISTRATION' && {'color': 'orange'}"
-                                (click)="iconRegistrationClicked($event, message, registrationstatus)">
-                                {{registrationstatus === 'REGISTERED' || registrationstatus === 'IN_REGISTRATION' ? "assignment_turned_in" : "assignment"}}
-                                    <!-- (registrationstatus === "REGISTABLE" ? "assignment_returned" : "assignment_returned")}} -->
+                                [pTooltip]="message?.attachmentsNumber + ' allegati'" tooltipPosition="top"
+                                class="material-icons second-line-icon">
+                                attach_file
                             </i>
-                            <p-menu appendTo="body" #registrationMenu [popup]="true" [model]="aziendeProtocollabiliSubCmItems"></p-menu>
-                        </ng-template>
-                        <ng-template [ngTemplateOutlet]="registrationTemplate"
-                            [ngTemplateOutletContext]="{$implicit: getRegistrationStatus(message)}">
-                        </ng-template>
-                    </span>
-                    <!-- reindirizzato -->
-                    <span class="mail-icon">
-                        <ng-template  #readdressTemplate let-readdressstatus>
-                            <i [pTooltip]="readdressstatus === 'NOT_READDRESSABLE' ? 'Il messaggio non può essere reindirizzato' :
-                                readdressstatus === 'READDRESSABLE' ? 'Reindirizza il messaggio' : 'Vedi dettagli reindirizzamento'"
-                                tooltipPosition="top"
-                                class="material-icons mail-icons icon-enabled"
-                                [ngClass]="{'icon-disabled': readdressstatus === 'NOT_READDRESSABLE', 'icon-used': (readdressstatus !== 'NOT_READDRESSABLE' && readdressstatus !== 'READDRESSABLE')}"
-                                [ngStyle]="(readdressstatus === 'FULL_READDRESSED' || 
-                                    readdressstatus === 'READDRESSED_IN' || 
-                                    readdressstatus === 'READDRESSED_OUT') && {'color': 'darkcyan'}"
-                                (click)="iconReaddressClicked($event, message, readdressstatus)">
-                                low_priority
-                               <!--  {{readdressstatus === 'NOT_READDRESSABLE' ? 'call_split' :
-                                    readdressstatus === 'READDRESSABLE' ? 'call_split' : 'low_priority'}} -->
+                        </span>
+                        <!-- data della mail -->
+                        <span class="mail-date">
+                            {{message.receiveTime | date: 'EE d MMM y, H:mm' | titlecase}}
+                        </span>
+                        <!-- iconcina degli errori -->
+                        <span class="second-line-icon icon-default-color"
+                            [ngClass]="{'visibility-hidden':!(message?.iconsVisibility?.in_error || message.messageStatus === 'ERROR'),'warn-color': message?.iconsVisibility?.in_error}">
+                            <i 
+                                [pTooltip]="getTagDescription('in_error')" 
+                                tooltipPosition="top" 
+                                class="material-icons second-line-icon">
+                                warning
                             </i>
-                        </ng-template>
-                        <ng-template [ngTemplateOutlet]="readdressTemplate"
-                            [ngTemplateOutletContext]="{$implicit: getReaddressStatus(message)}">
-                        </ng-template>
-                    </span>
-                    <!-- annotato -->
-                    <span class="mail-icon">
-                        <ng-template  #annotatedTemplate let-annotatedstatus>
-                            <i  [pTooltip]="annotatedstatus ? 'Visualizza la nota' : 'Aggiungi una nota'"
-                                tooltipPosition="top"
-                                class="material-icons-outlined mail-icons icon-enabled"
-                                [ngStyle]="annotatedstatus && {'color': 'darkcyan'}"
-                                (click)="noteHandler(message)">
-                                {{annotatedstatus ? "insert_drive_file" : "note_add"}}
-                            </i>
-                        </ng-template>
-                        <ng-template [ngTemplateOutlet]="annotatedTemplate"
-                            [ngTemplateOutletContext]="{$implicit: isAlreadyTagged(message, 'annotated')}">
-                        </ng-template>
-                    </span>
-
-                    <!-- SEPARATORE -->
-                    <span *ngIf="message?.iconsVisibility?.replied  ||
-                        message?.iconsVisibility?.replied_all ||
-                        message?.iconsVisibility?.forwarded"
-                        class="separatore">|
-                    </span>
-
-                    <!-- ICONE INFORMATIVE -->
-                    <!-- se c'è risposto/risposto a tutti metto quello giusto risposto a tutti vince -->
-                    <span *ngIf="message?.iconsVisibility?.replied || message?.iconsVisibility?.replied_all">
-                        <span class="mail-icon"
-                            [ngClass]="{'visibility-hidden':!message['iconsVisibility']['replied_all'] && !message['iconsVisibility']['replied']}">
-                            <i [pTooltip]="getTagDescription('replied_all')" tooltipPosition="top"
-                                *ngIf="message['iconsVisibility']['replied_all']; else reply_single"
-                                class="material-icons mail-icons">reply_all</i>
-                            <ng-template #reply_single><i [pTooltip]="getTagDescription('replied')"
-                                    tooltipPosition="top" class="material-icons mail-icons">reply</i></ng-template>
                         </span>
                     </span>
-                    <!-- se non c'è nè risposto, nè risposto a tutti lascio lo spazio vuoto -->
-                    <span *ngIf="!message?.iconsVisibility?.replied && !message?.iconsVisibility?.replied_all"
-                        class="mail-icon visibility-hidden"><i class="material-icons mail-icons">reply_all</i></span>
-                    <!-- inoltra (se non c'è mette visibility-hidden per lasciare lo spazio vuoto ) -->
-                    <span class="mail-icon" [ngClass]="{'visibility-hidden':!message?.iconsVisibility?.forwarded}"><i
-                            [pTooltip]="getTagDescription('forwarded')" tooltipPosition="top"
-                            class="material-icons mail-icons">forward</i></span>
-                    <!-- assegnato (se non c'è mette visibility-hidden per lasciare lo spazio vuoto ) -->
-                    <!-- <span class="mail-icon" [ngClass]="{'visibility-hidden':!message?.iconsVisibility?.assigned}"><i
-                            [pTooltip]="getTagDescription('assigned')" tooltipPosition="top"
-                            class="material-icons mail-icons">merge_type</i></span> -->
-
-                    <!-- iconcina degli errori -->
-                    <span class="second-line-icon"
-                        [ngClass]="{'visibility-hidden':!(message?.iconsVisibility?.in_error || message.messageStatus === 'ERROR'),'warn-color': message?.iconsVisibility?.in_error}">
-                        <i [pTooltip]="getTagDescription('in_error')" tooltipPosition="top"
-                            class="material-icons second-line-icon icon-default-color">warning</i></span>
-                    <!-- data della mail -->
-                    <span class="mail-date">
-                        {{message.receiveTime | date: 'EE d MMM y, H:mm' | titlecase}}
-                    </span>
-                    <!-- iconcina degli allegati -->
-                    <span class="second-line-icon" [ngClass]="{'visibility-hidden':message?.attachmentsNumber === 0}"><i
-                        [pTooltip]="message?.attachmentsNumber + ' allegati'" tooltipPosition="top"
-                        class="material-icons second-line-icon">attach_file</i></span>
                 </div>
                 <div class="display-block">
                     <span class="pi pi-user display-icon icon-default-color"></span>
@@ -224,7 +236,8 @@
     <p-header>
         Dettaglio protocollazione
     </p-header>
-    <div>Il {{registrationDetail?.data}}: {{registrationDetail?.idUtente?.descrizione}} ha protocollato il messaggio.</div>
+    <div *ngIf="registrationDetail?.numeroProtocollo">Il {{registrationDetail?.data}}: {{registrationDetail?.descrizioneUtente}} ha protocollato il messaggio.</div>
+    <div *ngIf="!registrationDetail?.numeroProtocollo">Il {{registrationDetail?.data}}: {{registrationDetail?.descrizioneUtente}} ha iniziato la protocollazione del messaggio.</div>
     <div *ngIf="registrationDetail?.numeroProtocollo">{{registrationDetail?.codiceRegistro}}{{registrationDetail?.numeroProtocollo}}/{{registrationDetail?.anno}}: {{registrationDetail?.oggetto}}</div>
     <div *ngIf="!registrationDetail?.numeroProtocollo">Prop. {{registrationDetail?.numeroProposta}}: {{registrationDetail?.oggetto}}</div>
     <p-footer>

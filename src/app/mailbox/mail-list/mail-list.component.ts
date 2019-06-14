@@ -938,10 +938,12 @@ export class MailListComponent implements OnInit, OnDestroy {
 
   public prepareAndOpenDialogRegistrationDetail(messageTag: MessageTag, additionalData: any) {
     this.registrationDetail = {
-      numeroProposta: additionalData.numero_proposta,
-      numeroProtocollo: additionalData.numero_protocollo,
-      oggetto: additionalData.oggetto_documento,
-      idUtente: messageTag.idUtente,
+      numeroProposta: additionalData.idDocumento.numeroProposta,
+      numeroProtocollo: additionalData.idDocumento.numeroProtocollo,
+      oggetto: additionalData.idDocumento.oggetto,
+      descrizioneUtente: additionalData.idUtente.descrizione,
+      codiceRegistro: additionalData.idDocumento.codiceRegistro,
+      anno: additionalData.idDocumento.anno,
       data: new Date(messageTag.inserted).toLocaleDateString("it-IT", {hour: "numeric", minute: "numeric"})
     };
     this.displayRegistrationDetail = true;
@@ -1039,4 +1041,9 @@ export class MailListComponent implements OnInit, OnDestroy {
     if (!message.messageTagList) { return false; }
     return message.messageTagList.some(mt => mt.idTag.name === tagname) ? true : false;
   }
+
+  /*
+
+    background-color: rgba(153,51,102,0.1) !important;
+  */
 }

@@ -57,7 +57,18 @@
 .mail-icons-container {
 
   //margin-left: 11px;
-  display: block
+  // display: block;
+  display: flex;
+  flex-direction: row;
+  flex-wrap: nowrap;
+  justify-content: space-between;
+  // align-items:
+}
+.prima-riga-destra {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: nowrap;
+  justify-content: flex-end;
 }
 
 .text-background {
@@ -83,13 +94,13 @@
 .second-line-icon {
   font-size: 18px;
   display: block;
-  float: right;
+  // float: right;
 }
 
 .mail-date {
   // position: absolute;
   // right: 1%;
-  float: right;
+  //float: right;
   margin: 0 7px;
 }
 
@@ -160,7 +171,7 @@
   width: 226px;
 }
 .warn-color {
-  color: #993366;
+  color: #993366 !important;
 }
 /******* Close button *******/
 .close-button {
