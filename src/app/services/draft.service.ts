@@ -16,7 +16,7 @@ export class DraftService extends NextSDREntityProvider {
   private _draftEvent = new BehaviorSubject<DraftEvent>(null);
   public reload: BehaviorSubject<number> = new BehaviorSubject<number>(null);
 
-  constructor(protected http: HttpClient, protected datepipe: DatePipe, private messagePrimeService: MessageService) {
+  constructor(protected http: HttpClient, protected datepipe: DatePipe, public messagePrimeService: MessageService) {
     super(http, datepipe, ENTITIES_STRUCTURE.shpeck.draft, getInternautaUrl(BaseUrlType.Shpeck));
   }
 

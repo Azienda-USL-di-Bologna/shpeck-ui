@@ -5,6 +5,7 @@ export const LOGIN_ROUTE = "/login";
 // export const HOME_ROUTE = '/welcome';
 export const MAILBOX_ROUTE = "/mailbox";
 export const MAX_CHARS_100 = 100;
+export const MAX_FILE_SIZE_UPLOAD = 52428800;
 export const BABELMAN_URL = "https://babelman-auslbo.avec.emr.it/";
 export const APPLICATION = "shpeck";
 
@@ -48,8 +49,7 @@ export const CUSTOM_SERVER_METHODS = {
     sendMessage: "sendMessage",
     readdressMessage: "readdressMessage",
     countMessageInFolder: "countMessageInFolder",
-    countMessageInTag: "countMessageInTag",
-    getDrafts: "getDrafts"
+    countMessageInTag: "countMessageInTag"
 };
 
 export const EMLSOURCE = {

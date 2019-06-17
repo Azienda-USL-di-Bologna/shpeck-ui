@@ -3,7 +3,7 @@ import { FormGroup, FormControl, Validators, FormArray } from "@angular/forms";
 import { DynamicDialogConfig, DialogService } from "primeng/api";
 import { Message, Pec, Draft, MessageRelatedType, InOut } from "@bds/ng-internauta-model";
 import { Editor } from "primeng/editor";
-import { TOOLBAR_ACTIONS } from "src/environments/app-constants";
+import { TOOLBAR_ACTIONS, MAX_FILE_SIZE_UPLOAD } from "src/environments/app-constants";
 import { DraftService } from "src/app/services/draft.service";
 import { Chips } from "primeng/chips";
 import { AutoComplete } from "primeng/primeng";
@@ -312,9 +312,22 @@ export class NewMailComponent implements OnInit, AfterViewInit {
     const fileForm = this.mailForm.get("attachments");
     for (const file of event.target.files) {
       if (!fileForm.value.find((element) => element.name === file.name)) {
-        fileForm.value.push(file);
-        if (this.mailForm.pristine) {
-          this.mailForm.markAsDirty();
+        if (file.size && file.size <= MAX_FILE_SIZE_UPLOAD) {
+          const maxSize = fileForm.value.reduce((tot, element) => tot + element.size, 0);
+          if (maxSize + file.size <= MAX_FILE_SIZE_UPLOAD) {
+            fileForm.value.push(file);
+            if (this.mailForm.pristine) {
+              this.mailForm.markAsDirty();
+            }
+          } else {
+            this.draftService.messagePrimeService.add(
+              { severity: "warn", summary: "Attenzione", detail: "Il file non è stato caricato perché la "
+                + "dimensione massima degli allegati supera quella consentita (50 Mb).", life: 3500 });
+          }
+        } else {
+          this.draftService.messagePrimeService.add(
+            { severity: "warn", summary: "Attenzione", detail: "Il file non è stato caricato. "
+              + "Supera la dimensione massima consentita (50 Mb).", life: 3500 });
         }
       }
     }
@@ -431,15 +444,22 @@ export class NewMailComponent implements OnInit, AfterViewInit {
   }
 
   formatSize(bytes) {
-    if (bytes == 0) {
-        return "0 B";
+    const originalTotalSize = bytes;
+    bytes = bytes * 0.71;
+    const totalSizeKB = bytes / Math.pow(1000, 1);
+    if (totalSizeKB < 1) {
+      const byte = (originalTotalSize * 0.72).toFixed(0);
+      if (+byte < 1) {
+        return "1B";
+      } else {
+        return (originalTotalSize * 0.72).toFixed(0) + "B";
+      }
     }
-    const k = 1000,
-    dm = 3,
-    sizes = ["B", "KB", "MB", "GB", "TB", "PB", "EB", "ZB", "YB"],
-    i = Math.floor(Math.log(bytes) / Math.log(k));
-
-    return parseFloat((bytes / Math.pow(k, i)).toFixed(dm)) + " " + sizes[i];
+    const totalSizeMB = bytes / Math.pow(1000, 2) ;
+    if (totalSizeMB < 1) {
+      return totalSizeKB.toFixed(1) + "KB";
+    }
+    return totalSizeMB.toFixed(1) + "MB";
   }
 
   /* Metodi per la ricerca nei campi indirizzi, saranno rivisti con l'introduzione della rubrica */
