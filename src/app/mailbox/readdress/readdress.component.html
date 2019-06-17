@@ -1,11 +1,20 @@
 <form id="readdress" [formGroup]="readdressForm" (ngSubmit)="onSubmit()">
 
-  <div class="ui-g">
+  <!-- <div class="ui-g">
     <div class="ui-g-12" *ngFor="let pec of myPecs">
       <p-radioButton id={{pec.id}} name="groupRadio" value={{pec.id}} formControlName="to" label={{pec.indirizzo}}>
       </p-radioButton>
     </div>
+  </div> -->
+
+  <div class="ui-g autoComplete">
+    <div class="ui-g-12">
+      <p-autoComplete formControlName="to" [suggestions]="filteredPecs" (completeMethod)="filterPecs($event)" field="indirizzo"
+        [size]="49" [minLength]="1" placeholder="Hint: type 'shit'" [dropdown]="true" [forceSelection]="true" ariaLabel="reindirizzo">
+      </p-autoComplete>
+    </div>
   </div>
+
     <p-footer class="footer-class">
       <button type="submit" pButton icon="pi pi-check"
         class="ui-button-raised ui-button-secondary button-styles custom-secondary-button" label="OK"

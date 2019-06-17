@@ -9,7 +9,6 @@ import { FiltersAndSorts, SortDefinition, SORT_MODES, FilterDefinition, FILTER_T
 import { NtJwtLoginService, UtenteUtilities } from "@bds/nt-jwt-login";
 import { HttpClient } from "@angular/common/http";
 import { CUSTOM_SERVER_METHODS, BaseUrlType, getInternautaUrl } from "src/environments/app-constants";
-import { checkNoChangesInRootView } from "@angular/core/src/render3/instructions";
 
 
 @Component({
@@ -20,6 +19,8 @@ import { checkNoChangesInRootView } from "@angular/core/src/render3/instructions
 export class ReaddressComponent implements OnInit, OnDestroy {
   private subscriptions: Subscription[] = [];
   public myPecs: Pec[];
+  public userPecs: any[];
+  public filteredPecs: any[];
   public readdressForm: FormGroup;
   private utenteConnesso: UtenteUtilities;
 
@@ -42,38 +43,69 @@ export class ReaddressComponent implements OnInit, OnDestroy {
     this.readdressForm = new FormGroup({
       to: new FormControl("", [Validators.required])
     });
-    this.subscriptions.push(this.pecService.myPecs.subscribe((pecs: Pec[]) => {
-        const idAziendeList = pecs.filter(pec => pec.id === this.config.data.message.fk_idPec.id ).map(pec => pec.pecAziendaList.map(pecAzienda => pecAzienda.fk_idAzienda.id))[0];
-        console.log("Our data , PEC : ", pecs);
-        console.log("aziebdKust; ", idAziendeList);
+    this.subscriptions.push(
+      this.pecService.myPecs.subscribe((pecs: Pec[]) => {
+        const idAziendeList = pecs
+          .filter(pec => pec.id === this.config.data.message.fk_idPec.id)
+          .map(pec =>
+            pec.pecAziendaList.map(pecAzienda => pecAzienda.fk_idAzienda.id)
+          )[0];
+        // console.log("Our data , PEC : ", pecs);
+        // console.log("Aziende List; ", idAziendeList);
         this.pecService
-          .getData(ENTITIES_STRUCTURE.baborg.pec.standardProjections.PecWithPlainFields, this.buildFolderInitialFilterAndSort(idAziendeList), null , null)
-          .subscribe(data => this.myPecs = data.results.filter(pec => pec.id !==  this.config.data.message.fk_idPec.id));
-      }
-      ));
+          .getData(
+            ENTITIES_STRUCTURE.baborg.pec.standardProjections
+              .PecWithPlainFields,
+            this.buildFolderInitialFilterAndSort(idAziendeList),
+            null,
+            null
+          )
+          .subscribe(data => {
+            this.myPecs = data.results.filter(
+              pec => pec.id !== this.config.data.message.fk_idPec.id
+            );
+            this.userPecs = this.myPecs.map(pec => pec.indirizzo);
+            // console.log("User can readress to: ", this.userPecs);
+          });
+      })
+    );
     console.log("Look for config: ", this.config);
-
   }
 
   ngOnDestroy() {
     this.subscriptions.forEach(s => s.unsubscribe());
   }
 
-  private buildFolderInitialFilterAndSort(idAziendeList: number[]): FiltersAndSorts {
+  private buildFolderInitialFilterAndSort(
+    idAziendeList: number[]
+  ): FiltersAndSorts {
     const filter = new FiltersAndSorts();
-    idAziendeList.forEach(idAzienda => {filter.addFilter(new FilterDefinition("pecAziendaList.idAzienda.id", FILTER_TYPES.not_string.equals, idAzienda)); });
-    filter.addFilter(new FilterDefinition("attiva", FILTER_TYPES.not_string.equals, true));
+    idAziendeList.forEach(idAzienda => {
+      filter.addFilter(
+        new FilterDefinition(
+          "pecAziendaList.idAzienda.id",
+          FILTER_TYPES.not_string.equals,
+          idAzienda
+        )
+      );
+    });
+    filter.addFilter(
+      new FilterDefinition("attiva", FILTER_TYPES.not_string.equals, true)
+    );
     filter.addSort(new SortDefinition("indirizzo", SORT_MODES.asc));
     return filter;
   }
 
   public readdressMessage(form: FormData) {
-    const apiUrl = getInternautaUrl(BaseUrlType.Shpeck) + "/" + CUSTOM_SERVER_METHODS.readdressMessage;
+    const apiUrl =
+      getInternautaUrl(BaseUrlType.Shpeck) +
+      "/" +
+      CUSTOM_SERVER_METHODS.readdressMessage;
     console.warn("Endpoint: ", apiUrl);
     const message = this.config.data.message as Message;
     this.http.post(apiUrl, form).subscribe(
       res => {
-        console.log("res", res);
+        // console.log("res", res);
         message["iconsVisibility"]["readdressed_out"] = true;
         const newTag = new Tag();
         newTag.idPec = message.idPec;
@@ -96,23 +128,31 @@ export class ReaddressComponent implements OnInit, OnDestroy {
     );
   }
 
+  filterPecs(event) {
+    //in a real application, make a request to a remote url with the query and return filtered results, for demo we filter at client side
+    this.filteredPecs = [];
+    for (let i = 0; i < this.myPecs.length; i++) {
+      let pec = this.myPecs[i];
+      if (pec.indirizzo.toLowerCase().indexOf(event.query.toLowerCase()) == 0) {
+        this.filteredPecs.push(pec);
+      }
+    }
+  }
+
   onClose() {
-    console.warn("Anulla button was clicked");
+    // console.warn("Anulla button was clicked");
     // this.dialogService.dialogComponentRef.instance.close();
     this.ref.close();
   }
 
   onSubmit() {
-    // TODO: Use EventEmitter with form value
-    console.warn("OK button was clicked", this.readdressForm.value);
-
-    const idPec = this.readdressForm.value.to;
+    const idPec = this.readdressForm.value.to.id;
     const idMessage = this.config.data.message.id;
-    // const formReq = {idMessage: idMessage, idPec:idPec} as FormData;
+    
     const formToSend = new FormData();
     formToSend.append("idMessageSource", idMessage);
     formToSend.append("idPecDestination", idPec);
-    console.warn("form data, idMessage: ", idMessage, " idPec ", idPec);
+    // console.warn("form data, idMessage: ", idMessage, " idPec ", idPec);
     this.readdressMessage(formToSend);
     this.ref.close();
   }
