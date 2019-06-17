@@ -195,3 +195,19 @@
   font-family: sans-serif;
   resize: none;
 }
+
+/* POPUP DETAIL */
+::ng-deep .popup-mail-detail {
+  width: 900px !important;
+  height: 80%;
+}
+::ng-deep .popup-mail-detail > div {
+  width: inherit !important;
+  height: 80%;
+}
+::ng-deep .popup-mail-detail > div .ui-dialog-content {
+  height: 80%;
+}
+::ng-deep .popup-mail-detail  app-mail-detail {
+  height: 100%;
+}

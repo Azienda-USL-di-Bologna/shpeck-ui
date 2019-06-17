@@ -6,6 +6,8 @@ import { DatePipe } from "@angular/common";
 import { buildLazyEventFiltersAndSorts } from "@bds/primeng-plugin";
 import { DraftService } from "src/app/services/draft.service";
 import { Observable, Subscription } from "rxjs";
+import { SettingsService } from "src/app/services/settings.service";
+import { AppCustomization } from "src/environments/app-customization";
 
 @Component({
   selector: "app-mail-drafts",
@@ -28,7 +30,7 @@ export class MailDraftsComponent implements OnInit, OnDestroy {
 
   public _filters: FilterDefinition[];
 
-  public subscription: Subscription;
+  private subscriptions: Subscription[] = [];
   public loading = false;
   public virtualRowHeight: number = 70;
   public totalRecords: number;
@@ -44,6 +46,8 @@ export class MailDraftsComponent implements OnInit, OnDestroy {
       minWidth: "85px"
     }
   ];
+  public displayDetailPopup = false;
+  public openDetailInPopup = false;
   private pageConf: PagingConf = {
     mode: "LIMIT_OFFSET",
     conf: {
@@ -52,16 +56,28 @@ export class MailDraftsComponent implements OnInit, OnDestroy {
     }
   };
 
-  constructor(private draftService: DraftService, private datepipe: DatePipe) { }
+  constructor(private draftService: DraftService, private settingsService: SettingsService, private datepipe: DatePipe) { }
 
   ngOnInit() {
-    this.subscription = this.draftService.reload.subscribe(idDraft => {
+    this.subscriptions.push(this.draftService.reload.subscribe(idDraft => {
       if (idDraft) {
         this.loadData(null, null, idDraft);
       } else {
         this.loadData(null);
       }
-    });
+    }));
+    this.subscriptions.push(this.settingsService.settingsChangedNotifier$.subscribe(newSettings => {
+      this.openDetailInPopup = newSettings[AppCustomization.shpeck.hideDetail] === "true";
+    }));
+    if (this.settingsService.getImpostazioniVisualizzazione()) {
+      this.openDetailInPopup = this.settingsService.getHideDetail() === "true";
+    }
+  }
+
+  public openDetailPopup(event, row, message) {
+    if (this.openDetailInPopup) {
+      this.displayDetailPopup = true;
+    }
   }
 
   public handleEvent(name: string, event: any) {

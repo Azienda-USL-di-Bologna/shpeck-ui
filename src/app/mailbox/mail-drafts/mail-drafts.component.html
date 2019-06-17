@@ -22,7 +22,8 @@
     (onContextMenuSelect)="handleEvent('onContextMenuSelect', $event)"
     >
     <ng-template pTemplate="body" let-rowData let-draft let-rowIndex="rowIndex">
-        <tr #selRow class="message-row" [pSelectableRow]="rowData" [pSelectableRowIndex]="rowIndex" [pContextMenuRow]="rowData" >
+        <tr #selRow class="message-row" [pSelectableRow]="rowData" [pSelectableRowIndex]="rowIndex" [pContextMenuRow]="rowData" 
+            (dblclick)="openDetailPopup($event, rowData, message)">
             <td>
                 <div class = "mail-icons-container">
                 </div>
@@ -51,3 +52,16 @@
         </tr>
     </ng-template>
 </p-table>
+
+
+<!-- POPUP DEL DETAIL -->
+<p-dialog *ngIf="displayDetailPopup" [(visible)]="displayDetailPopup" class="popup-mail-detail">
+    <p-header>
+        Dettaglio
+    </p-header>
+    <app-mail-detail></app-mail-detail>
+    <p-footer>
+        <button type="button" pButton (click)="displayDetailPopup = false" label="Chiudi"
+        class="ui-button-raised ui-button-secondary button-styles custom-secondary-button"></button>
+    </p-footer>
+</p-dialog>

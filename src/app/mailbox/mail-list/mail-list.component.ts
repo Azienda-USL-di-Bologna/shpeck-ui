@@ -17,6 +17,8 @@ import { NoteService } from "src/app/services/note.service";
 import { NtJwtLoginService, UtenteUtilities } from "@bds/nt-jwt-login";
 import { query } from "@angular/core/src/render3";
 import { Menu } from "primeng/menu";
+import { AppCustomization } from "src/environments/app-customization";
+import { SettingsService } from "src/app/services/settings.service";
 
 @Component({
   selector: "app-mail-list",
@@ -36,6 +38,7 @@ export class MailListComponent implements OnInit, OnDestroy {
     private confirmationService: ConfirmationService,
     private messagePrimeService: MessageService,
     private noteService: NoteService,
+    private settingsService: SettingsService,
     private loginService: NtJwtLoginService
   ) {
     this.selectedContextMenuItem = this.selectedContextMenuItem.bind(this);
@@ -179,6 +182,8 @@ export class MailListComponent implements OnInit, OnDestroy {
   public displayNote: boolean = false;
   public displayProtocollaDialog = false;
   public displayRegistrationDetail = false;
+  public displayDetailPopup = false;
+  public openDetailInPopup = false;
   public readdressDetail: any = {
     displayReaddressDetail: false,
     buttonReaddress: false,
@@ -239,6 +244,18 @@ export class MailListComponent implements OnInit, OnDestroy {
         }
       }
     }));
+    this.subscriptions.push(this.settingsService.settingsChangedNotifier$.subscribe(newSettings => {
+      this.openDetailInPopup = newSettings[AppCustomization.shpeck.hideDetail] === "true";
+    }));
+    if (this.settingsService.getImpostazioniVisualizzazione()) {
+      this.openDetailInPopup = this.settingsService.getHideDetail() === "true";
+    }
+  }
+
+  public openDetailPopup(event, row, message) {
+    if (this.openDetailInPopup) {
+      this.displayDetailPopup = true;
+    }
   }
 
 
