@@ -1,5 +1,5 @@
 <!-- *ngIf="_selectedFolder || _filters" -->
-<p-table #dt
+<p-table #dt *ngIf="_selectedPecId"
     [lazy]="true" (onLazyLoad)="lazyLoad($event)"
     scrollHeight="100%"
     [value]="drafts"

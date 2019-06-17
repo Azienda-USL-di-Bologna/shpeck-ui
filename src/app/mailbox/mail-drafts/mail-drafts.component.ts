@@ -7,6 +7,7 @@ import { buildLazyEventFiltersAndSorts } from "@bds/primeng-plugin";
 import { DraftService } from "src/app/services/draft.service";
 import { Observable, Subscription } from "rxjs";
 import { SettingsService } from "src/app/services/settings.service";
+import { DraftLiteService } from "src/app/services/draft-lite.service";
 import { AppCustomization } from "src/environments/app-customization";
 
 @Component({
@@ -16,17 +17,19 @@ import { AppCustomization } from "src/environments/app-customization";
 })
 export class MailDraftsComponent implements OnInit, OnDestroy {
 
-  private _selectedPecId: number;
+  public _selectedPecId: number;
   @Input("pecId")
   set selectedPecId(pecId: number) {
-    this._selectedPecId = pecId;
-    this.loadData(null);
+    this._selectedPecId = null;
+    setTimeout(() => {
+      this._selectedPecId = pecId;
+      this.loadData(null);
+    });
   }
 
   private previousFilter: FilterDefinition[] = [];
   private selectedProjection: string =
-  ENTITIES_STRUCTURE.shpeck.draft.customProjections
-    .CustomDraftWithPlainFields;
+    ENTITIES_STRUCTURE.shpeck.draftlite.standardProjections.DraftLiteWithIdPec;
 
   public _filters: FilterDefinition[];
 
@@ -56,7 +59,7 @@ export class MailDraftsComponent implements OnInit, OnDestroy {
     }
   };
 
-  constructor(private draftService: DraftService, private settingsService: SettingsService, private datepipe: DatePipe) { }
+  constructor(private draftService: DraftService, private settingsService: SettingsService, private draftLiteService: DraftLiteService, private datepipe: DatePipe) { }
 
   ngOnInit() {
     this.subscriptions.push(this.draftService.reload.subscribe(idDraft => {
@@ -169,7 +172,7 @@ export class MailDraftsComponent implements OnInit, OnDestroy {
 
   private loadData(pageCong: PagingConf, lazyFilterAndSort?: FiltersAndSorts, idDraft?: number) {
     this.loading = true;
-    this.draftService.getData(this.selectedProjection, this.buildDraftInitialFilterAndSort(), lazyFilterAndSort, pageCong).subscribe(data => {
+    this.draftLiteService.getData(this.selectedProjection, this.buildDraftInitialFilterAndSort(), lazyFilterAndSort, pageCong).subscribe(data => {
       if (data && data.results) {
         console.log("DATA = ", data);
         this.totalRecords = data.page.totalElements;

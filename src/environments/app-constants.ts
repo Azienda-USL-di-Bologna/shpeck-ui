@@ -48,7 +48,8 @@ export const CUSTOM_SERVER_METHODS = {
     sendMessage: "sendMessage",
     readdressMessage: "readdressMessage",
     countMessageInFolder: "countMessageInFolder",
-    countMessageInTag: "countMessageInTag"
+    countMessageInTag: "countMessageInTag",
+    getDrafts: "getDrafts"
 };
 
 export const EMLSOURCE = {
