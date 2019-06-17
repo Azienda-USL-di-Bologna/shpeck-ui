@@ -171,26 +171,28 @@ export class MailDraftsComponent implements OnInit, OnDestroy {
   }
 
   private loadData(pageCong: PagingConf, lazyFilterAndSort?: FiltersAndSorts, idDraft?: number) {
-    this.loading = true;
-    this.draftLiteService.getData(this.selectedProjection, this.buildDraftInitialFilterAndSort(), lazyFilterAndSort, pageCong).subscribe(data => {
-      if (data && data.results) {
-        console.log("DATA = ", data);
-        this.totalRecords = data.page.totalElements;
-        this.drafts = data.results;
-        if (idDraft) {
-          const selectedDraft: Draft = this.drafts.find(value => value.id === idDraft);
-          if (selectedDraft !== undefined) {
-            this.draftService.manageDraftEvent(
-              selectedDraft
-            );
+    if (this._selectedPecId) {
+      this.loading = true;
+      this.draftLiteService.getData(this.selectedProjection, this.buildDraftInitialFilterAndSort(), lazyFilterAndSort, pageCong).subscribe(data => {
+        if (data && data.results) {
+          console.log("DATA = ", data);
+          this.totalRecords = data.page.totalElements;
+          this.drafts = data.results;
+          if (idDraft) {
+            const selectedDraft: Draft = this.drafts.find(value => value.id === idDraft);
+            if (selectedDraft !== undefined) {
+              this.draftService.manageDraftEvent(
+                selectedDraft
+              );
+            }
           }
         }
-      }
-      this.loading = false;
-      // setTimeout(() => {
-      //   console.log(this.selRow.nativeElement.offsetHeight);
-      // });
-    });
+        this.loading = false;
+        // setTimeout(() => {
+        //   console.log(this.selRow.nativeElement.offsetHeight);
+        // });
+      });
+    }
   }
 
   private buildDraftInitialFilterAndSort() {
