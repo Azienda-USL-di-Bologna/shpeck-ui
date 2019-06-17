@@ -58,7 +58,7 @@ export class AppComponent implements OnInit {
         // eliminazione dai query params di impersonatedUser
         // this.loginService.redirectTo = this.router.routerState.snapshot.url.replace(/(?<=&|\?)impersonatedUser(=[^&]*)?(&|$)/, "");
         this.loginService.redirectTo = UtilityFunctions.removeQueryParams(this.router.routerState.snapshot.url, "realUser");
-        this.loginService.redirectTo = UtilityFunctions.removeQueryParams(this.loginService.redirectTo, "impersonatedUser");
+        this.loginService.redirectTo = UtilityFunctions.removeQueryParams(this.loginService.redirectTo, "utenteImpersonato");
         // if (this.loginService.redirectTo.endsWith("?") || this.loginService.redirectTo.endsWith("&")) {
         //   this.loginService.redirectTo = this.loginService.redirectTo.substr(0, this.loginService.redirectTo.length - 1)
         // }
