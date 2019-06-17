@@ -33,7 +33,8 @@ export class ToolBarService {
     ["editVisible", new BehaviorSubject<boolean>(false)],
     ["buttonsActive", new BehaviorSubject<boolean>(false)],
     ["deleteActive", new BehaviorSubject<boolean>(false)],
-    ["moveActive", new BehaviorSubject<boolean>(false)]
+    ["moveActive", new BehaviorSubject<boolean>(false)],
+    ["searchActive", new BehaviorSubject<boolean>(false)]
   ]);
 
   constructor(
@@ -63,6 +64,12 @@ export class ToolBarService {
           }
           this.buttonsObservables.get("moveActive").next(false);
           this._selectedPec = this.myPecs.filter(p => p.id === idPec)[0];
+
+          if (pecFolderSelected.type === PecFolderType.FOLDER && (this.selectedFolder.type === FolderType.OUTBOX || this.selectedFolder.type === FolderType.DRAFT) || pecFolderSelected.type === PecFolderType.TAG) {
+            this.buttonsObservables.get("searchActive").next(false);
+          } else {
+            this.buttonsObservables.get("searchActive").next(true);
+          }
         }
       }));
       this.subscriptions.push(this.pecService.myPecs.subscribe((pecs: Pec[]) => {
