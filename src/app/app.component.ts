@@ -49,6 +49,10 @@ export class AppComponent implements OnInit {
       console.log("chiamo login");
       console.log("impersonateUser: ", params["utenteImpersonato"]);
 
+      if (params.hasOwnProperty("from")) {
+        this.loginService.from = params["from"].trim();
+      }
+
       // se nei params c'è la proprietà impersonatedUser, allora pulisci la sessione, setta nella sessionStorage l'utente impersonato
       // e cancellalo dai params
       if (params.hasOwnProperty("utenteImpersonato")) {
