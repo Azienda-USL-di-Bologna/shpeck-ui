@@ -24,6 +24,8 @@ export class SettingsService {
             if (!this.compareObjects(impostazioniVisualizzazioneLoggedUser, impostazioniVisualizzazioneNewUtente)) {
               this.impostazioniVisualizzazione = impostazioniVisualizzazioneNewUtente;
               this.doNotify(this.impostazioniVisualizzazione);
+            } else {
+              this.impostazioniVisualizzazione = impostazioniVisualizzazioneLoggedUser;
             }
           } else {
             this.impostazioniVisualizzazione = {};
