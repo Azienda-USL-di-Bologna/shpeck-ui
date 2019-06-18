@@ -17,8 +17,15 @@ export class SettingsService {
       if (utente) {
         console.log("SettingsService loggedUserSubscription - utente: ", utente, "this.loggedUser: ", this.loggedUser);
         // if (!this.loggedUser || utente.getUtente().id !== this.loggedUser.getUtente().id) {
-
-          if (this.loggedUser.getImpostazioniApplicazione()) {
+          if (!this.loggedUser) {
+            this.loggedUser = utente;
+            if (this.loggedUser.getImpostazioniApplicazione()) {
+              this.impostazioniVisualizzazione = JSON.parse(this.loggedUser.getImpostazioniApplicazione().impostazioniVisualizzazione);
+            } else {
+              this.impostazioniVisualizzazione = {};
+            }
+            this.doNotify(this.impostazioniVisualizzazione);
+          } else if (this.loggedUser.getImpostazioniApplicazione()) {
             const impostazioniVisualizzazioneLoggedUser = JSON.parse(this.loggedUser.getImpostazioniApplicazione().impostazioniVisualizzazione);
             const impostazioniVisualizzazioneNewUtente = JSON.parse(utente.getImpostazioniApplicazione().impostazioniVisualizzazione);
             if (!this.compareObjects(impostazioniVisualizzazioneLoggedUser, impostazioniVisualizzazioneNewUtente)) {
