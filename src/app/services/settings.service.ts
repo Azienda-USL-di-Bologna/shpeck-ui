@@ -23,6 +23,7 @@ export class SettingsService {
           } else {
             this.impostazioniVisualizzazione = {};
           }
+          this.doNotify(this.impostazioniVisualizzazione);
         // } else {
         //   this.loggedUser = utente;
         // }
