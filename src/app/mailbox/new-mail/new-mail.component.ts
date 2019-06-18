@@ -128,7 +128,7 @@ export class NewMailComponent implements OnInit, AfterViewInit {
       body: new FormControl(""),  // Il body viene inizializzato nell'afterViewInit perché l'editor non è ancora istanziato
       idMessageRelated: new FormControl(message && action !== TOOLBAR_ACTIONS.EDIT ? message.id : ""),
       messageRelatedType: new FormControl(messageRelatedType),
-      idMessageRelatedAttachments: new FormControl(this.attachments)
+      // idMessageRelatedAttachments: new FormControl(this.attachments)
     });
   }
 
@@ -312,22 +312,17 @@ export class NewMailComponent implements OnInit, AfterViewInit {
     const fileForm = this.mailForm.get("attachments");
     for (const file of event.target.files) {
       if (!fileForm.value.find((element) => element.name === file.name)) {
-        if (file.size && file.size <= MAX_FILE_SIZE_UPLOAD) {
-          const maxSize = fileForm.value.reduce((tot, element) => tot + element.size, 0);
-          if (maxSize + file.size <= MAX_FILE_SIZE_UPLOAD) {
-            fileForm.value.push(file);
-            if (this.mailForm.pristine) {
-              this.mailForm.markAsDirty();
-            }
-          } else {
-            this.draftService.messagePrimeService.add(
-              { severity: "warn", summary: "Attenzione", detail: "Il file non è stato caricato perché la "
-                + "dimensione massima degli allegati supera quella consentita (50 Mb).", life: 3500 });
+        const maxFilesSize = fileForm.value.reduce((tot, element) =>
+          element.id ? tot + (element.size * 0.72).toFixed(0) : tot + element.size, 0);
+        if (file.size && (maxFilesSize + file.size) <= MAX_FILE_SIZE_UPLOAD) {
+          fileForm.value.push(file);
+          if (this.mailForm.pristine) {
+            this.mailForm.markAsDirty();
           }
         } else {
           this.draftService.messagePrimeService.add(
-            { severity: "warn", summary: "Attenzione", detail: "Il file non è stato caricato. "
-              + "Supera la dimensione massima consentita (50 Mb).", life: 3500 });
+            { severity: "warn", summary: "Attenzione", detail: "Il file " + file.name + " non è stato caricato. La "
+              + "dimensione massima degli allegati supera quella consentita (50 Mb).", life: 4000 });
         }
       }
     }
@@ -386,15 +381,10 @@ export class NewMailComponent implements OnInit, AfterViewInit {
       if (key === "attachments") {  // Gli allegati vanno aggiunti singolarmente
         const files = this.mailForm.get(key).value;
         files.forEach(file => {
-          if (!file.id) {
+          if (!file.id) { // I file che hanno l'id sono presi dall'eml già salvato sul DB
             formToSend.append(key, file);
-          }
-        });
-      } else if (key === "idMessageRelatedAttachments") {
-        const files = this.mailForm.get(key).value;
-        files.forEach(file => {
-          if (file.id) {
-            formToSend.append(key, file.id);
+          } else {
+            formToSend.append("idMessageRelatedAttachments", file.id);
           }
         });
       } else {
@@ -405,6 +395,14 @@ export class NewMailComponent implements OnInit, AfterViewInit {
       formToSend.append("idMessageRelatedAttachments", [].toString());
     }
     return formToSend;
+  }
+
+  checkMaxPostSize() {
+    const fileForm = this.mailForm.get("attachments");
+    const maxFilesSize = fileForm.value.reduce((tot, element) =>
+      element.id ? tot +  (element.size * 0.72).toFixed(0) : tot + element.size, 0);
+    const bodyForm = this.mailForm.get("body");
+    return maxFilesSize + bodyForm.value.length <= MAX_FILE_SIZE_UPLOAD;
   }
 
   checkAndClose() {
@@ -428,9 +426,15 @@ export class NewMailComponent implements OnInit, AfterViewInit {
   /* Salvataggio della bozza */
   onSaveDraft() {
     console.log("FORM = ", this.mailForm.value);
-    const formToSend: FormData = this.buildFormToSend();
-    this.draftService.saveDraftMessage(formToSend, this.mailForm.get("idDraftMessage").value);
-    this.onClose();
+    if (this.checkMaxPostSize()) {
+      const formToSend: FormData = this.buildFormToSend();
+      this.draftService.saveDraftMessage(formToSend, this.mailForm.get("idDraftMessage").value);
+      this.onClose();
+    } else {
+      this.draftService.messagePrimeService.add(
+        { severity: "warn", summary: "Attenzione", detail: "La mail supera la dimensione massima consentita (50 Mb). "
+          + "Rimuovere degli allegati per continuare.", life: 4000 });
+    }
   }
 
   onDelete(showMessage: boolean) {
