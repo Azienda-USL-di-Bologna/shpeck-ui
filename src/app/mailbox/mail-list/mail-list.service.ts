@@ -118,7 +118,9 @@ export class MailListService {
       (message.messageType !== MessageType.MAIL && message.messageType !== MessageType.PEC) ||
       message.messageFolderList[0].idFolder.type === "TRASH" ||
       (message.messageTagList && message.messageTagList
-        .some(messageTag => messageTag.idTag.name === "readdressed_out" || messageTag.idTag.name === "registered"))) {
+        .some(messageTag => messageTag.idTag.name === "readdressed_out" || messageTag.idTag.name === "registered")) ||
+      this.loggedUser.getAziendeWithPermission(FluxPermission.REDIGE).length === 0
+    ) {
       return false;
     } else {
       return true;
@@ -268,7 +270,7 @@ export class MailListService {
           }
         });
       },
-      err => console.log("error during the operation -> ", err));
+        err => console.log("error during the operation -> ", err));
     }
   }
 
