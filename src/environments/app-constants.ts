@@ -27,7 +27,8 @@ export enum BaseUrlType {
     Configurazione,
     ConfigurazioneImpostazioniApplicazioni,
     Login,
-    Intimus
+    Intimus,
+    Rubrica
 }
 
 export const BaseUrls: Map<BaseUrlType, string> = new Map<BaseUrlType, string>([
@@ -37,7 +38,8 @@ export const BaseUrls: Map<BaseUrlType, string> = new Map<BaseUrlType, string>([
     [BaseUrlType.Configurazione, "/internauta-api/resources/configurazione"],
     [BaseUrlType.ConfigurazioneImpostazioniApplicazioni, "/internauta-api/resources/configurazione/custom/setImpostazioniApplicazioni"],
     [BaseUrlType.Login, "/internauta-api/login"],
-    [BaseUrlType.Intimus, ""]
+    [BaseUrlType.Intimus, ""],
+    [BaseUrlType.Rubrica,  "/internauta-api/resources/rubrica"]
 ]);
 
 export const CUSTOM_SERVER_METHODS = {
@@ -49,7 +51,8 @@ export const CUSTOM_SERVER_METHODS = {
     sendMessage: "sendMessage",
     readdressMessage: "readdressMessage",
     countMessageInFolder: "countMessageInFolder",
-    countMessageInTag: "countMessageInTag"
+    countMessageInTag: "countMessageInTag",
+    searchEmailContact: "searchEmailContact"
 };
 
 export const EMLSOURCE = {

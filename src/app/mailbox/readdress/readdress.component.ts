@@ -1,10 +1,10 @@
 import { Component, OnInit, OnDestroy } from "@angular/core";
-import { FormGroup, FormControl, Validators, FormArray } from "@angular/forms";
+import { FormGroup, FormControl, Validators } from "@angular/forms";
 import { ShpeckMessageService } from "src/app/services/shpeck-message.service";
 import { DynamicDialogRef, DynamicDialogConfig, DialogService } from "primeng/api";
-import { Subscription, Observable } from "rxjs";
+import { Subscription } from "rxjs";
 import { PecService } from "src/app/services/pec.service";
-import { Pec, Folder, ENTITIES_STRUCTURE, Tag, Message, MessageTag } from "@bds/ng-internauta-model";
+import { Pec, ENTITIES_STRUCTURE, Tag, Message, MessageTag } from "@bds/ng-internauta-model";
 import { FiltersAndSorts, SortDefinition, SORT_MODES, FilterDefinition, FILTER_TYPES } from "@nfa/next-sdr";
 import { NtJwtLoginService, UtenteUtilities } from "@bds/nt-jwt-login";
 import { HttpClient } from "@angular/common/http";
@@ -129,11 +129,11 @@ export class ReaddressComponent implements OnInit, OnDestroy {
   }
 
   filterPecs(event) {
-    //in a real application, make a request to a remote url with the query and return filtered results, for demo we filter at client side
+    // in a real application, make a request to a remote url with the query and return filtered results, for demo we filter at client side
     this.filteredPecs = [];
     for (let i = 0; i < this.myPecs.length; i++) {
-      let pec = this.myPecs[i];
-      if (pec.indirizzo.toLowerCase().indexOf(event.query.toLowerCase()) == 0) {
+      const pec = this.myPecs[i];
+      if (pec.indirizzo.toLowerCase().indexOf(event.query.toLowerCase()) === 0) {
         this.filteredPecs.push(pec);
       }
     }
@@ -148,7 +148,6 @@ export class ReaddressComponent implements OnInit, OnDestroy {
   onSubmit() {
     const idPec = this.readdressForm.value.to.id;
     const idMessage = this.config.data.message.id;
-    
     const formToSend = new FormData();
     formToSend.append("idMessageSource", idMessage);
     formToSend.append("idPecDestination", idPec);

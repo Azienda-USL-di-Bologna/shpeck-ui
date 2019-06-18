@@ -31,6 +31,9 @@ export class NewMailComponent implements OnInit, AfterViewInit {
   /* Questi andranno rinominati */
   public filteredAddressSingle: any[];
   public filteredAddressMultiple: any[];
+  public lastAddressBookUsed = "";
+
+  public displayRubricaPopup = false;
 
   public indirizziTest = [
     "g.russo@nsi.it",
@@ -246,7 +249,7 @@ export class NewMailComponent implements OnInit, AfterViewInit {
    * @param item L'oggetto selezionato nell'autocomplete
    * @param formField Il campo del form dove è stato selezionato l'indirizzo, addresses o ccAddresses
   */
-  onSelect(item: string, formField) {
+  onSelect(item: string, formField: string) {
     if (item) {
       item = item.trim();
       if (formField === "to") {
@@ -470,20 +473,20 @@ export class NewMailComponent implements OnInit, AfterViewInit {
 
   /* Metodi per la ricerca nei campi indirizzi, saranno rivisti con l'introduzione della rubrica */
   filterAddressSingle(event) {
-    let query = event.query;
+    const query = event.query;
     this.filteredAddressSingle = this.filterAddress(query, this.indirizziTest);
   }
 
   filterAddressMultiple(event) {
-      let query = event.query;
+      const query = event.query;
       this.filteredAddressMultiple = this.filterAddress(query, this.indirizziTest);
   }
 
   filterAddress(query, addresses: any[]): any[] {
-      let filtered : any[] = [];
+      const filtered: any[] = [];
       for (let i = 0; i < addresses.length; i++) {
-          let address = addresses[i];
-          if (address.toLowerCase().indexOf(query.toLowerCase()) == 0) {
+          const address = addresses[i];
+          if (address.toLowerCase().indexOf(query.toLowerCase()) === 0) {
               filtered.push(address);
           }
       }
@@ -493,5 +496,13 @@ export class NewMailComponent implements OnInit, AfterViewInit {
   private setAttribute(feild, attribute, value): void {
     const field = document.getElementById(feild);
     field.setAttribute(attribute, value);
+  }
+
+
+
+  public onAddressChosedByBook(event: any): void {
+    console.log(event, event);
+    this.onSelect(event.emails[0].email, this.lastAddressBookUsed);
+    this.displayRubricaPopup = false;
   }
 }
