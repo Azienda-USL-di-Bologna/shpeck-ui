@@ -45,9 +45,9 @@ export class AppComponent implements OnInit {
       }
     });
     this.route.queryParams.subscribe((params: Params) => {
-      console.log("dentro subscribe, ", params.hasOwnProperty("utenteImpersonato"));
+      console.log("dentro subscribe, ", params.hasOwnProperty("impersonatedUser"));
       console.log("chiamo login");
-      console.log("impersonateUser: ", params["utenteImpersonato"]);
+      console.log("impersonateUser: ", params["impersonatedUser"]);
 
       if (params.hasOwnProperty("from")) {
         this.loginService.from = params["from"].trim();
@@ -55,14 +55,14 @@ export class AppComponent implements OnInit {
 
       // se nei params c'è la proprietà impersonatedUser, allora pulisci la sessione, setta nella sessionStorage l'utente impersonato
       // e cancellalo dai params
-      if (params.hasOwnProperty("utenteImpersonato")) {
+      if (params.hasOwnProperty("impersonatedUser")) {
         this.loginService.clearSession();
-        this.loginService.setimpersonatedUser(params["utenteImpersonato"].trim(), params["utenteLogin"].trim());
+        this.loginService.setimpersonatedUser(params["impersonatedUser"].trim(), params["realUser"].trim());
 
         // eliminazione dai query params di impersonatedUser
         // this.loginService.redirectTo = this.router.routerState.snapshot.url.replace(/(?<=&|\?)impersonatedUser(=[^&]*)?(&|$)/, "");
-        this.loginService.redirectTo = UtilityFunctions.removeQueryParams(this.router.routerState.snapshot.url, "utenteLogin");
-        this.loginService.redirectTo = UtilityFunctions.removeQueryParams(this.loginService.redirectTo, "utenteImpersonato");
+        this.loginService.redirectTo = UtilityFunctions.removeQueryParams(this.router.routerState.snapshot.url, "realUser");
+        this.loginService.redirectTo = UtilityFunctions.removeQueryParams(this.loginService.redirectTo, "impersonatedUser");
         // if (this.loginService.redirectTo.endsWith("?") || this.loginService.redirectTo.endsWith("&")) {
         //   this.loginService.redirectTo = this.loginService.redirectTo.substr(0, this.loginService.redirectTo.length - 1)
         // }
