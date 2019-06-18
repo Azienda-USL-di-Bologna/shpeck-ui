@@ -16,16 +16,16 @@ export class SettingsService {
     this.subscription = this.loginService.loggedUser$.subscribe((utente: UtenteUtilities) => {
       if (utente) {
         console.log("SettingsService loggedUserSubscription - utente: ", utente, "this.loggedUser: ", this.loggedUser);
-        if (!this.loggedUser || utente.getUtente().id !== this.loggedUser.getUtente().id) {
+        // if (!this.loggedUser || utente.getUtente().id !== this.loggedUser.getUtente().id) {
           this.loggedUser = utente;
           if (this.loggedUser.getImpostazioniApplicazione()) {
             this.impostazioniVisualizzazione = JSON.parse(this.loggedUser.getImpostazioniApplicazione().impostazioniVisualizzazione);
           } else {
             this.impostazioniVisualizzazione = {};
           }
-        } else {
-          this.loggedUser = utente;
-        }
+        // } else {
+        //   this.loggedUser = utente;
+        // }
       }
     });
   }
