@@ -15,6 +15,7 @@ export class SettingsService {
   constructor(private loginService: NtJwtLoginService) {
     this.subscription = this.loginService.loggedUser$.subscribe((utente: UtenteUtilities) => {
       if (utente) {
+        console.log("SettingsService loggedUserSubscription - utente: ", utente, "this.loggedUser: ", this.loggedUser);
         if (!this.loggedUser || utente.getUtente().id !== this.loggedUser.getUtente().id) {
           this.loggedUser = utente;
           if (this.loggedUser.getImpostazioniApplicazione()) {
