@@ -313,7 +313,7 @@ export class NewMailComponent implements OnInit, AfterViewInit {
     for (const file of event.target.files) {
       if (!fileForm.value.find((element) => element.name === file.name)) {
         const maxFilesSize = fileForm.value.reduce((tot, element) =>
-          element.id ? tot + (element.size * 0.72).toFixed(0) : tot + element.size, 0);
+          element.id ? tot + element.size * 0.71 : tot + element.size, 0);
         if (file.size && (maxFilesSize + file.size) <= MAX_FILE_SIZE_UPLOAD) {
           fileForm.value.push(file);
           if (this.mailForm.pristine) {
@@ -400,7 +400,7 @@ export class NewMailComponent implements OnInit, AfterViewInit {
   checkMaxPostSize() {
     const fileForm = this.mailForm.get("attachments");
     const maxFilesSize = fileForm.value.reduce((tot, element) =>
-      element.id ? tot +  (element.size * 0.72).toFixed(0) : tot + element.size, 0);
+      element.id ? tot +  element.size * 0.71 : tot + element.size, 0);
     const bodyForm = this.mailForm.get("body");
     return maxFilesSize + bodyForm.value.length <= MAX_FILE_SIZE_UPLOAD;
   }
