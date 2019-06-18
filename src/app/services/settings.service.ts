@@ -17,7 +17,7 @@ export class SettingsService {
       if (utente) {
         console.log("SettingsService loggedUserSubscription - utente: ", utente, "this.loggedUser: ", this.loggedUser);
         // if (!this.loggedUser || utente.getUtente().id !== this.loggedUser.getUtente().id) {
-          this.loggedUser = utente;
+
           if (this.loggedUser.getImpostazioniApplicazione()) {
             const impostazioniVisualizzazioneLoggedUser = JSON.parse(this.loggedUser.getImpostazioniApplicazione().impostazioniVisualizzazione);
             const impostazioniVisualizzazioneNewUtente = JSON.parse(utente.getImpostazioniApplicazione().impostazioniVisualizzazione);
@@ -27,6 +27,7 @@ export class SettingsService {
             } else {
               this.impostazioniVisualizzazione = impostazioniVisualizzazioneLoggedUser;
             }
+            this.loggedUser = utente;
           } else {
             this.impostazioniVisualizzazione = {};
           }
