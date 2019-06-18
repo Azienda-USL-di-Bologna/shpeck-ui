@@ -447,16 +447,18 @@ export class NewMailComponent implements OnInit, AfterViewInit {
     this.dialogService.dialogComponentRef.instance.close();
   }
 
-  formatSize(bytes) {
+  formatSize(bytes, originalBytes?) {
     const originalTotalSize = bytes;
-    bytes = bytes * 0.71;
+    if (!originalBytes) {
+      bytes = bytes * 0.71;
+    }
     const totalSizeKB = bytes / Math.pow(1000, 1);
     if (totalSizeKB < 1) {
-      const byte = (originalTotalSize * 0.72).toFixed(0);
+      const byte = originalBytes ? originalTotalSize : (originalTotalSize * 0.72).toFixed(0);
       if (+byte < 1) {
         return "1B";
       } else {
-        return (originalTotalSize * 0.72).toFixed(0) + "B";
+        return (originalBytes ? originalTotalSize : (originalTotalSize * 0.72).toFixed(0)) + "B";
       }
     }
     const totalSizeMB = bytes / Math.pow(1000, 2) ;
