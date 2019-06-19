@@ -1,12 +1,14 @@
-<form [formGroup]="contactForm" (ngSubmit)="onSubmit()">
+<form id="search-rubrica" [formGroup]="contactForm" (ngSubmit)="onSubmit()">
   
   <div class="ui-g autoComplete">
     <div class="ui-g-12">
-      <p-autoComplete formControlName="contatto" #search (onBlur)="onBlur()"
+      <p-autoComplete #search 
+        formControlName="contatto" 
+        (onBlur)="onBlur()"
         [suggestions]="filteredContacts" 
         (completeMethod)="filterContacts($event)" 
         field="descrizioneCustom"
-        [size]="84" [minLength]="1" 
+        [style]="{'width':'100%'}" [inputStyle]="{'width':'100%'}"
         placeholder="Digita almeno 3 caratteri" 
         [dropdown]="true" 
         [forceSelection]="true" 
@@ -15,10 +17,9 @@
         appendTo="body"
         delay="400"
         emptyMessage="Nessun contatto trovato">
-        <ng-template let-contact pTemplate="item">
+        <ng-template let-contact pTemplate="item" class="classetemplate">
             <div class="ui-helper-clearfix" style="border-bottom:1px solid #D5D5D5">
-              <!-- {{contact.prova}} -->
-              {{contact.contatto.cognomeRagione}} ({{contact.emails[0].email}})
+              {{contact.descrizioneCustom}}
             </div>
         </ng-template>
       </p-autoComplete>
