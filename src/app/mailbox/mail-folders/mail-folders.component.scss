@@ -37,6 +37,9 @@
 ::ng-deep .draft-icon::before {
     content: 'drafts';
 }
+::ng-deep .more-icon::before {
+    content: 'more';
+}
 ::ng-deep .trash-icon {
     font-size: 1.60em !important;
     margin-left: -2px !important;

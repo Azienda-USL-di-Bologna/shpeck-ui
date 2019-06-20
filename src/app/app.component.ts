@@ -23,8 +23,6 @@ export class AppComponent implements OnInit {
     private route: ActivatedRoute,
     private router: Router) { }
 
-    
-
   ngOnInit() {
     this.headerFeaturesConfig = new HeaderFeaturesConfig();
     this.headerFeaturesConfig.showCambioUtente = true;
@@ -65,6 +63,4 @@ export class AppComponent implements OnInit {
       contentStyle: { "max-height": "450px", "min-height": "250px", "overflow": "auto", "height": height, }
     });
   }
-
- 
 }
