@@ -1,6 +1,6 @@
 import { Injectable } from "@angular/core";
 import { Tag, Folder, Message, FolderType, InOut, ENTITIES_STRUCTURE, FluxPermission, PecPermission, Note, MessageTag, Utente, Azienda, MessageType, MessageStatus, TagType, Pec } from "@bds/ng-internauta-model";
-import { MenuItem } from "primeng/api";
+import { MenuItem, MessageService } from "primeng/api";
 import { Utils } from "src/app/utils/utils";
 import { MessageFolderService } from "src/app/services/message-folder.service";
 import { Subscription, Observable } from "rxjs";
@@ -32,6 +32,7 @@ export class MailListService {
 
   constructor(
     private dialogService: DialogService,
+    private messagePrimeService: MessageService,
     private messageFolderService: MessageFolderService,
     private mailFoldersService: MailFoldersService,
     private loginService: NtJwtLoginService,
@@ -264,17 +265,18 @@ export class MailListService {
   }
 
   public createAndApplyTag(tagName) {
-    console.log("TAGG = ", event);
     this.createTag(tagName).subscribe(
       (res: Tag) => {
         this.tags.push(res);
         this.toggleTag(res);
         this.displayNewTag = false;
+        this.messagePrimeService.add(
+          { severity: "success", summary: "Successo", detail: "Etichetta creata e associata con successo." });
       }
     );
   }
 
-  private createTag(tagName: string): Observable<any> {
+  private createTag(tagName: string): Observable<Tag> {
     const newTag: Tag = new Tag();
     newTag.name = tagName.toLowerCase();
     newTag.description = tagName;
@@ -289,17 +291,17 @@ export class MailListService {
    * Questa funzione applica/rimuove il tag passato come parametro ai messaggi selezionati.
    * @param tag Il tag da applicare o rimuovere.
    */
-  public toggleTag(tag: Tag) {
-    console.log("UPDATE = ", this.selectedMessages);
-    console.log("EVENTOOOO = ", tag);
-     const messageTagOperations: BatchOperation[] = [];
+  public toggleTag(tag: Tag, showMessage?: boolean) {
+    const messageTagOperations: BatchOperation[] = [];
     let messagesWithTag = [];
     let idTag;  // Conterrà l'id del tag nella TagList della PEC per fare la reload nella callback
     messagesWithTag = this.filterMessagesWithTag(tag);
     const tagIconAndAction: TagIconAction = this.getTagIconAction(messagesWithTag);
     const mtp: MessageTagOp[] = [];
+    let messaggioOperazione = "";
     if (tagIconAndAction.operation === "INSERT") {
       const messagesToInsert: Message[] = this.selectedMessages.filter(m => !messagesWithTag.includes(m));
+      messaggioOperazione = "associata";
       for (const message of messagesToInsert) {
         const mTagCall = this.buildMessageTagOperationInsert(message, tag.name);
         idTag = mTagCall.idTag;
@@ -307,6 +309,7 @@ export class MailListService {
         mtp.push({ message: message, operation: "INSERT" });
       }
     } else {
+      messaggioOperazione = "rimossa";
       for (const message of messagesWithTag) {
         const mTagCall = this.buildMessageTagOperationDelete(message, tag.name);
         idTag = mTagCall.idTag;
@@ -317,6 +320,10 @@ export class MailListService {
     if (messageTagOperations.length > 0) {
       this.messageService.batchHttpCall(messageTagOperations).subscribe((res: BatchOperation[]) => {
         this.updateMessageTagList(mtp, res);
+        if (showMessage) {
+          this.messagePrimeService.add(
+            { severity: "success", summary: "Successo", detail: `Etichetta ${messaggioOperazione} con successo.` });
+        }
       },
         err => console.log("error during the operation -> ", err));
     }
@@ -437,7 +444,6 @@ export class MailListService {
         this.setIconsVisibility(item.message);
       }
     });
-    console.log("UPDATE END = ", this.selectedMessages);
   }
 
   /**

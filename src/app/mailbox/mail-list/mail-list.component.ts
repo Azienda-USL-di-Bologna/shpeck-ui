@@ -737,7 +737,7 @@ export class MailListComponent implements OnInit, OnDestroy {
         this.mailListService.moveMessages(event.item.queryParams.folder);
         break;
       case "MessageLabels":
-        this.mailListService.toggleTag(event.item.queryParams.tag);
+        this.mailListService.toggleTag(event.item.queryParams.tag, true);
         break;
       case "MessageRegistration":
         this.chooseRegistrationType(event, null);
