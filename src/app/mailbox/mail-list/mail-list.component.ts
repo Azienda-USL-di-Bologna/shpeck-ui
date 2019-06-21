@@ -218,11 +218,13 @@ export class MailListComponent implements OnInit, OnDestroy {
           const selectedFolder: Folder = pecFolderSelected.data as Folder;
           if (selectedFolder.type !== FolderType.DRAFT) {
             this._selectedPecId = selectedFolder.fk_idPec.id;
+            this._selectedPec = pecFolderSelected.pec;
             this.setFolder(selectedFolder);
           }
         } else if (pecFolderSelected.type === PecFolderType.TAG) {
           const selectedTag: Tag = pecFolderSelected.data as Tag;
-          this._selectedPecId = selectedTag.idPec.id;
+          this._selectedPecId = selectedTag.fk_idPec.id;
+          this._selectedPec = pecFolderSelected.pec;
           this.setTag(selectedTag);
         } else {
           const pec: Pec = pecFolderSelected.data as Pec;
