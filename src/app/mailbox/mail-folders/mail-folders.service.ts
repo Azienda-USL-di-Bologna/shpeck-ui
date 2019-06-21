@@ -73,6 +73,7 @@ export enum PecFolderType {
 export interface PecFolder {
   type: PecFolderType;
   data: Pec | Folder | Tag;
+  pec: Pec;
 }
 
 export interface FoldersAndTags {

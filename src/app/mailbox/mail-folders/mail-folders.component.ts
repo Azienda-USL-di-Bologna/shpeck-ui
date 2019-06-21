@@ -7,6 +7,7 @@ import { ToolBarService } from "../toolbar/toolbar.service";
 import { Subscription } from "rxjs";
 import { ContextMenu, Tree } from "primeng/primeng";
 import { FolderService } from "src/app/services/folder.service";
+import { TagService } from "src/app/services/tag.service";
 
 @Component({
   selector: "app-mail-folders",
@@ -45,6 +46,15 @@ export class MailFoldersComponent implements OnInit, OnDestroy {
       command: event => this.selectedContextMenuItem(event)
     },
   ];
+  public tagContainerCmItems: MenuItem[] = [
+    {
+      label: "Nuova Etichetta",
+      id: "NewTag",
+      disabled: false,
+      queryParams: {},
+      command: event => this.selectedContextMenuItem(event)
+    },
+  ];
   public cmItems: MenuItem[] = this.pecCmItems;
 
   public folderCmItems: MenuItem[] = [
@@ -69,7 +79,8 @@ export class MailFoldersComponent implements OnInit, OnDestroy {
     private folderService: FolderService,
     private mailFoldersService: MailFoldersService,
     private primeMessageService: MessageService,
-    private toolBarService: ToolBarService) { }
+    private toolBarService: ToolBarService,
+    private tagService: TagService) { }
 
   ngOnInit() {
     this.subscriptions.push(this.pecService.getMyPecs().subscribe(
@@ -341,9 +352,17 @@ export class MailFoldersComponent implements OnInit, OnDestroy {
               event.node.children.map((c: MyTreeNode) => c.data.data) as Folder[],
               (event.node.data.data as Pec).tagList
             );
+          } else if (event.node.data && (event.node as MyTreeNode).data.type === PecFolderType.TAG_CONTAINER) {
+            this.cmItems = this.tagContainerCmItems;
+            this.mailFoldersService.selectedPecFolder(
+              event.node.data,
+              event.node.children.map((c: MyTreeNode) => c.data.data) as Folder[],
+              (event.node.data.data as Pec).tagList
+            );
           } else {
             this.disableNotSelectableFolderContextMenuItems(event.node.data.data as Folder);
             this.cmItems = this.folderCmItems;
+            event.node.data.pec = event.node.parent.data.data as Pec;
             this.mailFoldersService.selectedPecFolder(
               event.node.data,
               event.node.parent.children.map((c: MyTreeNode) => c.data.data) as Folder[],
@@ -386,6 +405,7 @@ export class MailFoldersComponent implements OnInit, OnDestroy {
               (event.node.data.data as Pec).tagList
             );
           } else {
+            event.node.data.pec = event.node.parent.data.data as Pec;
             this.mailFoldersService.selectedPecFolder(
               event.node.data,
               event.node.parent.children.map((c: MyTreeNode) => c.data.data) as Folder[],
@@ -433,6 +453,8 @@ export class MailFoldersComponent implements OnInit, OnDestroy {
           if (!inserting) {
             if (nodeType === PecFolderType.FOLDER) {
               this.updateFolder(node as Folder);
+            } else {
+              this.updateTag(node as Tag);
             }
           } else {
             if (nodeType === PecFolderType.FOLDER) {
@@ -453,6 +475,20 @@ export class MailFoldersComponent implements OnInit, OnDestroy {
       const pecFolderList: Folder[] = (this.selectedNode.parent.data.data as Pec).folderList;
       const index = pecFolderList.findIndex(childFolder => f.id === childFolder.id);
       pecFolderList[index] = f;
+      this.mailFoldersService.selectedPecFolder(
+        this.selectedNode.data,
+        this.selectedNode.parent.children.map((c: MyTreeNode) => c.data.data) as Folder[],
+        (this.selectedNode.parent.data.data as Pec).tagList
+      );
+    });
+  }
+
+  private updateTag(tag: Tag): void {
+    this.tagService.patchHttpCall(tag, tag.id).subscribe((t: Tag) => {
+      this.selectedNode.data.data = t;
+      const pecTagList: Tag[] = (this.selectedNode.parent.data.data as Pec).tagList;
+      const index = pecTagList.findIndex(childTag => t.id === childTag.id);
+      pecTagList[index] = t;
       this.mailFoldersService.selectedPecFolder(
         this.selectedNode.data,
         this.selectedNode.parent.children.map((c: MyTreeNode) => c.data.data) as Folder[],

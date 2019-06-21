@@ -58,7 +58,7 @@ export class ToolBarService {
             this.buttonsObservables.get("editVisible").next(false);
             this.buttonsObservables.get("deleteActive").next(false);
           } else if (pecFolderSelected.type === PecFolderType.TAG) {
-            idPec = ((pecFolderSelected.data) as Tag).idPec.id;
+            idPec = ((pecFolderSelected.data) as Tag).fk_idPec.id;
           } else {
             idPec = ((pecFolderSelected.data) as Pec).id;
           }
