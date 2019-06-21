@@ -59,7 +59,8 @@
       </button>
       <!-- Ricerca -->
       <input #search matInput type="text" pInputText size="50" placeholder="Cerca..." (keydown.enter)="onEnter(search.value)"
-        class="input-find" pTooltip="Inserire almeno 3 caratteri e premere invio" minlength="3" title="barra di ricerca" autofocus>
+        class="input-find" pTooltip="Inserire almeno 3 caratteri e premere invio" minlength="3" title="barra di ricerca" autofocus
+        [disabled]="!(toolBarService.buttonObs.get('searchActive') | async)">
       <!-- <i class="pi pi-bars a-items-center d-flex"></i> -->
   </div>
 </p-toolbar>

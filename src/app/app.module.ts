@@ -11,6 +11,7 @@ import { MailboxComponent } from "./mailbox/mailbox.component";
 import { MailListComponent } from "./mailbox/mail-list/mail-list.component";
 import { MailDetailComponent } from "./mailbox/mail-detail/mail-detail.component";
 import { ReaddressComponent } from "./mailbox/readdress/readdress.component";
+import { SearchContactComponent } from "./search-contact/search-contact.component";
 
 /* Login */
 import { NtJwtLoginModule } from "@bds/nt-jwt-login";
@@ -64,7 +65,8 @@ registerLocaleData(localeIt, "it-IT", localeItExtra);
     RecepitsComponent,
     MailDraftsComponent,
     StripeHtmlPipe,
-    ReaddressComponent
+    ReaddressComponent,
+    SearchContactComponent
   ],
   imports: [
     NtJwtLoginModule.forRoot(loginModuleConfig),

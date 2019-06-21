@@ -204,7 +204,7 @@ export class MailDetailComponent implements OnInit, OnDestroy {
   public getEmlAttachment(attachment: EmlAttachment, preview: boolean = false): void {
     this.messageService.downloadEmlAttachment(this.fullMessage.message.id, attachment, this.fullMessage.emlSource).subscribe(
       response =>
-        Utils.downLoadFile(response, attachment.contentType, attachment.fileName, preview)
+        Utils.downLoadFile(response, attachment.contentType !== "" ? attachment.contentType : attachment.mimeType, attachment.fileName, preview)
     );
   }
 

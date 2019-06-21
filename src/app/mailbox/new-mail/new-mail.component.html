@@ -20,7 +20,7 @@
               </p-autoComplete>
           </span>
           <span>
-            <button pButton type="button" icon="fa fa-address-book" class="ui-button-rounded custom-primary-button"></button>
+            <button pButton type="button" icon="fa fa-address-book" class="ui-button-rounded custom-primary-button" (click)="displayRubricaPopup = true; lastAddressBookUsed = 'to'"></button>
           </span>
         </li>
         <!-- CC Addresses -->
@@ -37,7 +37,7 @@
             </p-autoComplete>
           </span>
           <span>
-            <button pButton type="button" icon="fa fa-address-book" class="ui-button-rounded custom-primary-button"></button>
+            <button pButton type="button" icon="fa fa-address-book" class="ui-button-rounded custom-primary-button" (click)="displayRubricaPopup = true; lastAddressBookUsed = 'cc'"></button>
           </span>
         </li>
         <!-- Destinatari Privati -->
@@ -66,7 +66,7 @@
           <span class="ui-fluid flex-1 margin-l-5">
             <p-chips id="attachments" formControlName="attachments">
                 <ng-template let-item pTemplate="item">
-                    {{ item.name ? item.name : item.displayName }} ({{formatSize(item.size)}}) <i style="margin-right:1.5em"></i>
+                    {{ item.name ? item.name : item.displayName }} ({{item.id ? formatSize(item.size) :  formatSize(item.size, true)}}) <i style="margin-right:1.5em"></i>
                 </ng-template>
             </p-chips>
           </span>
@@ -122,4 +122,21 @@
         pButton icon="fas fa-undo-alt" (click)="display=false" label="Annulla">
       </button>
     </p-footer>
+</p-dialog>
+
+
+<p-dialog 
+  appendTo="body" 
+  [(visible)]="displayRubricaPopup" 
+  *ngIf="displayRubricaPopup" 
+  modal="true"
+  class="popup-rubrica"
+  [style]="{width: '700px'}">
+  <p-header>
+    Aggiungi destinatario
+  </p-header>
+  <app-search-contact 
+    (addressChosedByBook)="onAddressChosedByBook($event)" 
+    (closeRubricaPopup)="displayRubricaPopup = false">
+  </app-search-contact>
 </p-dialog>

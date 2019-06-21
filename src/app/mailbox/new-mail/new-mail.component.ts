@@ -3,7 +3,7 @@ import { FormGroup, FormControl, Validators, FormArray } from "@angular/forms";
 import { DynamicDialogConfig, DialogService } from "primeng/api";
 import { Message, Pec, Draft, MessageRelatedType, InOut } from "@bds/ng-internauta-model";
 import { Editor } from "primeng/editor";
-import { TOOLBAR_ACTIONS } from "src/environments/app-constants";
+import { TOOLBAR_ACTIONS, MAX_FILE_SIZE_UPLOAD } from "src/environments/app-constants";
 import { DraftService } from "src/app/services/draft.service";
 import { Chips } from "primeng/chips";
 import { AutoComplete } from "primeng/primeng";
@@ -31,6 +31,9 @@ export class NewMailComponent implements OnInit, AfterViewInit {
   /* Questi andranno rinominati */
   public filteredAddressSingle: any[];
   public filteredAddressMultiple: any[];
+  public lastAddressBookUsed = "";
+
+  public displayRubricaPopup = false;
 
   public indirizziTest = [
     "g.russo@nsi.it",
@@ -128,7 +131,7 @@ export class NewMailComponent implements OnInit, AfterViewInit {
       body: new FormControl(""),  // Il body viene inizializzato nell'afterViewInit perché l'editor non è ancora istanziato
       idMessageRelated: new FormControl(message && action !== TOOLBAR_ACTIONS.EDIT ? message.id : ""),
       messageRelatedType: new FormControl(messageRelatedType),
-      idMessageRelatedAttachments: new FormControl(this.attachments)
+      // idMessageRelatedAttachments: new FormControl(this.attachments)
     });
   }
 
@@ -246,7 +249,7 @@ export class NewMailComponent implements OnInit, AfterViewInit {
    * @param item L'oggetto selezionato nell'autocomplete
    * @param formField Il campo del form dove è stato selezionato l'indirizzo, addresses o ccAddresses
   */
-  onSelect(item: string, formField) {
+  onSelect(item: string, formField: string) {
     if (item) {
       item = item.trim();
       if (formField === "to") {
@@ -312,9 +315,17 @@ export class NewMailComponent implements OnInit, AfterViewInit {
     const fileForm = this.mailForm.get("attachments");
     for (const file of event.target.files) {
       if (!fileForm.value.find((element) => element.name === file.name)) {
-        fileForm.value.push(file);
-        if (this.mailForm.pristine) {
-          this.mailForm.markAsDirty();
+        const maxFilesSize = fileForm.value.reduce((tot, element) =>
+          element.id ? tot + element.size * 0.71 : tot + element.size, 0);
+        if (file.size && (maxFilesSize + file.size) <= MAX_FILE_SIZE_UPLOAD) {
+          fileForm.value.push(file);
+          if (this.mailForm.pristine) {
+            this.mailForm.markAsDirty();
+          }
+        } else {
+          this.draftService.messagePrimeService.add(
+            { severity: "warn", summary: "Attenzione", detail: "Il file " + file.name + " non è stato caricato. La "
+              + "dimensione massima degli allegati supera quella consentita (50 Mb).", life: 4000 });
         }
       }
     }
@@ -373,15 +384,10 @@ export class NewMailComponent implements OnInit, AfterViewInit {
       if (key === "attachments") {  // Gli allegati vanno aggiunti singolarmente
         const files = this.mailForm.get(key).value;
         files.forEach(file => {
-          if (!file.id) {
+          if (!file.id) { // I file che hanno l'id sono presi dall'eml già salvato sul DB
             formToSend.append(key, file);
-          }
-        });
-      } else if (key === "idMessageRelatedAttachments") {
-        const files = this.mailForm.get(key).value;
-        files.forEach(file => {
-          if (file.id) {
-            formToSend.append(key, file.id);
+          } else {
+            formToSend.append("idMessageRelatedAttachments", file.id);
           }
         });
       } else {
@@ -392,6 +398,14 @@ export class NewMailComponent implements OnInit, AfterViewInit {
       formToSend.append("idMessageRelatedAttachments", [].toString());
     }
     return formToSend;
+  }
+
+  checkMaxPostSize() {
+    const fileForm = this.mailForm.get("attachments");
+    const maxFilesSize = fileForm.value.reduce((tot, element) =>
+      element.id ? tot +  element.size * 0.71 : tot + element.size, 0);
+    const bodyForm = this.mailForm.get("body");
+    return maxFilesSize + bodyForm.value.length <= MAX_FILE_SIZE_UPLOAD;
   }
 
   checkAndClose() {
@@ -415,9 +429,15 @@ export class NewMailComponent implements OnInit, AfterViewInit {
   /* Salvataggio della bozza */
   onSaveDraft() {
     console.log("FORM = ", this.mailForm.value);
-    const formToSend: FormData = this.buildFormToSend();
-    this.draftService.saveDraftMessage(formToSend, this.mailForm.get("idDraftMessage").value);
-    this.onClose();
+    if (this.checkMaxPostSize()) {
+      const formToSend: FormData = this.buildFormToSend();
+      this.draftService.saveDraftMessage(formToSend, this.mailForm.get("idDraftMessage").value);
+      this.onClose();
+    } else {
+      this.draftService.messagePrimeService.add(
+        { severity: "warn", summary: "Attenzione", detail: "La mail supera la dimensione massima consentita (50 Mb). "
+          + "Rimuovere degli allegati per continuare.", life: 4000 });
+    }
   }
 
   onDelete(showMessage: boolean) {
@@ -430,34 +450,43 @@ export class NewMailComponent implements OnInit, AfterViewInit {
     this.dialogService.dialogComponentRef.instance.close();
   }
 
-  formatSize(bytes) {
-    if (bytes == 0) {
-        return "0 B";
+  formatSize(bytes, originalBytes?) {
+    const originalTotalSize = bytes;
+    if (!originalBytes) {
+      bytes = bytes * 0.71;
     }
-    const k = 1000,
-    dm = 3,
-    sizes = ["B", "KB", "MB", "GB", "TB", "PB", "EB", "ZB", "YB"],
-    i = Math.floor(Math.log(bytes) / Math.log(k));
-
-    return parseFloat((bytes / Math.pow(k, i)).toFixed(dm)) + " " + sizes[i];
+    const totalSizeKB = bytes / Math.pow(1000, 1);
+    if (totalSizeKB < 1) {
+      const byte = originalBytes ? originalTotalSize : (originalTotalSize * 0.72).toFixed(0);
+      if (+byte < 1) {
+        return "1B";
+      } else {
+        return (originalBytes ? originalTotalSize : (originalTotalSize * 0.72).toFixed(0)) + "B";
+      }
+    }
+    const totalSizeMB = bytes / Math.pow(1000, 2) ;
+    if (totalSizeMB < 1) {
+      return totalSizeKB.toFixed(1) + "KB";
+    }
+    return totalSizeMB.toFixed(1) + "MB";
   }
 
   /* Metodi per la ricerca nei campi indirizzi, saranno rivisti con l'introduzione della rubrica */
   filterAddressSingle(event) {
-    let query = event.query;
+    const query = event.query;
     this.filteredAddressSingle = this.filterAddress(query, this.indirizziTest);
   }
 
   filterAddressMultiple(event) {
-      let query = event.query;
+      const query = event.query;
       this.filteredAddressMultiple = this.filterAddress(query, this.indirizziTest);
   }
 
   filterAddress(query, addresses: any[]): any[] {
-      let filtered : any[] = [];
+      const filtered: any[] = [];
       for (let i = 0; i < addresses.length; i++) {
-          let address = addresses[i];
-          if (address.toLowerCase().indexOf(query.toLowerCase()) == 0) {
+          const address = addresses[i];
+          if (address.toLowerCase().indexOf(query.toLowerCase()) === 0) {
               filtered.push(address);
           }
       }
@@ -467,5 +496,13 @@ export class NewMailComponent implements OnInit, AfterViewInit {
   private setAttribute(feild, attribute, value): void {
     const field = document.getElementById(feild);
     field.setAttribute(attribute, value);
+  }
+
+
+
+  public onAddressChosedByBook(event: any): void {
+    console.log(event, event);
+    this.onSelect(event.emails[0].email, this.lastAddressBookUsed);
+    this.displayRubricaPopup = false;
   }
 }

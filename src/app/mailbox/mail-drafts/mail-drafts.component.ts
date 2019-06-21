@@ -6,6 +6,9 @@ import { DatePipe } from "@angular/common";
 import { buildLazyEventFiltersAndSorts } from "@bds/primeng-plugin";
 import { DraftService } from "src/app/services/draft.service";
 import { Observable, Subscription } from "rxjs";
+import { SettingsService } from "src/app/services/settings.service";
+import { DraftLiteService } from "src/app/services/draft-lite.service";
+import { AppCustomization } from "src/environments/app-customization";
 
 @Component({
   selector: "app-mail-drafts",
@@ -14,21 +17,23 @@ import { Observable, Subscription } from "rxjs";
 })
 export class MailDraftsComponent implements OnInit, OnDestroy {
 
-  private _selectedPecId: number;
+  public _selectedPecId: number;
   @Input("pecId")
   set selectedPecId(pecId: number) {
-    this._selectedPecId = pecId;
-    this.loadData(null);
+    this._selectedPecId = null;
+    setTimeout(() => {
+      this._selectedPecId = pecId;
+      this.loadData(null);
+    });
   }
 
   private previousFilter: FilterDefinition[] = [];
   private selectedProjection: string =
-  ENTITIES_STRUCTURE.shpeck.draft.customProjections
-    .CustomDraftWithPlainFields;
+    ENTITIES_STRUCTURE.shpeck.draftlite.standardProjections.DraftLiteWithIdPec;
 
   public _filters: FilterDefinition[];
 
-  public subscription: Subscription;
+  private subscriptions: Subscription[] = [];
   public loading = false;
   public virtualRowHeight: number = 70;
   public totalRecords: number;
@@ -44,6 +49,8 @@ export class MailDraftsComponent implements OnInit, OnDestroy {
       minWidth: "85px"
     }
   ];
+  public displayDetailPopup = false;
+  public openDetailInPopup = false;
   private pageConf: PagingConf = {
     mode: "LIMIT_OFFSET",
     conf: {
@@ -52,16 +59,28 @@ export class MailDraftsComponent implements OnInit, OnDestroy {
     }
   };
 
-  constructor(private draftService: DraftService, private datepipe: DatePipe) { }
+  constructor(private draftService: DraftService, private settingsService: SettingsService, private draftLiteService: DraftLiteService, private datepipe: DatePipe) { }
 
   ngOnInit() {
-    this.subscription = this.draftService.reload.subscribe(idDraft => {
+    this.subscriptions.push(this.draftService.reload.subscribe(idDraft => {
       if (idDraft) {
         this.loadData(null, null, idDraft);
       } else {
         this.loadData(null);
       }
-    });
+    }));
+    this.subscriptions.push(this.settingsService.settingsChangedNotifier$.subscribe(newSettings => {
+      this.openDetailInPopup = newSettings[AppCustomization.shpeck.hideDetail] === "true";
+    }));
+    if (this.settingsService.getImpostazioniVisualizzazione()) {
+      this.openDetailInPopup = this.settingsService.getHideDetail() === "true";
+    }
+  }
+
+  public openDetailPopup(event, row, message) {
+    if (this.openDetailInPopup) {
+      this.displayDetailPopup = true;
+    }
   }
 
   public handleEvent(name: string, event: any) {
@@ -152,26 +171,28 @@ export class MailDraftsComponent implements OnInit, OnDestroy {
   }
 
   private loadData(pageCong: PagingConf, lazyFilterAndSort?: FiltersAndSorts, idDraft?: number) {
-    this.loading = true;
-    this.draftService.getData(this.selectedProjection, this.buildDraftInitialFilterAndSort(), lazyFilterAndSort, pageCong).subscribe(data => {
-      if (data && data.results) {
-        console.log("DATA = ", data);
-        this.totalRecords = data.page.totalElements;
-        this.drafts = data.results;
-        if (idDraft) {
-          const selectedDraft: Draft = this.drafts.find(value => value.id === idDraft);
-          if (selectedDraft !== undefined) {
-            this.draftService.manageDraftEvent(
-              selectedDraft
-            );
+    if (this._selectedPecId) {
+      this.loading = true;
+      this.draftLiteService.getData(this.selectedProjection, this.buildDraftInitialFilterAndSort(), lazyFilterAndSort, pageCong).subscribe(data => {
+        if (data && data.results) {
+          console.log("DATA = ", data);
+          this.totalRecords = data.page.totalElements;
+          this.drafts = data.results;
+          if (idDraft) {
+            const selectedDraft: Draft = this.drafts.find(value => value.id === idDraft);
+            if (selectedDraft !== undefined) {
+              this.draftService.manageDraftEvent(
+                selectedDraft
+              );
+            }
           }
         }
-      }
-      this.loading = false;
-      // setTimeout(() => {
-      //   console.log(this.selRow.nativeElement.offsetHeight);
-      // });
-    });
+        this.loading = false;
+        // setTimeout(() => {
+        //   console.log(this.selRow.nativeElement.offsetHeight);
+        // });
+      });
+    }
   }
 
   private buildDraftInitialFilterAndSort() {
@@ -206,6 +227,9 @@ export class MailDraftsComponent implements OnInit, OnDestroy {
   }
 
   ngOnDestroy() {
-    this.subscription.unsubscribe();
+    for (const s of this.subscriptions) {
+      s.unsubscribe();
+    }
+    this.subscriptions = [];
   }
 }

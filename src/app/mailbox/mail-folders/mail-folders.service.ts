@@ -66,7 +66,8 @@ export class MailFoldersService {
 export enum PecFolderType {
   PEC = "pec",
   FOLDER = "folder",
-  TAG = "tag"
+  TAG = "tag",
+  TAG_CONTAINER = "tag_container"
 }
 
 export interface PecFolder {

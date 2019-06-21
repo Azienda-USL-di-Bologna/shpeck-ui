@@ -1,9 +1,10 @@
 import { Component, OnInit } from "@angular/core";
 import { MenuItem, DialogService } from "primeng/api";
-import { NtJwtLoginService, UtenteUtilities } from "@bds/nt-jwt-login";
-import { getInternautaUrl, BaseUrlType, MAILBOX_ROUTE } from "src/environments/app-constants";
+import { NtJwtLoginService, UtenteUtilities, UtilityFunctions } from "@bds/nt-jwt-login";
+import { getInternautaUrl, BaseUrlType, MAILBOX_ROUTE, LOGIN_ROUTE } from "src/environments/app-constants";
 import { HeaderFeaturesConfig } from "@bds/primeng-plugin";
 import { SettingsComponent } from "./settings/settings.component";
+import { ActivatedRoute, Router, Params } from "@angular/router";
 
 @Component({
   selector: "app-root",
@@ -17,11 +18,14 @@ export class AppComponent implements OnInit {
 
   private utenteConnesso: UtenteUtilities;
 
-  constructor(private loginService: NtJwtLoginService, public dialogService: DialogService, ) { }
+  constructor(private loginService: NtJwtLoginService,
+    public dialogService: DialogService,
+    private route: ActivatedRoute,
+    private router: Router) { }
 
   ngOnInit() {
     this.headerFeaturesConfig = new HeaderFeaturesConfig();
-    this.headerFeaturesConfig.showCambioUtente = false;
+    this.headerFeaturesConfig.showCambioUtente = true;
     this.headerFeaturesConfig.showLogOut = true;
     this.headerFeaturesConfig.showUserFullName = true;
     this.headerFeaturesConfig.showUserMenu = true;
@@ -40,6 +44,7 @@ export class AppComponent implements OnInit {
         console.log("loggedUser", this.utenteConnesso);
       }
     });
+    this.route.queryParams.subscribe((params: Params) => UtilityFunctions.manageChangeUserLogin(params, this.loginService, this.router, LOGIN_ROUTE));
 
     this.addToMenu.push({
       label: "Impostazioni",

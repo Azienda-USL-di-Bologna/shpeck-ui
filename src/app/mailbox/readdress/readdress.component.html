@@ -1,20 +1,22 @@
 <form id="readdress" [formGroup]="readdressForm" (ngSubmit)="onSubmit()">
-
-  <div class="ui-g">
-    <div class="ui-g-12" *ngFor="let pec of myPecs">
-      <p-radioButton id={{pec.id}} name="groupRadio" value={{pec.id}} formControlName="to" label={{pec.indirizzo}}>
-      </p-radioButton>
+  <div class="ui-g autoComplete">
+    <div class="ui-g-12">
+      <p-autoComplete formControlName="to" [suggestions]="filteredPecs" (completeMethod)="filterPecs($event)"
+        field="indirizzo" [minLength]="1" placeholder="digita le prime lettere oppure scegli con la freccia"
+        [dropdown]="true" [forceSelection]="true" ariaLabel="reindirizzo" [autofocus]="true" [tabindex]="0">
+      </p-autoComplete>
     </div>
   </div>
-    <p-footer class="footer-class">
-      <button type="submit" pButton icon="pi pi-check"
-        class="ui-button-raised ui-button-secondary button-styles custom-secondary-button" label="OK"
-        [disabled]="!readdressForm.valid">
-      </button>
-      <button type="button" pButton icon="pi pi-times"
-        class="ui-button-raised ui-button-secondary button-styles custom-secondary-button" label="Annulla"
-        (click)="onClose()">
-      </button>
-    </p-footer>
+
+  <p-footer class="footer-class">
+    <button type="submit" pButton icon="pi pi-check"
+      class="ui-button-raised ui-button-secondary button-styles custom-secondary-button" label="OK"
+      [disabled]="!readdressForm.valid">
+    </button>
+    <button type="button" pButton icon="pi pi-times"
+      class="ui-button-raised ui-button-secondary button-styles custom-secondary-button" label="Annulla"
+      (click)="onClose()">
+    </button>
+  </p-footer>
 
 </form>
