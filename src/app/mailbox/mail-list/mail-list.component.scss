@@ -166,6 +166,21 @@
   color: #393939
 }
 
+::ng-deep .fas.fa-check.color-green {
+  color: rgb(0, 179, 0) !important;
+}
+
+::ng-deep .fas.fa-check.color-yellow {
+  color: yellow !important;
+}
+
+::ng-deep .fas.new-tag {
+  font-size: 1.4em !important;
+}
+::ng-deep .fas.no-tag {
+  font-size: 3.3em !important;
+}
+
 ::ng-deep .context-menu-mail-list {
   margin: -128px 0 0 -312px;
   width: 226px;
@@ -194,6 +209,30 @@
 .note-area {
   font-family: sans-serif;
   resize: none;
+}
+
+::ng-deep .message-labels + p-contextmenusub ul a::after {
+  display: block;
+  content: attr(title);
+  font-weight: bold;
+  height: 0;
+  margin-left: 2em;
+  overflow: hidden;
+  visibility: hidden;
+}
+
+
+::ng-deep .message-labels + p-contextmenusub ul {
+  max-height: 287px;
+  overflow-y: auto;
+  width: fit-content !important;
+}
+
+::ng-deep .message-labels + p-contextmenusub .ui-menuitem-icon.fas.fa-square,
+::ng-deep .message-labels + p-contextmenusub .ui-menuitem-icon.fas.fa-check,
+::ng-deep .message-labels + p-contextmenusub .ui-menuitem-icon.fas.fa-check-square,
+::ng-deep .message-labels + p-contextmenusub .ui-menuitem-icon.fas.fa-minus-square {
+  font-size: 1.1em !important;
 }
 
 /* POPUP DETAIL */

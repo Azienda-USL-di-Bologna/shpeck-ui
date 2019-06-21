@@ -29,8 +29,8 @@ import { SettingsService } from "src/app/services/settings.service";
 export class MailListComponent implements OnInit, OnDestroy {
 
   constructor(
+    public mailListService: MailListService,
     private messageService: ShpeckMessageService,
-    private mailListService: MailListService,
     private tagService: TagService,
     private mailFoldersService: MailFoldersService,
     private toolBarService: ToolBarService,
@@ -122,6 +122,14 @@ export class MailListComponent implements OnInit, OnDestroy {
       command: event => this.selectedContextMenuItem(event)
     },
     {
+      label: "Etichette",
+      id: "MessageLabels",
+      disabled: true,
+      items: [] as MenuItem[],
+      queryParams: {},
+      command: event => this.selectedContextMenuItem(event)
+    },
+    {
       label: "Elimina",
       id: "MessageDelete",
       disabled: true,
@@ -152,13 +160,6 @@ export class MailListComponent implements OnInit, OnDestroy {
     {
       label: "Scarica",
       id: "MessageDownload",
-      disabled: true,
-      queryParams: {},
-      command: event => this.selectedContextMenuItem(event)
-    },
-    {
-      label: "Etichette",
-      id: "MessageLabels",
       disabled: true,
       queryParams: {},
       command: event => this.selectedContextMenuItem(event)
@@ -590,6 +591,11 @@ export class MailListComponent implements OnInit, OnDestroy {
             this.cmItems.find(f => f.id === "MessageMove").items = this.mailListService.buildMoveMenuItems(this.mailListService.folders, this._selectedFolder, this.selectedContextMenuItem);
           }
           break;
+        case "MessageLabels":
+          element.disabled = false;
+          element.styleClass = "message-labels";
+          this.cmItems.find(f => f.id === "MessageLabels").items = this.mailListService.buildTagsMenuItems(this.selectedContextMenuItem);
+          break;
         case "MessageDelete":
           element.disabled = !this.mailListService.isDeleteActive();
           break;
@@ -730,6 +736,9 @@ export class MailListComponent implements OnInit, OnDestroy {
       case "MessageMove":
         this.mailListService.moveMessages(event.item.queryParams.folder);
         break;
+      case "MessageLabels":
+        this.mailListService.toggleTag(event.item.queryParams.tag);
+        break;
       case "MessageRegistration":
         this.chooseRegistrationType(event, null);
         break;
@@ -867,6 +876,10 @@ export class MailListComponent implements OnInit, OnDestroy {
     });
   }
 
+  public onNewTag(tagName: string) {
+    console.log("WEV = ", tagName);
+    this.mailListService.createAndApplyTag(tagName);
+  }
 
   public chooseRegistrationType(event, registrationType) {
     if (!registrationType && event) { // vengo dal click sul menu

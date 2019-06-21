@@ -1,9 +1,9 @@
 import { Injectable } from "@angular/core";
-import { Tag, Folder, Message, FolderType, InOut, ENTITIES_STRUCTURE, FluxPermission, PecPermission, Note, MessageTag, Utente, Azienda, MessageType, MessageStatus } from "@bds/ng-internauta-model";
+import { Tag, Folder, Message, FolderType, InOut, ENTITIES_STRUCTURE, FluxPermission, PecPermission, Note, MessageTag, Utente, Azienda, MessageType, MessageStatus, TagType, Pec } from "@bds/ng-internauta-model";
 import { MenuItem } from "primeng/api";
 import { Utils } from "src/app/utils/utils";
 import { MessageFolderService } from "src/app/services/message-folder.service";
-import { Subscription } from "rxjs";
+import { Subscription, Observable } from "rxjs";
 import { MailFoldersService, FoldersAndTags } from "../mail-folders/mail-folders.service";
 import { NtJwtLoginService, UtenteUtilities } from "@bds/nt-jwt-login";
 import { BatchOperation, BatchOperationTypes } from "@nfa/next-sdr";
@@ -11,6 +11,7 @@ import { BaseUrls, BaseUrlType } from "src/environments/app-constants";
 import { ShpeckMessageService } from "src/app/services/shpeck-message.service";
 import { DialogService } from "primeng/api";
 import { ReaddressComponent } from "../readdress/readdress.component";
+import { TagService } from "src/app/services/tag.service";
 
 @Injectable({
   providedIn: "root"
@@ -24,6 +25,7 @@ export class MailListService {
   public annotedTag: Tag;
   public selectedMessages: Message[] = [];
   public loggedUser: UtenteUtilities;
+  public displayNewTag = false;
 
   private subscriptions: Subscription[] = [];
 
@@ -33,7 +35,8 @@ export class MailListService {
     private messageFolderService: MessageFolderService,
     private mailFoldersService: MailFoldersService,
     private loginService: NtJwtLoginService,
-    private messageService: ShpeckMessageService) {
+    private messageService: ShpeckMessageService,
+    private tagService: TagService) {
     this.subscriptions.push(this.loginService.loggedUser$.subscribe((utente: UtenteUtilities) => {
       if (utente) {
         if (!this.loggedUser || utente.getUtente().id !== this.loggedUser.getUtente().id) {
@@ -108,6 +111,87 @@ export class MailListService {
     return foldersSubCmItems;
   }
 
+  /**
+   * Questa funzione costruisce le voci di menu per i tag.
+   * @param command La funzione che verrà chiamata al click sul singolo item
+   * @returns di MenuItem
+   */
+  buildTagsMenuItems(command: (any) => any): MenuItem[] {
+    const items: MenuItem[] = [];
+    items.push({
+      label: "<Nuova Etichetta>",
+      icon: "fas new-tag",
+      id: "MessageLabels",
+      disabled: false,
+      queryParams: {
+      },
+      command: event => this.displayNewTag = true
+    });
+    if (this.tags) {
+      for (const tag of this.tags) {
+        if (tag.type !== TagType.SYSTEM_NOT_INSERTABLE_DELETABLE &&
+          tag.type !== TagType.SYSTEM_NOT_INSERTABLE_NOT_DELETABLE &&
+          tag.visible && !tag.firstLevel) {
+          let messagesWithTag: Message[] = [];
+          messagesWithTag = this.filterMessagesWithTag(tag);
+          const tagIconAndAction: TagIconAction = this.getTagIconAction(messagesWithTag);
+          items.push({
+            label: tag.description,
+            icon: tagIconAndAction.iconType,
+            id: "MessageLabels",
+            title: tag.description,
+            disabled: false,
+            queryParams: {
+              tag: tag
+            },
+            command: event => command(event)
+          });
+        }
+      }
+    }
+    items.sort((a, b) => a.label.toLowerCase() < b.label.toLowerCase() ? -1 : 1);
+    return items;
+  }
+
+  /**
+   * Questa funzione filtra i messaggi selezionati che hanno il tag passato come parametro
+   * @param tag Il tag per filtrare i messaggi
+   * @returns L'array dei messaggi filtrati
+   */
+  private filterMessagesWithTag(tag: Tag): Message[] {
+    return this.selectedMessages.filter(m => {
+      if (m.messageTagList) {
+        return m.messageTagList.find(mt =>
+          mt.idTag.id === tag.id) !== undefined;
+      }
+    });
+  }
+
+  /**
+   * Questa funzione confronta un array di messaggi con un tag specifico con i messaggi
+   * selezionati per calcolare l'icona da mostrare di fianco al tag e l'operazione da effettuare
+   * in caso di selezione di un tag dal menu.
+   * @param messagesWithTag Array dei messaggi che hanno un tag specifico
+   */
+  private getTagIconAction(messagesWithTag: Message[]): TagIconAction {
+    const tia: TagIconAction = { iconType: "" };
+    switch (messagesWithTag.length) {
+      case 0:                             // Nessun messaggio ha il tag
+        tia.iconType = "fas no-tag";
+        tia.operation = "INSERT";
+        break;
+      case this.selectedMessages.length:  // Tutti i messaggi hanno il tag
+        tia.iconType = "fas fa-check color-green";
+        tia.operation = "DELETE";
+        break;
+      default:                            // Almeno un messaggio ha il tag
+        tia.iconType = "fas fa-check color-yellow";
+        tia.operation = "INSERT";
+        break;
+    }
+    return tia;
+  }
+
   /*
    * Questa funzione ritorna un booleano che indica se il messaggio selezionato è protocollabile.
    */
@@ -127,7 +211,6 @@ export class MailListService {
     }
   }
 
-  /**
   /**
    * Questa funzione ritorna un booleano che indica se i messaggi selezionati sono spostabili.
    */
@@ -180,6 +263,101 @@ export class MailListService {
     this.moveMessages(this.trashFolder);
   }
 
+  public createAndApplyTag(tagName) {
+    console.log("TAGG = ", event);
+    this.createTag(tagName).subscribe(
+      (res: Tag) => {
+        this.tags.push(res);
+        this.toggleTag(res);
+        this.displayNewTag = false;
+      }
+    );
+  }
+
+  private createTag(tagName: string): Observable<any> {
+    const newTag: Tag = new Tag();
+    newTag.name = tagName.toLowerCase();
+    newTag.description = tagName;
+    newTag.type = TagType.CUSTOM;
+    newTag.idPec = { id: this.selectedMessages[0].fk_idPec.id } as Pec;
+    newTag.visible = true;
+    newTag.firstLevel = false;
+    return this.tagService.postHttpCall(newTag);
+  }
+
+  /**
+   * Questa funzione applica/rimuove il tag passato come parametro ai messaggi selezionati.
+   * @param tag Il tag da applicare o rimuovere.
+   */
+  public toggleTag(tag: Tag) {
+    console.log("UPDATE = ", this.selectedMessages);
+    console.log("EVENTOOOO = ", tag);
+     const messageTagOperations: BatchOperation[] = [];
+    let messagesWithTag = [];
+    let idTag;  // Conterrà l'id del tag nella TagList della PEC per fare la reload nella callback
+    messagesWithTag = this.filterMessagesWithTag(tag);
+    const tagIconAndAction: TagIconAction = this.getTagIconAction(messagesWithTag);
+    const mtp: MessageTagOp[] = [];
+    if (tagIconAndAction.operation === "INSERT") {
+      const messagesToInsert: Message[] = this.selectedMessages.filter(m => !messagesWithTag.includes(m));
+      for (const message of messagesToInsert) {
+        const mTagCall = this.buildMessageTagOperationInsert(message, tag.name);
+        idTag = mTagCall.idTag;
+        messageTagOperations.push(mTagCall.batchOp);
+        mtp.push({ message: message, operation: "INSERT" });
+      }
+    } else {
+      for (const message of messagesWithTag) {
+        const mTagCall = this.buildMessageTagOperationDelete(message, tag.name);
+        idTag = mTagCall.idTag;
+        messageTagOperations.push(mTagCall.batchOp);
+        mtp.push({ message: message, operation: "DELETE", messageTag: mTagCall.mTag });
+      }
+    }
+    if (messageTagOperations.length > 0) {
+      this.messageService.batchHttpCall(messageTagOperations).subscribe((res: BatchOperation[]) => {
+        this.updateMessageTagList(mtp, res);
+      },
+        err => console.log("error during the operation -> ", err));
+    }
+  }
+
+  private buildMessageTagOperationInsert(message: Message, tagName: string) {
+    const mTag: MessageTag = new MessageTag();
+    mTag.idMessage = message;
+    mTag.idUtente = { id: this.loggedUser.getUtente().id } as Utente;
+    mTag.idTag = this.tags.find(tag => tag.name === tagName);
+    return {
+      idTag: mTag.idTag.id,
+      batchOp: {
+      id: null,
+      operation: BatchOperationTypes.INSERT,
+      entityPath:
+        BaseUrls.get(BaseUrlType.Shpeck) + "/" + ENTITIES_STRUCTURE.shpeck.messagetag.path,
+      entityBody: mTag,
+      additionalData: null,
+      returnProjection: ENTITIES_STRUCTURE.shpeck.messagetag.standardProjections.MessageTagWithIdTagAndIdUtente
+    }};
+  }
+
+  private buildMessageTagOperationDelete(message: Message, tagName: string) {
+    const mTag: MessageTag = message.messageTagList.find(messageTag => messageTag.idTag.name === tagName);
+    if (mTag) {
+      return {
+        idTag: mTag.idTag.id,
+        batchOp: {
+          id: mTag.id,
+          operation: BatchOperationTypes.DELETE,
+          entityPath:
+            BaseUrls.get(BaseUrlType.Shpeck) + "/" + ENTITIES_STRUCTURE.shpeck.messagetag.path,
+          entityBody: null,
+          additionalData: null,
+          returnProjection: null
+        },
+        mTag: mTag
+      };
+    }
+  }
 
   /**
    * Questa funzione si occupa di settare i messaggi come visti o non visti.
@@ -218,60 +396,48 @@ export class MailListService {
     let idTag;  // Conterrà l'id del tag nella TagList della PEC per fare la reload nella callback
     for (const message of this.selectedMessages) {
       if (toInsert) {
-        const mTag: MessageTag = new MessageTag();
-        mTag.idMessage = message;
-        mTag.idUtente = { id: this.loggedUser.getUtente().id } as Utente;
-        mTag.idTag = this.tags.find(tag => tag.name === "in_error");
-        idTag = mTag.idTag.id;
+        const mTagCall = this.buildMessageTagOperationInsert(message, "in_error");
+        idTag = mTagCall.idTag;
+        messageTagOperations.push(mTagCall.batchOp);
         mtp.push({ message: message, operation: "INSERT" });
-        messageTagOperations.push({
-          id: null,
-          operation: BatchOperationTypes.INSERT,
-          entityPath:
-            BaseUrls.get(BaseUrlType.Shpeck) + "/" + ENTITIES_STRUCTURE.shpeck.messagetag.path,
-          entityBody: mTag,
-          additionalData: null,
-          returnProjection: ENTITIES_STRUCTURE.shpeck.messagetag.standardProjections.MessageTagWithIdTagAndIdUtente
-        });
       } else if (message.messageTagList && message.messageTagList.length > 0) {
-        const mTag: MessageTag = message.messageTagList.find(messageTag => messageTag.idTag.name === "in_error");
-        if (mTag) {
-          idTag = mTag.idTag.id;
-          mtp.push({ message: message, operation: "DELETE", messageTag: mTag });
-          messageTagOperations.push({
-            id: mTag.id,
-            operation: BatchOperationTypes.DELETE,
-            entityPath:
-              BaseUrls.get(BaseUrlType.Shpeck) + "/" + ENTITIES_STRUCTURE.shpeck.messagetag.path,
-            entityBody: null,
-            additionalData: null,
-            returnProjection: null
-          });
-        }
+        const mTagCall = this.buildMessageTagOperationDelete(message, "in_error");
+        idTag = mTagCall.idTag;
+        messageTagOperations.push(mTagCall.batchOp);
+        mtp.push({ message: message, operation: "DELETE", messageTag: mTagCall.mTag });
       }
     }
     if (messageTagOperations.length > 0) {
       this.messageService.batchHttpCall(messageTagOperations).subscribe((res: BatchOperation[]) => {
         this.mailFoldersService.doReloadTag(idTag);
-        /* Aggiungiamo o rimuoviamo il tag in base all'operazione ad ogni
-         * messaggio precedentemente selezionato */
-        mtp.forEach((item) => {
-          if (item.operation === "INSERT" && res) {
-            const messageTagToPush: MessageTag =
-              res.find(bo => (bo.entityBody as MessageTag).fk_idMessage.id === item.message.id).entityBody as MessageTag;
-            if (!item.message.messageTagList) {
-              item.message.messageTagList = [];
-            }
-            item.message.messageTagList.push(messageTagToPush);
-            this.setIconsVisibility(item.message);
-          } else if (item.operation === "DELETE" && res) {
-            item.message.messageTagList.splice(item.message.messageTagList.indexOf(item.messageTag), 1);
-            this.setIconsVisibility(item.message);
-          }
-        });
+        this.updateMessageTagList(mtp, res);
       },
         err => console.log("error during the operation -> ", err));
     }
+  }
+
+  /**
+   * Aggiungiamo o rimuoviamo il tag in base all'operazione ad ogni messaggio precedentemente selezionato
+   * e aggiorna la visibilità delle icone.
+   * @param mTagOp Array delle operazioni fatte sui messaggi
+   * @param result Il risultato della chiamata al backend che contiene le entità aggiornate
+   */
+  private updateMessageTagList(mTagOp: MessageTagOp[], result: BatchOperation[]) {
+    mTagOp.forEach((item) => {
+      if (item.operation === "INSERT" && result) {
+        const messageTagToPush: MessageTag =
+        result.find(bo => (bo.entityBody as MessageTag).fk_idMessage.id === item.message.id).entityBody as MessageTag;
+        if (!item.message.messageTagList) {
+          item.message.messageTagList = [];
+        }
+        item.message.messageTagList.push(messageTagToPush);
+        this.setIconsVisibility(item.message);
+      } else if (item.operation === "DELETE" && result) {
+        item.message.messageTagList.splice(item.message.messageTagList.indexOf(item.messageTag), 1);
+        this.setIconsVisibility(item.message);
+      }
+    });
+    console.log("UPDATE END = ", this.selectedMessages);
   }
 
   /**
@@ -415,4 +581,9 @@ interface MessageTagOp {
   message: Message;
   operation: "INSERT" | "DELETE";
   messageTag?: MessageTag;
+}
+
+interface TagIconAction {
+  iconType: string;                   // L'icona da mostrare in corrispondenza del tag
+  operation?: "INSERT" | "DELETE";    // Viene utilizzato in fase di applicazione/rimozione del tag
 }
