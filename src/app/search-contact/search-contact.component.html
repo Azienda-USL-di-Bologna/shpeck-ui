@@ -1,5 +1,4 @@
 <form id="search-rubrica" [formGroup]="contactForm" (ngSubmit)="onSubmit()">
-  
   <div class="ui-g autoComplete">
     <div class="ui-g-12">
       <p-autoComplete #search 
@@ -36,3 +35,5 @@
     </button>
   </p-footer>
 </form>
+
+<!-- Non c'è il p-toast perché, per qualche motivo, usa quello di un componente padre -->

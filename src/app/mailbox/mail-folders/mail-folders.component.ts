@@ -154,15 +154,15 @@ export class MailFoldersComponent implements OnInit, OnDestroy {
     }
 
     const tagContainerNode = this.buildTagContainerNode(pec, tagsSecondLevel);
-    children.push(tagContainerNode);
+    // children.push(tagContainerNode);
     return {
       label: pec.indirizzo,
       data: {
         type: PecFolderType.PEC,
         data: pec
       } as PecFolder,
-      expandedIcon: "pi pi-folder-open" + " general-style-folder",
-      collapsedIcon: "pi pi-folder" + " general-style-folder",
+      expandedIcon: "pi pi-folder-open" + " general-style-icon",
+      collapsedIcon: "pi pi-folder" + " general-style-icon",
       children: children,
       selectable: true,
       styleClass: MailFoldersComponent.ROOT_NODE_NOT_SELECTED_STYLE_CLASS,
@@ -175,11 +175,11 @@ export class MailFoldersComponent implements OnInit, OnDestroy {
     return {
       label: "Etichette",
       data: {
-        type: PecFolderType.PEC,
+        type: PecFolderType.TAG_CONTAINER,
         data: pec
       } as PecFolder,
-      expandedIcon: "pi pi-folder-open" + " general-style-folder",
-      collapsedIcon: "pi pi-folder" + " general-style-folder",
+      expandedIcon: "pi pi-folder-open" + " general-style-icon",
+      collapsedIcon: "pi pi-folder" + " general-style-icon",
       children: children,
       selectable: true,
       styleClass: MailFoldersComponent.ROOT_NODE_NOT_SELECTED_STYLE_CLASS,
@@ -290,8 +290,8 @@ export class MailFoldersComponent implements OnInit, OnDestroy {
         type: PecFolderType.FOLDER,
         data: folder
       } as PecFolder,
-      expandedIcon: folderIcons.expandedIcon + " general-style-folder",
-      collapsedIcon: folderIcons.collapsedIcon + " general-style-folder",
+      expandedIcon: folderIcons.expandedIcon + " general-style-icon",
+      collapsedIcon: folderIcons.collapsedIcon + " general-style-icon",
       styleClass: "tree-node-style",
       editable: editable,
       key: PecFolderType.FOLDER + "_" + (folder.id ? folder.id : "new")
@@ -306,20 +306,12 @@ export class MailFoldersComponent implements OnInit, OnDestroy {
         type: PecFolderType.TAG,
         data: tag
       } as PecFolder,
-      expandedIcon: icon,
-      collapsedIcon: icon,
+      expandedIcon: icon + " general-style-icon",
+      collapsedIcon: icon + " general-style-icon",
       styleClass: "tree-node-style",
       editable: editable,
       key: PecFolderType.TAG + "_" + (tag.id ? tag.id : "new")
     };
-
-    // this.mailFoldersService.getReloadTag(tag.id).subscribe(res => {
-    //   res > 0 ? treeNode.styleClass = "tree-node-style tree-node-error" : treeNode.styleClass = "tree-node-style";
-    //   treeNode.label = "Errori " + `(${res})`;
-    // });
-    // setTimeout(() => {
-    //   this.mailFoldersService.doReloadTag(tag.id);
-    // });
     return treeNode;
   }
 
@@ -408,12 +400,12 @@ export class MailFoldersComponent implements OnInit, OnDestroy {
     if (this._pressedEnter) {
       this._pressedEnter = false;
     } else {
-      this.saveFolder(value);
+      this.saveNode(value);
     }
   }
   public onEnterPressed(event, value?: string) {
     this._pressedEnter = true;
-    this.saveFolder(value);
+    this.saveNode(value);
   }
 
   public onEscPressed(event) {
@@ -421,50 +413,31 @@ export class MailFoldersComponent implements OnInit, OnDestroy {
     this.abortSaveFolder();
   }
 
-  public saveFolder(name?: string) {
+  public saveNode(name?: string) {
     console.log("SAVE event", name);
     if (!this._abortSaveFolder) {
-      const folder: Folder = this.selectedNode.data.data as Folder;
-      const inserting: boolean = !folder.id ? true : false;
+      const node: any = this.selectedNode.data.data; // Può essere un Folder o un Tag
+      const nodeType: string = this.selectedNode.data.type;
+      const inserting: boolean = !node.id ? true : false;
       if (!name) {
-        name = folder.description;
+        name = node.description;
       }
       if (name) {
         name = name.trim();
-        folder.description = name;
+        node.description = name;
         this.selectedNode.label = name;
-        folder.name = name.replace(/\s+/gm, "_").toLowerCase();
+        node.name = name.replace(/\s+/gm, "_").toLowerCase();
 
         if (this.validateName(name)) {
           this.selectedNode.editable = false;
           if (!inserting) {
-            this.folderService.patchHttpCall(folder, folder.id).subscribe((f: Folder) => {
-              this.selectedNode.data.data = f;
-              const pecFolderList: Folder[] = (this.selectedNode.parent.data.data as Pec).folderList;
-              const index = pecFolderList.findIndex(childFolder => f.id === childFolder.id);
-              pecFolderList[index] = f;
-              this.mailFoldersService.selectedPecFolder(
-                this.selectedNode.data,
-                this.selectedNode.parent.children.map((c: MyTreeNode) => c.data.data) as Folder[],
-                (this.selectedNode.parent.data.data as Pec).tagList
-              );
-            });
+            if (nodeType === PecFolderType.FOLDER) {
+              this.updateFolder(node as Folder);
+            }
           } else {
-            // Questo assegnamento è per prevenire il caso in cui il salvataggio parta contemporanemanete al cambiamento del selectedNode.
-            // Nella callback dell'insert il selectednode potrebbe essere cambiato
-            // Es. Creazione di cartella, rinomina della stessa e di nuovo inserimento (cliccando direttamente col tasto destro per inserire).
-            this.previousSelectedNode = this.selectedNode;
-            this.folderService.postHttpCall(folder).subscribe((f: Folder) => {
-              this.previousSelectedNode.data.data = f;
-              const pecFolderList: Folder[] = (this.previousSelectedNode.parent.data.data as Pec).folderList;
-              pecFolderList.push(f);
-              this.previousSelectedNode.key = PecFolderType.FOLDER + "_" + f.id;
-              this.mailFoldersService.selectedPecFolder(
-                this.previousSelectedNode.data,
-                this.previousSelectedNode.parent.children.map((c: MyTreeNode) => c.data.data) as Folder[],
-                (this.previousSelectedNode.parent.data.data as Pec).tagList
-              );
-            });
+            if (nodeType === PecFolderType.FOLDER) {
+              this.insertFolder(node as Folder);
+            }
           }
         }
       } else {
@@ -472,6 +445,38 @@ export class MailFoldersComponent implements OnInit, OnDestroy {
       }
     }
     this._abortSaveFolder = false;
+  }
+
+  private updateFolder(folder: Folder): void {
+    this.folderService.patchHttpCall(folder, folder.id).subscribe((f: Folder) => {
+      this.selectedNode.data.data = f;
+      const pecFolderList: Folder[] = (this.selectedNode.parent.data.data as Pec).folderList;
+      const index = pecFolderList.findIndex(childFolder => f.id === childFolder.id);
+      pecFolderList[index] = f;
+      this.mailFoldersService.selectedPecFolder(
+        this.selectedNode.data,
+        this.selectedNode.parent.children.map((c: MyTreeNode) => c.data.data) as Folder[],
+        (this.selectedNode.parent.data.data as Pec).tagList
+      );
+    });
+  }
+
+  private insertFolder(folder: Folder): void {
+    // Questo assegnamento è per prevenire il caso in cui il salvataggio parta contemporanemanete al cambiamento del selectedNode.
+    // Nella callback dell'insert il selectednode potrebbe essere cambiato
+    // Es. Creazione di cartella, rinomina della stessa e di nuovo inserimento (cliccando direttamente col tasto destro per inserire).
+    this.previousSelectedNode = this.selectedNode;
+    this.folderService.postHttpCall(folder).subscribe((f: Folder) => {
+      this.previousSelectedNode.data.data = f;
+      const pecFolderList: Folder[] = (this.previousSelectedNode.parent.data.data as Pec).folderList;
+      pecFolderList.push(f);
+      this.previousSelectedNode.key = PecFolderType.FOLDER + "_" + f.id;
+      this.mailFoldersService.selectedPecFolder(
+        this.previousSelectedNode.data,
+        this.previousSelectedNode.parent.children.map((c: MyTreeNode) => c.data.data) as Folder[],
+        (this.previousSelectedNode.parent.data.data as Pec).tagList
+      );
+    });
   }
 
   /**

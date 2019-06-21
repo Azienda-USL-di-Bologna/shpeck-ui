@@ -2,7 +2,7 @@ import { Component, OnInit, ViewChild, ElementRef, Output, EventEmitter } from "
 import { HttpClient } from "@angular/common/http";
 import { RubricaService } from "../services/rubrica.service";
 import { FormGroup, Validators, FormControl } from "@angular/forms";
-import { AutoComplete } from "primeng/primeng";
+import { AutoComplete, MessageService } from "primeng/primeng";
 
 @Component({
   selector: "app-search-contact",
@@ -19,7 +19,7 @@ export class SearchContactComponent implements OnInit {
   @Output() addressChosedByBook = new EventEmitter<any>();
   @Output() closeRubricaPopup = new EventEmitter<any>();
 
-  constructor(protected http: HttpClient, protected rubricaService: RubricaService) { }
+  constructor(protected http: HttpClient, protected rubricaService: RubricaService, protected messageService: MessageService) { }
 
   ngOnInit() {
     this.contactForm = new FormGroup({
@@ -50,6 +50,7 @@ export class SearchContactComponent implements OnInit {
         },
         (err) => {
           console.log("orrore");
+          this.messageService.add({severity: "error", summary: "Errore", detail: "Qualcosa è andato storto.\nContattattare Babelcare"});
         }
       );
     }
