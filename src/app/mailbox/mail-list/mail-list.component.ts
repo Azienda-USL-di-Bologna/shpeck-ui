@@ -689,6 +689,7 @@ export class MailListComponent implements OnInit, OnDestroy {
     const idTag = this._selectedPec.tagList.find(t => t.name === "registered"); // TODO: lista valori per i TAG
     // decodedUrl = decodedUrl.replace("[id_tag]", idTag.id.toString());
     decodedUrl = decodedUrl.replace("[pec_ricezione]", this._selectedPec.indirizzo);
+    decodedUrl = decodedUrl.replace("[richiesta]", Utils.genereateGuid());
 
     console.log("command", decodedUrl);
     window.open(decodedUrl);
@@ -702,7 +703,7 @@ export class MailListComponent implements OnInit, OnDestroy {
     newTag.name = "in_registration";
     newTag.type = "SYSTEM_NOT_INSERTABLE_NOT_DELETABLE";
     const newMessageTag = new MessageTag();
-    newMessageTag.idMessage =  this.mailListService.selectedMessages[0];
+    newMessageTag.idMessage = this.mailListService.selectedMessages[0];
     newMessageTag.idTag = newTag;
     newMessageTag.inserted = new Date();
     this.mailListService.selectedMessages[0].messageTagList.push(newMessageTag);
@@ -945,7 +946,8 @@ export class MailListComponent implements OnInit, OnDestroy {
           this.messagePrimeService.add({
             severity: "warn",
             summary: "Attenzione",
-            detail: "Questo messaggio è in fase di protocollazione.", life: 3500 });
+            detail: "Questo messaggio è in fase di protocollazione.", life: 3500
+          });
         } else {
           this.prepareAndOpenDialogRegistrationDetail(messageTag, JSON.parse(messageTag.additionalData));
         }
@@ -962,7 +964,7 @@ export class MailListComponent implements OnInit, OnDestroy {
       codiceRegistro: additionalData.idDocumento.codiceRegistro,
       anno: additionalData.idDocumento.anno,
       descrizioneAzienda: additionalData.idAzienda.descrizione,
-      data: new Date(messageTag.inserted).toLocaleDateString("it-IT", {hour: "numeric", minute: "numeric"})
+      data: new Date(messageTag.inserted).toLocaleDateString("it-IT", { hour: "numeric", minute: "numeric" })
     };
     this.displayRegistrationDetail = true;
   }
@@ -1021,7 +1023,7 @@ export class MailListComponent implements OnInit, OnDestroy {
    * @param message
    * @param readdressStatus
    */
-    private prepareAndOpenDialogReaddressDetail(message: Message, readdressStatus: string) {
+  private prepareAndOpenDialogReaddressDetail(message: Message, readdressStatus: string) {
     this.readdressDetail = {
       displayReaddressDetail: false,
       buttonReaddress: false,
@@ -1044,12 +1046,12 @@ export class MailListComponent implements OnInit, OnDestroy {
       const mtAdditionalData = JSON.parse(messageTag.additionalData);
       if (tagName === "readdressed_in") {
         testo = `<b>${new Date(messageTag.inserted).toLocaleDateString("it-IT", { hour: "numeric", minute: "numeric" })}</b>: `
-        + `reindirizzato da ${mtAdditionalData["idUtente"]["descrizione"]}`
-        + ` (${mtAdditionalData["idPec"]["indirizzo"]}).`;
+          + `reindirizzato da ${mtAdditionalData["idUtente"]["descrizione"]}`
+          + ` (${mtAdditionalData["idPec"]["indirizzo"]}).`;
       } else if (tagName === "readdressed_out") {
         testo = `<b>${new Date(messageTag.inserted).toLocaleDateString("it-IT", { hour: "numeric", minute: "numeric" })}</b>: `
-        + ` ${mtAdditionalData["idUtente"]["descrizione"]} ha reindirizzato a `
-        + `${mtAdditionalData["idPec"]["indirizzo"]}.`;
+          + ` ${mtAdditionalData["idUtente"]["descrizione"]} ha reindirizzato a `
+          + `${mtAdditionalData["idPec"]["indirizzo"]}.`;
       }
     }
     return testo;
