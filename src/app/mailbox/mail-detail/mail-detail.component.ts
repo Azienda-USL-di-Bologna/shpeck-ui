@@ -101,7 +101,7 @@ export class MailDetailComponent implements OnInit, OnDestroy {
       }
       /* Sostituisco le newline con dei <br/> */
       data.displayBody = data.htmlTextImgEmbedded != null ? data.htmlTextImgEmbedded : (
-        data.htmlText != null ? data.htmlText : data.plainText.replace(/\n/g, "<br/>")
+        data.htmlText != null ? data.htmlText : data.plainText != null ? data.plainText.replace(/\n/g, "<br/>") : null
       );
     }
 
