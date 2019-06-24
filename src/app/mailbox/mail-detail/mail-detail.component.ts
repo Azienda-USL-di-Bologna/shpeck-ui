@@ -51,7 +51,12 @@ export class MailDetailComponent implements OnInit, OnDestroy {
       (messageEvent: MessageEvent) => {
         if (messageEvent && messageEvent.downloadedMessage) {
           if (messageEvent.downloadedMessage.message) {
-            this.message = messageEvent.downloadedMessage.message as Message;
+            try {
+              this.message = messageEvent.downloadedMessage.message as Message;
+            } catch (e) {
+              // catcho l'errore perché voglio altirmenti il componente si desottoscrive
+              console.log(e);
+            }
           }
           this.manageDownloadedMessage(messageEvent.downloadedMessage);
         } else if (!messageEvent || !messageEvent.selectedMessages || !(messageEvent.selectedMessages.length > 1)) {
@@ -101,7 +106,7 @@ export class MailDetailComponent implements OnInit, OnDestroy {
       }
       /* Sostituisco le newline con dei <br/> */
       data.displayBody = data.htmlTextImgEmbedded != null ? data.htmlTextImgEmbedded : (
-        data.htmlText != null ? data.htmlText : data.plainText.replace(/\n/g, "<br/>")
+        data.htmlText != null ? data.htmlText : data.plainText != null ? data.plainText.replace(/\n/g, "<br/>") : null
       );
     }
 
