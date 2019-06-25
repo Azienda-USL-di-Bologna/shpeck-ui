@@ -57,7 +57,9 @@ export class NewMailComponent implements OnInit, AfterViewInit {
     "crimsane@aol.com",
     "geoffr@sbcglobal.net",
     "dcoppit@live.com",
-    "schumer@outlook.com"
+    "schumer@outlook.com",
+    "francesco.gusella@ausl.bologna.it",
+    "g.russo.nsi@gmail.com"
   ];
   public ccTooltip = "Non puoi inserire destinatari CC se è attiva la funzione Destinatari privati";
   public hideRecipientsTooltip = "Non puoi utilizzare la funzione Destinatari privati con destinatari CC: cancellali o rendili destinatari A";

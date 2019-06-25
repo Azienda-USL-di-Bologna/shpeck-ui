@@ -281,23 +281,24 @@
 </p-dialog>
 
 <!-- POPUP AGGIUNTA TAG -->
-<p-dialog *ngIf="mailListService.displayNewTag" [(visible)]="mailListService.displayNewTag" modal="true" [style]="{width: '320px'}">
+<p-dialog *ngIf="displayNewTagPopup" [(visible)]="displayNewTagPopup" modal="true" [style]="{width: '320px'}">
     <p-header>Nuova Etichetta</p-header>
-    <span class="ui-float-label" style="margin: 8px 0 8px 0px;">
-        <input #idtag id="float-input" type="text" size="30" pInputText>
-        <label for="float-input">Inserisci un nome per la nuova etichetta</label>
-    </span>
-    <p-footer>
-        <button
-            type="button"
-            class="confirm-buttons ui-button-raised ui-button-secondary custom-secondary-button"
-            pButton icon="fas fa-check" (click)="onNewTag(idtag.value)" label="Crea">
-        </button>
-        <button
-        type="button"
-        class="confirm-buttons ui-button-raised ui-button-secondary custom-secondary-button"
-        pButton icon="fas fa-undo-alt" (click)="mailListService.displayNewTag=false" label="Annulla">
-      </button>
-
-    </p-footer>
+    <form [formGroup]="tagForm">
+        <span class="ui-float-label" style="margin: 8px 0 8px 0px;">
+            <input #idtag id="float-input" type="text" size="30" formControlName="tagName" pInputText>
+            <label for="float-input">Inserisci un nome per la nuova etichetta</label>
+        </span>
+        <p-footer>
+            <button
+                type="submit" [disabled]="tagForm.invalid"
+                class="confirm-buttons ui-button-raised ui-button-secondary custom-secondary-button"
+                pButton icon="fas fa-check" (click)="onNewTag(tagForm.get('tagName')?.value)" label="Crea">
+            </button>
+            <button
+                type="button"
+                class="confirm-buttons ui-button-raised ui-button-secondary custom-secondary-button"
+                pButton icon="fas fa-undo-alt" (click)="displayNewTagPopup=false" label="Annulla">
+            </button>
+        </p-footer>
+    </form>
 </p-dialog>

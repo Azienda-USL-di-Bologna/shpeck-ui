@@ -19,6 +19,7 @@ import { query } from "@angular/core/src/render3";
 import { Menu } from "primeng/menu";
 import { AppCustomization } from "src/environments/app-customization";
 import { SettingsService } from "src/app/services/settings.service";
+import { FormGroup, FormControl, Validators } from "@angular/forms";
 
 @Component({
   selector: "app-mail-list",
@@ -42,6 +43,7 @@ export class MailListComponent implements OnInit, OnDestroy {
     private loginService: NtJwtLoginService
   ) {
     this.selectedContextMenuItem = this.selectedContextMenuItem.bind(this);
+    this.showNewTagPopup = this.showNewTagPopup.bind(this);
   }
 
   @Output() public messageClicked = new EventEmitter<Message>();
@@ -49,6 +51,7 @@ export class MailListComponent implements OnInit, OnDestroy {
   @ViewChild("selRow") private selRow: ElementRef;
   @ViewChild("dt") private dt: Table;
   @ViewChild("noteArea") private noteArea;
+  @ViewChild("idtag") private inputTextTag;
   @ViewChild("registrationMenu") private registrationMenu: Menu;
 
   public _selectedTag: Tag;
@@ -181,6 +184,7 @@ export class MailListComponent implements OnInit, OnDestroy {
   ];
 
   public displayNote: boolean = false;
+  public displayNewTagPopup: boolean = false;
   public displayProtocollaDialog = false;
   public displayRegistrationDetail = false;
   public displayDetailPopup = false;
@@ -193,6 +197,7 @@ export class MailListComponent implements OnInit, OnDestroy {
       out: null
     }
   };
+  public tagForm;
   public registrationDetail: any = null;
   public noteObject: Note = new Note();
   public fromOrTo: string;
@@ -594,7 +599,7 @@ export class MailListComponent implements OnInit, OnDestroy {
         case "MessageLabels":
           element.disabled = false;
           element.styleClass = "message-labels";
-          this.cmItems.find(f => f.id === "MessageLabels").items = this.mailListService.buildTagsMenuItems(this.selectedContextMenuItem);
+          this.cmItems.find(f => f.id === "MessageLabels").items = this.mailListService.buildTagsMenuItems(this.selectedContextMenuItem, this.showNewTagPopup);
           break;
         case "MessageDelete":
           element.disabled = !this.mailListService.isDeleteActive();
@@ -769,7 +774,21 @@ export class MailListComponent implements OnInit, OnDestroy {
     }
   }
 
+  private showNewTagPopup() {
+    this.tagForm = new FormGroup({
+      tagName: new FormControl("", Validators.required)
+    });
+    this.displayNewTagPopup = true;
+    setTimeout(() => {
+      this.inputTextTag.nativeElement.focus();
+      this.setAttribute("idtag", "autocomplete", "false");
+    }, 50);
+  }
 
+  private setAttribute(feild, attribute, value): void {
+    const field = document.getElementById(feild);
+    field.setAttribute(attribute, value);
+  }
 
   private noteHandler(specificMessage?: Message) {
     if (specificMessage) {
@@ -879,6 +898,7 @@ export class MailListComponent implements OnInit, OnDestroy {
   public onNewTag(tagName: string) {
     console.log("WEV = ", tagName);
     this.mailListService.createAndApplyTag(tagName);
+    this.displayNewTagPopup = false;
   }
 
   public chooseRegistrationType(event, registrationType) {

@@ -25,7 +25,6 @@ export class MailListService {
   public annotedTag: Tag;
   public selectedMessages: Message[] = [];
   public loggedUser: UtenteUtilities;
-  public displayNewTag = false;
 
   private subscriptions: Subscription[] = [];
 
@@ -117,7 +116,7 @@ export class MailListService {
    * @param command La funzione che verrà chiamata al click sul singolo item
    * @returns di MenuItem
    */
-  buildTagsMenuItems(command: (any) => any): MenuItem[] {
+  buildTagsMenuItems(command: (any) => any, newTag: (any) => any): MenuItem[] {
     const items: MenuItem[] = [];
     items.push({
       label: "<Nuova Etichetta>",
@@ -126,7 +125,7 @@ export class MailListService {
       disabled: false,
       queryParams: {
       },
-      command: event => this.displayNewTag = true
+      command: event => newTag(event)
     });
     if (this.tags) {
       for (const tag of this.tags) {
@@ -269,7 +268,6 @@ export class MailListService {
       (res: Tag) => {
         this.tags.push(res);
         this.toggleTag(res);
-        this.displayNewTag = false;
         this.messagePrimeService.add(
           { severity: "success", summary: "Successo", detail: "Etichetta creata e associata con successo." });
       }
