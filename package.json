@@ -26,11 +26,13 @@
     "@angular/router": "~7.2.0",
     "@bds/ng-internauta-model": "0.0.63",
     "@bds/nt-communicator": "0.0.29",
-    "@bds/nt-jwt-login": "0.0.41",
+    "@bds/nt-jwt-login": "0.0.42",
     "@bds/primeng-plugin": "0.0.22",
     "@nfa/core": "2.0.0",
     "@nfa/next-sdr": "1.1.5-bds",
     "@nfa/ref": "2.1.1",
+    "@ng-idle/core": "^7.0.0-beta.1",
+    "@ng-idle/keepalive": "^7.0.0-beta.1",
     "angular-font-awesome": "^3.1.2",
     "core-js": "^2.5.4",
     "node-sass": "^4.11.0",
@@ -41,9 +43,7 @@
     "quill": "^1.3.6",
     "rxjs": "~6.3.3",
     "tslib": "^1.9.0",
-    "zone.js": "~0.8.26",
-    "@ng-idle/core": "^7.0.0-beta.1",
-    "@ng-idle/keepalive": "^7.0.0-beta.1"
+    "zone.js": "~0.8.26"
   },
   "devDependencies": {
     "@angular-devkit/build-angular": "~0.13.0",
