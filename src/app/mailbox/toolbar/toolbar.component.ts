@@ -72,10 +72,6 @@ export class ToolbarComponent implements OnDestroy {
     }
   }
 
-  public setCiao() {
-    localStorage.setItem("hehe", "HEEEEEEEEEEEEEY!!!");
-  }
-
   // Gestore del focus sulla ricerca.
   public toggleDialogAndAddFocus() {
     this.showErrorDialog = !this.showErrorDialog;
