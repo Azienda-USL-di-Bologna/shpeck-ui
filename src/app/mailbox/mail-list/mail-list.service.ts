@@ -246,6 +246,11 @@ export class MailListService {
     return this.isMoveActive() && this.loggedUser.hasPecPermission(this.selectedMessages[0].fk_idPec.id, PecPermission.ELIMINA);
   }
 
+  public isNewMailActive(idPec?: number): boolean {
+    idPec = idPec || this.selectedMessages[0].fk_idPec.id;
+    return this.loggedUser.hasPecPermission(idPec, PecPermission.RISPONDE) || this.loggedUser.hasPecPermission(idPec, PecPermission.ELIMINA);
+  }
+
 
   /**
    * Questa funzione si occupa di spostare i selectedMessages nel folder passato.

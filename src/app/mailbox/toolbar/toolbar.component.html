@@ -4,7 +4,8 @@
       <button
         pButton type="button" label="Nuova PEC"
         icon="pi pi-plus" class="button-new-mail ui-button-raised ui-button-primary custom-primary-button"
-        (click)="handleEvent($event, 'new')" onclick="this.blur()">
+        (click)="handleEvent($event, 'new')" onclick="this.blur()"
+        [disabled]="!(toolBarService.buttonObs.get('newMailActive') | async)">
       </button>
       <!-- Modifica -->
       <button
@@ -12,28 +13,28 @@
         pButton type="button" label="Modifica"
         icon="fa fa-pen" class="button-styles ui-button-raised ui-button-secondary custom-border"
         (click)="handleEvent($event, 'edit')"
-        [disabled]="!(toolBarService.buttonObs.get('editActive') | async)">
+        [disabled]="!((toolBarService.buttonObs.get('editActive') | async) && (toolBarService.buttonObs.get('newMailActive') | async))">
       </button>
       <!-- Rispondi -->
       <button
         pButton type="button" label="Rispondi"
         icon="fa fa-reply" class="button-styles ui-button-raised ui-button-secondary custom-border"
         (click)="handleEvent($event, 'reply')"
-        [disabled]="!(toolBarService.buttonObs.get('buttonsActive') | async)">
+        [disabled]="!((toolBarService.buttonObs.get('buttonsActive') | async) && (toolBarService.buttonObs.get('newMailActive') | async))">
       </button>
       <!-- Rispondi a tutti -->
       <button
         pButton type="button" label="Rispondi a tutti"
         icon="fa fa-reply-all" class="button-styles ui-button-raised ui-button-secondary custom-border"
         (click)="handleEvent($event, 'reply_all')"
-        [disabled]="!(toolBarService.buttonObs.get('buttonsActive') | async)">
+        [disabled]="!((toolBarService.buttonObs.get('buttonsActive') | async) && (toolBarService.buttonObs.get('newMailActive') | async))">
       </button>
       <!-- Inoltra -->
       <button
         pButton type="button" label="Inoltra"
         icon="fa fa-share" class="button-styles ui-button-raised ui-button-secondary custom-border"
         (click)="handleEvent($event, 'forward')"
-        [disabled]="!(toolBarService.buttonObs.get('buttonsActive') | async)">
+        [disabled]="!((toolBarService.buttonObs.get('buttonsActive') | async) && (toolBarService.buttonObs.get('newMailActive') | async))">
       </button>
       <!-- Elimina -->
       <button

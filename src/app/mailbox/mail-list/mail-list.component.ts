@@ -608,7 +608,7 @@ export class MailListComponent implements OnInit, OnDestroy {
         case "MessageReplyAll":
         case "MessageForward":
           element.disabled = false;
-          if (this.mailListService.selectedMessages.length > 1) {
+          if (this.mailListService.selectedMessages.length > 1 || !this.mailListService.isNewMailActive()) {
             element.disabled = true;
           }
           break;

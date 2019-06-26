@@ -1,7 +1,7 @@
 import { Injectable } from "@angular/core";
 import { BehaviorSubject, Observable, Subscription } from "rxjs";
 import { FilterDefinition } from "@nfa/next-sdr";
-import { Draft, Pec, Folder, Message, FolderType, Tag } from "@bds/ng-internauta-model";
+import { Draft, Pec, Folder, Message, FolderType, Tag, PecPermission } from "@bds/ng-internauta-model";
 import { NewMailComponent } from "../new-mail/new-mail.component";
 import { DialogService, MessageService, MenuItem } from "primeng/api";
 import { MessageEvent, ShpeckMessageService } from "src/app/services/shpeck-message.service";
@@ -10,6 +10,7 @@ import { TOOLBAR_ACTIONS } from "src/environments/app-constants";
 import { PecFolderType, MailFoldersService, PecFolder, FoldersAndTags } from "../mail-folders/mail-folders.service";
 import { PecService } from "src/app/services/pec.service";
 import { MailListService } from "../mail-list/mail-list.service";
+import { UtenteUtilities, NtJwtLoginService } from "@bds/nt-jwt-login";
 
 @Injectable({
   providedIn: "root"
@@ -27,8 +28,10 @@ export class ToolBarService {
   public _selectedPec: Pec;
   public buttonObs: Map<string, Observable<boolean>>;
   public moveMenuItems: MenuItem[];
+  private loggedUser: UtenteUtilities;
 
   public buttonsObservables = new Map([
+    ["newMailActive", new BehaviorSubject<boolean>(false)],
     ["editActive", new BehaviorSubject<boolean>(false)],
     ["editVisible", new BehaviorSubject<boolean>(false)],
     ["buttonsActive", new BehaviorSubject<boolean>(false)],
@@ -44,10 +47,17 @@ export class ToolBarService {
     private messagePrimeService: MessageService,
     private mailFoldersService: MailFoldersService,
     private pecService: PecService,
-    private mailListService: MailListService
+    private mailListService: MailListService,
+    private loginService: NtJwtLoginService
     ) {
       this.move = this.move.bind(this);
-
+      this.subscriptions.push(this.loginService.loggedUser$.subscribe((utente: UtenteUtilities) => {
+        if (utente) {
+          if (!this.loggedUser || utente.getUtente().id !== this.loggedUser.getUtente().id) {
+            this.loggedUser = utente;
+          }
+        }
+      }));
       this.subscriptions.push(this.mailFoldersService.pecFolderSelected.subscribe((pecFolderSelected: PecFolder) => {
         if (pecFolderSelected && this.myPecs && this.myPecs.length > 0) {
           let idPec: number;
@@ -64,6 +74,13 @@ export class ToolBarService {
           }
           this.buttonsObservables.get("moveActive").next(false);
           this._selectedPec = this.myPecs.filter(p => p.id === idPec)[0];
+
+          const puoInviareMail = this.mailListService.isNewMailActive(idPec);
+          if (puoInviareMail) {
+            this.buttonsObservables.get("newMailActive").next(true);
+          } else {
+            this.buttonsObservables.get("newMailActive").next(false);
+          }
 
           if (pecFolderSelected.type === PecFolderType.FOLDER && (this.selectedFolder.type === FolderType.OUTBOX || this.selectedFolder.type === FolderType.DRAFT) || pecFolderSelected.type === PecFolderType.TAG) {
             this.buttonsObservables.get("searchActive").next(false);
@@ -113,7 +130,10 @@ export class ToolBarService {
           if (draftEvent) {
             this.buttonsObservables.get("editVisible").next(true);
             this.buttonsObservables.get("editActive").next(true);
-            this.buttonsObservables.get("deleteActive").next(true);
+            const puoInviareMail = this.mailListService.isNewMailActive(this._selectedPec.id);
+            if (puoInviareMail) {
+              this.buttonsObservables.get("deleteActive").next(true);
+            }
           }
         } else {
           this.buttonsObservables.get("editVisible").next(false);
