@@ -3,8 +3,8 @@ import { Tag, Folder, Message, FolderType, InOut, ENTITIES_STRUCTURE, FluxPermis
 import { MenuItem, MessageService } from "primeng/api";
 import { Utils } from "src/app/utils/utils";
 import { MessageFolderService } from "src/app/services/message-folder.service";
-import { Subscription, Observable } from "rxjs";
-import { MailFoldersService, FoldersAndTags } from "../mail-folders/mail-folders.service";
+import { Subscription, Observable, BehaviorSubject } from "rxjs";
+import { MailFoldersService, FoldersAndTags, PecFolderType, PecFolder } from "../mail-folders/mail-folders.service";
 import { NtJwtLoginService, UtenteUtilities } from "@bds/nt-jwt-login";
 import { BatchOperation, BatchOperationTypes } from "@nfa/next-sdr";
 import { BaseUrls, BaseUrlType } from "src/environments/app-constants";
@@ -27,6 +27,9 @@ export class MailListService {
   public loggedUser: UtenteUtilities;
 
   private subscriptions: Subscription[] = [];
+  private selectedTag: Tag = null;
+
+  private _newTagInserted: BehaviorSubject<Tag> = new BehaviorSubject<Tag>(null);
 
 
   constructor(
@@ -60,6 +63,19 @@ export class MailListService {
         }
       }
     }));
+    this.subscriptions.push(this.mailFoldersService.pecFolderSelected.subscribe((pecFolderSelected: PecFolder) => {
+      if (pecFolderSelected) {
+        if (pecFolderSelected.type === PecFolderType.TAG) {
+          this.selectedTag = pecFolderSelected.data as Tag;
+        } else {
+          this.selectedTag = null;
+        }
+      }
+    }));
+  }
+
+  public get newTagInserted(): Observable<Tag> {
+    return this._newTagInserted.asObservable();
   }
 
 
@@ -266,7 +282,8 @@ export class MailListService {
   public createAndApplyTag(tagName) {
     this.createTag(tagName).subscribe(
       (res: Tag) => {
-        this.tags.push(res);
+        this._newTagInserted.next(res);
+        // this.tags.push(res);
         this.toggleTag(res);
         this.messagePrimeService.add(
           { severity: "success", summary: "Successo", detail: "Etichetta creata e associata con successo." });
@@ -276,7 +293,8 @@ export class MailListService {
 
   private createTag(tagName: string): Observable<Tag> {
     const newTag: Tag = new Tag();
-    newTag.name = tagName.toLowerCase();
+    tagName = tagName.trim();
+    newTag.name = tagName.replace(/\s+/, "_").toLowerCase();
     newTag.description = tagName;
     newTag.type = TagType.CUSTOM;
     newTag.idPec = { id: this.selectedMessages[0].fk_idPec.id } as Pec;
@@ -422,8 +440,8 @@ export class MailListService {
   }
 
   /**
-   * Aggiungiamo o rimuoviamo il tag in base all'operazione ad ogni messaggio precedentemente selezionato
-   * e aggiorna la visibilità delle icone.
+   * Aggiungiamo o rimuoviamo il tag in base all'operazione ad ogni messaggio precedentemente selezionato.
+   * Aggiorna la visibilità delle icone. Toglie il messaggio dalla lista nel caso stessimo filtrando per tag.
    * @param mTagOp Array delle operazioni fatte sui messaggi
    * @param result Il risultato della chiamata al backend che contiene le entità aggiornate
    */
@@ -440,6 +458,10 @@ export class MailListService {
       } else if (item.operation === "DELETE" && result) {
         item.message.messageTagList.splice(item.message.messageTagList.indexOf(item.messageTag), 1);
         this.setIconsVisibility(item.message);
+
+        if (this.selectedTag && this.selectedTag.id === item.messageTag.fk_idTag.id) {
+          this.messages.splice(this.messages.indexOf(this.messages.find(m => m.id === item.messageTag.fk_idMessage.id)), 1);
+        }
       }
     });
   }

@@ -40,9 +40,16 @@
 }
 ::ng-deep .more-icon::before {
     content: 'more';
+    content: 'loyalty';
+    content: 'label';
 }
-::ng-deep .trash-icon {
+::ng-deep .bigger-icon {
     font-size: 1.60em !important;
+    margin-left: -2px !important;
+    margin-right: 0px !important;
+}
+::ng-deep .smaller-icon {
+    font-size: 1.20em !important;
     margin-left: -2px !important;
     margin-right: 0px !important;
 }
