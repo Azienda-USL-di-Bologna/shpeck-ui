@@ -742,7 +742,7 @@ export class MailListComponent implements OnInit, OnDestroy {
         this.mailListService.moveMessages(event.item.queryParams.folder);
         break;
       case "MessageLabels":
-        this.mailListService.toggleTag(event.item.queryParams.tag, true);
+        this.checkTagAndConfirm(event.item.queryParams);
         break;
       case "MessageRegistration":
         this.chooseRegistrationType(event, null);
@@ -771,6 +771,22 @@ export class MailListComponent implements OnInit, OnDestroy {
       case "ToggleErrorFalse":
         this.mailListService.toggleError(false);
         break;
+    }
+  }
+
+  private checkTagAndConfirm(queryParams) {
+    if (queryParams && queryParams.order === 1) { // 1 indica che l'etichetta è applicata, quindi è da rimuovere
+      this.confirmationService.confirm({
+        message: "Vuoi davvero rimuovere l'etichetta?",
+        header: "Conferma",
+        icon: "pi pi-exclamation-triangle",
+        accept: () => {
+          this.mailListService.toggleTag(queryParams.tag, true);
+        },
+        reject: () => { }
+      });
+    } else {
+      this.mailListService.toggleTag(queryParams.tag, true);
     }
   }
 

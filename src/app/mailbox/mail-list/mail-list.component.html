@@ -150,8 +150,7 @@
                             <i
                                 [pTooltip]="getTagDescription('in_error')"
                                 tooltipPosition="top"
-                                class="material-icons second-line-icon">
-                                warning
+                                class="fas fa-exclamation-triangle smaller-icon error-icon second-line-icon">
                             </i>
                         </span>
                     </span>
@@ -191,7 +190,16 @@
 </div>
 <p-contextMenu #cm [model]="cmItems" styleClass="context-menu-mail-list"></p-contextMenu>
 
-<p-confirmDialog acceptLabel="Sì" rejectLabel="No" [style]="{width: '20vw', top: '40%'}"></p-confirmDialog>
+<p-confirmDialog #cd acceptLabel="Sì" rejectLabel="No" [style]="{width: '20vw', top: '40%'}">
+    <p-footer>
+        <button type="button" pButton icon="pi pi-check" label="Sì" (click)="cd.accept()"
+            class="confirm-buttons ui-button-raised ui-button-secondary custom-secondary-button">
+        </button>
+        <button type="button" pButton icon="pi pi-times " label="No" (click)="cd.reject()"
+            class="confirm-buttons ui-button-raised ui-button-secondary custom-secondary-button">
+        </button>
+    </p-footer>
+</p-confirmDialog>
 <!-- "{'margin': '-128px 0 0 -312px'}" -->
 <p-dialog header="Nota messaggio" [(visible)]="displayNote" [modal]="true" [closable]="false" [responsive]="true"
     [style]="{width: '350px', minWidth: '264px'}" [minY]="60" [baseZIndex]="10000">
