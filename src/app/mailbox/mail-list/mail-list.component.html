@@ -163,7 +163,7 @@
                 <div class="display-block extra-margin">
                     <!-- iconcina della mail -->
                     <span *ngIf="!message?.seen" class="fas fa-envelope display-icon envelope-icon icon-default-color"></span>
-                    <span *ngIf="message?.seen" class="far fa-envelope-open display-icon envelope-icon"></span>
+                    <span *ngIf="message?.seen" class="far fa-envelope-open display-icon envelope-icon icon-default-color"></span>
 
                     <!-- nome della cartella in cui si trova la mail in caso di risultati di una ricerca su tutta la casella -->
                     <span *ngIf="(_filters && !_selectedFolder) || _selectedTag"

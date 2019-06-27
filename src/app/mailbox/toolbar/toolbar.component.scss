@@ -5,6 +5,13 @@
 :host ::ng-deep button {
     margin-right: .25em;
 }
+:host::ng-deep button .ui-button-icon-left {
+    color: #2e4a65;
+}
+
+::ng-deep .button-new-mail .ui-button-icon-left {
+    color: white;
+}
 
 .d-flex {
     display: flex;

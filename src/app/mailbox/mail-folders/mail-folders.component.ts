@@ -176,7 +176,7 @@ export class MailFoldersComponent implements OnInit, OnDestroy {
           tag.idPec = p;
           switch (tag.name) {
             case "in_error":
-              const tagNode: MyTreeNode = this.buildTagNode(tag, "Errori", "fas fa-exclamation-triangle", false);
+              const tagNode: MyTreeNode = this.buildTagNode(tag, "Errori", "fas fa-exclamation-triangle smaller-icon error-icon", false);
               this.mailFoldersService.getReloadTag(tag.id).subscribe(res => {
                 res > 0 ? tagNode.styleClass = "tree-node-style tree-node-error" : tagNode.styleClass = "tree-node-style";
                 tagNode.label = "Errori " + `(${res})`;
@@ -193,7 +193,8 @@ export class MailFoldersComponent implements OnInit, OnDestroy {
         } else if (!tag.firstLevel && tag.visible) {
           // const editable = tag.type === TagType.CUSTOM;
           /* const tagNode: MyTreeNode = this.buildTagNode(tag, tag.description, "material-icons-outlined more-icon", false); */
-          const tagNode: MyTreeNode = this.buildTagNode(tag, tag.description, "	fa fa-tag", false);
+          const icon = tag.type === TagType.CUSTOM ?   "material-icons local-offer-icon bigger-icon" : " material-icons-outlined local-offer-icon bigger-icon";
+          const tagNode: MyTreeNode = this.buildTagNode(tag, tag.description, icon, false);
           const p: Pec = new Pec();
           p.id = pec.id;
           tag.idPec = p;
@@ -221,8 +222,8 @@ export class MailFoldersComponent implements OnInit, OnDestroy {
         type: PecFolderType.PEC,
         data: pec
       } as PecFolder,
-      expandedIcon: "pi pi-folder-open  general-style-icon  bigger-icon",
-      collapsedIcon: "pi pi-folder  general-style-icon   bigger-icon",
+      expandedIcon: "fa fa-folder-open  general-style-icon ",
+      collapsedIcon: "fa fa-folder  general-style-icon ",
       children: children,
       selectable: true,
       styleClass: MailFoldersComponent.ROOT_NODE_NOT_SELECTED_STYLE_CLASS,
@@ -256,7 +257,7 @@ export class MailFoldersComponent implements OnInit, OnDestroy {
           // console.log("new folder", this.selectedNode);
           const folderToInsert = this.buildCustomFolder(this.selectedNode.data.data as Pec, "Nuova Cartella");
           // this.selectedNode.children.push(this.buildFolderNode(folderToInsert, {expandedIcon: "pi pi-folder-open bigger-icon", collapsedIcon: "pi pi-folder bigger-icon"}, true));
-          this.selectedNode.children.splice(this.selectedNode.children.length - 1, 0, this.buildFolderNode(folderToInsert, {expandedIcon: "pi pi-folder-open bigger-icon", collapsedIcon: "pi pi-folder bigger-icon"}, true));
+          this.selectedNode.children.splice(this.selectedNode.children.length - 1, 0, this.buildFolderNode(folderToInsert, {expandedIcon: "fa fa-folder-open smaller-icon", collapsedIcon: "fa fa-folder  smaller-icon"}, true));
           setTimeout(() => {
             const a = this.folderInput;
             const element = a.find(e => e.nativeElement.id === this.selectedNode.key).nativeElement;
@@ -353,8 +354,8 @@ export class MailFoldersComponent implements OnInit, OnDestroy {
   }
 
   private buildFolderIcons(folder: Folder): any {
-    let expandedIcon = "pi pi-folder-open bigger-icon";
-    let collapsedIcon = "pi pi-folder bigger-icon";
+    let expandedIcon = "fa fa-folder-open  smaller-icon";
+    let collapsedIcon = "fa fa-folder smaller-icon";
     if (folder.name === "readdressed") {
       collapsedIcon = "material-icons-outlined readdressed-icon";
       expandedIcon =  "material-icons-outlined readdressed-icon";
@@ -381,8 +382,8 @@ export class MailFoldersComponent implements OnInit, OnDestroy {
   }
 
   private buildFolderNode(folder: Folder, folderIcons: any, editable: boolean = false): MyTreeNode {
-    let expandedIcon = "pi pi-folder-open";
-    let collapsedIcon = "pi pi-folder";
+    let expandedIcon = "fa fa-folder-open smaller-icon";
+    let collapsedIcon = "fa fa-folder smaller-icon";
     if (folder.name === "readdressed") {
       collapsedIcon = "material-icons-outlined readdressed-icon";
       expandedIcon =  "material-icons-outlined readdressed-icon";

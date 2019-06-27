@@ -46,16 +46,16 @@
       <!-- Sposta -->
       <button
         pButton type="button" label="Sposta"
-        class="button-styles ui-button-raised ui-button-secondary margin-l-15 custom-border"
+        icon="fa fa-folder" class="button-styles ui-button-raised ui-button-secondary custom-border"
         (click)="handleEvent($event, 'move')"
         [disabled]="!(toolBarService.buttonObs.get('moveActive') | async)">
-        <img class="images-pos" src="assets/images/icons/folder_export.png" width="24px" alt="Sposta in">
+        <!-- <img class="images-pos" src="assets/images/icons/folder_export.png" width="24px" alt="Sposta in">     margin-l-15-->
       </button>
       <p-menu #moveMenu [popup]="true" [model]="moveMenuItems"></p-menu>
       <!-- Fascicola -->
       <button
         pButton type="button" label="Fascicola"
-        class="button-styles ui-button-raised ui-button-secondary custom-border"
+        icon="fa fa-archive" class="button-styles ui-button-raised ui-button-secondary custom-border"
         [disabled]="true">
       </button>
       <!-- Ricerca -->
