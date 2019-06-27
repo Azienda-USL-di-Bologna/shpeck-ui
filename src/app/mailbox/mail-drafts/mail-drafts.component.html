@@ -22,7 +22,7 @@
     (onContextMenuSelect)="handleEvent('onContextMenuSelect', $event)"
     >
     <ng-template pTemplate="body" let-rowData let-draft let-rowIndex="rowIndex">
-        <tr #selRow class="message-row" [pSelectableRow]="rowData" [pSelectableRowIndex]="rowIndex" [pContextMenuRow]="rowData" 
+        <tr #selRow class="message-row" [pSelectableRow]="rowData" [pSelectableRowIndex]="rowIndex" [pContextMenuRow]="rowData"
             (dblclick)="openDetailPopup($event, rowData, message)">
             <td>
                 <div class = "mail-icons-container">
@@ -34,7 +34,7 @@
                       <span *ngFor="let address of draft.toAddresses">{{address}}; </span>
                     </span>
                     <!-- <span *ngIf="!(draft?.toAddresses)"></span> -->
-                    <span class="second-line-icon" [ngClass]="{'visibility-hidden':draft?.attachmentsNumber === 0}"><i
+                    <span class="second-line-icon" [ngClass]="{'visibility-hidden':!draft?.attachmentsNumber}"><i
                         [pTooltip]="draft?.attachmentsNumber + ' allegati'" tooltipPosition="top"
                         class="material-icons second-line-icon">attach_file</i></span>
                     <!-- data della bozza -->

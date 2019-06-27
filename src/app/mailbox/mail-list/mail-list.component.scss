@@ -226,6 +226,7 @@
   max-height: 287px;
   overflow-y: auto;
   width: fit-content !important;
+  width: -moz-fit-content;
 }
 
 ::ng-deep .message-labels + p-contextmenusub .ui-menuitem-icon.fas.fa-square,
