@@ -1023,7 +1023,7 @@ export class MailListComponent implements OnInit, OnDestroy {
     if (readdrresedOut) {
       return "READDRESSED_OUT";
     }
-    return "NOT_READDRESSABLE";
+    return this.mailListService.isReaddressActive(message) ? "READDRESSABLE" : "NOT_READDRESSABLE";
   }
 
   /**
