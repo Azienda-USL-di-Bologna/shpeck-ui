@@ -327,11 +327,16 @@ export class NewMailComponent implements OnInit, AfterViewInit {
         } else {
           this.draftService.messagePrimeService.add(
             { severity: "warn", summary: "Attenzione", detail: "Il file " + file.name + " non è stato caricato. La "
-              + "dimensione massima degli allegati supera quella consentita (50 Mb).", life: 4000 });
+              + "dimensione massima degli allegati supera quella consentita (50 Mb).", life: 10000 });
         }
       }
     }
     fileinput.value = null; // Reset dell'input
+  }
+
+  clearAttachmentsField() {
+    const fileForm = this.mailForm.get("attachments");
+    fileForm.setValue([]);
   }
 
   /**

@@ -166,12 +166,12 @@
   color: #393939
 }
 
-::ng-deep .fas.fa-check.color-green {
-  color: rgb(0, 179, 0) !important;
+::ng-deep .fas.fa-tag.color-green {
+  color: #14c014 !important;
 }
 
-::ng-deep .fas.fa-check.color-yellow {
-  color: yellow !important;
+::ng-deep .fas.fa-tag.color-yellow {
+  color: #d8ce10 !important;
 }
 
 ::ng-deep .fas.new-tag {
@@ -231,6 +231,7 @@
 
 ::ng-deep .message-labels + p-contextmenusub .ui-menuitem-icon.fas.fa-square,
 ::ng-deep .message-labels + p-contextmenusub .ui-menuitem-icon.fas.fa-check,
+::ng-deep .message-labels + p-contextmenusub .ui-menuitem-icon.fas.fa-tag,
 ::ng-deep .message-labels + p-contextmenusub .ui-menuitem-icon.fas.fa-check-square,
 ::ng-deep .message-labels + p-contextmenusub .ui-menuitem-icon.fas.fa-minus-square {
   font-size: 1.1em !important;

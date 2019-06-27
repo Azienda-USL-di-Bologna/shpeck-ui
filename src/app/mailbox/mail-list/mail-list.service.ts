@@ -134,15 +134,6 @@ export class MailListService {
    */
   buildTagsMenuItems(command: (any) => any, newTag: (any) => any): MenuItem[] {
     const items: MenuItem[] = [];
-    items.push({
-      label: "<Nuova Etichetta>",
-      icon: "fas new-tag",
-      id: "MessageLabels",
-      disabled: false,
-      queryParams: {
-      },
-      command: event => newTag(event)
-    });
     if (this.tags) {
       for (const tag of this.tags) {
         if (tag.type !== TagType.SYSTEM_NOT_INSERTABLE_DELETABLE &&
@@ -155,18 +146,33 @@ export class MailListService {
             label: tag.description,
             icon: tagIconAndAction.iconType,
             id: "MessageLabels",
-            title: tag.description,
+            title: tagIconAndAction.title,
             disabled: false,
             queryParams: {
-              tag: tag
+              tag: tag,
+              order: tagIconAndAction.order
             },
             command: event => command(event)
           });
         }
       }
     }
-    items.sort((a, b) => a.label.toLowerCase() < b.label.toLowerCase() ? -1 : 1);
-    return items;
+    const firstItems = items.filter(el => el.queryParams.order === 1).sort((a, b) => a.label.toLowerCase() < b.label.toLowerCase() ? -1 : 1);
+    firstItems.push({ separator: true });
+    const secondItems = items.filter(el => el.queryParams.order === 2).sort((a, b) => a.label.toLowerCase() < b.label.toLowerCase() ? -1 : 1);
+    secondItems.push({ separator: true });
+    const thirdItems = items.filter(el => el.queryParams.order === 3).sort((a, b) => a.label.toLowerCase() < b.label.toLowerCase() ? -1 : 1);
+    const finalItems: MenuItem[] = [{
+      label: "<Nuova Etichetta>",
+      icon: "fas new-tag",
+      id: "MessageLabels",
+      title: "Seleziona per creare una nuova etichetta e associarla al messaggio",
+      disabled: false,
+      queryParams: {
+      },
+      command: event => newTag(event)
+    }];
+    return finalItems.concat(firstItems).concat(secondItems).concat(thirdItems);
   }
 
   /**
@@ -195,14 +201,20 @@ export class MailListService {
       case 0:                             // Nessun messaggio ha il tag
         tia.iconType = "fas no-tag";
         tia.operation = "INSERT";
+        tia.title = "Etichetta non associata, seleziona per applicarla";
+        tia.order = 3;
         break;
-      case this.selectedMessages.length:  // Tutti i messaggi hanno il tag
-        tia.iconType = "fas fa-check color-green";
+        case this.selectedMessages.length:  // Tutti i messaggi hanno il tag
+        tia.iconType = "fas fa-tag color-green";
         tia.operation = "DELETE";
+        tia.title = "Etichetta associata, seleziona per rimuoverla";
+        tia.order = 1;
         break;
-      default:                            // Almeno un messaggio ha il tag
-        tia.iconType = "fas fa-check color-yellow";
+        default:                            // Almeno un messaggio ha il tag
+        tia.iconType = "fas fa-tag color-yellow";
         tia.operation = "INSERT";
+        tia.title = "Uno dei messaggi selezionati ha l'etichetta associata, seleziona per applicarla a tutti i selezionati";
+        tia.order = 2;
         break;
     }
     return tia;
@@ -617,4 +629,6 @@ interface MessageTagOp {
 interface TagIconAction {
   iconType: string;                   // L'icona da mostrare in corrispondenza del tag
   operation?: "INSERT" | "DELETE";    // Viene utilizzato in fase di applicazione/rimozione del tag
+  title?: string;
+  order?: number;
 }

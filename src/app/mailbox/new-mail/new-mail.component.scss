@@ -41,7 +41,7 @@ li {
   > ul.ui-inputtext:focus {
     min-height: 33px;
     max-height: 100px;
-    overflow-y: overlay;
+    overflow-y: auto;
   }
   .ui-chips-input-token {
     display: none;  // Makes chips readonly
