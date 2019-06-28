@@ -333,7 +333,7 @@ export class MailListService {
     const mtp: MessageTagOp[] = [];
     let messaggioOperazione = "";
     if (tagIconAndAction.operation === "INSERT") {
-      const messagesToInsert: Message[] = this.selectedMessages.filter(m => !messagesWithTag.includes(m));
+      const messagesToInsert: Message[] = this.selectedMessages.filter(m => messagesWithTag.indexOf(m) === -1);
       messaggioOperazione = "associata";
       for (const message of messagesToInsert) {
         const mTagCall = this.buildMessageTagOperationInsert(message, tag.name);
