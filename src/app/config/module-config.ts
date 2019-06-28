@@ -8,5 +8,5 @@ export const loginModuleConfig: NTJWTModuleConfig = {
     localhostPort: LOCALHOST_PORT,
     applicazione: APPLICATION,
     logoutRedirectRoute: MAILBOX_ROUTE,
-    sessionExpireSeconds: 30
+    sessionExpireSeconds: 1800
 };
