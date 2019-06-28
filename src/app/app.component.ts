@@ -33,6 +33,7 @@ export class AppComponent implements OnInit {
     this.headerFeaturesConfig.showProfilo = true;
     this.headerFeaturesConfig.logoutRedirectRoute = MAILBOX_ROUTE;
     this.headerFeaturesConfig.logoutIconPath = "assets/images/signout.svg";
+    this.headerFeaturesConfig.logoutWarning = true;
 
     // configurazione login
     this.loginService.setloginUrl(getInternautaUrl(BaseUrlType.Login));
