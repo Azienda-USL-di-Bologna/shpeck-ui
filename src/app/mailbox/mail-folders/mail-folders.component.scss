@@ -16,7 +16,7 @@
     // font-size: 1.25em;
     font-size: 18px;
 }
-/* ::ng-deep .material-icons-outlined.readdressed-icon, 
+/* ::ng-deep .material-icons-outlined.readdressed-icon,
 ::ng-deep .material-icons-outlined.registered-icon {
     font-size: 1.25em;
 } */
@@ -152,7 +152,7 @@
     left: 10px;
   }
 
-::ng-deep .fa-exclamation-triangle {
+::ng-deep .fa-exclamation-triangle.tree-icon {
     color: #993366 !important;
 }
 ::ng-deep .tree-node-error span div {

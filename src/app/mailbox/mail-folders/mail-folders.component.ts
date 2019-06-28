@@ -176,7 +176,7 @@ export class MailFoldersComponent implements OnInit, OnDestroy {
           tag.idPec = p;
           switch (tag.name) {
             case "in_error":
-              const tagNode: MyTreeNode = this.buildTagNode(tag, "Errori", "fas fa-exclamation-triangle smaller-icon error-icon", false);
+              const tagNode: MyTreeNode = this.buildTagNode(tag, "Errori", "fas fa-exclamation-triangle smaller-icon error-icon tree-icon", false);
               this.mailFoldersService.getReloadTag(tag.id).subscribe(res => {
                 res > 0 ? tagNode.styleClass = "tree-node-style tree-node-error" : tagNode.styleClass = "tree-node-style";
                 tagNode.label = "Errori " + `(${res})`;

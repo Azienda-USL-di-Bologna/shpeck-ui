@@ -1,6 +1,6 @@
 import { Component, OnInit, ViewChild, AfterViewInit } from "@angular/core";
 import { FormGroup, FormControl, Validators, FormArray } from "@angular/forms";
-import { DynamicDialogConfig, DialogService } from "primeng/api";
+import { DynamicDialogConfig, DialogService, ConfirmationService } from "primeng/api";
 import { Message, Pec, Draft, MessageRelatedType, InOut } from "@bds/ng-internauta-model";
 import { Editor } from "primeng/editor";
 import { TOOLBAR_ACTIONS, MAX_FILE_SIZE_UPLOAD } from "src/environments/app-constants";
@@ -11,7 +11,8 @@ import { AutoComplete } from "primeng/primeng";
 @Component({
   selector: "app-new-mail",
   templateUrl: "./new-mail.component.html",
-  styleUrls: ["./new-mail.component.scss"]
+  styleUrls: ["./new-mail.component.scss"],
+  providers: [ConfirmationService]
 })
 export class NewMailComponent implements OnInit, AfterViewInit {
 
@@ -66,7 +67,8 @@ export class NewMailComponent implements OnInit, AfterViewInit {
   constructor(
     public config: DynamicDialogConfig,
     public dialogService: DialogService,
-    public draftService: DraftService) { }
+    public draftService: DraftService,
+    private confirmationService: ConfirmationService) { }
 
   ngOnInit() {
     console.log("DATA PASSED = ", this.config.data);
@@ -336,7 +338,20 @@ export class NewMailComponent implements OnInit, AfterViewInit {
 
   clearAttachmentsField() {
     const fileForm = this.mailForm.get("attachments");
-    fileForm.setValue([]);
+    if (fileForm.value && fileForm.value.length > 0) {
+      this.confirmationService.confirm({
+        message: "Vuoi rimuovere tutti gli allegati?",
+        header: "Conferma",
+        icon: "pi pi-exclamation-triangle",
+        accept: () => {
+          this.mailForm.get("attachments").setValue([]);
+          if (this.mailForm.pristine) {
+            this.mailForm.markAsDirty();
+          }
+        },
+        reject: () => { }
+      });
+    }
   }
 
   /**

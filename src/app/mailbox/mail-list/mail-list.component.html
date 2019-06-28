@@ -145,12 +145,12 @@
                             {{message.receiveTime | date: 'EE d MMM y, H:mm' | titlecase}}
                         </span>
                         <!-- iconcina degli errori -->
-                        <span class="second-line-icon icon-default-color"
+                        <span class="second-line-error icon-default-color"
                             [ngClass]="{'visibility-hidden':!(message?.iconsVisibility?.in_error || message.messageStatus === 'ERROR'),'warn-color': message?.iconsVisibility?.in_error}">
                             <i
                                 [pTooltip]="getTagDescription('in_error')"
                                 tooltipPosition="top"
-                                class="fas fa-exclamation-triangle smaller-icon error-icon second-line-icon">
+                                class="fas fa-exclamation-triangle second-line-error">
                             </i>
                         </span>
                     </span>

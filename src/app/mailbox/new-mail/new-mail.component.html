@@ -130,6 +130,16 @@
     </p-footer>
 </p-dialog>
 
+<p-confirmDialog #cd acceptLabel="Sì" rejectLabel="No" appendTo="body" [style]="{width: '20vw', top: '40%'}">
+    <p-footer>
+      <button type="button" pButton icon="pi pi-check" label="Sì" (click)="cd.accept()"
+        class="confirm-buttons ui-button-raised ui-button-secondary custom-secondary-button">
+      </button>
+      <button type="button" pButton icon="pi pi-times " label="No" (click)="cd.reject()"
+        class="confirm-buttons ui-button-raised ui-button-secondary custom-secondary-button">
+      </button>
+    </p-footer>
+</p-confirmDialog>
 
 <p-dialog
   appendTo="body"

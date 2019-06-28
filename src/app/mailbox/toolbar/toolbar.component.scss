@@ -10,7 +10,7 @@
 }
 
 ::ng-deep .button-new-mail .ui-button-icon-left {
-    color: white;
+    color: white !important;
 }
 
 .d-flex {
@@ -20,6 +20,7 @@
 .button-new-mail,
 .button-styles {
     width: auto;
+    white-space: nowrap;
     // flex-grow: 0.1;
 }
 
