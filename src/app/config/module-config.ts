@@ -6,5 +6,7 @@ export const loginModuleConfig: NTJWTModuleConfig = {
     loginComponentRoute: LOGIN_ROUTE,
     homeComponentRoute: MAILBOX_ROUTE,
     localhostPort: LOCALHOST_PORT,
-    applicazione: APPLICATION
+    applicazione: APPLICATION,
+    logoutRedirectRoute: MAILBOX_ROUTE,
+    sessionExpireSeconds: 0 // 0 = distattivato
 };

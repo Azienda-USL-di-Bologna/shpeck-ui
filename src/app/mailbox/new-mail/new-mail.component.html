@@ -20,7 +20,7 @@
               </p-autoComplete>
           </span>
           <span>
-            <button pButton type="button" icon="fa fa-address-book" class="ui-button-rounded custom-primary-button" (click)="displayRubricaPopup = true; lastAddressBookUsed = 'to'"></button>
+            <button pButton type="button" icon="fa fa-address-book" class="ui-button-raised custom-primary-button" (click)="displayRubricaPopup = true; lastAddressBookUsed = 'to'"></button>
           </span>
         </li>
         <!-- CC Addresses -->
@@ -37,7 +37,7 @@
             </p-autoComplete>
           </span>
           <span>
-            <button pButton type="button" icon="fa fa-address-book" class="ui-button-rounded custom-primary-button" (click)="displayRubricaPopup = true; lastAddressBookUsed = 'cc'"></button>
+            <button pButton type="button" icon="fa fa-address-book" class="ui-button-raised custom-primary-button" (click)="displayRubricaPopup = true; lastAddressBookUsed = 'cc'"></button>
           </span>
         </li>
         <!-- Destinatari Privati -->
@@ -63,12 +63,18 @@
             label="Allega" icon="pi pi-paperclip" pButton>
               <input #fileinput type="file" (change)="onFileChange($event, fileinput)" multiple="multiple">
           </span>
-          <span class="ui-fluid flex-1 margin-l-5">
+          <span class="ui-fluid flex-1 margin-lr-5">
             <p-chips id="attachments" formControlName="attachments">
                 <ng-template let-item pTemplate="item">
                     {{ item.name ? item.name : item.displayName }} ({{item.id ? formatSize(item.size) :  formatSize(item.size, true)}}) <i style="margin-right:1.5em"></i>
                 </ng-template>
             </p-chips>
+          </span>
+          <span>
+            <button
+              pButton type="button" icon="pi pi-times" class="ui-button-raised custom-primary-button"
+              (click)="clearAttachmentsField()" pTooltip="Svuota allegati">
+            </button>
           </span>
         </li>
         <!-- Testo Mail -->
@@ -124,19 +130,29 @@
     </p-footer>
 </p-dialog>
 
+<p-confirmDialog #cd acceptLabel="Sì" rejectLabel="No" appendTo="body" [style]="{width: '20vw', top: '40%'}">
+    <p-footer>
+      <button type="button" pButton icon="pi pi-check" label="Sì" (click)="cd.accept()"
+        class="confirm-buttons ui-button-raised ui-button-secondary custom-secondary-button">
+      </button>
+      <button type="button" pButton icon="pi pi-times " label="No" (click)="cd.reject()"
+        class="confirm-buttons ui-button-raised ui-button-secondary custom-secondary-button">
+      </button>
+    </p-footer>
+</p-confirmDialog>
 
-<p-dialog 
-  appendTo="body" 
-  [(visible)]="displayRubricaPopup" 
-  *ngIf="displayRubricaPopup" 
+<p-dialog
+  appendTo="body"
+  [(visible)]="displayRubricaPopup"
+  *ngIf="displayRubricaPopup"
   modal="true"
   class="popup-rubrica"
   [style]="{width: '700px'}">
   <p-header>
     Aggiungi destinatario
   </p-header>
-  <app-search-contact 
-    (addressChosedByBook)="onAddressChosedByBook($event)" 
+  <app-search-contact
+    (addressChosedByBook)="onAddressChosedByBook($event)"
     (closeRubricaPopup)="displayRubricaPopup = false">
   </app-search-contact>
 </p-dialog>

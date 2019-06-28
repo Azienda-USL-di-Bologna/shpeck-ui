@@ -13,9 +13,10 @@
 } */
 ::ng-deep .general-style-icon {
     color: #2e4a65 !important;
-    font-size: 1.25em;
+    // font-size: 1.25em;
+    font-size: 18px;
 }
-/* ::ng-deep .material-icons-outlined.readdressed-icon, 
+/* ::ng-deep .material-icons-outlined.readdressed-icon,
 ::ng-deep .material-icons-outlined.registered-icon {
     font-size: 1.25em;
 } */
@@ -40,15 +41,32 @@
 }
 ::ng-deep .more-icon::before {
     content: 'more';
+    // content: 'label';
 }
-::ng-deep .trash-icon {
-    font-size: 1.60em !important;
-    margin-left: -2px !important;
-    margin-right: 0px !important;
+::ng-deep .loyalty-icon::before {
+    content: 'loyalty';
+}
+::ng-deep .local-offer-icon::before {
+    content: 'local_offer';
 }
 ::ng-deep .trash-icon::before {
     content: 'delete';
 }
+::ng-deep .bigger-icon {
+    font-size: 20px !important;
+    margin-left: -2px !important;
+    margin-right: 2px !important;
+}
+::ng-deep .smaller-icon {
+    font-size: 15px !important;
+    margin-right: 5px !important;
+    /* margin-left: -2px !important;
+    margin-right: 0px !important; */
+}
+::ng-deep .error-icon {
+    margin-right: 4px !important;
+}
+
 
 
 // :host .tree-style-box.body.ui-tree {
@@ -87,7 +105,8 @@
   }
 
   ::ng-deep .tree-node-style {
-    font-size: 0.90em !important;
+    // font-size: 0.90em !important;
+    font-size: 12px !important;
     // background-color: white !important;
     // color: black !important;
     font-weight: normal !important;
@@ -133,7 +152,7 @@
     left: 10px;
   }
 
-::ng-deep .fa-exclamation-triangle {
+::ng-deep .fa-exclamation-triangle.tree-icon {
     color: #993366 !important;
 }
 ::ng-deep .tree-node-error span div {

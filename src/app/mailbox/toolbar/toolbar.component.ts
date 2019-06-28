@@ -72,7 +72,6 @@ export class ToolbarComponent implements OnDestroy {
     }
   }
 
-
   // Gestore del focus sulla ricerca.
   public toggleDialogAndAddFocus() {
     this.showErrorDialog = !this.showErrorDialog;
@@ -129,6 +128,7 @@ export class ToolbarComponent implements OnDestroy {
       });
     }
   }
+
 }
 
 

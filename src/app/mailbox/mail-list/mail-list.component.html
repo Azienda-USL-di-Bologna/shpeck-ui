@@ -71,8 +71,8 @@
                                     tooltipPosition="top"
                                     class="material-icons mail-icons icon-enabled"
                                     [ngClass]="{'icon-disabled': readdressstatus === 'NOT_READDRESSABLE', 'icon-used': (readdressstatus !== 'NOT_READDRESSABLE' && readdressstatus !== 'READDRESSABLE')}"
-                                    [ngStyle]="(readdressstatus === 'FULL_READDRESSED' || 
-                                        readdressstatus === 'READDRESSED_IN' || 
+                                    [ngStyle]="(readdressstatus === 'FULL_READDRESSED' ||
+                                        readdressstatus === 'READDRESSED_IN' ||
                                         readdressstatus === 'READDRESSED_OUT') && {'color': 'darkcyan'}"
                                     (click)="iconReaddressClicked($event, message, readdressstatus)">
                                     low_priority
@@ -145,13 +145,12 @@
                             {{message.receiveTime | date: 'EE d MMM y, H:mm' | titlecase}}
                         </span>
                         <!-- iconcina degli errori -->
-                        <span class="second-line-icon icon-default-color"
+                        <span class="second-line-error icon-default-color"
                             [ngClass]="{'visibility-hidden':!(message?.iconsVisibility?.in_error || message.messageStatus === 'ERROR'),'warn-color': message?.iconsVisibility?.in_error}">
-                            <i 
-                                [pTooltip]="getTagDescription('in_error')" 
-                                tooltipPosition="top" 
-                                class="material-icons second-line-icon">
-                                warning
+                            <i
+                                [pTooltip]="getTagDescription('in_error')"
+                                tooltipPosition="top"
+                                class="fas fa-exclamation-triangle second-line-error">
                             </i>
                         </span>
                     </span>
@@ -163,7 +162,7 @@
                 <div class="display-block extra-margin">
                     <!-- iconcina della mail -->
                     <span *ngIf="!message?.seen" class="fas fa-envelope display-icon envelope-icon icon-default-color"></span>
-                    <span *ngIf="message?.seen" class="far fa-envelope-open display-icon envelope-icon"></span>
+                    <span *ngIf="message?.seen" class="far fa-envelope-open display-icon envelope-icon icon-default-color"></span>
 
                     <!-- nome della cartella in cui si trova la mail in caso di risultati di una ricerca su tutta la casella -->
                     <span *ngIf="(_filters && !_selectedFolder) || _selectedTag"
@@ -191,7 +190,16 @@
 </div>
 <p-contextMenu #cm [model]="cmItems" styleClass="context-menu-mail-list"></p-contextMenu>
 
-<p-confirmDialog acceptLabel="Sì" rejectLabel="No" [style]="{width: '20vw', top: '40%'}"></p-confirmDialog>
+<p-confirmDialog #cd acceptLabel="Sì" rejectLabel="No" [style]="{width: '20vw', top: '40%'}">
+    <p-footer>
+        <button type="button" pButton icon="pi pi-check" label="Sì" (click)="cd.accept()"
+            class="confirm-buttons ui-button-raised ui-button-secondary custom-secondary-button">
+        </button>
+        <button type="button" pButton icon="pi pi-times " label="No" (click)="cd.reject()"
+            class="confirm-buttons ui-button-raised ui-button-secondary custom-secondary-button">
+        </button>
+    </p-footer>
+</p-confirmDialog>
 <!-- "{'margin': '-128px 0 0 -312px'}" -->
 <p-dialog header="Nota messaggio" [(visible)]="displayNote" [modal]="true" [closable]="false" [responsive]="true"
     [style]="{width: '350px', minWidth: '264px'}" [minY]="60" [baseZIndex]="10000">
@@ -278,4 +286,27 @@
         <button type="button" pButton (click)="displayDetailPopup = false" label="Chiudi"
         class="ui-button-raised ui-button-secondary button-styles custom-secondary-button"></button>
     </p-footer>
+</p-dialog>
+
+<!-- POPUP AGGIUNTA TAG -->
+<p-dialog *ngIf="displayNewTagPopup" [(visible)]="displayNewTagPopup" modal="true" [style]="{width: '320px'}">
+    <p-header>Nuova Etichetta</p-header>
+    <form [formGroup]="tagForm">
+        <span class="ui-float-label" style="margin: 8px 0 8px 0px;">
+            <input #idtag id="float-input" type="text" size="30" formControlName="tagName" pInputText>
+            <label for="float-input">Inserisci un nome per la nuova etichetta</label>
+        </span>
+        <p-footer>
+            <button
+                type="submit" [disabled]="tagForm.invalid"
+                class="confirm-buttons ui-button-raised ui-button-secondary custom-secondary-button"
+                pButton icon="fas fa-check" (click)="onNewTag(tagForm.get('tagName')?.value)" label="Crea">
+            </button>
+            <button
+                type="button"
+                class="confirm-buttons ui-button-raised ui-button-secondary custom-secondary-button"
+                pButton icon="fas fa-undo-alt" (click)="displayNewTagPopup=false" label="Annulla">
+            </button>
+        </p-footer>
+    </form>
 </p-dialog>

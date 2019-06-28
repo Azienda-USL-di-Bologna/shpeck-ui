@@ -19,6 +19,7 @@ import { query } from "@angular/core/src/render3";
 import { Menu } from "primeng/menu";
 import { AppCustomization } from "src/environments/app-customization";
 import { SettingsService } from "src/app/services/settings.service";
+import { FormGroup, FormControl, Validators } from "@angular/forms";
 
 @Component({
   selector: "app-mail-list",
@@ -29,8 +30,8 @@ import { SettingsService } from "src/app/services/settings.service";
 export class MailListComponent implements OnInit, OnDestroy {
 
   constructor(
+    public mailListService: MailListService,
     private messageService: ShpeckMessageService,
-    private mailListService: MailListService,
     private tagService: TagService,
     private mailFoldersService: MailFoldersService,
     private toolBarService: ToolBarService,
@@ -42,6 +43,7 @@ export class MailListComponent implements OnInit, OnDestroy {
     private loginService: NtJwtLoginService
   ) {
     this.selectedContextMenuItem = this.selectedContextMenuItem.bind(this);
+    this.showNewTagPopup = this.showNewTagPopup.bind(this);
   }
 
   @Output() public messageClicked = new EventEmitter<Message>();
@@ -49,6 +51,7 @@ export class MailListComponent implements OnInit, OnDestroy {
   @ViewChild("selRow") private selRow: ElementRef;
   @ViewChild("dt") private dt: Table;
   @ViewChild("noteArea") private noteArea;
+  @ViewChild("idtag") private inputTextTag;
   @ViewChild("registrationMenu") private registrationMenu: Menu;
 
   public _selectedTag: Tag;
@@ -122,6 +125,14 @@ export class MailListComponent implements OnInit, OnDestroy {
       command: event => this.selectedContextMenuItem(event)
     },
     {
+      label: "Etichette",
+      id: "MessageLabels",
+      disabled: true,
+      items: [] as MenuItem[],
+      queryParams: {},
+      command: event => this.selectedContextMenuItem(event)
+    },
+    {
       label: "Elimina",
       id: "MessageDelete",
       disabled: true,
@@ -157,13 +168,6 @@ export class MailListComponent implements OnInit, OnDestroy {
       command: event => this.selectedContextMenuItem(event)
     },
     {
-      label: "Etichette",
-      id: "MessageLabels",
-      disabled: true,
-      queryParams: {},
-      command: event => this.selectedContextMenuItem(event)
-    },
-    {
       label: "Fascicola",
       id: "MessageArchive",
       disabled: true,
@@ -180,6 +184,7 @@ export class MailListComponent implements OnInit, OnDestroy {
   ];
 
   public displayNote: boolean = false;
+  public displayNewTagPopup: boolean = false;
   public displayProtocollaDialog = false;
   public displayRegistrationDetail = false;
   public displayDetailPopup = false;
@@ -192,6 +197,7 @@ export class MailListComponent implements OnInit, OnDestroy {
       out: null
     }
   };
+  public tagForm;
   public registrationDetail: any = null;
   public noteObject: Note = new Note();
   public fromOrTo: string;
@@ -590,6 +596,11 @@ export class MailListComponent implements OnInit, OnDestroy {
             this.cmItems.find(f => f.id === "MessageMove").items = this.mailListService.buildMoveMenuItems(this.mailListService.folders, this._selectedFolder, this.selectedContextMenuItem);
           }
           break;
+        case "MessageLabels":
+          element.disabled = false;
+          element.styleClass = "message-labels";
+          this.cmItems.find(f => f.id === "MessageLabels").items = this.mailListService.buildTagsMenuItems(this.selectedContextMenuItem, this.showNewTagPopup);
+          break;
         case "MessageDelete":
           element.disabled = !this.mailListService.isDeleteActive();
           break;
@@ -597,7 +608,7 @@ export class MailListComponent implements OnInit, OnDestroy {
         case "MessageReplyAll":
         case "MessageForward":
           element.disabled = false;
-          if (this.mailListService.selectedMessages.length > 1) {
+          if (this.mailListService.selectedMessages.length > 1 || !this.mailListService.isNewMailActive()) {
             element.disabled = true;
           }
           break;
@@ -730,6 +741,9 @@ export class MailListComponent implements OnInit, OnDestroy {
       case "MessageMove":
         this.mailListService.moveMessages(event.item.queryParams.folder);
         break;
+      case "MessageLabels":
+        this.checkTagAndConfirm(event.item.queryParams);
+        break;
       case "MessageRegistration":
         this.chooseRegistrationType(event, null);
         break;
@@ -760,7 +774,37 @@ export class MailListComponent implements OnInit, OnDestroy {
     }
   }
 
+  private checkTagAndConfirm(queryParams) {
+    if (queryParams && queryParams.order === 1) { // 1 indica che l'etichetta è applicata, quindi è da rimuovere
+      this.confirmationService.confirm({
+        message: "Vuoi davvero rimuovere l'etichetta?",
+        header: "Conferma",
+        icon: "pi pi-exclamation-triangle",
+        accept: () => {
+          this.mailListService.toggleTag(queryParams.tag, true);
+        },
+        reject: () => { }
+      });
+    } else {
+      this.mailListService.toggleTag(queryParams.tag, true);
+    }
+  }
 
+  private showNewTagPopup() {
+    this.tagForm = new FormGroup({
+      tagName: new FormControl("", Validators.required)
+    });
+    this.displayNewTagPopup = true;
+    setTimeout(() => {
+      this.inputTextTag.nativeElement.focus();
+      this.setAttribute("idtag", "autocomplete", "false");
+    }, 50);
+  }
+
+  private setAttribute(feild, attribute, value): void {
+    const field = document.getElementById(feild);
+    field.setAttribute(attribute, value);
+  }
 
   private noteHandler(specificMessage?: Message) {
     if (specificMessage) {
@@ -867,6 +911,11 @@ export class MailListComponent implements OnInit, OnDestroy {
     });
   }
 
+  public onNewTag(tagName: string) {
+    console.log("WEV = ", tagName);
+    this.mailListService.createAndApplyTag(tagName);
+    this.displayNewTagPopup = false;
+  }
 
   public chooseRegistrationType(event, registrationType) {
     if (!registrationType && event) { // vengo dal click sul menu
@@ -990,7 +1039,7 @@ export class MailListComponent implements OnInit, OnDestroy {
     if (readdrresedOut) {
       return "READDRESSED_OUT";
     }
-    return "NOT_READDRESSABLE";
+    return this.mailListService.isReaddressActive(message) ? "READDRESSABLE" : "NOT_READDRESSABLE";
   }
 
   /**
