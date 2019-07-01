@@ -265,19 +265,17 @@ export class MailListService {
 
 
   /**
-   * Questa funzione si occupa di spostare i selectedMessages nel folder passato.
-   * @param folder
-   * @param selectedMessages
-   * @param loggedUser
+   *Questa funzione si occupa di spostare i selectedMessages nel folder passato 
+   *@param idPreviousFolder di folder passato ( fk_idPreviousFolder )
    */
-  public moveMessages(folder: Folder): void {
-    if (folder && folder.id) {
+  public moveMessages(idPreviousFolder: number): void {
+    if (idPreviousFolder && (typeof(idPreviousFolder) === "number" )) {
       this.messageFolderService
         .moveMessagesToFolder(
           this.selectedMessages.map((message: Message) => {
             return message.messageFolderList[0];  // Basta prendere il primo elemente perché ogni messaggio può essere in una sola cartella
           }),
-          folder.id,
+          idPreviousFolder,
           this.loggedUser.getUtente().id
         )
         .subscribe(res => {
@@ -293,7 +291,7 @@ export class MailListService {
    * @param loggedUser
    */
   public moveMessagesToTrash(): void {
-    this.moveMessages(this.trashFolder);
+    this.moveMessages(this.trashFolder.id);
   }
 
   public createAndApplyTag(tagName) {
@@ -589,6 +587,19 @@ export class MailListService {
       return true;
     }
   }
+  /**
+   *
+   * Questa funzione ritorna un booleano che indica se i messaggi selezionati sono repristinabili.
+   */
+  public isUndeleteActive(specificMessage?: Message): boolean {
+    const message: Message = specificMessage ? specificMessage : this.selectedMessages[0];
+    if ( (this.selectedMessages.length === 1) && message.messageFolderList[0].idFolder.type === "TRASH" ) {
+      return true;
+    } else {
+      return false;
+    }
+  }
+
   /**
    * Abilita/Disabilita il pulsante ToggleError.
    * Viene disabilitato e ritorna TRUE se il messaggio non è in errore e se il tag è già presente.

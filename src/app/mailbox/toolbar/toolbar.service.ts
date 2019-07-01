@@ -150,7 +150,7 @@ export class ToolBarService {
 
   private move(event) {
     if (event.item.queryParams.folder) {
-      this.mailListService.moveMessages(event.item.queryParams.folder);
+      this.mailListService.moveMessages(event.item.queryParams.folder.id);
     }
   }
 

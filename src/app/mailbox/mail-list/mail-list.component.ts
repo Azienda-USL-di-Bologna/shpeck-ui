@@ -180,6 +180,13 @@ export class MailListComponent implements OnInit, OnDestroy {
       disabled: true,
       queryParams: {},
       command: event => this.selectedContextMenuItem(event)
+    },
+    {
+      label: "Ripristina",
+      id: "MessageUndelete",
+      disabled: true,
+      queryParams: {},
+      command: event => this.selectedContextMenuItem(event)
     }
   ];
 
@@ -642,6 +649,12 @@ export class MailListComponent implements OnInit, OnDestroy {
             element.disabled = true;
           }
           break;
+        case "MessageUndelete":
+          element.disabled = false;
+          if (!this.mailListService.isUndeleteActive()) {
+            element.disabled = true;
+          }
+          break;
       }
     });
   }
@@ -739,7 +752,7 @@ export class MailListComponent implements OnInit, OnDestroy {
         this.deletingConfirmation();
         break;
       case "MessageMove":
-        this.mailListService.moveMessages(event.item.queryParams.folder);
+        this.mailListService.moveMessages(event.item.queryParams.folder.id);
         break;
       case "MessageLabels":
         this.checkTagAndConfirm(event.item.queryParams);
@@ -770,6 +783,10 @@ export class MailListComponent implements OnInit, OnDestroy {
         break;
       case "ToggleErrorFalse":
         this.mailListService.toggleError(false);
+        break;
+      case "MessageUndelete":
+        const idPreviousFolder = this.mailListService.selectedMessages[0].messageFolderList[0].fk_idPreviousFolder.id;
+        this.mailListService.moveMessages(idPreviousFolder);
         break;
     }
   }
