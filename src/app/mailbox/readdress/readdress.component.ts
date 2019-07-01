@@ -5,7 +5,7 @@ import { DynamicDialogRef, DynamicDialogConfig, DialogService } from "primeng/ap
 import { Subscription } from "rxjs";
 import { PecService } from "src/app/services/pec.service";
 import { Pec, ENTITIES_STRUCTURE, Tag, Message, MessageTag } from "@bds/ng-internauta-model";
-import { FiltersAndSorts, SortDefinition, SORT_MODES, FilterDefinition, FILTER_TYPES } from "@nfa/next-sdr";
+import { FiltersAndSorts, SortDefinition, SORT_MODES, FilterDefinition, FILTER_TYPES, PagingConf } from "@nfa/next-sdr";
 import { NtJwtLoginService, UtenteUtilities } from "@bds/nt-jwt-login";
 import { HttpClient } from "@angular/common/http";
 import { CUSTOM_SERVER_METHODS, BaseUrlType, getInternautaUrl } from "src/environments/app-constants";
@@ -23,6 +23,14 @@ export class ReaddressComponent implements OnInit, OnDestroy {
   public filteredPecs: any[];
   public readdressForm: FormGroup;
   private utenteConnesso: UtenteUtilities;
+
+  private pageConfNoLimit: PagingConf = {
+    conf: {
+      page: 0,
+      size: 999999
+    },
+    mode: "PAGE"
+  };
 
   constructor(
     protected http: HttpClient,
@@ -58,7 +66,7 @@ export class ReaddressComponent implements OnInit, OnDestroy {
               .PecWithPlainFields,
             this.buildFolderInitialFilterAndSort(idAziendeList),
             null,
-            null
+            this.pageConfNoLimit
           )
           .subscribe(data => {
             this.myPecs = data.results.filter(
