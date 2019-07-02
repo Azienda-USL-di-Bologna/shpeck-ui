@@ -625,7 +625,7 @@ export class MailListComponent implements OnInit, OnDestroy {
             element.disabled = true;
             this.cmItems.find(f => f.id === "MessageRegistration").items = null;
           } else {
-            this.cmItems.find(f => f.id === "MessageRegistration").items = this.buildRegistrationMenuItems(this.selectedContextMenuItem);
+            this.cmItems.find(f => f.id === "MessageRegistration").items = this.mailListService.buildRegistrationMenuItems(this._selectedPec, this.selectedContextMenuItem);
           }
           break;
         case "MessageNote":
@@ -649,7 +649,16 @@ export class MailListComponent implements OnInit, OnDestroy {
             element.disabled = true;
           }
           break;
-        case "MessageUndelete":
+        case "MessageArchive":
+          element.disabled = false;
+          if (!this.mailListService.isArchiveActive()) {
+            element.disabled = true;
+            this.cmItems.find(f => f.id === "MessageArchive").items = null;
+          } else {
+            this.cmItems.find(f => f.id === "MessageArchive").items = this.mailListService.buildAziendeUtenteMenuItems(this._selectedPec, this.selectedContextMenuItem);
+          }
+          break;
+         case "MessageUndelete":
           element.disabled = false;
           if (!this.mailListService.isUndeleteActive()) {
             element.disabled = true;
@@ -666,7 +675,7 @@ export class MailListComponent implements OnInit, OnDestroy {
    * Con un futuro refactoring si potrebbe spostare tutto quello che riguarda la protocollazione nel mail-list.service
    * @param command
    */
-  public buildRegistrationMenuItems(command: (any) => any): MenuItem[] {
+  /* public buildRegistrationMenuItems(command: (any) => any): MenuItem[] {
     const registrationItems = [];
     this.loggedUser.getAziendeWithPermission(FluxPermission.REDIGE).forEach(codiceAzienda => {
       const azienda = this.loggedUser.getUtente().aziende.find(a => a.codice === codiceAzienda);
@@ -694,7 +703,7 @@ export class MailListComponent implements OnInit, OnDestroy {
       );
     });
     return registrationItems;
-  }
+  } */
 
   /**
    * Questa funzione si occupa di iniziare la protocollazione del messaggio selezionato.
@@ -796,6 +805,9 @@ export class MailListComponent implements OnInit, OnDestroy {
         } else {
           this.mailListService.moveMessages(idPreviousFolder);
         }
+        break;
+      case "MessageArchive":
+        this.mailListService.archiveMessage(event, this._selectedPec);
         break;
     }
   }
@@ -1007,7 +1019,7 @@ export class MailListComponent implements OnInit, OnDestroy {
         this.prepareAndOpenDialogRegistrationDetail(messageTag, JSON.parse(messageTag.additionalData));
         break;
       case "REGISTABLE":
-        this.aziendeProtocollabiliSubCmItems = this.buildRegistrationMenuItems(this.selectedContextMenuItem);
+        this.aziendeProtocollabiliSubCmItems = this.mailListService.buildRegistrationMenuItems(this._selectedPec, this.selectedContextMenuItem);
         this.registrationMenu.toggle(event);
         break;
       case "NOT_REGISTABLE":

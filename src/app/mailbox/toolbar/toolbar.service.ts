@@ -37,7 +37,8 @@ export class ToolBarService {
     ["buttonsActive", new BehaviorSubject<boolean>(false)],
     ["deleteActive", new BehaviorSubject<boolean>(false)],
     ["moveActive", new BehaviorSubject<boolean>(false)],
-    ["searchActive", new BehaviorSubject<boolean>(false)]
+    ["searchActive", new BehaviorSubject<boolean>(false)],
+    ["archiveActive", new BehaviorSubject<boolean>(false)]
   ]);
 
   constructor(
@@ -65,6 +66,7 @@ export class ToolBarService {
             this.selectedFolder = pecFolderSelected.data as Folder;
             idPec = this.selectedFolder.fk_idPec.id;
             this.buttonsObservables.get("buttonsActive").next(false);
+            this.buttonsObservables.get("archiveActive").next(false);
             this.buttonsObservables.get("editVisible").next(false);
             this.buttonsObservables.get("deleteActive").next(false);
           } else if (pecFolderSelected.type === PecFolderType.TAG) {
@@ -112,8 +114,10 @@ export class ToolBarService {
         this.selectedMessages = this.messageEvent.selectedMessages;
         if (messageEvent.downloadedMessage) {
           this.buttonsObservables.get("buttonsActive").next(true);
+          this.buttonsObservables.get("archiveActive").next(true);
         } else  {
           this.buttonsObservables.get("buttonsActive").next(false);
+          this.buttonsObservables.get("archiveActive").next(false);
         }
         this.buttonsObservables.get("editVisible").next(false);
         const isMoveActive = this.mailListService.isMoveActive();

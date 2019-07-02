@@ -56,7 +56,8 @@
       <button
         pButton type="button" label="Fascicola"
         icon="fa fa-archive" class="button-styles ui-button-raised ui-button-secondary custom-border"
-        [disabled]="true">
+        (click)="handleEvent($event, 'archive')"
+        [disabled]="!(toolBarService.buttonObs.get('archiveActive') | async)">
       </button>
       <!-- Ricerca -->
       <input #search matInput type="text" pInputText size="50" placeholder="Cerca..." (keydown.enter)="onEnter(search.value)"

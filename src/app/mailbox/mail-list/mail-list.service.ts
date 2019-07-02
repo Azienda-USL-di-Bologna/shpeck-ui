@@ -573,6 +573,91 @@ export class MailListService {
   }
 
   /**
+   * Apre l'url di archiviazione su Babel
+   * @param event
+   * @param selectedPec
+   */
+  public archiveMessage(event: any, selectedPec: Pec) {
+    console.log("event", event);
+    if (this.selectedMessages && this.selectedMessages.length === 1) {
+      const azienda: Azienda = this.loggedUser.getUtente().aziende.find(a => a.codice === event.item.queryParams.codiceAzienda);
+      let decodedUrl = "";
+      decodedUrl = decodeURI(azienda.urlCommands["ARCHIVE_MESSAGE"]);
+      decodedUrl = decodedUrl.replace("[id_message]", this.selectedMessages[0].id.toString());
+      decodedUrl = decodedUrl.replace("[richiesta]", Utils.genereateGuid());
+      console.log("command", decodedUrl);
+      window.open(decodedUrl);
+    }
+  }
+
+
+  /**
+    * Questo metodo si occupa di construire un menu che contenga le aziende passate come items.
+    * Le aziende non associate alla pec passata (selectedPec) avranno un messaggio d'avviso.
+    * @param codiciAziende
+    * @param selectedPec
+    * @param idCommand
+    * @param command
+    */
+  public buildAziendeMenuItems(codiciAziende: string[], selectedPec: Pec, idCommand: string, command: (any) => any): MenuItem[] {
+    const aziendeMenuItems = [];
+    codiciAziende.forEach(codiceAzienda => {
+      const azienda = this.loggedUser.getUtente().aziende.find(a => a.codice === codiceAzienda);
+      let pIspecDellAzienda = true;
+      let pIcon = "";
+      let pTitle = "";
+      if (!selectedPec.pecAziendaList.find(pecAzienda => pecAzienda.fk_idAzienda.id === azienda.id)) {
+        pIspecDellAzienda = false;
+        pIcon = "pi pi-question-circle";
+        pTitle = "L'azienda non è associata alla casella del messaggio selezionato.";
+      }
+      aziendeMenuItems.push(
+        {
+          label: azienda.nome,
+          icon: pIcon,
+          id: idCommand,
+          title: pTitle,
+          disabled: false,
+          queryParams: {
+            codiceAzienda: codiceAzienda,
+            isPecDellAzienda: pIspecDellAzienda,
+          },
+          command: event => command(event)
+        }
+      );
+    });
+    return aziendeMenuItems;
+  }
+
+  /**
+   * Questa funzione si occupa di creare un MenuItem[] che contenga come items la
+   * lista delle aziende su cui l'utente loggato ha il permesso redige per la funzione protocolla Pec.
+   * @param command
+   */
+  public buildRegistrationMenuItems(selectedPec: Pec, command: (any) => any): MenuItem[] {
+    return this.buildAziendeMenuItems(
+      this.loggedUser.getAziendeWithPermission(FluxPermission.REDIGE),
+      selectedPec,
+      "MessageRegistration",
+      command
+    );
+  }
+
+  /**
+   * Questa funzione si occupa di creare un MenuItem[] che contenga come items la
+   * lista delle aziende dell'utente loggato .
+   * @param command
+   */
+  public buildAziendeUtenteMenuItems(selectedPec: Pec, command: (any) => any): MenuItem[] {
+    return this.buildAziendeMenuItems(
+      this.loggedUser.getUtente()["aziende"].map(a => a.codice),
+      selectedPec,
+      "MessageArchive",
+      command
+    );
+  }
+
+  /**
    * Questa funzione ritorna un booleano che indica se i messaggi selezionati sono reindirizzabili.
    */
   public isReaddressActive(specificMessage?: Message): boolean {
@@ -587,9 +672,23 @@ export class MailListService {
       return true;
     }
   }
+
   /**
+   * Questa funzione ritorna un booleano che indica se il messaggio selezionato è archiviabile.
+   */
+  public isArchiveActive(): boolean {
+    if (!this.selectedMessages ||
+      this.selectedMessages.length !== 1 ||
+      this.selectedMessages[0].messageFolderList[0].idFolder.type === "TRASH") {
+      return false;
+    } else {
+      return true;
+    }
+  }
+
+    /**
    *
-   * Questa funzione ritorna un booleano che indica se i messaggi selezionati sono repristinabili.
+   * Questa funzione ritorna un booleano che indica se i messaggi selezionati sono ripristinabili.
    */
   public isUndeleteActive(specificMessage?: Message): boolean {
     const message: Message = specificMessage ? specificMessage : this.selectedMessages[0];
@@ -599,7 +698,7 @@ export class MailListService {
       return false;
     }
   }
-
+  
   /**
    * Abilita/Disabilita il pulsante ToggleError.
    * Viene disabilitato e ritorna TRUE se il messaggio non è in errore e se il tag è già presente.

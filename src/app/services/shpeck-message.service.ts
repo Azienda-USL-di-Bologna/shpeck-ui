@@ -100,6 +100,11 @@ export class ShpeckMessageService extends NextSDREntityProvider {
     const url = getInternautaUrl(BaseUrlType.Shpeck) + "/" + CUSTOM_SERVER_METHODS.downloadAllEmlAttachment + "/" + message.id + "?emlSource=" + emlSorce;
     return this.http.get(url, {responseType: "blob"});
   }
+
+  public archiveMessage(message: Message): Observable<any> {
+    const url = getInternautaUrl(BaseUrlType.Shpeck) + "/" + CUSTOM_SERVER_METHODS.archiveMessage + "/" + message.id;
+    return this.http.post(url, null);
+  }
 }
 
 /**
