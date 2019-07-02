@@ -785,8 +785,17 @@ export class MailListComponent implements OnInit, OnDestroy {
         this.mailListService.toggleError(false);
         break;
       case "MessageUndelete":
-        const idPreviousFolder = this.mailListService.selectedMessages[0].messageFolderList[0].fk_idPreviousFolder.id;
-        this.mailListService.moveMessages(idPreviousFolder);
+        let idPreviousFolder = this.mailListService.selectedMessages[0].messageFolderList[0].fk_idPreviousFolder.id;
+        const received = this.mailListService.selectedMessages[0].inOut === "IN" ? true : false;
+        if (idPreviousFolder === null && received === true) {
+          idPreviousFolder = this._selectedPec.folderList.filter(folder => folder.type === "INBOX" )[0].id;
+          this.mailListService.moveMessages(idPreviousFolder);
+        } else if (idPreviousFolder === null && received === false) {
+          idPreviousFolder = this._selectedPec.folderList.filter(folder => folder.type === "SENT" )[0].id;
+          this.mailListService.moveMessages(idPreviousFolder);
+        } else {
+          this.mailListService.moveMessages(idPreviousFolder);
+        }
         break;
     }
   }
