@@ -419,8 +419,12 @@ export class MailListService {
         });
       }
     });
+    const inFolder = this.folders.filter(folder => folder.type === "INBOX")[0].id;
     if (messagesToUpdate.length > 0) {
-      this.messageService.batchHttpCall(messagesToUpdate).subscribe();
+      this.messageService.batchHttpCall(messagesToUpdate).subscribe( () => {
+        // reload Folder
+        this.mailFoldersService.doReloadFolder(inFolder);
+      });
     }
   }
 

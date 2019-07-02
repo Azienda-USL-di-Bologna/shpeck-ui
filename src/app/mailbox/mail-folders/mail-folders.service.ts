@@ -15,6 +15,7 @@ export class MailFoldersService {
   private _pecFolderSelected: BehaviorSubject<PecFolder> = new BehaviorSubject<PecFolder>(null);
   private _pecFoldersAndTags: BehaviorSubject<FoldersAndTags> = new BehaviorSubject<FoldersAndTags>(null);
   private _reloadTag: Subject<number>[] = [];
+  private _reloadFolder: Subject<number>[] = [];
 
   constructor(
     private http: HttpClient
@@ -53,12 +54,28 @@ export class MailFoldersService {
     );
   }
 
+  public getReloadFolder(idFolder: number): Observable<number> {
+    if (!this._reloadFolder[idFolder]) {
+      this._reloadFolder[idFolder] = new Subject<number>();
+    }
+    return this._reloadFolder[idFolder].asObservable();
+  }
+
+  public doReloadFolder(idFolder: number, unSeen= true): void {
+    const result = this.countMessageInFolder(idFolder, unSeen);
+    console.log("doReloadFolder",result);
+    result.subscribe((res: number) => this._reloadFolder[idFolder].next(res) );
+  }
+
   public get pecFoldersAndTags(): Observable<FoldersAndTags> {
     return this._pecFoldersAndTags.asObservable();
   }
 
-  public countMessageInFolder(folderId: number): Observable<number> {
-    const url = getInternautaUrl(BaseUrlType.Shpeck) + "/" + CUSTOM_SERVER_METHODS.countMessageInFolder + "/" + folderId;
+  public countMessageInFolder(folderId: number, unSeen = false): Observable<number> {
+    let url = getInternautaUrl(BaseUrlType.Shpeck) + "/" + CUSTOM_SERVER_METHODS.countMessageInFolder + "/" + folderId;
+    if (unSeen === true) {
+      url += "?unSeen=true";
+    }
     return this.http.get(url) as Observable<number>;
   }
 }
