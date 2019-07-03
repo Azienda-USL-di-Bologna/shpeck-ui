@@ -65,10 +65,10 @@
         </ul>
       </p-accordionTab>
       <p-accordionTab
-        *ngIf="fullMessage?.emlData?.attachments.length > 0"
+        *ngIf="fullMessage?.emlData?.realAttachmentNumber > 0"
         header="Allegati"
-        selected="fullMessage?.emlData?.attachments.length > 0"
-        [disabled]="fullMessage?.emlData?.attachments == null"
+        selected="fullMessage?.emlData?.realAttachmentNumber > 0"
+        [disabled]="fullMessage?.emlData?.realAttachmentNumber == 0"
         class="accordion-allegati">
         <div class="box-allegati">
           <div *ngFor="let attachment of fullMessage?.emlData?.attachments">

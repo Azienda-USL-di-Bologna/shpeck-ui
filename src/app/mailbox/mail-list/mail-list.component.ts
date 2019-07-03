@@ -1,7 +1,7 @@
 import { Component, OnInit, Output, EventEmitter, ViewChild, ElementRef, OnDestroy } from "@angular/core";
 import { buildLazyEventFiltersAndSorts } from "@bds/primeng-plugin";
 import { Message, ENTITIES_STRUCTURE, MessageAddress, AddresRoleType, Folder, MessageTag, InOut, Tag, Pec, MessageType, FolderType, Note, FluxPermission, Azienda, MessageStatus } from "@bds/ng-internauta-model";
-import { ShpeckMessageService } from "src/app/services/shpeck-message.service";
+import { ShpeckMessageService, MessageEvent } from "src/app/services/shpeck-message.service";
 import { FiltersAndSorts, FilterDefinition, FILTER_TYPES, SortDefinition, SORT_MODES, PagingConf, BatchOperation, BatchOperationTypes } from "@nfa/next-sdr";
 import { TagService } from "src/app/services/tag.service";
 import { Observable, Subscription } from "rxjs";
@@ -265,6 +265,10 @@ export class MailListComponent implements OnInit, OnDestroy {
     if (this.settingsService.getImpostazioniVisualizzazione()) {
       this.openDetailInPopup = this.settingsService.getHideDetail() === "true";
     }
+    this.subscriptions.push(this.messageService.messageEvent.subscribe(
+      (messageEvent: MessageEvent) => {
+        console.log("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa ", messageEvent);
+      }));
   }
 
   public openDetailPopup(event, row, message) {
