@@ -171,12 +171,16 @@
   color: #393939
 }
 
-::ng-deep .fas.fa-tag.color-green {
-  color: #14c014 !important;
+::ng-deep .local-offer-icon::before {
+  content: 'local_offer';
 }
 
-::ng-deep .fas.fa-tag.color-yellow {
-  color: #d8ce10 !important;
+::ng-deep .material-icons.color-green {
+  color: darkcyan !important;
+}
+
+::ng-deep .material-icons.color-yellow {
+  color: orange !important;
 }
 
 ::ng-deep .fas.new-tag {

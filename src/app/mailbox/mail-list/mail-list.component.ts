@@ -36,7 +36,7 @@ export class MailListComponent implements OnInit, OnDestroy {
     private mailFoldersService: MailFoldersService,
     private toolBarService: ToolBarService,
     private datepipe: DatePipe,
-    private confirmationService: ConfirmationService,
+    public confirmationService: ConfirmationService,
     private messagePrimeService: MessageService,
     private noteService: NoteService,
     private settingsService: SettingsService,
@@ -807,8 +807,25 @@ export class MailListComponent implements OnInit, OnDestroy {
         }
         break;
       case "MessageArchive":
-        this.mailListService.archiveMessage(event, this._selectedPec);
+        this.askConfirmationBeforeArchiviation(event);
         break;
+    }
+  }
+
+  private askConfirmationBeforeArchiviation(event) {
+    if (this.mailListService.selectedMessages && this.mailListService.selectedMessages.length === 1 && event && event.item && event.item) {
+      if (!event.item.queryParams.isPecDellAzienda) {
+        this.confirmationService.confirm({
+          header: "Conferma",
+          message: "<b>Attenzione! Stai fascicolando su una azienda non associata alla casella selezionata su cui è arrivato il messaggio.</b><br/><br/>Sei sicuro?",
+          icon: "pi pi-exclamation-triangle",
+          accept: () => {
+            this.mailListService.archiveMessage(event);
+          }
+        });
+      } else {
+        this.mailListService.archiveMessage(event);
+      }
     }
   }
 

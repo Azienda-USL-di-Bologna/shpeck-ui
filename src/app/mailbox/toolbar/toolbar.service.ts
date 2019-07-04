@@ -52,6 +52,7 @@ export class ToolBarService {
     private loginService: NtJwtLoginService
     ) {
       this.move = this.move.bind(this);
+      // this.archive = this.archive.bind(this);
       this.subscriptions.push(this.loginService.loggedUser$.subscribe((utente: UtenteUtilities) => {
         if (utente) {
           if (!this.loggedUser || utente.getUtente().id !== this.loggedUser.getUtente().id) {
@@ -112,12 +113,11 @@ export class ToolBarService {
         console.log("DATA = ", messageEvent);
         this.messageEvent = messageEvent;
         this.selectedMessages = this.messageEvent.selectedMessages;
+        this.buttonsObservables.get("archiveActive").next(this.mailListService.isArchiveActive());
         if (messageEvent.downloadedMessage) {
           this.buttonsObservables.get("buttonsActive").next(true);
-          this.buttonsObservables.get("archiveActive").next(true);
         } else  {
           this.buttonsObservables.get("buttonsActive").next(false);
-          this.buttonsObservables.get("archiveActive").next(false);
         }
         this.buttonsObservables.get("editVisible").next(false);
         const isMoveActive = this.mailListService.isMoveActive();
@@ -151,6 +151,14 @@ export class ToolBarService {
   public buildMoveMenuItems() {
     return this.mailListService.buildMoveMenuItems(this.folders, this.selectedFolder, this.move);
   }
+
+  public buildArchiveMenuItems(command) {
+    return this.mailListService.buildAziendeUtenteMenuItems(this._selectedPec, command);
+  }
+
+  /* private archive(event) {
+    this.mailListService.archiveMessage(event);
+  } */
 
   private move(event) {
     if (event.item.queryParams.folder) {

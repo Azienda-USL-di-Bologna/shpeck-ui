@@ -8,7 +8,7 @@ import { MailFoldersService, FoldersAndTags, PecFolderType, PecFolder } from "..
 import { NtJwtLoginService, UtenteUtilities } from "@bds/nt-jwt-login";
 import { BatchOperation, BatchOperationTypes } from "@nfa/next-sdr";
 import { BaseUrls, BaseUrlType } from "src/environments/app-constants";
-import { ShpeckMessageService } from "src/app/services/shpeck-message.service";
+import { MessageEvent, ShpeckMessageService } from "src/app/services/shpeck-message.service";
 import { DialogService } from "primeng/api";
 import { ReaddressComponent } from "../readdress/readdress.component";
 import { TagService } from "src/app/services/tag.service";
@@ -30,6 +30,7 @@ export class MailListService {
   private selectedTag: Tag = null;
 
   private _newTagInserted: BehaviorSubject<Tag> = new BehaviorSubject<Tag>(null);
+  private messageEvent: MessageEvent;
 
 
   constructor(
@@ -71,6 +72,9 @@ export class MailListService {
           this.selectedTag = null;
         }
       }
+    }));
+    this.subscriptions.push(this.messageService.messageEvent.subscribe((messageEvent: MessageEvent) => {
+      this.messageEvent = messageEvent;
     }));
   }
 
@@ -205,13 +209,13 @@ export class MailListService {
         tia.order = 3;
         break;
         case this.selectedMessages.length:  // Tutti i messaggi hanno il tag
-        tia.iconType = "fas fa-tag color-green";
+        tia.iconType = "material-icons local-offer-icon color-green";
         tia.operation = "DELETE";
         tia.title = "Etichetta associata, seleziona per rimuoverla";
         tia.order = 1;
         break;
         default:                            // Almeno un messaggio ha il tag
-        tia.iconType = "fas fa-tag color-yellow";
+        tia.iconType = "material-icons local-offer-icon color-yellow";
         tia.operation = "INSERT";
         tia.title = "Uno dei messaggi selezionati ha l'etichetta associata, seleziona per applicarla a tutti i selezionati";
         tia.order = 2;
@@ -265,7 +269,7 @@ export class MailListService {
 
 
   /**
-   *Questa funzione si occupa di spostare i selectedMessages nel folder passato 
+   *Questa funzione si occupa di spostare i selectedMessages nel folder passato
    *@param idPreviousFolder di folder passato ( fk_idPreviousFolder )
    */
   public moveMessages(idPreviousFolder: number): void {
@@ -579,11 +583,10 @@ export class MailListService {
   /**
    * Apre l'url di archiviazione su Babel
    * @param event
-   * @param selectedPec
    */
-  public archiveMessage(event: any, selectedPec: Pec) {
+  public archiveMessage(event: any) {
     console.log("event", event);
-    if (this.selectedMessages && this.selectedMessages.length === 1) {
+    if (this.selectedMessages && this.selectedMessages.length === 1 && event && event.item && event.item) {
       const azienda: Azienda = this.loggedUser.getUtente().aziende.find(a => a.codice === event.item.queryParams.codiceAzienda);
       let decodedUrl = "";
       decodedUrl = decodeURI(azienda.urlCommands["ARCHIVE_MESSAGE"]);
@@ -593,7 +596,6 @@ export class MailListService {
       window.open(decodedUrl);
     }
   }
-
 
   /**
     * Questo metodo si occupa di construire un menu che contenga le aziende passate come items.
@@ -662,7 +664,7 @@ export class MailListService {
   }
 
   /**
-   * Questa funzione ritorna un booleano che indica se i messaggi selezionati sono reindirizzabili.
+   * Questa funzione ritorna un booleano che indica se il messaggio selezionato è reindirizzabile.
    */
   public isReaddressActive(specificMessage?: Message): boolean {
     const message: Message = specificMessage ? specificMessage : this.selectedMessages[0];
@@ -702,7 +704,7 @@ export class MailListService {
       return false;
     }
   }
-  
+
   /**
    * Abilita/Disabilita il pulsante ToggleError.
    * Viene disabilitato e ritorna TRUE se il messaggio non è in errore e se il tag è già presente.
