@@ -37,6 +37,7 @@ export class ShpeckMessageService extends NextSDREntityProvider {
     if (messageToDownload && messageToDownload.id) {
       this.extractEmlData(messageToDownload.id, EMLSOURCE.MESSAGE).subscribe(
         (data: EmlData) => {
+          messageToDownload.attachmentsNumber = data.realAttachmentNumber;
           this._messageEvent.next({
             downloadedMessage: {
               message: messageToDownload,
