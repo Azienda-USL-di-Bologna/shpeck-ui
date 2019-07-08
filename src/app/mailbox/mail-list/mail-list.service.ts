@@ -682,10 +682,10 @@ export class MailListService {
   /**
    * Questa funzione ritorna un booleano che indica se il messaggio selezionato è archiviabile.
    */
-  public isArchiveActive(): boolean {
-    if (!this.selectedMessages ||
-      this.selectedMessages.length !== 1 ||
-      this.selectedMessages[0].messageFolderList[0].idFolder.type === "TRASH") {
+  public isArchiveActive(specificMessage?: Message): boolean {
+    const message: Message = specificMessage ? specificMessage : this.selectedMessages[0];
+    if ((!specificMessage && this.selectedMessages.length !== 1) ||
+      message.messageFolderList[0].idFolder.type === "TRASH") {
       return false;
     } else {
       return true;

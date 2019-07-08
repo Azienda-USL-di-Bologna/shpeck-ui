@@ -55,7 +55,7 @@
       <!-- Fascicola -->
       <button
         pButton type="button" label="Fascicola"
-        icon="fa fa-archive" class="button-styles ui-button-raised ui-button-secondary custom-border"
+        icon="fa fa-server" class="button-styles ui-button-raised ui-button-secondary custom-border rotate"
         (click)="handleEvent($event, 'archive')"
         [disabled]="!(toolBarService.buttonObs.get('archiveActive') | async)">
       </button>

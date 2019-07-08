@@ -53,6 +53,7 @@ export class MailListComponent implements OnInit, OnDestroy {
   @ViewChild("noteArea") private noteArea;
   @ViewChild("idtag") private inputTextTag;
   @ViewChild("registrationMenu") private registrationMenu: Menu;
+  @ViewChild("archiviationMenu") private archiviationMenu: Menu;
 
   public _selectedTag: Tag;
   public _selectedFolder: Folder;
@@ -76,6 +77,7 @@ export class MailListComponent implements OnInit, OnDestroy {
   private previousFilter: FilterDefinition[] = [];
   private foldersSubCmItems: MenuItem[] = null;
   private aziendeProtocollabiliSubCmItems: MenuItem[] = null;
+  private aziendeFascicolabiliSubCmItems: MenuItem[] = null;
   private registerMessageEvent: any = null;
   private loggedUser: UtenteUtilities;
 
@@ -206,6 +208,12 @@ export class MailListComponent implements OnInit, OnDestroy {
   };
   public tagForm;
   public registrationDetail: any = null;
+  public archiviationDetail: any = {
+    displayArchiviationDetail: false,
+    buttonArchivable: false,
+    message: null,
+    additionalData: null
+  };
   public noteObject: Note = new Note();
   public fromOrTo: string;
   public loading = false;
@@ -811,6 +819,7 @@ export class MailListComponent implements OnInit, OnDestroy {
         }
         break;
       case "MessageArchive":
+        this.archiviationDetail.displayArchiviationDetail = false;
         this.askConfirmationBeforeArchiviation(event);
         break;
     }
@@ -1172,6 +1181,57 @@ export class MailListComponent implements OnInit, OnDestroy {
     return message.messageTagList.some(mt => mt.idTag.name === tagname) ? true : false;
   }
 
+  public getArchiviationStatus(message: Message) {
+    if (!message.messageTagList) {
+      return this.mailListService.isArchiveActive(message) ? "ARCHIVABLE" : "NOT_ARCHIVABLE";
+    }
+    return message.messageTagList.find(mt => mt.idTag.name === "archived") ? "ARCHIVED" :
+      this.mailListService.isArchiveActive(message) ? "ARCHIVABLE" : "NOT_ARCHIVABLE";
+  }
+
+
+  public iconArchiveClicked(event: any, message: Message, archivedstatus: string) {
+    let messageTag = null;
+    switch (archivedstatus) {
+      case "ARCHIVED":
+        messageTag = message.messageTagList.find(mt => mt.idTag.name === "archived");
+        this.prepareAndOpenDialogArchiviationDetail(messageTag, JSON.parse(messageTag.additionalData), message);
+        break;
+      case "ARCHIVABLE":
+        this.aziendeFascicolabiliSubCmItems = this.mailListService.buildAziendeUtenteMenuItems(this._selectedPec, this.selectedContextMenuItem);
+        this.archiviationMenu.toggle(event);
+        break;
+      case "NOT_ARCHIVABLE":
+        this.messagePrimeService.add({
+          severity: "warn",
+          summary: "Attenzione",
+          detail: "Questo messaggio non può essere fascicolato.", life: 3500
+        });
+        break;
+    }
+  }
+
+  public prepareAndOpenDialogArchiviationDetail(messageTag: MessageTag, additionalData: any, message: Message) {
+    const archiviationDetail = [];
+    /* additionalData.forEach(element => {
+      archiviationDetail.push(
+        {
+          oggettoGddoc: element.idGddoc.oggetto,
+          oggettoFascicolo: element.idFascicolo.oggetto,
+          numerazioneGerarchica: element.idFascicolo.numerazioneGerarchica,
+          descrizioneUtente: element.idUtente.descrizione,
+          descrizioneAzienda: element.idAzienda.descrizione,
+          data: new Date(element.dataArchiviazione).toLocaleDateString("it-IT", { hour: "numeric", minute: "numeric" })
+        }
+      );
+    }); */
+    this.archiviationDetail = {
+      displayArchiviationDetail: true,
+      buttonArchivable: this.mailListService.isArchiveActive(message),
+      message: message,
+      additionalData: additionalData// [archiviationDetail]
+    };
+  }
   /*
 
     background-color: rgba(153,51,102,0.1) !important;

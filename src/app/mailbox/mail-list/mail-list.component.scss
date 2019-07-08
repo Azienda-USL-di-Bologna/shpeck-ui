@@ -64,6 +64,7 @@
   justify-content: space-between;
   // align-items:
 }
+
 .prima-riga-destra {
   display: flex;
   flex-direction: row;
@@ -90,7 +91,11 @@
   // display: inline-block;
   //width: 20px;
 }
-
+.fa-icon {
+  vertical-align: super;
+  font-size: 13px;
+  margin-left: 1px;
+}
 .second-line-error {
   font-size: 15px;
   display: block;
@@ -152,7 +157,7 @@
   //overflow: scroll;
 }
 
-.button-readdress button {
+.button-centopx button {
   width: 100px;
 }
 
