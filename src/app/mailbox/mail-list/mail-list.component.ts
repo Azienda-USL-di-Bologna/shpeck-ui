@@ -1212,24 +1212,11 @@ export class MailListComponent implements OnInit, OnDestroy {
   }
 
   public prepareAndOpenDialogArchiviationDetail(messageTag: MessageTag, additionalData: any, message: Message) {
-    const archiviationDetail = [];
-    /* additionalData.forEach(element => {
-      archiviationDetail.push(
-        {
-          oggettoGddoc: element.idGddoc.oggetto,
-          oggettoFascicolo: element.idFascicolo.oggetto,
-          numerazioneGerarchica: element.idFascicolo.numerazioneGerarchica,
-          descrizioneUtente: element.idUtente.descrizione,
-          descrizioneAzienda: element.idAzienda.descrizione,
-          data: new Date(element.dataArchiviazione).toLocaleDateString("it-IT", { hour: "numeric", minute: "numeric" })
-        }
-      );
-    }); */
     this.archiviationDetail = {
       displayArchiviationDetail: true,
       buttonArchivable: this.mailListService.isArchiveActive(message),
       message: message,
-      additionalData: additionalData// [archiviationDetail]
+      additionalData: additionalData
     };
   }
   /*

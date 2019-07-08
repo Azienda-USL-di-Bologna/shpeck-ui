@@ -300,7 +300,7 @@
     </p-header>
     <div *ngIf="archiviationDetail?.additionalData">
         <div *ngFor="let d of archiviationDetail.additionalData">
-            <li><b>{{d.dataArchiviazione | date: 'EE d MMM y, H:mm' | titlecase}}</b>: {{d.idUtente.descrizione}} ha archiviato nel fascicolo {{d.idFascicolo.oggetto}} [{{d.idFascicolo.numerazioneGerarchica}}]</li>
+            <li><b>{{d.dataArchiviazione | date: 'EE d MMM y, H:mm' | titlecase}}</b>: {{d.idUtente.descrizione}} ha fascicolato in {{d.idFascicolo.oggetto}} [{{d.idFascicolo.numerazioneGerarchica}}]</li>
         </div>
     </div>
     <p-footer class="button-centopx">
