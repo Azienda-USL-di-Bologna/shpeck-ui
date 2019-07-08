@@ -4,3 +4,6 @@ node_modules
 package-lock.json
 .editorconfig
 .gitignore
+dist
+yarn.lock
+yarn-error.log

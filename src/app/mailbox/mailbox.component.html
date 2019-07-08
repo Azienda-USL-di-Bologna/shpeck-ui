@@ -1,0 +1,45 @@
+<div class="p-col container p-nogutter">
+
+  <div class="buttons-bar" style="background-color: sandybrown">
+    <app-toolbar (filtersEmitter)="onFilterSelection($event)"></app-toolbar>
+  </div>
+  <div #mailContainer class="mail-container p-col">
+
+    <!-- Left side -->
+    <div #mailFolder class="content-left">
+        <app-mail-folders (folderEmitter)="onFolderSelected($event)"></app-mail-folders>
+    </div>
+
+    <div #leftSlider class="slider text-center">
+        <div></div>
+    </div>
+
+    <!-- Right side -->
+    <div #rightSide class="content-right d-flex">
+
+      <div #mailList class="mail-list">
+        <!-- <app-mail-list
+          [folder] = "folderSelected"
+          [filters] = "filtersSelected"
+          (messageClicked)="messageClicked($event)">
+        </app-mail-list> -->
+        <app-mail-list *ngIf="componentToLoad === 'mail-list'"
+          (messageClicked)="messageClicked($event)">
+        </app-mail-list>
+        <app-mail-drafts *ngIf="componentToLoad === 'mail-draft'" [pecId]="_selectedPecId"></app-mail-drafts>
+      </div>
+
+      <div [ngClass]="hideDetail ? 'hidden' : 'slider'" #rightSlider class="text-center">
+          <div></div>
+      </div>
+
+      <div [ngClass]="hideDetail ? 'hidden' : 'mail-detail'" #mailDetail>
+        <div [ngClass]="{'overlap-div' : sliding}"></div>
+        <app-mail-detail
+          [message]="message">
+        </app-mail-detail>
+      </div>
+    </div>
+  </div>
+</div>
+<p-toast position="top-right"></p-toast>

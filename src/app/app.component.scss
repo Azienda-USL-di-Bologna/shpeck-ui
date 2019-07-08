@@ -1,0 +1,99 @@
+/* -----------CONTENT WRAPPER--------------- */
+.full-width {
+  width: 100%;
+}
+.page-wrapper {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  height: 100%;
+}
+.content-wrapper {
+  display: flex;
+  flex: 1;
+  min-height: 0;
+}
+::ng-deep .content-wrapper > app-mailbox {
+  width: 100%;
+  height: 100%;
+}
+
+
+// ::ng-deep * {
+//   box-sizing: content-box !important;
+// }
+
+/* ------------TEMPLATE GENERALE---------------------- */
+/* --- RIGHE P-TABLE --- */
+::ng-deep body .ui-dialog .ui-dialog-titlebar, .titolo-popup {
+  background-color: #993366;
+  color: white;
+}
+
+::ng-deep body .ui-dialog .ui-dialog-titlebar .ui-dialog-titlebar-icon {
+  color: white;
+}
+
+::ng-deep body .ui-dialog .ui-dialog-titlebar-close {
+  color: white;
+}
+
+::ng-deep body .ui-table .ui-table-tbody > tr.ui-state-highlight {
+  background-color: #FCF9BF !important;
+  color: black !important;
+}
+
+/* Vale per tutto gli autocomplete, la dropdown sarà largo quanto l'input */
+::ng-deep .ui-autocomplete-panel {
+  width: min-content !important;
+}
+
+/* tutti i footer  */
+::ng-deep p-footer {
+  display: flex;
+  justify-content: space-around;
+}
+
+/* Download button */
+::ng-deep .download-button {
+  background-color: transparent !important;
+  border: none !important;
+  color: black !important;
+  font-size: 15px !important;
+}
+::ng-deep .download-button:hover {
+  background-color: #c8c8c8 !important;
+  border-color: #c8c8c8 !important;
+}
+
+// -----------CUSTOM SCROLLBAR----------------- //
+// CHROME
+
+::ng-deep ::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+::ng-deep  ::-webkit-scrollbar-track {
+  background: #f1f1f1;
+}
+::ng-deep  ::-webkit-scrollbar-thumb {
+  background: #88888857;
+}
+::ng-deep  ::-webkit-scrollbar-thumb:hover {
+  background: #8888889c;
+}
+
+// FIREFOX
+::ng-deep * {
+  scrollbar-color: #88888857 #f1f1f1;
+  scrollbar-width: thin;
+}
+::ng-deep *:hover {
+  scrollbar-color: #8888889c #f1f1f1;
+}
+
+@media only screen and (max-height: 801px) { /* For low resolutions */
+  ::ng-deep .new-draft .ui-dialog-content.ui-widget-content {
+    height: 91vh !important;
+  }
+}

@@ -1,0 +1,197 @@
+.flex-container{
+    display: flex;
+    flex: 1;
+    flex-direction: column;
+}
+
+.d-flex{
+    display: flex;
+}
+
+/* .aaa > div{
+    top: 50%;
+} */
+::ng-deep .general-style-icon {
+    color: #2e4a65 !important;
+    // font-size: 1.25em;
+    font-size: 18px;
+}
+/* ::ng-deep .material-icons-outlined.readdressed-icon,
+::ng-deep .material-icons-outlined.registered-icon {
+    font-size: 1.25em;
+} */
+/* ----- ICONE  ------ */
+::ng-deep .readdressed-icon::before {
+    content: 'low_priority';
+}
+::ng-deep .registered-icon::before {
+    content: 'assignment_turned_in';
+}
+::ng-deep .inbox-icon::before {
+    content: 'inbox';
+}
+::ng-deep .outbox-icon::before {
+    content: 'hourglass_empty';
+}
+::ng-deep .sent-icon::before {
+    content: 'send';
+}
+::ng-deep .draft-icon::before {
+    content: 'drafts';
+}
+::ng-deep .more-icon::before {
+    content: 'more';
+    // content: 'label';
+}
+::ng-deep .loyalty-icon::before {
+    content: 'loyalty';
+}
+::ng-deep .local-offer-icon::before {
+    content: 'local_offer';
+}
+::ng-deep .trash-icon::before {
+    content: 'delete';
+}
+::ng-deep .bigger-icon {
+    font-size: 20px !important;
+    margin-left: -2px !important;
+    margin-right: 2px !important;
+}
+::ng-deep .smaller-icon {
+    font-size: 15px !important;
+    margin-right: 5px !important;
+    /* margin-left: -2px !important;
+    margin-right: 0px !important; */
+}
+::ng-deep .error-icon {
+    margin-right: 4px !important;
+}
+
+
+
+// :host .tree-style-box.body.ui-tree {
+//     cursor: e-resize !important;
+//     color: blueviolet !important;
+//     font-size: xx-large !important;
+//     border: none!important;
+//     background-color: blue !important;
+// }
+
+// .tree-style-container p-tree {
+//     font-size: 14px !important;
+//     border: none !important;
+// }
+
+::ng-deep .tree-style, ::ng-deep .ui-tree-container {
+    font-size: 13px !important;
+    border: none !important;
+    padding: 0 !important;
+}
+
+// ::ng-deep .ui-treenode-content-selected {
+//     background-color: aquamarine;
+// }
+
+// ::ng-deep .ui-treenode-content-selected {
+//     color: black !important;
+//     background-color: #eff0ef;
+//     font-weight: bold;
+//   }
+
+  ::ng-deep body .ui-tree .ui-tree-container .ui-treenode .ui-treenode-content .ui-treenode-label.ui-state-highlight {
+    background-color: #eaeaea !important;
+    color: black;
+    font-weight: bold;
+  }
+
+  ::ng-deep .tree-node-style {
+    // font-size: 0.90em !important;
+    font-size: 12px !important;
+    // background-color: white !important;
+    // color: black !important;
+    font-weight: normal !important;
+}
+
+::ng-deep .tree-node-style .ui-inputtext,
+::ng-deep .root-tree-node-style .ui-inputtext,
+::ng-deep .root-tree-node-style-selected .ui-inputtext {
+    border: none !important;
+    font-size: 12px !important;
+}
+
+::ng-deep .tree-node-style.ui-treenode-leaf .ui-treenode-label {
+    background-color: white !important;
+}
+
+::ng-deep .root-tree-node-style {
+    font-size: 12px !important;
+    // background-color: white !important;
+    // color: black !important;
+    font-weight: normal !important;
+}
+
+::ng-deep .root-tree-node-style-selected {
+    font-size: 12px !important;
+    color: black !important;
+    background-color: #eaeaea;
+    font-weight: bold;
+  }
+
+::ng-deep .root-tree-node-style-selected .ui-treenode-label {
+    // font-size: 12px !important;
+    background-color: #eaeaea !important;
+    // color: black  !important;
+    // font-weight: bold !important;
+}
+
+::ng-deep .context-menu-mail-folders {
+    margin: -128px 0 0 -8px;
+  }
+
+::ng-deep .folder-dialog {
+    left: 10px;
+  }
+
+::ng-deep .fa-exclamation-triangle.tree-icon {
+    color: #993366 !important;
+}
+::ng-deep .tree-node-error span div {
+    background: #993366 !important;
+    border-radius: 30px;
+    padding: 0 0.6em 0 0.6em;
+    color: white;
+}
+// ::ng-deep .tree-node-style .ui-treenode-label {
+//     font-size: 12px !important;
+//     background-color: white !important;
+//     color: black !important;
+//     font-weight: normal !important;
+// }
+
+// ::ng-deep .tree-node-style .ui-state-highlight {
+//     font-size: 12px !important;
+//     background-color: #eaeaea !important;
+//     color: black  !important;
+//     font-weight: bold !important;
+// }
+
+// ::ng-deep .root-tree-node-style {
+//     font-size: 12px !important;
+//     color: black !important;
+//     font-weight: normal !important;
+// }
+
+// ::ng-deep .ui-treenode-icon, ::ng-deep .ui-tree-toggler {
+//     font-size: 12px !important;
+// }
+
+
+
+// ::ng-deep .pi-folder:before {
+//     content: none;
+// }
+
+:host {
+    width: 100%;
+    display: flex;
+}

@@ -1,0 +1,67 @@
+<!-- *ngIf="_selectedFolder || _filters" -->
+<p-table #dt *ngIf="_selectedPecId"
+    [lazy]="true" (onLazyLoad)="lazyLoad($event)"
+    scrollHeight="100%"
+    [value]="drafts"
+    [columns]="cols"
+    [paginator]="false"
+    [loading]="loading"
+    [autoLayout]="true"
+    [responsive]="true"
+    [totalRecords]="totalRecords"
+    [(selection)]="selectedDrafts"
+    contextMenuSelectionMode="joint"
+    selectionMode="multiple"
+    [metaKeySelection]="true"
+    [lazyLoadOnInit] = "false"
+    [rows]="rowsNmber"
+    [rowTrackBy]="trackByFn"
+    [scrollable]="true" [virtualRowHeight]="virtualRowHeight" [virtualScroll]="true" [virtualScrollDelay]="150"
+    (onRowSelect)="handleEvent('onRowSelect', $event)" (onRowUnselect)="handleEvent('onRowUnselect', $event)"
+    (selectionChange)="handleEvent('selectionChange', $event)"
+    (onContextMenuSelect)="handleEvent('onContextMenuSelect', $event)"
+    >
+    <ng-template pTemplate="body" let-rowData let-draft let-rowIndex="rowIndex">
+        <tr #selRow class="message-row" [pSelectableRow]="rowData" [pSelectableRowIndex]="rowIndex" [pContextMenuRow]="rowData"
+            (dblclick)="openDetailPopup($event, rowData, message)">
+            <td>
+                <div class = "mail-icons-container">
+                </div>
+                <div class = "display-block">
+                    <span class = "pi pi-user display-icon"></span>
+                    <label class="pad-left-19">A: </label>
+                    <span *ngIf="draft?.toAddresses">
+                      <span *ngFor="let address of draft.toAddresses">{{address}}; </span>
+                    </span>
+                    <!-- <span *ngIf="!(draft?.toAddresses)"></span> -->
+                    <span class="second-line-icon" [ngClass]="{'visibility-hidden':!draft?.attachmentsNumber}"><i
+                        [pTooltip]="draft?.attachmentsNumber + ' allegati'" tooltipPosition="top"
+                        class="material-icons second-line-icon">attach_file</i></span>
+                    <!-- data della bozza -->
+                    <span class="mail-date">
+                            {{draft?.updateTime | date: 'EE d MMM y, H:mm'}}
+                    </span>
+                </div>
+                <div class = "display-block extra-margin">
+                    <span class="fa fa-envelope-open-text display-icon envelope-icon"></span>
+                    <span class="display-text">{{draft.subject ||'Nessun oggetto'}}</span>
+                    <div class="display-body">{{draft.body | stripeHtml | slice:0:300 }} </div>
+                    <!-- <div class="display-text" [ngClass]="{'display-bold':!message.seen}">{{message.id + " -- " + message.subject}}</div>  -->
+                </div>
+            </td>
+        </tr>
+    </ng-template>
+</p-table>
+
+
+<!-- POPUP DEL DETAIL -->
+<p-dialog *ngIf="displayDetailPopup" [(visible)]="displayDetailPopup" class="popup-mail-detail">
+    <p-header>
+        Dettaglio
+    </p-header>
+    <app-mail-detail></app-mail-detail>
+    <p-footer>
+        <button type="button" pButton (click)="displayDetailPopup = false" label="Chiudi"
+        class="ui-button-raised ui-button-secondary button-styles custom-secondary-button"></button>
+    </p-footer>
+</p-dialog>

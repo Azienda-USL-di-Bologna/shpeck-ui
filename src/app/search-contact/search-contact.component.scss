@@ -1,0 +1,15 @@
+::ng-deep #search-rubrica {
+    width: 100%;
+    .ui-g {
+        margin-bottom: 1em;
+        max-height: 50vh;
+        min-width: 420px;
+        .ui-g-12 {
+            padding: .3em;
+            min-width: 410px;
+        }
+    }
+    p-autocomplete .ui-button {
+        display: none !important;
+    }
+}

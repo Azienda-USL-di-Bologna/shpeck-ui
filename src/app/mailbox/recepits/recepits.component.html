@@ -1,0 +1,33 @@
+<p-table 
+  [value]="recepits"
+  [columns]="cols"
+  [scrollable]="true"
+  scrollHeight="300px"
+  appendTo="body">
+  <ng-template pTemplate="header" let-columns>
+    <tr>
+      <th *ngFor="let col of columns" [style.width]="col.style?.width">
+        {{col.header}}
+      </th>
+    </tr>
+  </ng-template>
+  <ng-template pTemplate="body" let-rowData let-columns="columns">
+      <tr>
+        <td *ngFor="let col of columns" [ngStyle]="col.style">
+          <nextsdr-primeng-table-column-body *ngIf="!(['address','button'].indexOf(col.field) > -1)"
+            [column]="col" 
+            [rowData]="rowData">
+          </nextsdr-primeng-table-column-body>
+          <div *ngIf="col.field === 'address'">
+            {{calculateAddress(rowData)}}
+          </div>
+          <button pButton *ngIf="col.field === 'button'"
+            icon="pi pi-download" 
+            (click)="dowloadRecepit(rowData)"
+            pTooltip="Scarica la ricevuta"
+            class="download-button">
+          </button>
+        </td>
+      </tr>
+  </ng-template>
+</p-table>

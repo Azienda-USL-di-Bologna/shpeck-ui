@@ -1,0 +1,39 @@
+<form id="search-rubrica" [formGroup]="contactForm" (ngSubmit)="onSubmit()">
+  <div class="ui-g autoComplete">
+    <div class="ui-g-12">
+      <p-autoComplete #search 
+        formControlName="contatto" 
+        (onBlur)="onBlur()"
+        [suggestions]="filteredContacts" 
+        (completeMethod)="filterContacts($event)" 
+        field="descrizioneCustom"
+        [style]="{'width':'100%'}" [inputStyle]="{'width':'100%'}"
+        placeholder="Digita almeno 3 caratteri" 
+        [dropdown]="true" 
+        [forceSelection]="true" 
+        ariaLabel="cerca contatto"
+        autofocus="true"
+        appendTo="body"
+        delay="400"
+        emptyMessage="Nessun contatto trovato">
+        <ng-template let-contact pTemplate="item" class="classetemplate">
+            <!-- <div class="ui-helper-clearfix" style="border-bottom:1px solid #D5D5D5"> -->
+              {{contact.descrizioneCustom}}
+            <!-- </div> -->
+        </ng-template>
+      </p-autoComplete>
+    </div>
+  </div>
+  <p-footer class="footer-class">
+    <button type="submit" pButton icon="pi pi-check"
+      class="ui-button-raised ui-button-secondary button-styles custom-secondary-button" label="Aggiungi"
+      [disabled]="!contactForm.valid">
+    </button>
+    <button type="button" pButton icon="pi pi-times"
+      class="ui-button-raised ui-button-secondary button-styles custom-secondary-button" label="Annulla"
+      (click)="onClose()">
+    </button>
+  </p-footer>
+</form>
+
+<!-- Non c'è il p-toast perché, per qualche motivo, usa quello di un componente padre -->

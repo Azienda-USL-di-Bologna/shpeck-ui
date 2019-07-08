@@ -1,0 +1,123 @@
+<div class="detail-container">
+  <h3 class="mail-object">{{fullMessage?.emlData?.subject}}</h3>
+  <div *ngIf="message?.inOut === inOut?.OUT" class="recepit-detail">
+    <div class="recepit-dates">
+      <li class="recepit-date">
+        <span class="recepit-date-label">Accettata il:</span>
+        <span class="recepit-date-content">{{fullMessage?.emlData?.acceptanceDate | date:"EEEE d MMMM y, H:m" | titlecase}}</span>
+      </li>
+      <li class="recepit-date">
+        <span class="recepit-date-label">Consegnata il:</span>
+        <span *ngIf="fullMessage?.emlData?.lastDeliveryDate != null; then trueBlock else  falseBlock" class="recepit-date-content"></span>
+        <ng-template #trueBlock>{{fullMessage?.emlData?.lastDeliveryDate | date:"EEEE d MMMM y, H:m" | titlecase }}</ng-template>
+        <ng-template #falseBlock> Vedi dettaglio ricevute</ng-template>
+        <span *ngIf="fullMessage?.emlData?.deliveryInfo != null" class="recepit-date-content">
+          {{fullMessage.emlData.deliveryInfo}}
+        </span>
+      </li>
+    </div>
+    <button *ngIf="message?.inOut === inOut?.OUT"
+      (click)="recepitsVisible = true"
+      pButton style="width: 83px"
+      label="Ricevute"
+      class="recepits-button"
+      pTooltip="Apri dettaglio ricevute">
+    </button>
+  </div>
+  <div *ngIf="message?.inOut === inOut?.IN" class="recepit-detail">
+    <div class="recepit-dates">
+      <li class="recepit-date">
+        <span class="recepit-date-label">Ricevuto il:</span>
+        <span class="recepit-date-content">{{fullMessage?.message?.receiveTime | date:"EEEE d MMMM y, H:m" | titlecase}}</span>
+      </li>
+      <li class="recepit-date">
+        <span class="recepit-date-label">Consegnato il:</span>
+        <span class="recepit-date-content"> {{fullMessage?.message?.createTime | date:"EEEE d MMMM y, H:m" | titlecase}}</span>
+      </li>
+    </div>
+  </div>
+  <p-accordion [multiple]="true" class="multi-accordion-eml-detail">
+      <p-accordionTab header="Dettagli" class="accordion-dettagli"
+        selected = true;
+        [disabled]="fullMessage?.emlData == null">
+        <div *ngIf="fullMessage?.emlData" class="id-date">
+          <div>
+            <span class="idPec">Id Pec: {{message?.id}}</span>
+            <span class="idPec" *ngIf="message?.idMessagePecgw !== null">Id Pecg: {{message.idMessagePecgw}}</span>
+          </div>
+          <span *ngIf="fullMessage?.emlData?.sendDate">{{fullMessage?.emlData.sendDate | date:"EEEE d MMMM y, H:m" | titlecase}}</span>
+        </div>
+
+        <ul class="elenco-dettagli">
+            <!-- <li *ngIf="fullMessage?.emlData?.sendDate"><span class="li-description">Inviato:</span><span class="li-content">{{getDateDisplay(fullMessage?.emlData.sendDate)}}</span></li> -->
+            <li *ngIf="fullMessage?.emlData?.from">
+              <span class="li-description">Da:</span>
+              <span class="li-content indirizzo">{{fullMessage?.emlData?.from}}</span>
+            </li>
+            <li *ngIf="fullMessage?.emlData?.to && fullMessage?.emlData?.to.length > 0">
+              <span class="li-description">A:</span>
+              <span *ngFor="let t of fullMessage?.emlData?.to" class="li-content indirizzo">{{t}}</span>
+            </li>
+            <li *ngIf="fullMessage?.emlData?.cc && fullMessage?.emlData?.cc.length > 0">
+              <span class="li-description">CC:</span>
+              <span *ngFor="let c of fullMessage?.emlData?.cc" class="li-content indirizzo">{{c}}</span>
+            </li>
+        </ul>
+      </p-accordionTab>
+      <p-accordionTab
+        *ngIf="fullMessage?.emlData?.attachments.length > 0"
+        header="Allegati"
+        selected="fullMessage?.emlData?.attachments.length > 0"
+        [disabled]="fullMessage?.emlData?.attachments == null"
+        class="accordion-allegati">
+        <div class="box-allegati">
+          <div *ngFor="let attachment of fullMessage?.emlData?.attachments">
+            <span *ngIf="!attachment.forHtmlAttribute" class="allegato">
+              <i class="far icona" [ngClass]="getFaClass(attachment)"></i>
+              <span
+                class="allegato-nome"
+                [pTooltip]="attachment.fileName"
+                tooltipPosition="top"
+                tooltipStyleClass="tooltip"
+                (click)="getEmlAttachment(attachment, true)">
+                {{attachment.displayName}}
+              </span>
+              <span class="allegato-size">({{getSizeString(attachment.size)}})</span>
+              <span class="allegato-scarica" (click)="getEmlAttachment(attachment)">Scarica</span>
+            </span>
+          </div>
+        </div>
+        <i *ngIf="fullMessage?.emlData?.attachments" class="far fa-file-zip icona scarica-tutti-icon"></i>
+        <span *ngIf="fullMessage?.emlData?.attachments" class="scarica-tutti" (click)="getAllEmlAttachment()">Scarica tutti gli allegati</span>
+      </p-accordionTab>
+  </p-accordion>
+  <div class="mail-body-box" [ngClass]="{'mail-body-box-no-anteprima' : !fullMessage?.emlData?.displayBody}">
+    <iframe
+      #emliframe
+      *ngIf="fullMessage?.emlData?.displayBody"
+      [srcdoc]="fullMessage?.emlData?.displayBody | sanitizeHtml"
+      class="mail-body"
+      (load)="customizeIframeContent()"
+      frameborder="0"
+      sandbox="allow-popups allow-popups-to-escape-sandbox allow-same-origin">
+    </iframe>
+    <div *ngIf="!fullMessage?.emlData?.displayBody" class="no-anteprima">Anteprima non disponibile.</div>
+  </div>
+</div>
+
+<p-dialog
+  header="Ricevute"
+  [(visible)]="recepitsVisible"
+  [responsive]="true"
+  [modal]="true"
+  [maximizable]="true"
+  styleClass="recepit-dialog"
+  appendTo="body">
+  <app-recepits
+    [recepits]="message?.idRelatedList">
+  </app-recepits>
+  <p-footer>
+    <button pButton icon="pi pi-times" (click)="recepitsVisible=false" label="Chiudi" class="ui-button-secondary"></button>
+  </p-footer>
+</p-dialog>
+

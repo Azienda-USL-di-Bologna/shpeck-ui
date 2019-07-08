@@ -1,0 +1,186 @@
+/* ============ MAIL LIST CONTAINER ============ */
+:host {
+  display: flex;
+  flex: 1 100%;
+}
+.detail-container {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  min-width: 400px;
+}
+
+/* ============ OGGETTO MAIL ============ */
+.mail-object {
+  /* font-size: 1.5em; */
+  margin: 7px; 
+}
+.recepit-detail {
+  display: flex;
+  margin: 7px;
+  align-items: center;
+  justify-content: space-between;
+}
+.recepit-dates {
+  display: flex; 
+  flex-direction: column;
+}
+.recepit-date {
+  font-size: 14px;
+  list-style-type: none;
+}
+.recepit-date-label {
+  list-style-type: none;
+  font-weight: bold;
+}
+.recepit-date-content{
+  margin: 7px;
+}
+.recepits-button {
+  display: inline;
+  background-color: white;
+  color: black; 
+  border: #848484;
+  border-radius: 50px;
+  background-color: #f4f4f4;
+  box-shadow: 3px 3px 3px #c7c7c7;
+}
+.recepits-button:hover {
+  background-color: #c8c8c8 !important;
+  color: black !important; 
+  border: white !important;
+}
+
+/* ============ ACCORDION ============ */
+::ng-deep body .multi-accordion-eml-detail .ui-accordion .ui-accordion-header a {
+  font-weight: initial;
+}
+
+::ng-deep .accordion-dettagli .ui-accordion-content.ui-widget-content {
+  display: flex;
+  flex-direction: column;
+  padding: 2px 10px;
+}
+
+/* ============ DETTAGLI ============ */
+.idPec {
+  margin-right: 4px;
+  background-color:rgb(247, 247, 247);
+}
+.id-date {
+  display: flex;
+  justify-content: space-between;
+  font-size: 12;
+}
+.elenco-dettagli {
+  padding: 0;
+  margin: 0;
+  list-style-type: none;
+}
+.elenco-dettagli .li-description {
+  font-weight: bolder;
+  width: 23px;
+  display: inline-block;
+  text-align: right;
+}
+.elenco-dettagli .li-content {
+  margin-left: 8px;
+}
+.elenco-dettagli .indirizzo {
+  background-color: rgb(240, 240, 240);
+  border-radius: 5px;
+  margin: 1px 3px;
+  padding: 4px;
+  display: inline-flex;
+}
+
+/* ============ ALLEGATI ============ */
+::ng-deep .accordion-allegati .ui-accordion-content-wrapper{
+  max-height: 156px;
+  overflow: auto;
+}
+.box-allegati {
+  display: flex;
+  flex-wrap: wrap;
+  align-content: flex-start;
+}
+.allegato {
+  background-color: rgb(235, 235, 235);
+  border-radius: 5px;
+  margin: 1px 3px;
+  padding: 4px;
+  display: inline-flex;
+}
+.allegato:hover {
+  background-color: rgb(206, 206, 206);
+}
+::ng-deep .tooltip .ui-tooltip-text {
+  width: fit-content;
+}
+.icona {
+  align-self: center;
+  margin-right: 2px;
+}
+/* .icona-svg {
+  height: 18px;
+} */
+.allegato-nome {
+  cursor: pointer;
+}
+.allegato-nome:hover {
+  text-decoration: underline;
+}
+.allegato-size {
+  margin-left: 5px;
+  font-size: 11px;
+  align-self: center;
+}
+.allegato-scarica {
+  margin-left: 8px;
+  cursor: pointer;
+  font-size: 12px;
+  text-decoration: underline;
+  align-self: center;
+}
+.scarica-tutti-icon {
+  margin-left: 8px;
+}
+.scarica-tutti {
+  cursor: pointer;
+  font-size: 12px;
+  text-decoration: underline;
+  margin-top: 3px;
+  width: fit-content;
+}
+.scarica-tutti:hover {
+  font-weight: 700;
+}
+
+/* ============ MAIL BODY ============ */
+.mail-body-box {
+  display: flex;
+  flex-grow: 1;
+  justify-content: stretch;
+  align-items: stretch;
+}
+.mail-body-box-no-anteprima {
+  justify-content: center;
+  align-items: center;
+}
+.mail-body {
+  flex-grow: 1;
+  overflow: hidden;
+  border: 1px solid #d6d6d6;
+  margin-top: 2px;
+}
+.mail-body:hover {
+  overflow: overlay;
+}
+
+/* =========== RECEPIT DIALOG ============ */
+::ng-deep .recepit-dialog {
+  width: 70%;
+}
+::ng-deep .recepit-dialog .ui-dialog-footer {
+  text-align: center !important;
+}

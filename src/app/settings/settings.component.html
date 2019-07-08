@@ -1,0 +1,17 @@
+<section>
+  <form #form="ngForm">
+    <div>
+      <ul class="settings-items">
+        <li>
+          <label for="hideDetail">Nascondi dettaglio e-mail</label>
+          <p-inputSwitch id="hideDetail" [(ngModel)]="model.hideDetail" styleClass="switch-class" name="hideDetail"></p-inputSwitch>
+          <span class="span-position">{{ model.hideDetail ? 'Sì': 'No' }}</span>
+        </li>
+      </ul>
+    </div>
+    <div class="p-grid button-wrapper">
+        <button pButton class="button-styles" label="Salva" (click)="saveSettings()"></button>
+        <button pButton class="button-styles button-margin-left" label="Annulla" (click)="onClose()"></button>
+    </div>
+  </form>
+</section>

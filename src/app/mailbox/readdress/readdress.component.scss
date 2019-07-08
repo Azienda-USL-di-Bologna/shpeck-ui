@@ -1,0 +1,43 @@
+::ng-deep #readdress {
+    width: min-content;
+    .ui-g {
+        margin-bottom: 1em;
+        max-height: 50vh;
+        // overflow: auto;
+        min-width: 420px;
+        .ui-g-12 {
+            padding: .3em;
+            min-width: 410px;
+        }
+    }
+    .ui-autocomplete-panel .ui-autocomplete-items .ui-autocomplete-list-item {
+        background-color: #203142;
+        color:#F4F4F4;
+    }
+    .ui-autocomplete-panel .ui-autocomplete-items .ui-autocomplete-list-item.ui-state-highlight {
+        background-color: #F4F4F4;
+        color: black;
+        font-weight: bold;
+    }
+
+    .ui-autocomplete-input {
+        width: 375px;
+    }
+    p-autocomplete .ui-button:enabled:active {
+        background-color: rgba(32,49,66,0.7);
+    }
+    p-autocomplete .ui-button:enabled {
+        background-color: #203142;
+        border: 1px solid #203142;
+    }
+    p-autocomplete .ui-button:hover {
+        box-shadow: grey;
+    }
+    p-footer {
+        display: flex;
+        justify-content: space-around;
+        button {
+            width: 100px;
+        }
+    }
+}

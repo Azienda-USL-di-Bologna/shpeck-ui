@@ -1,0 +1,92 @@
+<p-toolbar>
+  <div class="d-flex">
+      <!-- Nuova Pec -->
+      <button
+        pButton type="button" label="Nuova PEC"
+        icon="pi pi-plus" class="button-new-mail ui-button-raised ui-button-primary custom-primary-button"
+        (click)="handleEvent($event, 'new')" onclick="this.blur()"
+        [disabled]="!(toolBarService.buttonObs.get('newMailActive') | async)">
+      </button>
+      <!-- Modifica -->
+      <button
+        *ngIf="toolBarService.buttonObs.get('editVisible') | async"
+        pButton type="button" label="Modifica"
+        icon="fa fa-pen" class="button-styles ui-button-raised ui-button-secondary custom-border"
+        (click)="handleEvent($event, 'edit')"
+        [disabled]="!((toolBarService.buttonObs.get('editActive') | async) && (toolBarService.buttonObs.get('newMailActive') | async))">
+      </button>
+      <!-- Rispondi -->
+      <button
+        pButton type="button" label="Rispondi"
+        icon="fa fa-reply" class="button-styles ui-button-raised ui-button-secondary custom-border"
+        (click)="handleEvent($event, 'reply')"
+        [disabled]="!((toolBarService.buttonObs.get('buttonsActive') | async) && (toolBarService.buttonObs.get('newMailActive') | async))">
+      </button>
+      <!-- Rispondi a tutti -->
+      <button
+        pButton type="button" label="Rispondi a tutti"
+        icon="fa fa-reply-all" class="button-styles ui-button-raised ui-button-secondary custom-border"
+        (click)="handleEvent($event, 'reply_all')"
+        [disabled]="!((toolBarService.buttonObs.get('buttonsActive') | async) && (toolBarService.buttonObs.get('newMailActive') | async))">
+      </button>
+      <!-- Inoltra -->
+      <button
+        pButton type="button" label="Inoltra"
+        icon="fa fa-share" class="button-styles ui-button-raised ui-button-secondary custom-border"
+        (click)="handleEvent($event, 'forward')"
+        [disabled]="!((toolBarService.buttonObs.get('buttonsActive') | async) && (toolBarService.buttonObs.get('newMailActive') | async))">
+      </button>
+      <!-- Elimina -->
+      <button
+        pButton type="button" label="Elimina"
+        icon="fa fa-trash" class="button-styles ui-button-raised ui-button-secondary custom-border"
+        (click)="handleEvent($event, 'delete')"
+        [disabled]="!(toolBarService.buttonObs.get('deleteActive') | async)">
+      </button>
+      <!-- Sposta -->
+      <button
+        pButton type="button" label="Sposta"
+        icon="fa fa-folder" class="button-styles ui-button-raised ui-button-secondary custom-border"
+        (click)="handleEvent($event, 'move')"
+        [disabled]="!(toolBarService.buttonObs.get('moveActive') | async)">
+        <!-- <img class="images-pos" src="assets/images/icons/folder_export.png" width="24px" alt="Sposta in">     margin-l-15-->
+      </button>
+      <p-menu #moveMenu [popup]="true" [model]="moveMenuItems"></p-menu>
+      <!-- Fascicola -->
+      <button
+        pButton type="button" label="Fascicola"
+        icon="fa fa-archive" class="button-styles ui-button-raised ui-button-secondary custom-border"
+        [disabled]="true">
+      </button>
+      <!-- Ricerca -->
+      <input #search matInput type="text" pInputText size="50" placeholder="Cerca..." (keydown.enter)="onEnter(search.value)"
+        class="input-find" [pTooltip]="(toolBarService.buttonObs.get('searchActive') | async) ? 'Inserire almeno 3 caratteri e premere invio': null" minlength="3" title="barra di ricerca" autofocus
+        [disabled]="!(toolBarService.buttonObs.get('searchActive') | async)">
+      <!-- <i class="pi pi-bars a-items-center d-flex"></i> -->
+  </div>
+</p-toolbar>
+<p-confirmDialog #cd [style]="{width: '22.5vw', top: '40%'}">
+  <p-footer>
+    <button
+      type="button" class="buttons ui-button-raised ui-button-secondary custom-secondary-button"
+      pButton icon="fas fa-check" label="Sì" (click)="cd.accept()">
+    </button>
+    <button
+      type="button" class="buttons ui-button-raised ui-button-secondary custom-secondary-button"
+      pButton icon="fas fa-times" label="No" (click)="cd.reject()">
+    </button>
+  </p-footer>
+</p-confirmDialog>
+
+<p-dialog
+  header="Attenzione"
+  [(visible)]="showErrorDialog"
+  [responsive]="true"
+  [modal]="true"
+  appendTo="body"
+  focusTrap="true">
+  <p>Inserire almeno 3 caratteri e premere invio!</p>
+  <p-footer>
+    <button #closeDialog pButton icon="pi pi-times" (click)="toggleDialogAndAddFocus()" label="Chiudi" class="ui-button-secondary" autofocus></button>
+  </p-footer>
+</p-dialog>
