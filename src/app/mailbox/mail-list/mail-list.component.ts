@@ -473,7 +473,7 @@ export class MailListComponent implements OnInit, OnDestroy {
       )
     );
     // filtersAndSorts.addSort(new SortDefinition("receiveTime", SORT_MODES.desc));
-    filtersAndSorts.addSort(new SortDefinition("id", SORT_MODES.desc));
+    filtersAndSorts.addSort(new SortDefinition("createTime", SORT_MODES.desc));
     return filtersAndSorts;
   }
 
