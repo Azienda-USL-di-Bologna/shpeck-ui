@@ -8,5 +8,6 @@ export const loginModuleConfig: NTJWTModuleConfig = {
     localhostPort: LOCALHOST_PORT,
     applicazione: APPLICATION,
     logoutRedirectRoute: MAILBOX_ROUTE,
-    sessionExpireSeconds: 1800 // 0 = distattivato
+    sessionExpireSeconds: 1800, // 0 = distattivato
+    pingInterval: 900 // 0 disattivato
 };

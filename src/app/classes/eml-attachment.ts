@@ -8,4 +8,5 @@ export class EmlAttachment {
   public contentType: string;
   public simpleType: string;
   public displayName: string;
+  public forHtmlAttribute: boolean;
 }
