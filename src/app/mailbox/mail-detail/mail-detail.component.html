@@ -4,12 +4,12 @@
     <div class="recepit-dates">
       <li class="recepit-date">
         <span class="recepit-date-label">Accettata il:</span>
-        <span class="recepit-date-content">{{fullMessage?.emlData?.acceptanceDate | date:"EEEE d MMMM y, H:m" | titlecase}}</span>
+        <span class="recepit-date-content">{{fullMessage?.emlData?.acceptanceDate | date:"EEEE d MMMM y, HH:mm" | titlecase}}</span>
       </li>
       <li class="recepit-date">
         <span class="recepit-date-label">Consegnata il:</span>
         <span *ngIf="fullMessage?.emlData?.lastDeliveryDate != null; then trueBlock else  falseBlock" class="recepit-date-content"></span>
-        <ng-template #trueBlock>{{fullMessage?.emlData?.lastDeliveryDate | date:"EEEE d MMMM y, H:m" | titlecase }}</ng-template>
+        <ng-template #trueBlock>{{fullMessage?.emlData?.lastDeliveryDate | date:"EEEE d MMMM y, HH:mm" | titlecase }}</ng-template>
         <ng-template #falseBlock> Vedi dettaglio ricevute</ng-template>
         <span *ngIf="fullMessage?.emlData?.deliveryInfo != null" class="recepit-date-content">
           {{fullMessage.emlData.deliveryInfo}}
@@ -28,11 +28,11 @@
     <div class="recepit-dates">
       <li class="recepit-date">
         <span class="recepit-date-label">Ricevuto il:</span>
-        <span class="recepit-date-content">{{fullMessage?.message?.receiveTime | date:"EEEE d MMMM y, H:m" | titlecase}}</span>
+        <span class="recepit-date-content">{{fullMessage?.message?.receiveTime | date:"EEEE d MMMM y, HH:mm" | titlecase}}</span>
       </li>
       <li class="recepit-date">
         <span class="recepit-date-label">Consegnato il:</span>
-        <span class="recepit-date-content"> {{fullMessage?.message?.createTime | date:"EEEE d MMMM y, H:m" | titlecase}}</span>
+        <span class="recepit-date-content"> {{fullMessage?.message?.createTime | date:"EEEE d MMMM y, HH:mm" | titlecase}}</span>
       </li>
     </div>
   </div>
@@ -45,7 +45,7 @@
             <span class="idPec">Id Pec: {{message?.id}}</span>
             <span class="idPec" *ngIf="message?.idMessagePecgw !== null">Id Pecg: {{message.idMessagePecgw}}</span>
           </div>
-          <span *ngIf="fullMessage?.emlData?.sendDate">{{fullMessage?.emlData.sendDate | date:"EEEE d MMMM y, H:m" | titlecase}}</span>
+          <span *ngIf="fullMessage?.emlData?.sendDate">{{fullMessage?.emlData.sendDate | date:"EEEE d MMMM y, HH:mm" | titlecase}}</span>
         </div>
 
         <ul class="elenco-dettagli">
