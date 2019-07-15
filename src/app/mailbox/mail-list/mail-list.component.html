@@ -176,7 +176,7 @@
                     <span class="pi pi-user display-icon icon-default-color"></span>
                     <div class="display-text" [ngClass]="{'display-bold':!message.seen}">{{message.fromOrTo}}</div>
                 </div>
-                <div class="display-block extra-margin">
+                <div class="display-block extra-margin" style="overflow-x: hidden">
                     <!-- iconcina della mail -->
                     <span *ngIf="!message?.seen" class="fas fa-envelope display-icon envelope-icon icon-default-color"></span>
                     <span *ngIf="message?.seen" class="far fa-envelope-open display-icon envelope-icon icon-default-color"></span>
@@ -305,7 +305,7 @@
     </div>
     <p-footer class="button-centopx">
         <button *ngIf="archiviationDetail.buttonArchivable" type="button" pButton
-            (click)="iconArchiveClicked($event, archiviationDetail.message, 'ARCHIVABLE')"     
+            (click)="iconArchiveClicked($event, archiviationDetail.message, 'ARCHIVABLE')"
             label="Fascicola ancora"
             class="ui-button-raised ui-button-secondary button-styles custom-secondary-button">
         </button>

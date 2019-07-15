@@ -77,7 +77,8 @@
   /*position: relative;*/
   display: block;
   width: 300px;
-  overflow: hidden scroll;
+  overflow-x: hidden;
+  overflow-y: auto;
   // padding: 5px
   //flex-direction: column;
 }
