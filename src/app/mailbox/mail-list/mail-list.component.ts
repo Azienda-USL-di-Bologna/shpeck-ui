@@ -532,11 +532,7 @@ export class MailListComponent implements OnInit, OnDestroy {
           messageAddress.addressRole === addresRoleType
       );
       messageAddressList.forEach((messageAddress: MessageAddress) => {
-        message["fromOrTo"] +=
-          ", " +
-          (messageAddress.idAddress.originalAddress
-            ? messageAddress.idAddress.originalAddress
-            : messageAddress.idAddress.mailAddress);
+        message["fromOrTo"] += ", " + messageAddress.idAddress.mailAddress;
       });
       if ((message["fromOrTo"] as string).startsWith(",")) {
         message["fromOrTo"] = (message["fromOrTo"] as string).substr(
