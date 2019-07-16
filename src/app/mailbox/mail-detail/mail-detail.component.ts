@@ -116,32 +116,33 @@ export class MailDetailComponent implements OnInit, OnDestroy {
       this.messageService.getData(
         ENTITIES_STRUCTURE.shpeck.message.customProjections.CustomRecepitWithAddressList,
         this.buildFilterAndSortRecepits(fullMessage), null, this.pageConfNoLimit).subscribe(
-        res => {
-          (fullMessage.message as Message).idRelatedList = res.results;
-          // Prendo la data di accetazione. La ricevuta di accetazione è al massimo una
-          fullMessage.emlData.acceptanceDate = (fullMessage.message as Message).idRelatedList.find(
-            r =>
-              r.idRecepit.recepitType === RecepitType.ACCETTAZIONE
-          ).receiveTime;
-          // Prendo le ricevute di consegna.
-          const deliveryRecepits = (fullMessage.message as Message).idRelatedList.filter(
-            r =>
-              r.idRecepit.recepitType === RecepitType.CONSEGNA
-          );
-          // Se ho alemno una ricevuta di consegna prendo la data della più recente
-          if (deliveryRecepits.length > 0) {
-            if (deliveryRecepits.length === 1) {
-              fullMessage.emlData.deliveryDate = deliveryRecepits[0].receiveTime;
-              /* Questo pezzo di codice serve a tirare fuori la data più ricente tra le ricevute.
-                fullMessage.emlData.lastDeliveryDate = deliveryRecepits.reduce(
-                (max, p) => p.receiveTime > max ? p.receiveTime : max, deliveryRecepits[0].receiveTime); */
-            } else {
-              fullMessage.emlData.deliveryInfo = "Varie. Guardare il dettaglio per maggiori informazioni.";
+          res => {
+            if (res.results && res.results.length > 0) {
+              (fullMessage.message as Message).idRelatedList = res.results;
+              // Prendo la data di accetazione. La ricevuta di accetazione è al massimo una
+              fullMessage.emlData.acceptanceDate = (fullMessage.message as Message).idRelatedList.find(
+                r =>
+                  r.idRecepit.recepitType === RecepitType.ACCETTAZIONE
+              ).receiveTime;
+              // Prendo le ricevute di consegna.
+              const deliveryRecepits = (fullMessage.message as Message).idRelatedList.filter(
+                r =>
+                  r.idRecepit.recepitType === RecepitType.CONSEGNA
+              );
+              // Se ho alemno una ricevuta di consegna prendo la data della più recente
+              if (deliveryRecepits.length > 0) {
+                if (deliveryRecepits.length === 1) {
+                  fullMessage.emlData.deliveryDate = deliveryRecepits[0].receiveTime;
+                  /* Questo pezzo di codice serve a tirare fuori la data più ricente tra le ricevute.
+                    fullMessage.emlData.lastDeliveryDate = deliveryRecepits.reduce(
+                    (max, p) => p.receiveTime > max ? p.receiveTime : max, deliveryRecepits[0].receiveTime); */
+                } else {
+                  fullMessage.emlData.deliveryInfo = "Varie. Guardare il dettaglio per maggiori informazioni.";
+                }
+              }
             }
-          }
-
-          this.fullMessage = fullMessage;
-          this.setLook();
+            this.fullMessage = fullMessage;
+            this.setLook();
         }
       );
     } else {
