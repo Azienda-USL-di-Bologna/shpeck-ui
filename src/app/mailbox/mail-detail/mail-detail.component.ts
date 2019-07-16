@@ -117,7 +117,7 @@ export class MailDetailComponent implements OnInit, OnDestroy {
         ENTITIES_STRUCTURE.shpeck.message.customProjections.CustomRecepitWithAddressList,
         this.buildFilterAndSortRecepits(fullMessage), null, this.pageConfNoLimit).subscribe(
           res => {
-            if (res.results && res.results.length > 0) {
+            if (res && res.results && res.results.length > 0) {
               (fullMessage.message as Message).idRelatedList = res.results;
               // Prendo la data di accetazione. La ricevuta di accetazione è al massimo una
               fullMessage.emlData.acceptanceDate = (fullMessage.message as Message).idRelatedList.find(
