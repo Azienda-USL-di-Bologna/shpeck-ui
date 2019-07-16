@@ -477,6 +477,18 @@ export class MailListComponent implements OnInit, OnDestroy {
         )
       );
     }
+    // quando effettuo una ricerca generica (avendo selezionato la casella) non vengano considerate le mail nel cestino
+    if (tag === null && folder === null ) {
+      const folderList = this._selectedPec.folderList;
+
+      folderList.forEach(f => {
+        if (f.type !== "TRASH") {
+          filtersAndSorts.addFilter(
+            new FilterDefinition("messageFolderList.idFolder.id", FILTER_TYPES.not_string.equals, f.id)
+          );
+        }
+      });
+    }
     filtersAndSorts.addFilter(
       new FilterDefinition(
         "idPec.id",
