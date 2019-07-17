@@ -25,7 +25,7 @@
         </app-mail-list> -->
         <div class="filter-box">
             <div class="filter-box-left" >
-                {{_selectedFolder ? _selectedFolder.description : _selectedTag ? _selectedTag.description : _selectedPec?.indirizzo}}
+                {{folderSelected ? folderSelected.description : _selectedTag ? _selectedTag.description : _selectedPec?.indirizzo}}
             </div>
             <div class="filter-box-right"  (click)="sortingmenu.toggle($event)" pTooltip="Cambia l'ordinamento delle mail">Ordina</div>
         </div>
