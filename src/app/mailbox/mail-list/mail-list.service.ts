@@ -239,6 +239,7 @@ export class MailListService {
     }
   }
 
+  // prova per far recuperare dal branch default per deploy emergenza
   public checkCurrentStatusAndRegister(exe: any): void {
     if (this.selectedMessages && this.selectedMessages.length === 1) {
       const filtersAndSorts: FiltersAndSorts = new FiltersAndSorts();
