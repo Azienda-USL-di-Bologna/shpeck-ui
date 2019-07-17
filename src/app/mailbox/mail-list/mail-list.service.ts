@@ -261,7 +261,7 @@ export class MailListService {
             exe();
           } else {
             this.messagePrimeService.add(
-              { severity: "error", summary: "Attenzione", detail: "Il messaggio risulta già protocollato." });
+              { severity: "error", summary: "Attenzione", detail: "Il messaggio risulta già protocollato. Si consiglia di aggiornare la pagina." });
           }
         }
       });
