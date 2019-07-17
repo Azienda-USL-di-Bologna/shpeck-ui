@@ -739,21 +739,24 @@ export class MailListComponent implements OnInit, OnDestroy {
     decodedUrl = decodedUrl.replace("[richiesta]", Utils.genereateGuid());
 
     console.log("command", decodedUrl);
-    window.open(decodedUrl);
-    // Setto subito il tag in modo che l'icona cambi
-    if (!this.mailListService.selectedMessages[0].messageTagList) {
-      this.mailListService.selectedMessages[0].messageTagList = [];
-    }
-    const newTag = new Tag();
-    newTag.idPec = this.mailListService.selectedMessages[0].idPec;
-    newTag.description = "In protocollazione";
-    newTag.name = "in_registration";
-    newTag.type = "SYSTEM_NOT_INSERTABLE_NOT_DELETABLE";
-    const newMessageTag = new MessageTag();
-    newMessageTag.idMessage = this.mailListService.selectedMessages[0];
-    newMessageTag.idTag = newTag;
-    newMessageTag.inserted = new Date();
-    this.mailListService.selectedMessages[0].messageTagList.push(newMessageTag);
+
+    this.mailListService.checkCurrentStatusAndRegister(() => {
+      window.open(decodedUrl);
+      // Setto subito il tag in modo che l'icona cambi
+      if (!this.mailListService.selectedMessages[0].messageTagList) {
+        this.mailListService.selectedMessages[0].messageTagList = [];
+      }
+      const newTag = new Tag();
+      newTag.idPec = this.mailListService.selectedMessages[0].idPec;
+      newTag.description = "In protocollazione";
+      newTag.name = "in_registration";
+      newTag.type = "SYSTEM_NOT_INSERTABLE_NOT_DELETABLE";
+      const newMessageTag = new MessageTag();
+      newMessageTag.idMessage = this.mailListService.selectedMessages[0];
+      newMessageTag.idTag = newTag;
+      newMessageTag.inserted = new Date();
+      this.mailListService.selectedMessages[0].messageTagList.push(newMessageTag);
+    });
   }
 
 
