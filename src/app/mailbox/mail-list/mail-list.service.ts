@@ -6,7 +6,7 @@ import { MessageFolderService } from "src/app/services/message-folder.service";
 import { Subscription, Observable, BehaviorSubject } from "rxjs";
 import { MailFoldersService, FoldersAndTags, PecFolderType, PecFolder } from "../mail-folders/mail-folders.service";
 import { NtJwtLoginService, UtenteUtilities } from "@bds/nt-jwt-login";
-import { BatchOperation, BatchOperationTypes } from "@nfa/next-sdr";
+import { BatchOperation, BatchOperationTypes, FILTER_TYPES, FiltersAndSorts, FilterDefinition } from "@nfa/next-sdr";
 import { BaseUrls, BaseUrlType } from "src/environments/app-constants";
 import { ShpeckMessageService } from "src/app/services/shpeck-message.service";
 import { DialogService } from "primeng/api";
@@ -236,6 +236,31 @@ export class MailListService {
       return false;
     } else {
       return true;
+    }
+  }
+
+  public checkCurrentStatusAndRegister(exe: any): void {
+    if (this.selectedMessages && this.selectedMessages.length === 1) {
+      const filtersAndSorts: FiltersAndSorts = new FiltersAndSorts();
+      filtersAndSorts.addFilter(new FilterDefinition("id", FILTER_TYPES.not_string.equals, this.selectedMessages[0].id));
+      this.messageService
+      .getData(
+        ENTITIES_STRUCTURE.shpeck.message.customProjections.CustomMessageForMailList,
+        filtersAndSorts,
+        null,
+        null
+      )
+      .subscribe(data => {
+        if (data && data.results && data.results.length === 1) {
+          const notRegistrable = (data.results[0] as Message).messageTagList.some(mt => mt.idTag.name === "registered" || mt.idTag.name === "in_registration");
+          if (!notRegistrable) {
+            exe();
+          } else {
+            this.messagePrimeService.add(
+              { severity: "error", summary: "Attenzione", detail: "Il messaggio risulta già protocollato." });
+          }
+        }
+      });
     }
   }
 
