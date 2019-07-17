@@ -256,8 +256,12 @@ export class MailListService {
       )
       .subscribe(data => {
         if (data && data.results && data.results.length === 1) {
-          const notRegistrable = (data.results[0] as Message).messageTagList.some(mt => mt.idTag.name === "registered" || mt.idTag.name === "in_registration");
-          if (!notRegistrable) {
+          const message =  (data.results[0] as Message);
+          let registrable = true;
+          if (message.messageTagList && message.messageTagList.length > 0) {
+            registrable = !message.messageTagList.some(mt => mt.idTag.name === "registered" || mt.idTag.name === "in_registration");
+          }
+          if (registrable) {
             exe();
           } else {
             this.messagePrimeService.add(
