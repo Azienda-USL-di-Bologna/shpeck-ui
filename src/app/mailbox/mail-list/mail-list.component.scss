@@ -1,4 +1,14 @@
-:host, .flex-1 {
+/* :host,*/ .flex-1 {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+}
+:host {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+.box-table {
   display: flex;
   flex: 1;
 }
@@ -29,6 +39,26 @@
 .icon-used {
   cursor: help !important;
 }
+/* .filter-box {
+  background-color: rgb(245, 245, 245);
+  border-bottom: 1px solid #2e4a65;
+  display: flex;
+  flex: 1;
+  flex-wrap: nowrap;
+  justify-content: space-between;
+  max-height: min-content;
+  flex-direction: row;
+  font-size: 12px;
+  .filter-box-left, .filter-box-right {
+    padding: 5px 10px;
+  }
+  .filter-box-left {
+    font-weight: bold;
+  }
+  .filter-box-right {
+    // align-self: flex-end;
+  }
+} */
 
 //body .ui-table .ui-table-tbody > tr > td
 

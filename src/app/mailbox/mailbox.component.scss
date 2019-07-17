@@ -97,6 +97,8 @@
 
 .d-flex{
   display: flex;
+  
+  
 }
 
 .mail-container {
@@ -126,9 +128,49 @@
   flex: 1;
   padding: 5px;
   overflow: hidden;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
 }
 .mail-list:hover {
   overflow: auto;
+}
+.filter-box {
+  background-color: rgb(248, 248, 248);
+  border-bottom: 1px solid #2e4a65;
+  display: flex;
+  flex: 1;
+  flex-wrap: nowrap;
+  justify-content: space-between;
+  max-height: min-content;
+  flex-direction: row;
+  font-size: 12px;
+  .filter-box-left, .filter-box-right {
+    padding: 5px 10px;
+  }
+  .filter-box-left {
+    font-weight: bold;
+  }
+  .filter-box-right {
+    position: relative;
+    cursor: pointer;
+    padding-right: 16px;
+  }
+  .filter-box-right:hover {
+    // font-weight: bold;
+    background-color: #eaeaea !important;
+  }
+  .filter-box-right::before {
+    content: "";
+    width: 0;
+    height: 0;
+    border-style: solid;
+    border-width: 6px 5px 0 5px;
+    border-color: #848484 transparent transparent transparent;
+    position: absolute;
+    right: 3px;
+    top: 11px;
+  }
 }
 
 /* ========= MAIL DETAIL ========== */

@@ -23,6 +23,13 @@
           [filters] = "filtersSelected"
           (messageClicked)="messageClicked($event)">
         </app-mail-list> -->
+        <div class="filter-box">
+            <div class="filter-box-left" >
+                {{_selectedFolder ? _selectedFolder.description : _selectedTag ? _selectedTag.description : _selectedPec?.indirizzo}}
+            </div>
+            <div class="filter-box-right"  (click)="sortingmenu.toggle($event)" pTooltip="Cambia l'ordinamento delle mail">Ordina</div>
+        </div>
+        <p-menu #sortingmenu appendTo="body" [showTransitionOptions]="'0ms'" [hideTransitionOptions]="'0ms'" [popup]="true" [model]="sortMenuItem"></p-menu>
         <app-mail-list *ngIf="componentToLoad === 'mail-list'"
           (messageClicked)="messageClicked($event)">
         </app-mail-list>

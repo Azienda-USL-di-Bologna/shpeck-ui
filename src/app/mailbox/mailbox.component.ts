@@ -2,9 +2,10 @@ import { Component, OnInit, ViewChild, ElementRef, AfterViewInit, AfterViewCheck
 import { Subscription } from "rxjs";
 import { SettingsService } from "../services/settings.service";
 import { AppCustomization } from "src/environments/app-customization";
-import { Folder, Message, FolderType } from "@bds/ng-internauta-model";
+import { Folder, Message, FolderType, Tag, Pec, Menu } from "@bds/ng-internauta-model";
 import { FilterDefinition } from "@nfa/next-sdr";
 import { MailFoldersService, PecFolder, PecFolderType } from "./mail-folders/mail-folders.service";
+import { MenuItem } from "primeng/api";
 
 @Component({
   selector: "app-mailbox",
@@ -14,6 +15,8 @@ import { MailFoldersService, PecFolder, PecFolderType } from "./mail-folders/mai
 export class MailboxComponent implements OnInit, AfterViewInit, AfterViewChecked, OnChanges {
 
   public folderSelected: Folder;
+  public _selectedPec: Pec;
+  public _selectedTag: Tag;
   public filtersSelected: FilterDefinition[];
   // @Output() message = new EventEmitter<any>();
   public message: Message;
@@ -26,11 +29,38 @@ export class MailboxComponent implements OnInit, AfterViewInit, AfterViewChecked
   @ViewChild("mailDetail") private mailDetail: ElementRef;
   @ViewChild("rightSlider") private rightSlider: ElementRef;
   @ViewChild("leftSlider") private leftSlider: ElementRef;
+  // @ViewChild("ordermenu") private ordermenu: Menu;
+
   public rightSideVisible: boolean;
   public flexGridClass = "p-col-8";
   public sliding: boolean = false;
   public hideDetail = false;
   public componentToLoad: string = "mail-list";
+
+  public sortMenuItem: MenuItem[] = [
+    {
+      label: "Data",
+      icon: "pi pi-chevron-down",
+      id: "sortData",
+      title: "Data",
+      disabled: false,
+      /* queryParams: {
+        na: "na"
+      }, */
+      command: event => this.changeSorting(event)
+    },
+    {
+      label: "Mittente",
+      icon: "",
+      id: "sortMittente",
+      title: "Mittente",
+      disabled: false,
+      /* queryParams: {
+        na: "na"
+      }, */
+      command: event => this.changeSorting(event)
+    }
+  ];
 
   private enableSetLookCall = false;
   private MIN_X_MAIL_FOLDER: number = 5;
@@ -63,11 +93,30 @@ export class MailboxComponent implements OnInit, AfterViewInit, AfterViewChecked
           } else {
             this.componentToLoad = "mail-list";
           }
+        } else if (pecFolderSelected.type === PecFolderType.TAG) {
+          this.componentToLoad = "mail-list";
+          this._selectedTag = pecFolderSelected.data as Tag;
+          this._selectedPecId = this._selectedTag.fk_idPec.id;
+          this._selectedPec = pecFolderSelected.pec;
         } else {
           this.componentToLoad = "mail-list";
+          this._selectedPec = pecFolderSelected.data as Pec;
+          this._selectedPecId = this._selectedPec.id;
         }
       }
     }));
+  }
+
+  public changeSorting(event) {
+    console.log(event);
+    switch (event.item.id) {
+      case "sortData":
+
+        break;
+      case "sortMittente":
+
+        break;
+    }
   }
 
   /**

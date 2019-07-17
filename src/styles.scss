@@ -65,7 +65,7 @@ body {
             background-color: #203142;
             .ui-menuitem {
                 .ui-menuitem-link {
-                    padding: 7px 12px;
+                    padding: 6px 12px;
                     color: #F4F4F4;
                     .ui-menuitem-text {
                         color: #F4F4F4;
@@ -74,7 +74,11 @@ body {
             }
         }
     }
-
+    .ui-menuitem {
+        .ui-menuitem-link {
+            padding: 6px 12px;
+        }
+    }
     .ui-contextmenu .ui-submenu-list {
         background-color: #203142;
     }

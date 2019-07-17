@@ -54,6 +54,7 @@ export class MailListComponent implements OnInit, OnDestroy {
   @ViewChild("idtag") private inputTextTag;
   @ViewChild("registrationMenu") private registrationMenu: Menu;
   @ViewChild("archiviationMenu") private archiviationMenu: Menu;
+  // @ViewChild("ordermenu") private ordermenu: Menu;
 
   public _selectedTag: Tag;
   public _selectedFolder: Folder;
@@ -80,6 +81,20 @@ export class MailListComponent implements OnInit, OnDestroy {
   private aziendeFascicolabiliSubCmItems: MenuItem[] = null;
   private registerMessageEvent: any = null;
   private loggedUser: UtenteUtilities;
+
+  /* public orderMenu: MenuItem[] = [
+    {
+      label: "dcs",
+      icon: "fa fa-tag",
+      id: "1",
+      title: "titolo",
+      disabled: false,
+      queryParams: {
+        na: "na"
+      },
+      command: event => () => {}
+    }
+  ]; */
 
   public cmItems: MenuItem[] = [
     {
@@ -328,6 +343,11 @@ export class MailListComponent implements OnInit, OnDestroy {
       }
     }, 0);
   }
+
+  /* public toggleOrderMenu(event) {
+
+    this.ordermenu.toggle(event);
+  } */
 
   public getTagDescription(tagName: string) {
     if (this.mailListService.tags) {
