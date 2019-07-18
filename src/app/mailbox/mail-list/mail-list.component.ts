@@ -290,7 +290,7 @@ export class MailListComponent implements OnInit, OnDestroy {
     }
     this.subscriptions.push(this.messageService.messageEvent.subscribe(
       (messageEvent: MessageEvent) => {
-        console.log("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa ", messageEvent);
+        // console.log("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa ", messageEvent);
       }));
   }
 
@@ -636,6 +636,7 @@ export class MailListComponent implements OnInit, OnDestroy {
           break;
         case "MessageMove":
           element.disabled = false;
+          element.styleClass = "message-moves";
           if (!this.mailListService.isMoveActive()) {
             element.disabled = true;
             this.cmItems.find(f => f.id === "MessageMove").items = null;

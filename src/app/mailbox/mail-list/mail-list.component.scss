@@ -255,6 +255,7 @@
   resize: none;
 }
 
+::ng-deep .message-moves + p-contextmenusub ul a::after,
 ::ng-deep .message-labels + p-contextmenusub ul a::after {
   display: block;
   content: attr(title);
@@ -265,9 +266,18 @@
   visibility: hidden;
 }
 
-
+::ng-deep .message-moves + p-contextmenusub ul {
+  max-height: 330px;
+  min-width: 224px;
+  max-width: 300px;
+  overflow-x: hidden;
+}
 ::ng-deep .message-labels + p-contextmenusub ul {
   max-height: 287px;
+}
+
+::ng-deep .message-moves + p-contextmenusub ul,
+::ng-deep .message-labels + p-contextmenusub ul {
   overflow-y: auto;
   width: fit-content !important;
   width: -moz-fit-content;

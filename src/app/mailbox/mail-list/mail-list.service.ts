@@ -118,6 +118,7 @@ export class MailListService {
         foldersSubCmItems.push(
           {
             label: f.description,
+            title: f.description,
             id: "MessageMove",
             disabled: subElementDisabled,
             queryParams: {
