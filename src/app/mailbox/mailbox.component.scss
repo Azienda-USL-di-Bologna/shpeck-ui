@@ -97,8 +97,8 @@
 
 .d-flex{
   display: flex;
-  
-  
+
+
 }
 
 .mail-container {
@@ -123,6 +123,10 @@
   text-align: center;
 }
 /* ========= MAIL LIST ========== */
+app-mail-list {
+  overflow: hidden;
+}
+
 .mail-list {
   display: flex;
   flex: 1;
