@@ -268,12 +268,9 @@
 
 ::ng-deep .message-moves + p-contextmenusub ul {
   max-height: 330px;
-  min-width: 224px;
-  max-width: 300px;
-  overflow-x: hidden;
 }
 ::ng-deep .message-labels + p-contextmenusub ul {
-  max-height: 287px;
+  max-height: 297px;
 }
 
 ::ng-deep .message-moves + p-contextmenusub ul,
@@ -281,6 +278,9 @@
   overflow-y: auto;
   width: fit-content !important;
   width: -moz-fit-content;
+  min-width: 224px;
+  max-width: 300px;
+  overflow-x: hidden;
 }
 
 ::ng-deep .message-labels + p-contextmenusub .ui-menuitem-icon.fas.fa-square,
@@ -289,6 +289,10 @@
 ::ng-deep .message-labels + p-contextmenusub .ui-menuitem-icon.fas.fa-check-square,
 ::ng-deep .message-labels + p-contextmenusub .ui-menuitem-icon.fas.fa-minus-square {
   font-size: 1.1em !important;
+}
+
+::ng-deep .d-inline-flex {
+  display: inline-flex !important;
 }
 
 /* POPUP DETAIL */
