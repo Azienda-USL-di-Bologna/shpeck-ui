@@ -1115,7 +1115,9 @@ export class MailListComponent implements OnInit, OnDestroy {
       codiceRegistro: additionalData.idDocumento.codiceRegistro,
       anno: additionalData.idDocumento.anno,
       descrizioneAzienda: additionalData.idAzienda.descrizione,
-      data: new Date(messageTag.inserted).toLocaleDateString("it-IT", { hour: "numeric", minute: "numeric" })
+      data: additionalData.idDocumento.dataProtocollo ?
+        additionalData.idDocumento.dataProtocollo.replace(" ", ", ") :
+        new Date(messageTag.inserted).toLocaleDateString("it-IT", { hour: "numeric", minute: "numeric" })
     };
     this.displayRegistrationDetail = true;
   }
