@@ -498,7 +498,7 @@ export class MailListComponent implements OnInit, OnDestroy {
       );
     }
     // quando effettuo una ricerca generica (avendo selezionato la casella) non vengano considerate le mail nel cestino
-    if (tag === null && folder === null ) {
+    if (tag === null && folder === null) {
       const folderList = this._selectedPec.folderList;
 
       folderList.forEach(f => {
@@ -699,7 +699,7 @@ export class MailListComponent implements OnInit, OnDestroy {
             this.cmItems.find(f => f.id === "MessageArchive").items = this.mailListService.buildAziendeUtenteMenuItems(this._selectedPec, this.selectedContextMenuItem);
           }
           break;
-         case "MessageUndelete":
+        case "MessageUndelete":
           element.disabled = false;
           if (!this.mailListService.isUndeleteActive()) {
             element.disabled = true;
@@ -756,16 +756,16 @@ export class MailListComponent implements OnInit, OnDestroy {
     const azienda: Azienda = this.loggedUser.getUtente().aziende.find(a => a.codice === event.item.queryParams.codiceAzienda);
     let decodedUrl = "";
     if (registrationType === "NEW") {
-      decodedUrl = decodeURI(azienda.urlCommands["PROTOCOLLA_PEC_NEW"]); // mi dovrei fare le costanti
+      decodedUrl = decodeURIComponent(azienda.urlCommands["PROTOCOLLA_PEC_NEW"]); // mi dovrei fare le costanti
     } else if (registrationType === "ADD") {
-      decodedUrl = decodeURI(azienda.urlCommands["PROTOCOLLA_PEC_ADD"]); // mi dovrei fare le costanti
+      decodedUrl = decodeURIComponent(azienda.urlCommands["PROTOCOLLA_PEC_ADD"]); // mi dovrei fare le costanti
     }
-    decodedUrl = decodedUrl.replace("[id_message]", this.mailListService.selectedMessages[0].id.toString());
 
-    const idTag = this._selectedPec.tagList.find(t => t.name === "registered"); // TODO: lista valori per i TAG
-    // decodedUrl = decodedUrl.replace("[id_tag]", idTag.id.toString());
-    decodedUrl = decodedUrl.replace("[pec_ricezione]", this._selectedPec.indirizzo);
-    decodedUrl = decodedUrl.replace("[richiesta]", Utils.genereateGuid());
+    decodedUrl = decodedUrl.replace("[id_message]", "null" + ";" + encodeURIComponent(this.mailListService.selectedMessages[0].uuidMessage));
+
+    decodedUrl = decodedUrl.replace("[richiesta]", encodeURIComponent(Utils.genereateGuid()));
+    decodedUrl = decodedUrl.replace("[id_sorgente]", encodeURIComponent(this.mailListService.selectedMessages[0].id.toString()));
+    decodedUrl = decodedUrl.replace("[pec_ricezione]", encodeURIComponent(this._selectedPec.indirizzo));
 
     console.log("command", decodedUrl);
 
@@ -841,10 +841,10 @@ export class MailListComponent implements OnInit, OnDestroy {
         let idPreviousFolder = this.mailListService.selectedMessages[0].messageFolderList[0].fk_idPreviousFolder.id;
         const received = this.mailListService.selectedMessages[0].inOut === "IN" ? true : false;
         if (idPreviousFolder === null && received === true) {
-          idPreviousFolder = this._selectedPec.folderList.filter(folder => folder.type === "INBOX" )[0].id;
+          idPreviousFolder = this._selectedPec.folderList.filter(folder => folder.type === "INBOX")[0].id;
           this.mailListService.moveMessages(idPreviousFolder);
         } else if (idPreviousFolder === null && received === false) {
-          idPreviousFolder = this._selectedPec.folderList.filter(folder => folder.type === "SENT" )[0].id;
+          idPreviousFolder = this._selectedPec.folderList.filter(folder => folder.type === "SENT")[0].id;
           this.mailListService.moveMessages(idPreviousFolder);
         } else {
           this.mailListService.moveMessages(idPreviousFolder);
