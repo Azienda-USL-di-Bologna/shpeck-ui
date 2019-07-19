@@ -28,11 +28,11 @@
     <div class="recepit-dates">
       <li class="recepit-date">
         <span class="recepit-date-label">Ricevuto il:</span>
-        <span class="recepit-date-content">{{fullMessage?.message?.receiveTime | date:"EEEE d MMMM y, HH:mm" | titlecase}}</span>
+        <span class="recepit-date-content">{{fullMessage?.message?.createTime | date:"EEEE d MMMM y, HH:mm" | titlecase}}</span>
       </li>
       <li class="recepit-date">
         <span class="recepit-date-label">Consegnato il:</span>
-        <span class="recepit-date-content"> {{fullMessage?.message?.createTime | date:"EEEE d MMMM y, HH:mm" | titlecase}}</span>
+        <span class="recepit-date-content"> {{fullMessage?.message?.receiveTime | date:"EEEE d MMMM y, HH:mm" | titlecase}}</span>
       </li>
     </div>
   </div>
