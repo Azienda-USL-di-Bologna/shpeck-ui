@@ -406,10 +406,10 @@ export class NewMailComponent implements OnInit, AfterViewInit {
       if (key === "attachments") {  // Gli allegati vanno aggiunti singolarmente
         const files = this.mailForm.get(key).value;
         files.forEach(file => {
-          if (!file.id) { // I file che hanno l'id sono presi dall'eml già salvato sul DB
-            formToSend.append(key, file);
-          } else {
-            formToSend.append("idMessageRelatedAttachments", file.id);
+          if (file.id || file.id === 0) { // I file che hanno l'id sono presi dall'eml già salvato sul DB
+          formToSend.append("idMessageRelatedAttachments", file.id);
+        } else {
+          formToSend.append(key, file);
           }
         });
       } else {
