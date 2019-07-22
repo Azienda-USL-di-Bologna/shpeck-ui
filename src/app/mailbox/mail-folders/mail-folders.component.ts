@@ -172,7 +172,7 @@ export class MailFoldersComponent implements OnInit, OnDestroy {
           const p: Pec = new Pec();
           p.id = pec.id;
           folder.idPec = p;
-          const folderNode: MyTreeNode = this.buildFolderNode(folder, this.buildFolderIcons(folder))
+          const folderNode: MyTreeNode = this.buildFolderNode(folder, this.buildFolderIcons(folder));
           switch (folder.name) {
             case "inbox":
               this.mailFoldersService.getReloadFolder(folder.id).subscribe(res => {
@@ -489,7 +489,7 @@ export class MailFoldersComponent implements OnInit, OnDestroy {
               this.cmItems = this.tagContainerCmItems;
               event.node.data.pec = event.node.parent.data.data as Pec;
               this.mailFoldersService.selectedPecFolder(
-                event.node.data,
+                event.node.parent.data,
                 event.node.children.map((c: MyTreeNode) => c.data.data) as Folder[],
                 (event.node.parent.data.data as Pec).tagList
               );
@@ -563,7 +563,7 @@ export class MailFoldersComponent implements OnInit, OnDestroy {
               );
             } else if (selectedNodeType === PecFolderType.TAG_CONTAINER) {
               this.mailFoldersService.selectedPecFolder(
-                event.node.data,
+                event.node.parent.data,
                 event.node.parent.children.map((c: MyTreeNode) => c.data.data) as Folder[],
                 (event.node.parent.data.data as Pec).tagList
               );

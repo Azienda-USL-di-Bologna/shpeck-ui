@@ -140,8 +140,8 @@ app-mail-list {
   overflow: auto;
 }
 .filter-box {
-  background-color: rgb(248, 248, 248);
-  border-bottom: 1px solid #2e4a65;
+  background-color: #eaecef; // rgb(248, 248, 248);
+  border-bottom: 1px solid #96a4b2;
   display: flex;
   flex: 1;
   flex-wrap: nowrap;
@@ -162,7 +162,7 @@ app-mail-list {
   }
   .filter-box-right:hover {
     // font-weight: bold;
-    background-color: #eaeaea !important;
+    background-color: #d5dae0 !important;
   }
   .filter-box-right::before {
     content: "";

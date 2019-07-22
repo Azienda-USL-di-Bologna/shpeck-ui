@@ -20,6 +20,7 @@ import { Menu } from "primeng/menu";
 import { AppCustomization } from "src/environments/app-customization";
 import { SettingsService } from "src/app/services/settings.service";
 import { FormGroup, FormControl, Validators } from "@angular/forms";
+import { MailboxService, Sorting } from "../mailbox.service";
 
 @Component({
   selector: "app-mail-list",
@@ -40,7 +41,8 @@ export class MailListComponent implements OnInit, OnDestroy {
     private messagePrimeService: MessageService,
     private noteService: NoteService,
     private settingsService: SettingsService,
-    private loginService: NtJwtLoginService
+    private loginService: NtJwtLoginService,
+    private mailboxService: MailboxService
   ) {
     this.selectedContextMenuItem = this.selectedContextMenuItem.bind(this);
     this.showNewTagPopup = this.showNewTagPopup.bind(this);
@@ -81,6 +83,10 @@ export class MailListComponent implements OnInit, OnDestroy {
   private aziendeFascicolabiliSubCmItems: MenuItem[] = null;
   private registerMessageEvent: any = null;
   private loggedUser: UtenteUtilities;
+  private sorting: Sorting = {
+    field: "receiveTime",
+    sortMode: SORT_MODES.desc
+  };
 
   /* public orderMenu: MenuItem[] = [
     {
@@ -291,7 +297,16 @@ export class MailListComponent implements OnInit, OnDestroy {
     this.subscriptions.push(this.messageService.messageEvent.subscribe(
       (messageEvent: MessageEvent) => {
         // console.log("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa ", messageEvent);
-      }));
+    }));
+    this.subscriptions.push(this.mailboxService.sorting.subscribe((sorting: Sorting) => {
+      if (sorting) {
+        this.sorting = sorting;
+        if (this.dt && this.dt.el && this.dt.el.nativeElement) {
+          this.dt.el.nativeElement.getElementsByClassName("ui-table-scrollable-body")[0].scrollTop = 0;
+        }
+        this.lazyLoad(null);
+      }
+    }));
   }
 
   public openDetailPopup(event, row, message) {
@@ -523,8 +538,11 @@ export class MailListComponent implements OnInit, OnDestroy {
         MessageType.MAIL
       )
     );
-    filtersAndSorts.addSort(new SortDefinition("receiveTime", SORT_MODES.desc));
+    // filtersAndSorts.addSort(new SortDefinition("receiveTime", SORT_MODES.desc));
     // filtersAndSorts.addSort(new SortDefinition("createTime", SORT_MODES.desc));
+    filtersAndSorts.addSort(new SortDefinition(this.sorting.field, this.sorting.sortMode));
+
+    // filtersAndSorts.addSort(new SortDefinition("messageAddressList.address_role", SORT_MODES.desc));
     return filtersAndSorts;
   }
 

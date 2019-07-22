@@ -3,9 +3,10 @@ import { Subscription } from "rxjs";
 import { SettingsService } from "../services/settings.service";
 import { AppCustomization } from "src/environments/app-customization";
 import { Folder, Message, FolderType, Tag, Pec, Menu } from "@bds/ng-internauta-model";
-import { FilterDefinition } from "@nfa/next-sdr";
+import { FilterDefinition, SORT_MODES } from "@nfa/next-sdr";
 import { MailFoldersService, PecFolder, PecFolderType } from "./mail-folders/mail-folders.service";
 import { MenuItem } from "primeng/api";
+import { MailboxService, Sorting } from "./mailbox.service";
 
 @Component({
   selector: "app-mailbox",
@@ -17,6 +18,7 @@ export class MailboxComponent implements OnInit, AfterViewInit, AfterViewChecked
   public folderSelected: Folder;
   public _selectedPec: Pec;
   public _selectedTag: Tag;
+  public _selectedFolder: Folder;
   public filtersSelected: FilterDefinition[];
   // @Output() message = new EventEmitter<any>();
   public message: Message;
@@ -29,7 +31,6 @@ export class MailboxComponent implements OnInit, AfterViewInit, AfterViewChecked
   @ViewChild("mailDetail") private mailDetail: ElementRef;
   @ViewChild("rightSlider") private rightSlider: ElementRef;
   @ViewChild("leftSlider") private leftSlider: ElementRef;
-  // @ViewChild("ordermenu") private ordermenu: Menu;
 
   public rightSideVisible: boolean;
   public flexGridClass = "p-col-8";
@@ -37,27 +38,30 @@ export class MailboxComponent implements OnInit, AfterViewInit, AfterViewChecked
   public hideDetail = false;
   public componentToLoad: string = "mail-list";
 
+  public tooltipSorting = "L'ordinamento è impostato su data discendente";
   public sortMenuItem: MenuItem[] = [
     {
       label: "Data",
       icon: "pi pi-chevron-down",
       id: "sortData",
-      title: "Data",
+      title: "data",
       disabled: false,
-      /* queryParams: {
-        na: "na"
-      }, */
+      queryParams: {
+        sort: SORT_MODES.desc,
+        field: "receiveTime"
+      },
       command: event => this.changeSorting(event)
     },
     {
       label: "Mittente",
       icon: "",
       id: "sortMittente",
-      title: "Mittente",
+      title: "mittente",
       disabled: false,
-      /* queryParams: {
-        na: "na"
-      }, */
+      queryParams: {
+        sort: null,
+        field: "messageExtensionList.addressFrom"
+      },
       command: event => this.changeSorting(event)
     }
   ];
@@ -69,7 +73,9 @@ export class MailboxComponent implements OnInit, AfterViewInit, AfterViewChecked
   private MAX_X_RIGHTSIDE: number = 70;
   private subscriptions: Subscription[] = [];
 
-  constructor(private settingsService: SettingsService, private mailFoldersService: MailFoldersService) {
+  constructor(private settingsService: SettingsService,
+    private mailFoldersService: MailFoldersService,
+    private mailboxService: MailboxService) {
 
     this.rightSideVisible = true;
   }
@@ -87,14 +93,17 @@ export class MailboxComponent implements OnInit, AfterViewInit, AfterViewChecked
       if (pecFolderSelected) {
         if (pecFolderSelected.type === PecFolderType.FOLDER) {
           const selectedFolder: Folder = pecFolderSelected.data as Folder;
+          this._selectedFolder = pecFolderSelected.data as Folder;
           this._selectedPecId = selectedFolder.fk_idPec.id;
           if (selectedFolder.type === FolderType.DRAFT) {
             this.componentToLoad = "mail-draft";
           } else {
             this.componentToLoad = "mail-list";
           }
+          this._selectedTag = null;
         } else if (pecFolderSelected.type === PecFolderType.TAG) {
           this.componentToLoad = "mail-list";
+          this._selectedFolder = null;
           this._selectedTag = pecFolderSelected.data as Tag;
           this._selectedPecId = this._selectedTag.fk_idPec.id;
           this._selectedPec = pecFolderSelected.pec;
@@ -102,21 +111,33 @@ export class MailboxComponent implements OnInit, AfterViewInit, AfterViewChecked
           this.componentToLoad = "mail-list";
           this._selectedPec = pecFolderSelected.data as Pec;
           this._selectedPecId = this._selectedPec.id;
+          this._selectedFolder = null;
+          this._selectedTag = null;
         }
       }
     }));
   }
 
+  /**
+   * Gestisce la scelta del sorting da parte dell'utente
+   */
   public changeSorting(event) {
     console.log(event);
-    switch (event.item.id) {
-      case "sortData":
-
-        break;
-      case "sortMittente":
-
-        break;
-    }
+    this.sortMenuItem.forEach(sortItem => {
+      if (sortItem.id === event.item.id) {
+        sortItem.queryParams.sort = sortItem.queryParams.sort === null || sortItem.queryParams.sort === SORT_MODES.desc ? SORT_MODES.asc :  SORT_MODES.desc;
+        sortItem.icon = sortItem.queryParams.sort === SORT_MODES.desc ? "pi pi-chevron-down" : "pi pi-chevron-up";
+        const sort: Sorting = {
+          field: sortItem.queryParams.field,
+          sortMode: sortItem.queryParams.sort
+        };
+        this.mailboxService.setSorting(sort);
+        this.tooltipSorting = `L'ordinamento è impostato su ${sortItem.title} ${sortItem.queryParams.sort === SORT_MODES.desc ? "discendente" : "ascendente"}`;
+      } else {
+        sortItem.queryParams.sort = null;
+        sortItem.icon = null;
+      }
+    });
   }
 
   /**
