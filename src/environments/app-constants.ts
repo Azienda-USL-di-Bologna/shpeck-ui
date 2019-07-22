@@ -52,7 +52,8 @@ export const CUSTOM_SERVER_METHODS = {
     readdressMessage: "readdressMessage",
     countMessageInFolder: "countMessageInFolder",
     countMessageInTag: "countMessageInTag",
-    searchEmailContact: "searchEmailContact"
+    searchEmailContact: "searchEmailContact",
+    archiveMessage: "archiveMessage"
 };
 
 export const EMLSOURCE = {

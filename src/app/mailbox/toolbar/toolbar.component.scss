@@ -8,7 +8,9 @@
 :host::ng-deep button .ui-button-icon-left {
     color: #2e4a65;
 }
-
+:host::ng-deep .rotate .ui-button-icon-left {
+    transform: rotate(-90deg);
+}
 ::ng-deep .button-new-mail .ui-button-icon-left {
     color: white !important;
 }

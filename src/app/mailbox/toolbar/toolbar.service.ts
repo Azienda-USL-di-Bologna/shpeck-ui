@@ -37,7 +37,8 @@ export class ToolBarService {
     ["buttonsActive", new BehaviorSubject<boolean>(false)],
     ["deleteActive", new BehaviorSubject<boolean>(false)],
     ["moveActive", new BehaviorSubject<boolean>(false)],
-    ["searchActive", new BehaviorSubject<boolean>(false)]
+    ["searchActive", new BehaviorSubject<boolean>(false)],
+    ["archiveActive", new BehaviorSubject<boolean>(false)]
   ]);
 
   constructor(
@@ -51,6 +52,7 @@ export class ToolBarService {
     private loginService: NtJwtLoginService
     ) {
       this.move = this.move.bind(this);
+      // this.archive = this.archive.bind(this);
       this.subscriptions.push(this.loginService.loggedUser$.subscribe((utente: UtenteUtilities) => {
         if (utente) {
           if (!this.loggedUser || utente.getUtente().id !== this.loggedUser.getUtente().id) {
@@ -65,6 +67,7 @@ export class ToolBarService {
             this.selectedFolder = pecFolderSelected.data as Folder;
             idPec = this.selectedFolder.fk_idPec.id;
             this.buttonsObservables.get("buttonsActive").next(false);
+            this.buttonsObservables.get("archiveActive").next(false);
             this.buttonsObservables.get("editVisible").next(false);
             this.buttonsObservables.get("deleteActive").next(false);
           } else if (pecFolderSelected.type === PecFolderType.TAG) {
@@ -110,6 +113,7 @@ export class ToolBarService {
         console.log("DATA = ", messageEvent);
         this.messageEvent = messageEvent;
         this.selectedMessages = this.messageEvent.selectedMessages;
+        this.buttonsObservables.get("archiveActive").next(this.mailListService.isArchiveActive());
         if (messageEvent.downloadedMessage) {
           this.buttonsObservables.get("buttonsActive").next(true);
         } else  {
@@ -148,9 +152,17 @@ export class ToolBarService {
     return this.mailListService.buildMoveMenuItems(this.folders, this.selectedFolder, this.move);
   }
 
+  public buildArchiveMenuItems(command) {
+    return this.mailListService.buildAziendeUtenteMenuItems(this._selectedPec, command);
+  }
+
+  /* private archive(event) {
+    this.mailListService.archiveMessage(event);
+  } */
+
   private move(event) {
     if (event.item.queryParams.folder) {
-      this.mailListService.moveMessages(event.item.queryParams.folder);
+      this.mailListService.moveMessages(event.item.queryParams.folder.id);
     }
   }
 

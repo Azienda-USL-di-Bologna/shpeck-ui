@@ -8,7 +8,7 @@ import { MailFoldersService, FoldersAndTags, PecFolderType, PecFolder } from "..
 import { NtJwtLoginService, UtenteUtilities } from "@bds/nt-jwt-login";
 import { BatchOperation, BatchOperationTypes, FILTER_TYPES, FiltersAndSorts, FilterDefinition } from "@nfa/next-sdr";
 import { BaseUrls, BaseUrlType } from "src/environments/app-constants";
-import { ShpeckMessageService } from "src/app/services/shpeck-message.service";
+import { MessageEvent, ShpeckMessageService } from "src/app/services/shpeck-message.service";
 import { DialogService } from "primeng/api";
 import { ReaddressComponent } from "../readdress/readdress.component";
 import { TagService } from "src/app/services/tag.service";
@@ -30,6 +30,7 @@ export class MailListService {
   private selectedTag: Tag = null;
 
   private _newTagInserted: BehaviorSubject<Tag> = new BehaviorSubject<Tag>(null);
+  private messageEvent: MessageEvent;
 
 
   constructor(
@@ -71,6 +72,9 @@ export class MailListService {
           this.selectedTag = null;
         }
       }
+    }));
+    this.subscriptions.push(this.messageService.messageEvent.subscribe((messageEvent: MessageEvent) => {
+      this.messageEvent = messageEvent;
     }));
   }
 
@@ -205,13 +209,13 @@ export class MailListService {
         tia.order = 3;
         break;
         case this.selectedMessages.length:  // Tutti i messaggi hanno il tag
-        tia.iconType = "fas fa-tag color-green";
+        tia.iconType = "material-icons local-offer-icon color-green";
         tia.operation = "DELETE";
         tia.title = "Etichetta associata, seleziona per rimuoverla";
         tia.order = 1;
         break;
         default:                            // Almeno un messaggio ha il tag
-        tia.iconType = "fas fa-tag color-yellow";
+        tia.iconType = "material-icons local-offer-icon color-yellow";
         tia.operation = "INSERT";
         tia.title = "Uno dei messaggi selezionati ha l'etichetta associata, seleziona per applicarla a tutti i selezionati";
         tia.order = 2;
@@ -269,6 +273,35 @@ export class MailListService {
     }
   }
 
+  public checkCurrentStatusAndRegister(exe: any): void {
+    if (this.selectedMessages && this.selectedMessages.length === 1) {
+      const filtersAndSorts: FiltersAndSorts = new FiltersAndSorts();
+      filtersAndSorts.addFilter(new FilterDefinition("id", FILTER_TYPES.not_string.equals, this.selectedMessages[0].id));
+      this.messageService
+      .getData(
+        ENTITIES_STRUCTURE.shpeck.message.customProjections.CustomMessageForMailList,
+        filtersAndSorts,
+        null,
+        null
+      )
+      .subscribe(data => {
+        if (data && data.results && data.results.length === 1) {
+          const message =  (data.results[0] as Message);
+          let registrable = true;
+          if (message.messageTagList && message.messageTagList.length > 0) {
+            registrable = !message.messageTagList.some(mt => mt.idTag.name === "registered" || mt.idTag.name === "in_registration");
+          }
+          if (registrable) {
+            exe();
+          } else {
+            this.messagePrimeService.add(
+              { severity: "error", summary: "Attenzione", detail: "Il messaggio risulta già protocollato. Si consiglia di aggiornare la pagina." });
+          }
+        }
+      });
+    }
+  }
+
   /**
    * Questa funzione ritorna un booleano che indica se i messaggi selezionati sono spostabili.
    */
@@ -295,19 +328,17 @@ export class MailListService {
 
 
   /**
-   * Questa funzione si occupa di spostare i selectedMessages nel folder passato.
-   * @param folder
-   * @param selectedMessages
-   * @param loggedUser
+   *Questa funzione si occupa di spostare i selectedMessages nel folder passato
+   *@param idPreviousFolder di folder passato ( fk_idPreviousFolder )
    */
-  public moveMessages(folder: Folder): void {
-    if (folder && folder.id) {
+  public moveMessages(idPreviousFolder: number): void {
+    if (idPreviousFolder && (typeof(idPreviousFolder) === "number" )) {
       this.messageFolderService
         .moveMessagesToFolder(
           this.selectedMessages.map((message: Message) => {
             return message.messageFolderList[0];  // Basta prendere il primo elemente perché ogni messaggio può essere in una sola cartella
           }),
-          folder.id,
+          idPreviousFolder,
           this.loggedUser.getUtente().id
         )
         .subscribe(res => {
@@ -323,7 +354,7 @@ export class MailListService {
    * @param loggedUser
    */
   public moveMessagesToTrash(): void {
-    this.moveMessages(this.trashFolder);
+    this.moveMessages(this.trashFolder.id);
   }
 
   public createAndApplyTag(tagName) {
@@ -451,8 +482,12 @@ export class MailListService {
         });
       }
     });
+    const inFolder = this.folders.filter(folder => folder.type === "INBOX")[0].id;
     if (messagesToUpdate.length > 0) {
-      this.messageService.batchHttpCall(messagesToUpdate).subscribe();
+      this.messageService.batchHttpCall(messagesToUpdate).subscribe( () => {
+        // reload Folder
+        this.mailFoldersService.doReloadFolder(inFolder);
+      });
     }
   }
 
@@ -605,7 +640,90 @@ export class MailListService {
   }
 
   /**
-   * Questa funzione ritorna un booleano che indica se i messaggi selezionati sono reindirizzabili.
+   * Apre l'url di archiviazione su Babel
+   * @param event
+   */
+  public archiveMessage(event: any) {
+    console.log("event", event);
+    if (this.selectedMessages && this.selectedMessages.length === 1 && event && event.item && event.item) {
+      const azienda: Azienda = this.loggedUser.getUtente().aziende.find(a => a.codice === event.item.queryParams.codiceAzienda);
+      let decodedUrl = "";
+      decodedUrl = decodeURI(azienda.urlCommands["ARCHIVE_MESSAGE"]);
+      decodedUrl = decodedUrl.replace("[id_message]", this.selectedMessages[0].id.toString());
+      decodedUrl = decodedUrl.replace("[richiesta]", Utils.genereateGuid());
+      console.log("command", decodedUrl);
+      window.open(decodedUrl);
+    }
+  }
+
+  /**
+    * Questo metodo si occupa di construire un menu che contenga le aziende passate come items.
+    * Le aziende non associate alla pec passata (selectedPec) avranno un messaggio d'avviso.
+    * @param codiciAziende
+    * @param selectedPec
+    * @param idCommand
+    * @param command
+    */
+  public buildAziendeMenuItems(codiciAziende: string[], selectedPec: Pec, idCommand: string, command: (any) => any): MenuItem[] {
+    const aziendeMenuItems = [];
+    codiciAziende.forEach(codiceAzienda => {
+      const azienda = this.loggedUser.getUtente().aziende.find(a => a.codice === codiceAzienda);
+      let pIspecDellAzienda = true;
+      let pIcon = "";
+      let pTitle = "";
+      if (!selectedPec.pecAziendaList.find(pecAzienda => pecAzienda.fk_idAzienda.id === azienda.id)) {
+        pIspecDellAzienda = false;
+        pIcon = "pi pi-question-circle";
+        pTitle = "L'azienda non è associata alla casella del messaggio selezionato.";
+      }
+      aziendeMenuItems.push(
+        {
+          label: azienda.nome,
+          icon: pIcon,
+          id: idCommand,
+          title: pTitle,
+          disabled: false,
+          queryParams: {
+            codiceAzienda: codiceAzienda,
+            isPecDellAzienda: pIspecDellAzienda,
+          },
+          command: event => command(event)
+        }
+      );
+    });
+    return aziendeMenuItems;
+  }
+
+  /**
+   * Questa funzione si occupa di creare un MenuItem[] che contenga come items la
+   * lista delle aziende su cui l'utente loggato ha il permesso redige per la funzione protocolla Pec.
+   * @param command
+   */
+  public buildRegistrationMenuItems(selectedPec: Pec, command: (any) => any): MenuItem[] {
+    return this.buildAziendeMenuItems(
+      this.loggedUser.getAziendeWithPermission(FluxPermission.REDIGE),
+      selectedPec,
+      "MessageRegistration",
+      command
+    );
+  }
+
+  /**
+   * Questa funzione si occupa di creare un MenuItem[] che contenga come items la
+   * lista delle aziende dell'utente loggato .
+   * @param command
+   */
+  public buildAziendeUtenteMenuItems(selectedPec: Pec, command: (any) => any): MenuItem[] {
+    return this.buildAziendeMenuItems(
+      this.loggedUser.getUtente()["aziende"].map(a => a.codice),
+      selectedPec,
+      "MessageArchive",
+      command
+    );
+  }
+
+  /**
+   * Questa funzione ritorna un booleano che indica se il messaggio selezionato è reindirizzabile.
    */
   public isReaddressActive(specificMessage?: Message): boolean {
     const message: Message = specificMessage ? specificMessage : this.selectedMessages[0];
@@ -619,6 +737,33 @@ export class MailListService {
       return true;
     }
   }
+
+  /**
+   * Questa funzione ritorna un booleano che indica se il messaggio selezionato è archiviabile.
+   */
+  public isArchiveActive(specificMessage?: Message): boolean {
+    const message: Message = specificMessage ? specificMessage : this.selectedMessages[0];
+    if ((!specificMessage && this.selectedMessages.length !== 1) ||
+      message.messageFolderList[0].idFolder.type === "TRASH") {
+      return false;
+    } else {
+      return true;
+    }
+  }
+
+    /**
+   *
+   * Questa funzione ritorna un booleano che indica se i messaggi selezionati sono ripristinabili.
+   */
+  public isUndeleteActive(specificMessage?: Message): boolean {
+    const message: Message = specificMessage ? specificMessage : this.selectedMessages[0];
+    if ( (this.selectedMessages.length === 1) && message.messageFolderList[0].idFolder.type === "TRASH" ) {
+      return true;
+    } else {
+      return false;
+    }
+  }
+
   /**
    * Abilita/Disabilita il pulsante ToggleError.
    * Viene disabilitato e ritorna TRUE se il messaggio non è in errore e se il tag è già presente.

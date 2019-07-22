@@ -1,7 +1,7 @@
 import { Component, OnInit, Output, EventEmitter, ViewChild, ElementRef, OnDestroy } from "@angular/core";
 import { buildLazyEventFiltersAndSorts } from "@bds/primeng-plugin";
 import { Message, ENTITIES_STRUCTURE, MessageAddress, AddresRoleType, Folder, MessageTag, InOut, Tag, Pec, MessageType, FolderType, Note, FluxPermission, Azienda, MessageStatus } from "@bds/ng-internauta-model";
-import { ShpeckMessageService } from "src/app/services/shpeck-message.service";
+import { ShpeckMessageService, MessageEvent } from "src/app/services/shpeck-message.service";
 import { FiltersAndSorts, FilterDefinition, FILTER_TYPES, SortDefinition, SORT_MODES, PagingConf, BatchOperation, BatchOperationTypes } from "@nfa/next-sdr";
 import { TagService } from "src/app/services/tag.service";
 import { Observable, Subscription } from "rxjs";
@@ -36,7 +36,7 @@ export class MailListComponent implements OnInit, OnDestroy {
     private mailFoldersService: MailFoldersService,
     private toolBarService: ToolBarService,
     private datepipe: DatePipe,
-    private confirmationService: ConfirmationService,
+    public confirmationService: ConfirmationService,
     private messagePrimeService: MessageService,
     private noteService: NoteService,
     private settingsService: SettingsService,
@@ -53,6 +53,7 @@ export class MailListComponent implements OnInit, OnDestroy {
   @ViewChild("noteArea") private noteArea;
   @ViewChild("idtag") private inputTextTag;
   @ViewChild("registrationMenu") private registrationMenu: Menu;
+  @ViewChild("archiviationMenu") private archiviationMenu: Menu;
 
   public _selectedTag: Tag;
   public _selectedFolder: Folder;
@@ -76,6 +77,7 @@ export class MailListComponent implements OnInit, OnDestroy {
   private previousFilter: FilterDefinition[] = [];
   private foldersSubCmItems: MenuItem[] = null;
   private aziendeProtocollabiliSubCmItems: MenuItem[] = null;
+  private aziendeFascicolabiliSubCmItems: MenuItem[] = null;
   private registerMessageEvent: any = null;
   private loggedUser: UtenteUtilities;
 
@@ -180,6 +182,13 @@ export class MailListComponent implements OnInit, OnDestroy {
       disabled: true,
       queryParams: {},
       command: event => this.selectedContextMenuItem(event)
+    },
+    {
+      label: "Ripristina",
+      id: "MessageUndelete",
+      disabled: true,
+      queryParams: {},
+      command: event => this.selectedContextMenuItem(event)
     }
   ];
 
@@ -199,6 +208,12 @@ export class MailListComponent implements OnInit, OnDestroy {
   };
   public tagForm;
   public registrationDetail: any = null;
+  public archiviationDetail: any = {
+    displayArchiviationDetail: false,
+    buttonArchivable: false,
+    message: null,
+    additionalData: null
+  };
   public noteObject: Note = new Note();
   public fromOrTo: string;
   public loading = false;
@@ -258,6 +273,10 @@ export class MailListComponent implements OnInit, OnDestroy {
     if (this.settingsService.getImpostazioniVisualizzazione()) {
       this.openDetailInPopup = this.settingsService.getHideDetail() === "true";
     }
+    this.subscriptions.push(this.messageService.messageEvent.subscribe(
+      (messageEvent: MessageEvent) => {
+        console.log("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa ", messageEvent);
+      }));
   }
 
   public openDetailPopup(event, row, message) {
@@ -618,7 +637,7 @@ export class MailListComponent implements OnInit, OnDestroy {
             element.disabled = true;
             this.cmItems.find(f => f.id === "MessageRegistration").items = null;
           } else {
-            this.cmItems.find(f => f.id === "MessageRegistration").items = this.buildRegistrationMenuItems(this.selectedContextMenuItem);
+            this.cmItems.find(f => f.id === "MessageRegistration").items = this.mailListService.buildRegistrationMenuItems(this._selectedPec, this.selectedContextMenuItem);
           }
           break;
         case "MessageNote":
@@ -642,6 +661,21 @@ export class MailListComponent implements OnInit, OnDestroy {
             element.disabled = true;
           }
           break;
+        case "MessageArchive":
+          element.disabled = false;
+          if (!this.mailListService.isArchiveActive()) {
+            element.disabled = true;
+            this.cmItems.find(f => f.id === "MessageArchive").items = null;
+          } else {
+            this.cmItems.find(f => f.id === "MessageArchive").items = this.mailListService.buildAziendeUtenteMenuItems(this._selectedPec, this.selectedContextMenuItem);
+          }
+          break;
+         case "MessageUndelete":
+          element.disabled = false;
+          if (!this.mailListService.isUndeleteActive()) {
+            element.disabled = true;
+          }
+          break;
       }
     });
   }
@@ -653,7 +687,7 @@ export class MailListComponent implements OnInit, OnDestroy {
    * Con un futuro refactoring si potrebbe spostare tutto quello che riguarda la protocollazione nel mail-list.service
    * @param command
    */
-  public buildRegistrationMenuItems(command: (any) => any): MenuItem[] {
+  /* public buildRegistrationMenuItems(command: (any) => any): MenuItem[] {
     const registrationItems = [];
     this.loggedUser.getAziendeWithPermission(FluxPermission.REDIGE).forEach(codiceAzienda => {
       const azienda = this.loggedUser.getUtente().aziende.find(a => a.codice === codiceAzienda);
@@ -681,7 +715,7 @@ export class MailListComponent implements OnInit, OnDestroy {
       );
     });
     return registrationItems;
-  }
+  } */
 
   /**
    * Questa funzione si occupa di iniziare la protocollazione del messaggio selezionato.
@@ -743,7 +777,7 @@ export class MailListComponent implements OnInit, OnDestroy {
         this.deletingConfirmation();
         break;
       case "MessageMove":
-        this.mailListService.moveMessages(event.item.queryParams.folder);
+        this.mailListService.moveMessages(event.item.queryParams.folder.id);
         break;
       case "MessageLabels":
         this.checkTagAndConfirm(event.item.queryParams);
@@ -775,6 +809,40 @@ export class MailListComponent implements OnInit, OnDestroy {
       case "ToggleErrorFalse":
         this.mailListService.toggleError(false);
         break;
+      case "MessageUndelete":
+        let idPreviousFolder = this.mailListService.selectedMessages[0].messageFolderList[0].fk_idPreviousFolder.id;
+        const received = this.mailListService.selectedMessages[0].inOut === "IN" ? true : false;
+        if (idPreviousFolder === null && received === true) {
+          idPreviousFolder = this._selectedPec.folderList.filter(folder => folder.type === "INBOX" )[0].id;
+          this.mailListService.moveMessages(idPreviousFolder);
+        } else if (idPreviousFolder === null && received === false) {
+          idPreviousFolder = this._selectedPec.folderList.filter(folder => folder.type === "SENT" )[0].id;
+          this.mailListService.moveMessages(idPreviousFolder);
+        } else {
+          this.mailListService.moveMessages(idPreviousFolder);
+        }
+        break;
+      case "MessageArchive":
+        this.archiviationDetail.displayArchiviationDetail = false;
+        this.askConfirmationBeforeArchiviation(event);
+        break;
+    }
+  }
+
+  private askConfirmationBeforeArchiviation(event) {
+    if (this.mailListService.selectedMessages && this.mailListService.selectedMessages.length === 1 && event && event.item && event.item) {
+      if (!event.item.queryParams.isPecDellAzienda) {
+        this.confirmationService.confirm({
+          header: "Conferma",
+          message: "<b>Attenzione! Stai fascicolando su una azienda non associata alla casella selezionata su cui è arrivato il messaggio.</b><br/><br/>Sei sicuro?",
+          icon: "pi pi-exclamation-triangle",
+          accept: () => {
+            this.mailListService.archiveMessage(event);
+          }
+        });
+      } else {
+        this.mailListService.archiveMessage(event);
+      }
     }
   }
 
@@ -985,7 +1053,7 @@ export class MailListComponent implements OnInit, OnDestroy {
         this.prepareAndOpenDialogRegistrationDetail(messageTag, JSON.parse(messageTag.additionalData));
         break;
       case "REGISTABLE":
-        this.aziendeProtocollabiliSubCmItems = this.buildRegistrationMenuItems(this.selectedContextMenuItem);
+        this.aziendeProtocollabiliSubCmItems = this.mailListService.buildRegistrationMenuItems(this._selectedPec, this.selectedContextMenuItem);
         this.registrationMenu.toggle(event);
         break;
       case "NOT_REGISTABLE":
@@ -1117,6 +1185,44 @@ export class MailListComponent implements OnInit, OnDestroy {
     return message.messageTagList.some(mt => mt.idTag.name === tagname) ? true : false;
   }
 
+  public getArchiviationStatus(message: Message) {
+    if (!message.messageTagList) {
+      return this.mailListService.isArchiveActive(message) ? "ARCHIVABLE" : "NOT_ARCHIVABLE";
+    }
+    return message.messageTagList.find(mt => mt.idTag.name === "archived") ? "ARCHIVED" :
+      this.mailListService.isArchiveActive(message) ? "ARCHIVABLE" : "NOT_ARCHIVABLE";
+  }
+
+
+  public iconArchiveClicked(event: any, message: Message, archivedstatus: string) {
+    let messageTag = null;
+    switch (archivedstatus) {
+      case "ARCHIVED":
+        messageTag = message.messageTagList.find(mt => mt.idTag.name === "archived");
+        this.prepareAndOpenDialogArchiviationDetail(messageTag, JSON.parse(messageTag.additionalData), message);
+        break;
+      case "ARCHIVABLE":
+        this.aziendeFascicolabiliSubCmItems = this.mailListService.buildAziendeUtenteMenuItems(this._selectedPec, this.selectedContextMenuItem);
+        this.archiviationMenu.toggle(event);
+        break;
+      case "NOT_ARCHIVABLE":
+        this.messagePrimeService.add({
+          severity: "warn",
+          summary: "Attenzione",
+          detail: "Questo messaggio non può essere fascicolato.", life: 3500
+        });
+        break;
+    }
+  }
+
+  public prepareAndOpenDialogArchiviationDetail(messageTag: MessageTag, additionalData: any, message: Message) {
+    this.archiviationDetail = {
+      displayArchiviationDetail: true,
+      buttonArchivable: this.mailListService.isArchiveActive(message),
+      message: message,
+      additionalData: additionalData
+    };
+  }
   /*
 
     background-color: rgba(153,51,102,0.1) !important;

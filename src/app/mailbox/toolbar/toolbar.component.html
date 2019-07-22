@@ -55,9 +55,11 @@
       <!-- Fascicola -->
       <button
         pButton type="button" label="Fascicola"
-        icon="fa fa-archive" class="button-styles ui-button-raised ui-button-secondary custom-border"
-        [disabled]="true">
+        icon="fa fa-server" class="button-styles ui-button-raised ui-button-secondary custom-border rotate"
+        (click)="handleEvent($event, 'archive')"
+        [disabled]="!(toolBarService.buttonObs.get('archiveActive') | async)">
       </button>
+      <p-menu #archiveMenu [popup]="true" [model]="archiveMenuItems"></p-menu>
       <!-- Ricerca -->
       <input #search matInput type="text" pInputText size="50" placeholder="Cerca..." (keydown.enter)="onEnter(search.value)"
         class="input-find" [pTooltip]="(toolBarService.buttonObs.get('searchActive') | async) ? 'Inserire almeno 3 caratteri e premere invio': null" minlength="3" title="barra di ricerca" autofocus

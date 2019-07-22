@@ -37,6 +37,7 @@ export class ShpeckMessageService extends NextSDREntityProvider {
     if (messageToDownload && messageToDownload.id) {
       this.extractEmlData(messageToDownload.id, EMLSOURCE.MESSAGE).subscribe(
         (data: EmlData) => {
+          messageToDownload.attachmentsNumber = data.realAttachmentNumber;
           this._messageEvent.next({
             downloadedMessage: {
               message: messageToDownload,
@@ -99,6 +100,11 @@ export class ShpeckMessageService extends NextSDREntityProvider {
   public downloadAllEmlAttachment(message: Message, emlSorce: string): Observable<any> {
     const url = getInternautaUrl(BaseUrlType.Shpeck) + "/" + CUSTOM_SERVER_METHODS.downloadAllEmlAttachment + "/" + message.id + "?emlSource=" + emlSorce;
     return this.http.get(url, {responseType: "blob"});
+  }
+
+  public archiveMessage(message: Message): Observable<any> {
+    const url = getInternautaUrl(BaseUrlType.Shpeck) + "/" + CUSTOM_SERVER_METHODS.archiveMessage + "/" + message.id;
+    return this.http.post(url, null);
   }
 }
 

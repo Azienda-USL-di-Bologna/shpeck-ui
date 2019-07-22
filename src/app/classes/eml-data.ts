@@ -15,4 +15,5 @@ export class EmlData {
   public acceptanceDate: Date;  // E' la data della ricevuta di accettazione. ('Consegnata il' su UI)
   public deliveryDate: Date;    // E' la data della ricevuta di consegna se ce n'è solo una ('Ricevuta il' su UI)
   public deliveryInfo: string;  // Contiene 'Varie ricevute' se le ricevute di consegna sono più di una.
+  public realAttachmentNumber: number; // contiene il numero di allegati veri (esclusi quelli immagini che si vedono solo nel corpo della mail)
 }

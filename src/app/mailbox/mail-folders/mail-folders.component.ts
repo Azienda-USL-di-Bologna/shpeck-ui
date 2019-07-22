@@ -162,7 +162,19 @@ export class MailFoldersComponent implements OnInit, OnDestroy {
           const p: Pec = new Pec();
           p.id = pec.id;
           folder.idPec = p;
-          children.push(this.buildFolderNode(folder, this.buildFolderIcons(folder)));
+          const folderNode: MyTreeNode = this.buildFolderNode(folder, this.buildFolderIcons(folder))
+          switch (folder.name) {
+            case "inbox":
+              this.mailFoldersService.getReloadFolder(folder.id).subscribe(res => {
+                console.log("number of unread messages: ", res);
+                res > 0 ? folderNode.label = `In arrivo (${res})` : folderNode.label = "In arrivo";
+              });
+              setTimeout(() => {
+                this.mailFoldersService.doReloadFolder(folder.id);
+              });
+              break;
+          }
+          children.push(folderNode);
         } else {
           foldersCustom.push(folder);
         }

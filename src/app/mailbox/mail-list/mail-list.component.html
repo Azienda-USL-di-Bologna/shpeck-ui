@@ -47,7 +47,7 @@
                         <span class="mail-icon">
                             <ng-template  #registrationTemplate let-registrationstatus>
                                 <i
-                                    [pTooltip]="registrationstatus === 'REGISTERED' ? 'Vedi dettagli protocollazione' :
+                                    [pTooltip]="registrationstatus === 'REGISTERED' ? 'Vedi dettaglio protocollazione' :
                                         (registrationstatus === 'REGISTABLE' ? 'Protocolla il messaggio' : registrationstatus === 'IN_REGISTRATION' ? 'In protocollazione' : 'Il messaggio non può essere protocollato')"
                                     tooltipPosition="top"
                                     class="material-icons-outlined mail-icons icon-enabled"
@@ -97,6 +97,23 @@
                             </ng-template>
                             <ng-template [ngTemplateOutlet]="annotatedTemplate"
                                 [ngTemplateOutletContext]="{$implicit: isAlreadyTagged(message, 'annotated')}">
+                            </ng-template>
+                        </span>
+                        <!-- fascicolato -->
+                        <span class="mail-icon fa-icon">
+                            <ng-template  #archivedTemplate let-archivedstatus>
+                                <i  [pTooltip]="archivedstatus === 'ARCHIVED' ? 'Vedi dettaglio fascicolazione' :
+                                        (archivedstatus === 'ARCHIVABLE' ? 'Fascicola il messaggio' : 'Il messaggio non può essere fascicolato')"
+                                    tooltipPosition="top"
+                                    class="fa fa-server fa-rotate-270 mail-icons icon-enabled"
+                                    [ngClass]="{'icon-disabled': archivedstatus === 'NOT_ARCHIVABLE', 'icon-used': archivedstatus === 'ARCHIVED'}"
+                                    [ngStyle]="archivedstatus === 'ARCHIVED' && {'color': 'darkcyan'}"
+                                    (click)="iconArchiveClicked($event, message, archivedstatus)">
+                                </i>
+                                <p-menu appendTo="body" #archiviationMenu [popup]="true" [model]="aziendeFascicolabiliSubCmItems"></p-menu>
+                            </ng-template>
+                            <ng-template [ngTemplateOutlet]="archivedTemplate"
+                                [ngTemplateOutletContext]="{$implicit: getArchiviationStatus(message)}">
                             </ng-template>
                         </span>
 
@@ -261,7 +278,7 @@
     </p-header>
     <li *ngIf="readdressDetail.testo?.in" [innerHTML]="readdressDetail.testo.in"></li>
     <li *ngIf="readdressDetail.testo?.out" [innerHTML]="readdressDetail.testo.out"></li>
-    <p-footer class="button-readdress">
+    <p-footer class="button-centopx">
         <button *ngIf="readdressDetail.buttonReaddress" type="button" pButton
             (click)="iconReaddressClicked($event, readdressDetail.message, 'READDRESSABLE')"
             (click)="readdressDetail.displayReaddressDetail = false"
@@ -270,6 +287,30 @@
         </button>
         <button type="button" pButton
             (click)="readdressDetail.displayReaddressDetail = false"
+            label="Ok"
+            class="ui-button-raised ui-button-secondary button-styles custom-secondary-button">
+        </button>
+    </p-footer>
+</p-dialog>
+
+<!-- DIALOG CHE MOSTRA IL DETTAGLIO DELLA FASCICOLAZIONE -->
+<p-dialog [(visible)]="archiviationDetail.displayArchiviationDetail">
+    <p-header>
+        Dettaglio fascicolazioni
+    </p-header>
+    <div *ngIf="archiviationDetail?.additionalData">
+        <div *ngFor="let d of archiviationDetail.additionalData">
+            <li><b>{{d.dataArchiviazione | date: 'EE d MMM y, H:mm' | titlecase}}</b>: {{d.idUtente.descrizione}} ha fascicolato in {{d.idFascicolo.oggetto}} [{{d.idFascicolo.numerazioneGerarchica}}]</li>
+        </div>
+    </div>
+    <p-footer class="button-centopx">
+        <button *ngIf="archiviationDetail.buttonArchivable" type="button" pButton
+            (click)="iconArchiveClicked($event, archiviationDetail.message, 'ARCHIVABLE')"     
+            label="Fascicola ancora"
+            class="ui-button-raised ui-button-secondary button-styles custom-secondary-button">
+        </button>
+        <button type="button" pButton
+            (click)="archiviationDetail.displayArchiviationDetail = false"
             label="Ok"
             class="ui-button-raised ui-button-secondary button-styles custom-secondary-button">
         </button>

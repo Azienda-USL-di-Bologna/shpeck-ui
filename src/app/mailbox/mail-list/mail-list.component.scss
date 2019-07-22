@@ -64,6 +64,7 @@
   justify-content: space-between;
   // align-items:
 }
+
 .prima-riga-destra {
   display: flex;
   flex-direction: row;
@@ -90,7 +91,11 @@
   // display: inline-block;
   //width: 20px;
 }
-
+.fa-icon {
+  vertical-align: super;
+  font-size: 13px;
+  margin-left: 1px;
+}
 .second-line-error {
   font-size: 15px;
   display: block;
@@ -152,7 +157,7 @@
   //overflow: scroll;
 }
 
-.button-readdress button {
+.button-centopx button {
   width: 100px;
 }
 
@@ -171,12 +176,16 @@
   color: #393939
 }
 
-::ng-deep .fas.fa-tag.color-green {
-  color: #14c014 !important;
+::ng-deep .local-offer-icon::before {
+  content: 'local_offer';
 }
 
-::ng-deep .fas.fa-tag.color-yellow {
-  color: #d8ce10 !important;
+::ng-deep .material-icons.color-green {
+  color: darkcyan !important;
+}
+
+::ng-deep .material-icons.color-yellow {
+  color: orange !important;
 }
 
 ::ng-deep .fas.new-tag {
