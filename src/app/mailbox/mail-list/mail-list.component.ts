@@ -297,7 +297,7 @@ export class MailListComponent implements OnInit, OnDestroy {
     this.subscriptions.push(this.messageService.messageEvent.subscribe(
       (messageEvent: MessageEvent) => {
         // console.log("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa ", messageEvent);
-    }));
+      }));
     this.subscriptions.push(this.mailboxService.sorting.subscribe((sorting: Sorting) => {
       if (sorting) {
         this.sorting = sorting;
@@ -774,9 +774,9 @@ export class MailListComponent implements OnInit, OnDestroy {
     const azienda: Azienda = this.loggedUser.getUtente().aziende.find(a => a.codice === event.item.queryParams.codiceAzienda);
     let decodedUrl = "";
     if (registrationType === "NEW") {
-      decodedUrl = decodeURIComponent(azienda.urlCommands["PROTOCOLLA_PEC_NEW"]); // mi dovrei fare le costanti
+      decodedUrl = decodeURI(azienda.urlCommands["PROTOCOLLA_PEC_NEW"]); // mi dovrei fare le costanti
     } else if (registrationType === "ADD") {
-      decodedUrl = decodeURIComponent(azienda.urlCommands["PROTOCOLLA_PEC_ADD"]); // mi dovrei fare le costanti
+      decodedUrl = decodeURI(azienda.urlCommands["PROTOCOLLA_PEC_ADD"]); // mi dovrei fare le costanti
     }
 
     decodedUrl = decodedUrl.replace("[id_message]", "null" + ";" + encodeURIComponent(this.mailListService.selectedMessages[0].uuidMessage));
