@@ -161,6 +161,9 @@
                                     class="material-icons mail-icons">merge_type</i></span> -->
                         </span>
                         <span class="prima-riga-destra">
+                            <!-- descizione inout del message -->
+                            <span *ngIf="message.inOut === 'IN' && _selectedFolder?.type !== 'INBOX' && _selectedFolder?.type !== 'SENT'" class="inout-message">In arrivo</span>
+                            <span *ngIf="message.inOut === 'OUT' && _selectedFolder?.type !== 'INBOX' && _selectedFolder?.type !== 'SENT'">Inviato</span>
                             <!-- iconcina degli allegati -->
                             <span class="second-line-icon" [ngClass]="{'visibility-hidden':message?.attachmentsNumber === 0}">
                                 <i
@@ -185,20 +188,26 @@
                         </span>
                     </div>
                     <div class="display-block">
-                        <span class="pi pi-user display-icon icon-default-color"></span>
-                        <div class="display-text" [ngClass]="{'display-bold':!message.seen}">{{message.fromOrTo}}</div>
+                        <!-- <span class="pi pi-user icon-default-color second-line-icon"></span> -->
+                        <!-- <span *ngIf="message.fromOrTo.fromOrTo === 'FROM'" title="Mittente" class="pi pi-angle-left icon-default-color second-line-icon"></span>
+                        <span *ngIf="message.fromOrTo.fromOrTo === 'TO'" title="Destinatari" class="pi pi-angle-right icon-default-color second-line-icon"></span> -->
+
+                        <span *ngIf="message.fromOrTo.fromOrTo === 'FROM'" title="Mittente" class="fa fa-user-edit icon-default-color second-line-icon second-line-icon-fa"></span>
+                        <span *ngIf="message.fromOrTo.fromOrTo === 'TO'" title="Destinatari" class="fa fa-user-friends icon-default-color second-line-icon second-line-icon-fa"></span>
+
+                        <div class="display-text text-from-or-to" [ngClass]="{'display-bold':!message.seen}">{{message.fromOrTo.description}}</div>
                     </div>
                     <div class="display-block extra-margin" style="overflow-x: hidden">
                         <!-- iconcina della mail -->
-                        <span *ngIf="!message?.seen" class="fas fa-envelope display-icon envelope-icon icon-default-color"></span>
-                        <span *ngIf="message?.seen" class="far fa-envelope-open display-icon envelope-icon icon-default-color"></span>
+                        <span *ngIf="!message?.seen" class="fas fa-envelope envelope-icon icon-default-color"></span>
+                        <span *ngIf="message?.seen" class="far fa-envelope-open envelope-icon icon-default-color"></span>
 
                         <!-- nome della cartella in cui si trova la mail in caso di risultati di una ricerca su tutta la casella -->
                         <span *ngIf="(_filters && !_selectedFolder) || _selectedTag"
-                            class="display-text text-background">{{message?.messageFolderList[0]?.idFolder.description}}</span>
+                            class="display-text text-background little-margin-left">{{message?.messageFolderList[0]?.idFolder.description}}</span>
 
                         <!-- oggetto della mail -->
-                        <span class="display-text" [ngClass]="{'display-bold':!message.seen}">{{message.subject}}</span>
+                        <span class="display-text little-margin-left" [ngClass]="{'display-bold':!message.seen}">{{message.subject}}</span>
                         <!-- <div class="display-text" [ngClass]="{'display-bold':!message.seen}">{{message.id + " -- " + message.subject}}</div>  -->
                     </div>
                 </td>

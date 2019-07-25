@@ -236,7 +236,7 @@ export class MailListComponent implements OnInit, OnDestroy {
     additionalData: null
   };
   public noteObject: Note = new Note();
-  public fromOrTo: string;
+  public fromOrTo: any;
   public loading = false;
   public virtualRowHeight: number = 70;
   public totalRecords: number;
@@ -575,19 +575,26 @@ export class MailListComponent implements OnInit, OnDestroy {
       default:
         addresRoleType = AddresRoleType.FROM;
     }
-    message["fromOrTo"] = "";
+    if (this.sorting.field === "messageExtensionList.addressFrom") {
+      addresRoleType = AddresRoleType.FROM;
+    }
+    message["fromOrTo"] = {
+      description: "",
+      fromOrTo: addresRoleType
+    };
     if (message.messageAddressList) {
       const messageAddressList: MessageAddress[] = message.messageAddressList.filter(
         (messageAddress: MessageAddress) =>
           messageAddress.addressRole === addresRoleType
       );
       messageAddressList.forEach((messageAddress: MessageAddress) => {
-        message["fromOrTo"] += ", " + messageAddress.idAddress.mailAddress;
+        message["fromOrTo"].description += ", " + (messageAddress.idAddress.originalAddress ? messageAddress.idAddress.originalAddress : messageAddress.idAddress.mailAddress);
+        // message["fromOrTo"].description += ", " + messageAddress.idAddress.mailAddress;
       });
-      if ((message["fromOrTo"] as string).startsWith(",")) {
-        message["fromOrTo"] = (message["fromOrTo"] as string).substr(
+      if ((message["fromOrTo"].description as string).startsWith(",")) {
+        message["fromOrTo"].description = (message["fromOrTo"].description as string).substr(
           1,
-          (message["fromOrTo"] as string).length - 1
+          (message["fromOrTo"].description as string).length - 1
         );
       }
     }

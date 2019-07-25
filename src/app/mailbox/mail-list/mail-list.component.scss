@@ -89,7 +89,9 @@ p-table,
 .display-block {
   display: block;
 }
-
+.little-margin-left {
+  margin-left: 4px;
+}
 .extra-margin {
   margin-left: 11px;
 }
@@ -111,7 +113,10 @@ p-table,
   flex-wrap: nowrap;
   justify-content: flex-end;
 }
-
+.inout-message {
+  /* border-radius: 50px;
+  border: 1px solid rgb(211, 211, 211) */
+}
 .text-background {
   padding: 0 4px;
   // background: cadetblue;
@@ -143,15 +148,20 @@ p-table,
 
 .second-line-icon {
   font-size: 18px;
-  display: block;
+  
   // float: right;
 }
-
+.second-line-icon-fa {
+  font-size: 14px;
+  margin-right: 3px;
+  vertical-align: super;
+}
 .mail-date {
   // position: absolute;
   // right: 1%;
   //float: right;
   margin: 0 7px;
+  width: 130px;
 }
 
 .visibility-hidden {
@@ -167,9 +177,13 @@ p-table,
 }
 
 .display-text {
-  margin-left: 20px;
+  /* margin-left: 20px; */
   display: inline-block;
   position: relative;
+}
+
+.text-from-or-to {
+  vertical-align: super;
 }
 
 .display-bold {
