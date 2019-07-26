@@ -1,5 +1,5 @@
 import { Component, OnInit, ViewEncapsulation, OnDestroy, ViewChild, ElementRef, ViewChildren } from "@angular/core";
-import { Pec, Folder, FolderType, Tag, TagType } from "@bds/ng-internauta-model";
+import { Pec, Folder, FolderType, Tag, TagType, Utente } from "@bds/ng-internauta-model";
 import { PecService } from "src/app/services/pec.service";
 import { TreeNode, MenuItem, MessageService } from "primeng/api";
 import { MailFoldersService, PecFolder, PecFolderType, FoldersAndTags } from "./mail-folders.service";
@@ -9,6 +9,7 @@ import { ContextMenu, Tree } from "primeng/primeng";
 import { FolderService } from "src/app/services/folder.service";
 import { TagService } from "src/app/services/tag.service";
 import { MailListService } from "../mail-list/mail-list.service";
+import { UtenteUtilities, NtJwtLoginService } from "@bds/nt-jwt-login";
 
 @Component({
   selector: "app-mail-folders",
@@ -23,6 +24,7 @@ export class MailFoldersComponent implements OnInit, OnDestroy {
   private static ROOT_NODE_SELECTED_STYLE_CLASS = "root-tree-node-style-selected";
 
   private subscriptions: Subscription[] = [];
+  private loggedUser: UtenteUtilities;
 
   @ViewChild("cm") public cm: ContextMenu;
   @ViewChild("tree") public tree: Tree;
@@ -97,8 +99,16 @@ export class MailFoldersComponent implements OnInit, OnDestroy {
       private mailFoldersService: MailFoldersService,
       private primeMessageService: MessageService,
       private toolBarService: ToolBarService,
+      private loginService: NtJwtLoginService,
       private tagService: TagService,
       private mailListService: MailListService) {
+    this.subscriptions.push(this.loginService.loggedUser$.subscribe((utente: UtenteUtilities) => {
+      if (utente) {
+        if (!this.loggedUser || utente.getUtente().id !== this.loggedUser.getUtente().id) {
+          this.loggedUser = utente;
+        }
+      }
+    }));
     this.subscriptions.push(this.mailListService.newTagInserted.subscribe((tag: Tag) => {
       if (tag && this.selectedNode) {
         console.log("devo inserire il nuovo tag", tag);
@@ -162,7 +172,7 @@ export class MailFoldersComponent implements OnInit, OnDestroy {
           const p: Pec = new Pec();
           p.id = pec.id;
           folder.idPec = p;
-          const folderNode: MyTreeNode = this.buildFolderNode(folder, this.buildFolderIcons(folder))
+          const folderNode: MyTreeNode = this.buildFolderNode(folder, this.buildFolderIcons(folder));
           switch (folder.name) {
             case "inbox":
               this.mailFoldersService.getReloadFolder(folder.id).subscribe(res => {
@@ -343,6 +353,7 @@ export class MailFoldersComponent implements OnInit, OnDestroy {
       folder.name = name.replace(/\s+/, "_").toLowerCase();
     }
     folder.type = FolderType.CUSTOM;
+    folder.idUtente = { id: this.loggedUser.getUtente().id } as Utente;
     const pec: Pec = new Pec();
     pec.id = pecContainer.id;
     folder.idPec = pec;
@@ -478,7 +489,7 @@ export class MailFoldersComponent implements OnInit, OnDestroy {
               this.cmItems = this.tagContainerCmItems;
               event.node.data.pec = event.node.parent.data.data as Pec;
               this.mailFoldersService.selectedPecFolder(
-                event.node.data,
+                event.node.parent.data,
                 event.node.children.map((c: MyTreeNode) => c.data.data) as Folder[],
                 (event.node.parent.data.data as Pec).tagList
               );
@@ -552,7 +563,7 @@ export class MailFoldersComponent implements OnInit, OnDestroy {
               );
             } else if (selectedNodeType === PecFolderType.TAG_CONTAINER) {
               this.mailFoldersService.selectedPecFolder(
-                event.node.data,
+                event.node.parent.data,
                 event.node.parent.children.map((c: MyTreeNode) => c.data.data) as Folder[],
                 (event.node.parent.data.data as Pec).tagList
               );

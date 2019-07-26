@@ -1,4 +1,4 @@
-import { Component, OnInit, Input, OnDestroy } from "@angular/core";
+import { Component, OnInit, Input, OnDestroy, ViewChild } from "@angular/core";
 import { Draft, ENTITIES_STRUCTURE } from "@bds/ng-internauta-model";
 import { FILTER_TYPES, FilterDefinition, PagingConf, FiltersAndSorts, SortDefinition, SORT_MODES } from "@nfa/next-sdr";
 import { LazyLoadEvent, FilterMetadata } from "primeng/api";
@@ -9,6 +9,8 @@ import { Observable, Subscription } from "rxjs";
 import { SettingsService } from "src/app/services/settings.service";
 import { DraftLiteService } from "src/app/services/draft-lite.service";
 import { AppCustomization } from "src/environments/app-customization";
+import { MailboxService, Sorting } from "../mailbox.service";
+import { Table } from "primeng/table";
 
 @Component({
   selector: "app-mail-drafts",
@@ -26,7 +28,7 @@ export class MailDraftsComponent implements OnInit, OnDestroy {
       this.loadData(null);
     });
   }
-
+  @ViewChild("dt") private dt: Table;
   private previousFilter: FilterDefinition[] = [];
   private selectedProjection: string =
     ENTITIES_STRUCTURE.shpeck.draftlite.standardProjections.DraftLiteWithIdPec;
@@ -58,8 +60,16 @@ export class MailDraftsComponent implements OnInit, OnDestroy {
       offset: 0
     }
   };
+  private sorting: Sorting = {
+    field: "receiveTime",
+    sortMode: SORT_MODES.desc
+  };
 
-  constructor(private draftService: DraftService, private settingsService: SettingsService, private draftLiteService: DraftLiteService, private datepipe: DatePipe) { }
+  constructor(private draftService: DraftService,
+    private settingsService: SettingsService,
+    private draftLiteService: DraftLiteService,
+    private datepipe: DatePipe,
+    private mailboxService: MailboxService) { }
 
   ngOnInit() {
     this.subscriptions.push(this.draftService.reload.subscribe(idDraft => {
@@ -71,6 +81,15 @@ export class MailDraftsComponent implements OnInit, OnDestroy {
     }));
     this.subscriptions.push(this.settingsService.settingsChangedNotifier$.subscribe(newSettings => {
       this.openDetailInPopup = newSettings[AppCustomization.shpeck.hideDetail] === "true";
+    }));
+    this.subscriptions.push(this.mailboxService.sorting.subscribe((sorting: Sorting) => {
+      if (sorting) {
+        this.sorting = sorting;
+        if (this.dt && this.dt.el && this.dt.el.nativeElement) {
+          this.dt.el.nativeElement.getElementsByClassName("ui-table-scrollable-body")[0].scrollTop = 0;
+        }
+        this.lazyLoad(null);
+      }
     }));
     if (this.settingsService.getImpostazioniVisualizzazione()) {
       this.openDetailInPopup = this.settingsService.getHideDetail() === "true";
@@ -202,7 +221,11 @@ export class MailDraftsComponent implements OnInit, OnDestroy {
       FILTER_TYPES.not_string.equals,
       this._selectedPecId
     ));
-    filtersAndSorts.addSort(new SortDefinition("updateTime", SORT_MODES.desc));
+
+    // Me ne frego dell'ordinamento generale impostato. Mi limito ad usare l'ordinamento della data cambiando il nome del campo
+    if (this.sorting.field === "receiveTime") {
+      filtersAndSorts.addSort(new SortDefinition("updateTime", this.sorting.sortMode));
+    }
     return filtersAndSorts;
   }
 

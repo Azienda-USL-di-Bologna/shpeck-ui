@@ -1,9 +1,29 @@
-:host, .flex-1 {
+/* :host,*/ .flex-1 {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+}
+:host {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+.box-table {
   display: flex;
   flex: 1;
 }
 .d-flex {
   display: flex;
+}
+p-table,
+::ng-deep p-table > div,
+::ng-deep p-table > div > div,
+::ng-deep p-table > div > div > div {
+  height: 100%;
+}
+::ng-deep p-table > div > div > div div.ui-table-scrollable-body {
+  max-height: 100% !important;
+  height: 100% !important;
 }
 .buttons-bar {
   height: 50px;
@@ -29,6 +49,26 @@
 .icon-used {
   cursor: help !important;
 }
+/* .filter-box {
+  background-color: rgb(245, 245, 245);
+  border-bottom: 1px solid #2e4a65;
+  display: flex;
+  flex: 1;
+  flex-wrap: nowrap;
+  justify-content: space-between;
+  max-height: min-content;
+  flex-direction: row;
+  font-size: 12px;
+  .filter-box-left, .filter-box-right {
+    padding: 5px 10px;
+  }
+  .filter-box-left {
+    font-weight: bold;
+  }
+  .filter-box-right {
+    // align-self: flex-end;
+  }
+} */
 
 //body .ui-table .ui-table-tbody > tr > td
 
@@ -49,7 +89,9 @@
 .display-block {
   display: block;
 }
-
+.little-margin-left {
+  margin-left: 4px;
+}
 .extra-margin {
   margin-left: 11px;
 }
@@ -71,7 +113,10 @@
   flex-wrap: nowrap;
   justify-content: flex-end;
 }
-
+.inout-message {
+  /* border-radius: 50px;
+  border: 1px solid rgb(211, 211, 211) */
+}
 .text-background {
   padding: 0 4px;
   // background: cadetblue;
@@ -103,15 +148,20 @@
 
 .second-line-icon {
   font-size: 18px;
-  display: block;
+  
   // float: right;
 }
-
+.second-line-icon-fa {
+  font-size: 14px;
+  margin-right: 3px;
+  vertical-align: super;
+}
 .mail-date {
   // position: absolute;
   // right: 1%;
   //float: right;
   margin: 0 7px;
+  width: 130px;
 }
 
 .visibility-hidden {
@@ -127,9 +177,13 @@
 }
 
 .display-text {
-  margin-left: 20px;
+  /* margin-left: 20px; */
   display: inline-block;
   position: relative;
+}
+
+.text-from-or-to {
+  vertical-align: super;
 }
 
 .display-bold {
@@ -225,6 +279,7 @@
   resize: none;
 }
 
+::ng-deep .message-moves + p-contextmenusub ul a::after,
 ::ng-deep .message-labels + p-contextmenusub ul a::after {
   display: block;
   content: attr(title);
@@ -235,12 +290,21 @@
   visibility: hidden;
 }
 
-
+::ng-deep .message-moves + p-contextmenusub ul {
+  max-height: 330px;
+}
 ::ng-deep .message-labels + p-contextmenusub ul {
-  max-height: 287px;
+  max-height: 297px;
+}
+
+::ng-deep .message-moves + p-contextmenusub ul,
+::ng-deep .message-labels + p-contextmenusub ul {
   overflow-y: auto;
   width: fit-content !important;
   width: -moz-fit-content;
+  min-width: 224px;
+  max-width: 300px;
+  overflow-x: hidden;
 }
 
 ::ng-deep .message-labels + p-contextmenusub .ui-menuitem-icon.fas.fa-square,
@@ -249,6 +313,10 @@
 ::ng-deep .message-labels + p-contextmenusub .ui-menuitem-icon.fas.fa-check-square,
 ::ng-deep .message-labels + p-contextmenusub .ui-menuitem-icon.fas.fa-minus-square {
   font-size: 1.1em !important;
+}
+
+::ng-deep .d-inline-flex {
+  display: inline-flex !important;
 }
 
 /* POPUP DETAIL */
