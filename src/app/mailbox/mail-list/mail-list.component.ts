@@ -588,8 +588,8 @@ export class MailListComponent implements OnInit, OnDestroy {
           messageAddress.addressRole === addresRoleType
       );
       messageAddressList.forEach((messageAddress: MessageAddress) => {
-        message["fromOrTo"].description += ", " + (messageAddress.idAddress.originalAddress ? messageAddress.idAddress.originalAddress : messageAddress.idAddress.mailAddress);
-        // message["fromOrTo"].description += ", " + messageAddress.idAddress.mailAddress;
+        // message["fromOrTo"].description += ", " + (messageAddress.idAddress.originalAddress ? messageAddress.idAddress.originalAddress : messageAddress.idAddress.mailAddress);
+        message["fromOrTo"].description += ", " + messageAddress.idAddress.mailAddress;
       });
       if ((message["fromOrTo"].description as string).startsWith(",")) {
         message["fromOrTo"].description = (message["fromOrTo"].description as string).substr(
