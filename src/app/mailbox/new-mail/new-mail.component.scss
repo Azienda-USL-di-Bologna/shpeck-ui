@@ -74,6 +74,10 @@ li {
   margin: 1px;
   color: black;
 }
+::ng-deep body .ui-autocomplete.ui-autocomplete-multiple .ui-autocomplete-multiple-container {
+  max-height: 81px;
+  overflow: auto;
+}
 .attachment:hover {
   background-color: rgb(206, 206, 206);
 }

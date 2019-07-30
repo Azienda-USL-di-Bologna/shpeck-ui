@@ -7,10 +7,21 @@
   display: flex;
   flex-direction: column;
 }
+p-table,
+::ng-deep p-table > div,
+::ng-deep p-table > div > div,
+::ng-deep p-table > div > div > div {
+  height: 100%;
+}
+::ng-deep p-table > div > div > div div.ui-table-scrollable-body {
+  max-height: 100% !important;
+  height: 100% !important;
+}
 //body .ui-table .ui-table-tbody > tr > td
 
 ::ng-deep .ui-table-tbody > tr > td {
   border: none !important;
+  overflow: hidden;
 }
 
 .display-block {
