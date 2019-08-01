@@ -1,6 +1,6 @@
 import { Component, OnInit, Output, EventEmitter, ViewChild, ElementRef, OnDestroy } from "@angular/core";
 import { buildLazyEventFiltersAndSorts } from "@bds/primeng-plugin";
-import { Message, ENTITIES_STRUCTURE, MessageAddress, AddresRoleType, Folder, MessageTag, InOut, Tag, Pec, MessageType, FolderType, Note, FluxPermission, Azienda, MessageStatus } from "@bds/ng-internauta-model";
+import { Message, ENTITIES_STRUCTURE, MessageAddress, AddresRoleType, Folder, MessageTag, InOut, Tag, Pec, MessageType, FolderType, Note, FluxPermission, Azienda, MessageStatus, TagType } from "@bds/ng-internauta-model";
 import { ShpeckMessageService, MessageEvent } from "src/app/services/shpeck-message.service";
 import { FiltersAndSorts, FilterDefinition, FILTER_TYPES, SortDefinition, SORT_MODES, PagingConf, BatchOperation, BatchOperationTypes } from "@nfa/next-sdr";
 import { TagService } from "src/app/services/tag.service";
@@ -56,6 +56,7 @@ export class MailListComponent implements OnInit, OnDestroy {
   @ViewChild("idtag") private inputTextTag;
   @ViewChild("registrationMenu") private registrationMenu: Menu;
   @ViewChild("archiviationMenu") private archiviationMenu: Menu;
+  @ViewChild("tagMenu") private tagMenu: Menu;
   // @ViewChild("ordermenu") private ordermenu: Menu;
 
   public _selectedTag: Tag;
@@ -87,7 +88,7 @@ export class MailListComponent implements OnInit, OnDestroy {
     field: "receiveTime",
     sortMode: SORT_MODES.desc
   };
-
+  public tagMenuItems:  MenuItem[] = null;
   /* public orderMenu: MenuItem[] = [
     {
       label: "dcs",
@@ -1278,8 +1279,34 @@ export class MailListComponent implements OnInit, OnDestroy {
       additionalData: additionalData
     };
   }
-  /*
 
-    background-color: rgba(153,51,102,0.1) !important;
-  */
+
+  public getTaggedStatus(message: Message): any {
+    if (!message.messageTagList) {
+      console.log("false");
+      return false;
+    }
+    // Se ho almeno un tag CUSTOM o un tag SYSTEM_INSERTABLE_DELETABLE (tranne il tag con name in_error)
+    const messagetagList = message.messageTagList.filter(
+      mt => {
+        return mt.idTag.firstLevel === false && mt.idTag.visible === true;
+      });
+
+    if (messagetagList && messagetagList.length > 0) {
+      const tagList = messagetagList.map(mt => mt.idTag);
+      let tooltip = "Etichette associate:\n";
+      tagList.forEach(t => {
+        tooltip = tooltip + t.description + "\n";
+      });
+      return {tooltip: tooltip};
+    } else {
+      return false;
+    }
+  }
+
+  public iconTaggedClicked(event: any, message: Message, taggedStatus: string) {
+    this.mailListService.selectedMessages = [message];
+    this.tagMenuItems = this.mailListService.buildTagsMenuItems(this.selectedContextMenuItem, this.showNewTagPopup);
+    this.tagMenu.toggle(event);
+  }
 }

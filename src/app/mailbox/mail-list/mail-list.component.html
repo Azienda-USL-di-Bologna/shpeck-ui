@@ -128,6 +128,21 @@
                                     [ngTemplateOutletContext]="{$implicit: getArchiviationStatus(message)}">
                                 </ng-template>
                             </span>
+                            <!-- taggato -->
+                            <span class="mail-icon fa-icon">
+                                <ng-template  #taggedTemplate let-taggedstatus>
+                                    <i  [pTooltip]="taggedstatus ? taggedstatus.tooltip : 'Gestisci etichette'"
+                                        tooltipPosition="top"
+                                        class="material-icons local-offer-icon mail-icons icon-enabled mi-fist-line"
+                                        [ngStyle]="taggedstatus && {'color': 'darkcyan'}"
+                                        (click)="iconTaggedClicked($event, message, taggedstatus)">
+                                    </i>
+                                    <p-menu appendTo="body" #tagMenu [popup]="true" [model]="tagMenuItems" styleClass="message-labels-icon-action"></p-menu>
+                                </ng-template>
+                                <ng-template [ngTemplateOutlet]="taggedTemplate"
+                                    [ngTemplateOutletContext]="{$implicit: getTaggedStatus(message)}">
+                                </ng-template>
+                            </span>
 
                             <!-- SEPARATORE -->
                             <span *ngIf="message?.iconsVisibility?.replied  ||
