@@ -63,7 +63,7 @@ export class MailFoldersService {
 
   public doReloadFolder(idFolder: number, unSeen= true): void {
     const result = this.countMessageInFolder(idFolder, unSeen);
-    console.log("doReloadFolder",result);
+    // console.log("doReloadFolder", result);
     result.subscribe((res: number) => this._reloadFolder[idFolder].next(res) );
   }
 

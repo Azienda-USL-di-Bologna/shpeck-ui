@@ -173,17 +173,6 @@ export class MailFoldersComponent implements OnInit, OnDestroy {
           p.id = pec.id;
           folder.idPec = p;
           const folderNode: MyTreeNode = this.buildFolderNode(folder, this.buildFolderIcons(folder));
-          switch (folder.name) {
-            case "inbox":
-              this.mailFoldersService.getReloadFolder(folder.id).subscribe(res => {
-                console.log("number of unread messages: ", res);
-                res > 0 ? folderNode.label = `In arrivo (${res})` : folderNode.label = "In arrivo";
-              });
-              setTimeout(() => {
-                this.mailFoldersService.doReloadFolder(folder.id);
-              });
-              break;
-          }
           children.push(folderNode);
         } else {
           foldersCustom.push(folder);
@@ -405,6 +394,8 @@ export class MailFoldersComponent implements OnInit, OnDestroy {
   }
 
   private buildFolderNode(folder: Folder, folderIcons: any, editable: boolean = false): MyTreeNode {
+
+
     let expandedIcon = "fa fa-folder-open smaller-icon";
     let collapsedIcon = "fa fa-folder smaller-icon";
     if (folder.name === "readdressed") {
@@ -414,7 +405,8 @@ export class MailFoldersComponent implements OnInit, OnDestroy {
       collapsedIcon = "material-icons-outlined registered-icon";
       expandedIcon =  "material-icons-outlined registered-icon";
     }
-    return {
+
+    const folderNode: MyTreeNode = {
       label: folder.description,
       data: {
         type: PecFolderType.FOLDER,
@@ -426,6 +418,20 @@ export class MailFoldersComponent implements OnInit, OnDestroy {
       editable: editable,
       key: PecFolderType.FOLDER + "_" + (folder.id ? folder.id : "new")
     };
+    // sottoscrizione all'observable che scatta quando devo ricaricare il numero dei messaggi non letti
+    this.mailFoldersService.getReloadFolder(folder.id).subscribe(res => {
+      // prima rimuovo la parte "(numero messaggi)" dal label, poi se il numero dei messaggi non letti è > 0 lo reinserisco con il numero aggiornato
+      folderNode.label = folderNode.label.replace(/(\s*\(.*\))/gm, "");
+      if (res > 0) {
+        folderNode.label = folderNode.label + `(${res})`;
+      }
+    });
+    setTimeout(() => {
+      // fa scattare la chiamata che fa il calcolo delle mail non lette che a sua volta fa scattare la sottoscrizione sopra
+      this.mailFoldersService.doReloadFolder(folder.id);
+    });
+
+    return folderNode;
   }
 
   private buildTagNode(tag: Tag, label: string, icon: string, editable: boolean): MyTreeNode {

@@ -239,7 +239,7 @@ export class MailListComponent implements OnInit, OnDestroy {
   public noteObject: Note = new Note();
   public fromOrTo: any;
   public loading = false;
-  public virtualRowHeight: number = 70;
+  public virtualRowHeight: number = 75;
   public totalRecords: number;
   public rowsNmber = 10;
   public cols = [
@@ -610,7 +610,7 @@ export class MailListComponent implements OnInit, OnDestroy {
         // selezione di un singolo messaggio (o come click singolo oppure come click del primo messaggio con il ctrl)
         if (this.mailListService.selectedMessages.length === 1) {
           const selectedMessage: Message = this.mailListService.selectedMessages[0];
-          this.mailListService.setSeen(true);
+          this.mailListService.setSeen(true, this._selectedFolder.id);
           const emlSource: string = this.getEmlSource(selectedMessage);
           this.messageService.manageMessageEvent(
             emlSource,
@@ -825,7 +825,7 @@ export class MailListComponent implements OnInit, OnDestroy {
     const menuItem: MenuItem = event.item;
     switch (menuItem.id) {
       case "MessageSeen":
-        this.mailListService.setSeen(menuItem.queryParams.seen);
+        this.mailListService.setSeen(menuItem.queryParams.seen, this._selectedFolder.id);
         break;
       case "MessageDelete":
         this.deletingConfirmation();
@@ -1283,7 +1283,7 @@ export class MailListComponent implements OnInit, OnDestroy {
 
   public getTaggedStatus(message: Message): any {
     if (!message.messageTagList) {
-      console.log("false");
+      // console.log("false");
       return false;
     }
     // Se ho almeno un tag CUSTOM o un tag SYSTEM_INSERTABLE_DELETABLE (tranne il tag con name in_error)
