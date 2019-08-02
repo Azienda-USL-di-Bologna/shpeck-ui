@@ -108,8 +108,18 @@ export class MailListService {
                 subElementDisabled = true;
               }
               break;
-            case "SENT": // TODO BLABLA
+            case FolderType.SENT: // TODO BLABLA
               if (this.selectedMessages.some((message: Message) => message.inOut === InOut.IN)) {
+                subElementDisabled = true;
+              }
+              break;
+            case FolderType.REGISTERED: // posso spostare i messaggi nella cartella protocollati solo se tutti i messaggi selezionati hanno il tag "registered"
+              if (this.selectedMessages.some( // se c'è almeno un messaggio che non ha nessun tag, oppure ha almeno un tag, ma non ha il tag "registered" la funzione "some" torna "true" e quindi disabilito la voce
+                (message: Message) => (
+                  !message.messageTagList || !message.messageTagList.find(
+                    (messageTag: MessageTag) => messageTag.idTag.name === "registered")
+                  )
+                )) {
                 subElementDisabled = true;
               }
               break;
@@ -706,7 +716,7 @@ export class MailListService {
     const message: Message = specificMessage ? specificMessage : this.selectedMessages[0];
     if ((!specificMessage && this.selectedMessages.length !== 1) ||
       message.inOut !== "IN" ||
-      message.messageFolderList[0].idFolder.type === "TRASH" ||
+      message.messageFolderList[0].idFolder.type === FolderType.TRASH ||
       (message.messageTagList && message.messageTagList
         .some(messageTag => messageTag.idTag.name === "readdressed_out" || messageTag.idTag.name === "registered"))) {
       return false;
@@ -721,7 +731,7 @@ export class MailListService {
   public isArchiveActive(specificMessage?: Message): boolean {
     const message: Message = specificMessage ? specificMessage : this.selectedMessages[0];
     if ((!specificMessage && this.selectedMessages.length !== 1) ||
-      message.messageFolderList[0].idFolder.type === "TRASH") {
+      message.messageFolderList[0].idFolder.type === FolderType.TRASH) {
       return false;
     } else {
       return true;
@@ -734,7 +744,7 @@ export class MailListService {
    */
   public isUndeleteActive(specificMessage?: Message): boolean {
     const message: Message = specificMessage ? specificMessage : this.selectedMessages[0];
-    if ( (this.selectedMessages.length === 1) && message.messageFolderList[0].idFolder.type === "TRASH" ) {
+    if ( (this.selectedMessages.length === 1) && message.messageFolderList[0].idFolder.type === FolderType.TRASH ) {
       return true;
     } else {
       return false;
