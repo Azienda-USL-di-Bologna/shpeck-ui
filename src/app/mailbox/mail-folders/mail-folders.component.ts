@@ -148,10 +148,14 @@ export class MailFoldersComponent implements OnInit, OnDestroy {
               this.mailfolders.push(this.buildNode(pec));
             }
           }
-          this.selectedNode = this.mailfolders[0];
-          this.mailFoldersService.selectedPecFolder(this.mailfolders[0].data,
-            this.mailfolders[0].children.map((c: MyTreeNode) => c.data.data) as Folder[],
-            (this.mailfolders[0].data.data as Pec).tagList);
+          this.selectRootNode(this.mailfolders[0], false);
+          this.selectedNode = this.mailfolders[0].children.find((childNode: MyTreeNode) => (childNode.data.data as Folder).type === FolderType.INBOX);
+          if (this.selectedNode) {
+            this.selectedNode.data.pec = this.mailfolders[0].data.data as Pec;
+            this.mailFoldersService.selectedPecFolder(this.selectedNode.data,
+              this.mailfolders[0].children.map((c: MyTreeNode) => c.data.data) as Folder[],
+              (this.mailfolders[0].data.data as Pec).tagList);
+          }
         }
       }
     ));
