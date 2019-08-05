@@ -787,7 +787,7 @@ export class MailListComponent implements OnInit, OnDestroy {
       decodedUrl = decodeURI(azienda.urlCommands["PROTOCOLLA_PEC_ADD"]); // mi dovrei fare le costanti
     }
 
-    decodedUrl = decodedUrl.replace("[id_message]", encodeURIComponent("null" + ";" + this.mailListService.selectedMessages[0].uuidMessage));
+    decodedUrl = decodedUrl.replace("[id_message]", "null" + ";" + window.btoa(this.mailListService.selectedMessages[0].uuidMessage));
 
     decodedUrl = decodedUrl.replace("[richiesta]", encodeURIComponent(Utils.genereateGuid()));
     decodedUrl = decodedUrl.replace("[id_sorgente]", encodeURIComponent(this.mailListService.selectedMessages[0].id.toString()));
@@ -1283,7 +1283,6 @@ export class MailListComponent implements OnInit, OnDestroy {
 
   public getTaggedStatus(message: Message): any {
     if (!message.messageTagList) {
-      console.log("false");
       return false;
     }
     // Se ho almeno un tag CUSTOM o un tag SYSTEM_INSERTABLE_DELETABLE (tranne il tag con name in_error)
