@@ -1,5 +1,5 @@
 import { Injectable } from "@angular/core";
-import { Tag, Folder, Message, FolderType, InOut, ENTITIES_STRUCTURE, FluxPermission, PecPermission, Note, MessageTag, Utente, Azienda, MessageType, MessageStatus, TagType, Pec } from "@bds/ng-internauta-model";
+import { Tag, Folder, Message, FolderType, InOut, ENTITIES_STRUCTURE, FluxPermission, PecPermission, Note, MessageTag, Utente, Azienda, MessageType, MessageStatus, TagType, Pec, MessageFolder } from "@bds/ng-internauta-model";
 import { MenuItem, MessageService } from "primeng/api";
 import { Utils } from "src/app/utils/utils";
 import { MessageFolderService } from "src/app/services/message-folder.service";
@@ -108,8 +108,18 @@ export class MailListService {
                 subElementDisabled = true;
               }
               break;
-            case "SENT": // TODO BLABLA
+            case FolderType.SENT: // TODO BLABLA
               if (this.selectedMessages.some((message: Message) => message.inOut === InOut.IN)) {
+                subElementDisabled = true;
+              }
+              break;
+            case FolderType.REGISTERED: // posso spostare i messaggi nella cartella protocollati solo se tutti i messaggi selezionati hanno il tag "registered"
+              if (this.selectedMessages.some( // se c'è almeno un messaggio che non ha nessun tag, oppure ha almeno un tag, ma non ha il tag "registered" la funzione "some" torna "true" e quindi disabilito la voce
+                (message: Message) => (
+                  !message.messageTagList || !message.messageTagList.find(
+                    (messageTag: MessageTag) => messageTag.idTag.name === "registered")
+                  )
+                )) {
                 subElementDisabled = true;
               }
               break;
@@ -301,20 +311,23 @@ export class MailListService {
 
   /**
    *Questa funzione si occupa di spostare i selectedMessages nel folder passato
-   *@param idPreviousFolder di folder passato ( fk_idPreviousFolder )
+   *@param idFolder di folder passato ( fk_idPreviousFolder )
    */
-  public moveMessages(idPreviousFolder: number): void {
-    if (idPreviousFolder && (typeof(idPreviousFolder) === "number" )) {
+  public moveMessages(idFolder: number): void {
+    if (idFolder && (typeof(idFolder) === "number" )) {
+      const messagesFolder: MessageFolder[] = this.selectedMessages.map((message: Message) => {
+        return message.messageFolderList[0];  // Basta prendere il primo elemente perché ogni messaggio può essere in una sola cartella
+      });
       this.messageFolderService
         .moveMessagesToFolder(
-          this.selectedMessages.map((message: Message) => {
-            return message.messageFolderList[0];  // Basta prendere il primo elemente perché ogni messaggio può essere in una sola cartella
-          }),
-          idPreviousFolder,
+          messagesFolder,
+          idFolder,
           this.loggedUser.getUtente().id
         )
         .subscribe(res => {
           this.messages = Utils.arrayDiff(this.messages, this.selectedMessages);
+          this.mailFoldersService.doReloadFolder(messagesFolder[0].fk_idFolder.id);
+          this.mailFoldersService.doReloadFolder(idFolder);
         });
     }
   }
@@ -436,7 +449,7 @@ export class MailListService {
    * Questa funzione si occupa di settare i messaggi come visti o non visti.
    * @param menuItem
    */
-  public setSeen(seen: boolean): void {
+  public setSeen(seen: boolean, idFolderToReloadUnSeen?: number): void {
     const messagesToUpdate: BatchOperation[] = [];
     this.selectedMessages.forEach((message: Message) => {
       if (message.seen !== seen) {
@@ -454,11 +467,13 @@ export class MailListService {
         });
       }
     });
-    const inFolder = this.folders.filter(folder => folder.type === "INBOX")[0].id;
+    // const inFolder = this.folders.filter(folder => folder.type === "INBOX")[0].id;
     if (messagesToUpdate.length > 0) {
       this.messageService.batchHttpCall(messagesToUpdate).subscribe( () => {
         // reload Folder
-        this.mailFoldersService.doReloadFolder(inFolder);
+        if (idFolderToReloadUnSeen) {
+          this.mailFoldersService.doReloadFolder(idFolderToReloadUnSeen);
+        }
       });
     }
   }
@@ -701,7 +716,7 @@ export class MailListService {
     const message: Message = specificMessage ? specificMessage : this.selectedMessages[0];
     if ((!specificMessage && this.selectedMessages.length !== 1) ||
       message.inOut !== "IN" ||
-      message.messageFolderList[0].idFolder.type === "TRASH" ||
+      message.messageFolderList[0].idFolder.type === FolderType.TRASH ||
       (message.messageTagList && message.messageTagList
         .some(messageTag => messageTag.idTag.name === "readdressed_out" || messageTag.idTag.name === "registered"))) {
       return false;
@@ -716,7 +731,7 @@ export class MailListService {
   public isArchiveActive(specificMessage?: Message): boolean {
     const message: Message = specificMessage ? specificMessage : this.selectedMessages[0];
     if ((!specificMessage && this.selectedMessages.length !== 1) ||
-      message.messageFolderList[0].idFolder.type === "TRASH") {
+      message.messageFolderList[0].idFolder.type === FolderType.TRASH) {
       return false;
     } else {
       return true;
@@ -729,7 +744,7 @@ export class MailListService {
    */
   public isUndeleteActive(specificMessage?: Message): boolean {
     const message: Message = specificMessage ? specificMessage : this.selectedMessages[0];
-    if ( (this.selectedMessages.length === 1) && message.messageFolderList[0].idFolder.type === "TRASH" ) {
+    if ( (this.selectedMessages.length === 1) && message.messageFolderList[0].idFolder.type === FolderType.TRASH ) {
       return true;
     } else {
       return false;
