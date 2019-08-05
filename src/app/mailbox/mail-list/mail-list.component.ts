@@ -786,7 +786,7 @@ export class MailListComponent implements OnInit, OnDestroy {
       decodedUrl = decodeURI(azienda.urlCommands["PROTOCOLLA_PEC_ADD"]); // mi dovrei fare le costanti
     }
 
-    decodedUrl = decodedUrl.replace("[id_message]", encodeURIComponent("null" + ";" + this.mailListService.selectedMessages[0].uuidMessage));
+    decodedUrl = decodedUrl.replace("[id_message]", "null" + ";" + window.btoa(this.mailListService.selectedMessages[0].uuidMessage));
 
     decodedUrl = decodedUrl.replace("[richiesta]", encodeURIComponent(Utils.genereateGuid()));
     decodedUrl = decodedUrl.replace("[id_sorgente]", encodeURIComponent(this.mailListService.selectedMessages[0].id.toString()));
