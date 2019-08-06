@@ -20,6 +20,7 @@ import { Menu } from "primeng/menu";
 import { AppCustomization } from "src/environments/app-customization";
 import { SettingsService } from "src/app/services/settings.service";
 import { FormGroup, FormControl, Validators } from "@angular/forms";
+import { MailboxService, Sorting } from "../mailbox.service";
 
 @Component({
   selector: "app-mail-list",
@@ -40,7 +41,8 @@ export class MailListComponent implements OnInit, OnDestroy {
     private messagePrimeService: MessageService,
     private noteService: NoteService,
     private settingsService: SettingsService,
-    private loginService: NtJwtLoginService
+    private loginService: NtJwtLoginService,
+    private mailboxService: MailboxService
   ) {
     this.selectedContextMenuItem = this.selectedContextMenuItem.bind(this);
     this.showNewTagPopup = this.showNewTagPopup.bind(this);
@@ -54,6 +56,7 @@ export class MailListComponent implements OnInit, OnDestroy {
   @ViewChild("idtag") private inputTextTag;
   @ViewChild("registrationMenu") private registrationMenu: Menu;
   @ViewChild("archiviationMenu") private archiviationMenu: Menu;
+  // @ViewChild("ordermenu") private ordermenu: Menu;
 
   public _selectedTag: Tag;
   public _selectedFolder: Folder;
@@ -80,6 +83,24 @@ export class MailListComponent implements OnInit, OnDestroy {
   private aziendeFascicolabiliSubCmItems: MenuItem[] = null;
   private registerMessageEvent: any = null;
   private loggedUser: UtenteUtilities;
+  private sorting: Sorting = {
+    field: "receiveTime",
+    sortMode: SORT_MODES.desc
+  };
+
+  /* public orderMenu: MenuItem[] = [
+    {
+      label: "dcs",
+      icon: "fa fa-tag",
+      id: "1",
+      title: "titolo",
+      disabled: false,
+      queryParams: {
+        na: "na"
+      },
+      command: event => () => {}
+    }
+  ]; */
 
   public cmItems: MenuItem[] = [
     {
@@ -215,7 +236,7 @@ export class MailListComponent implements OnInit, OnDestroy {
     additionalData: null
   };
   public noteObject: Note = new Note();
-  public fromOrTo: string;
+  public fromOrTo: any;
   public loading = false;
   public virtualRowHeight: number = 70;
   public totalRecords: number;
@@ -275,8 +296,17 @@ export class MailListComponent implements OnInit, OnDestroy {
     }
     this.subscriptions.push(this.messageService.messageEvent.subscribe(
       (messageEvent: MessageEvent) => {
-        console.log("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa ", messageEvent);
+        // console.log("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa ", messageEvent);
       }));
+    this.subscriptions.push(this.mailboxService.sorting.subscribe((sorting: Sorting) => {
+      if (sorting) {
+        this.sorting = sorting;
+        if (this.dt && this.dt.el && this.dt.el.nativeElement) {
+          this.dt.el.nativeElement.getElementsByClassName("ui-table-scrollable-body")[0].scrollTop = 0;
+        }
+        this.lazyLoad(null);
+      }
+    }));
   }
 
   public openDetailPopup(event, row, message) {
@@ -328,6 +358,11 @@ export class MailListComponent implements OnInit, OnDestroy {
       }
     }, 0);
   }
+
+  /* public toggleOrderMenu(event) {
+
+    this.ordermenu.toggle(event);
+  } */
 
   public getTagDescription(tagName: string) {
     if (this.mailListService.tags) {
@@ -477,6 +512,18 @@ export class MailListComponent implements OnInit, OnDestroy {
         )
       );
     }
+    // quando effettuo una ricerca generica (avendo selezionato la casella) non vengano considerate le mail nel cestino
+    if (tag === null && folder === null) {
+      const folderList = this._selectedPec.folderList;
+
+      folderList.forEach(f => {
+        if (f.type !== "TRASH") {
+          filtersAndSorts.addFilter(
+            new FilterDefinition("messageFolderList.idFolder.id", FILTER_TYPES.not_string.equals, f.id)
+          );
+        }
+      });
+    }
     filtersAndSorts.addFilter(
       new FilterDefinition(
         "idPec.id",
@@ -492,7 +539,10 @@ export class MailListComponent implements OnInit, OnDestroy {
       )
     );
     // filtersAndSorts.addSort(new SortDefinition("receiveTime", SORT_MODES.desc));
-    filtersAndSorts.addSort(new SortDefinition("createTime", SORT_MODES.desc));
+    // filtersAndSorts.addSort(new SortDefinition("createTime", SORT_MODES.desc));
+    filtersAndSorts.addSort(new SortDefinition(this.sorting.field, this.sorting.sortMode));
+
+    // filtersAndSorts.addSort(new SortDefinition("messageAddressList.address_role", SORT_MODES.desc));
     return filtersAndSorts;
   }
 
@@ -525,23 +575,26 @@ export class MailListComponent implements OnInit, OnDestroy {
       default:
         addresRoleType = AddresRoleType.FROM;
     }
-    message["fromOrTo"] = "";
+    if (this.sorting.field === "messageExtensionList.addressFrom") {
+      addresRoleType = AddresRoleType.FROM;
+    }
+    message["fromOrTo"] = {
+      description: "",
+      fromOrTo: addresRoleType
+    };
     if (message.messageAddressList) {
       const messageAddressList: MessageAddress[] = message.messageAddressList.filter(
         (messageAddress: MessageAddress) =>
           messageAddress.addressRole === addresRoleType
       );
       messageAddressList.forEach((messageAddress: MessageAddress) => {
-        message["fromOrTo"] +=
-          ", " +
-          (messageAddress.idAddress.originalAddress
-            ? messageAddress.idAddress.originalAddress
-            : messageAddress.idAddress.mailAddress);
+        // message["fromOrTo"].description += ", " + (messageAddress.idAddress.originalAddress ? messageAddress.idAddress.originalAddress : messageAddress.idAddress.mailAddress);
+        message["fromOrTo"].description += ", " + messageAddress.idAddress.mailAddress;
       });
-      if ((message["fromOrTo"] as string).startsWith(",")) {
-        message["fromOrTo"] = (message["fromOrTo"] as string).substr(
+      if ((message["fromOrTo"].description as string).startsWith(",")) {
+        message["fromOrTo"].description = (message["fromOrTo"].description as string).substr(
           1,
-          (message["fromOrTo"] as string).length - 1
+          (message["fromOrTo"].description as string).length - 1
         );
       }
     }
@@ -608,6 +661,7 @@ export class MailListComponent implements OnInit, OnDestroy {
           break;
         case "MessageMove":
           element.disabled = false;
+          element.styleClass = "message-moves";
           if (!this.mailListService.isMoveActive()) {
             element.disabled = true;
             this.cmItems.find(f => f.id === "MessageMove").items = null;
@@ -670,7 +724,7 @@ export class MailListComponent implements OnInit, OnDestroy {
             this.cmItems.find(f => f.id === "MessageArchive").items = this.mailListService.buildAziendeUtenteMenuItems(this._selectedPec, this.selectedContextMenuItem);
           }
           break;
-         case "MessageUndelete":
+        case "MessageUndelete":
           element.disabled = false;
           if (!this.mailListService.isUndeleteActive()) {
             element.disabled = true;
@@ -731,12 +785,12 @@ export class MailListComponent implements OnInit, OnDestroy {
     } else if (registrationType === "ADD") {
       decodedUrl = decodeURI(azienda.urlCommands["PROTOCOLLA_PEC_ADD"]); // mi dovrei fare le costanti
     }
-    decodedUrl = decodedUrl.replace("[id_message]", this.mailListService.selectedMessages[0].id.toString());
 
-    const idTag = this._selectedPec.tagList.find(t => t.name === "registered"); // TODO: lista valori per i TAG
-    // decodedUrl = decodedUrl.replace("[id_tag]", idTag.id.toString());
-    decodedUrl = decodedUrl.replace("[pec_ricezione]", this._selectedPec.indirizzo);
-    decodedUrl = decodedUrl.replace("[richiesta]", Utils.genereateGuid());
+    decodedUrl = decodedUrl.replace("[id_message]", "null" + ";" + window.btoa(this.mailListService.selectedMessages[0].uuidMessage));
+
+    decodedUrl = decodedUrl.replace("[richiesta]", encodeURIComponent(Utils.genereateGuid()));
+    decodedUrl = decodedUrl.replace("[id_sorgente]", encodeURIComponent(this.mailListService.selectedMessages[0].id.toString()));
+    decodedUrl = decodedUrl.replace("[pec_ricezione]", encodeURIComponent(this._selectedPec.indirizzo));
 
     console.log("command", decodedUrl);
 
@@ -813,10 +867,10 @@ export class MailListComponent implements OnInit, OnDestroy {
         let idPreviousFolder = this.mailListService.selectedMessages[0].messageFolderList[0].fk_idPreviousFolder.id;
         const received = this.mailListService.selectedMessages[0].inOut === "IN" ? true : false;
         if (idPreviousFolder === null && received === true) {
-          idPreviousFolder = this._selectedPec.folderList.filter(folder => folder.type === "INBOX" )[0].id;
+          idPreviousFolder = this._selectedPec.folderList.filter(folder => folder.type === "INBOX")[0].id;
           this.mailListService.moveMessages(idPreviousFolder);
         } else if (idPreviousFolder === null && received === false) {
-          idPreviousFolder = this._selectedPec.folderList.filter(folder => folder.type === "SENT" )[0].id;
+          idPreviousFolder = this._selectedPec.folderList.filter(folder => folder.type === "SENT")[0].id;
           this.mailListService.moveMessages(idPreviousFolder);
         } else {
           this.mailListService.moveMessages(idPreviousFolder);
@@ -1087,7 +1141,9 @@ export class MailListComponent implements OnInit, OnDestroy {
       codiceRegistro: additionalData.idDocumento.codiceRegistro,
       anno: additionalData.idDocumento.anno,
       descrizioneAzienda: additionalData.idAzienda.descrizione,
-      data: new Date(messageTag.inserted).toLocaleDateString("it-IT", { hour: "numeric", minute: "numeric" })
+      data: additionalData.idDocumento.dataProtocollo ?
+        additionalData.idDocumento.dataProtocollo.replace(" ", ", ") :
+        new Date(messageTag.inserted).toLocaleDateString("it-IT", { hour: "numeric", minute: "numeric" })
     };
     this.displayRegistrationDetail = true;
   }

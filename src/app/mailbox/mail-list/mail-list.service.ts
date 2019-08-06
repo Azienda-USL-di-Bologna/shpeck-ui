@@ -118,6 +118,7 @@ export class MailListService {
         foldersSubCmItems.push(
           {
             label: f.description,
+            title: f.description,
             id: "MessageMove",
             disabled: subElementDisabled,
             queryParams: {
@@ -148,6 +149,7 @@ export class MailListService {
           const tagIconAndAction: TagIconAction = this.getTagIconAction(messagesWithTag);
           items.push({
             label: tag.description,
+            styleClass: (tag.description && tag.description.length > 21) ? "d-inline-flex" : "",
             icon: tagIconAndAction.iconType,
             id: "MessageLabels",
             title: tagIconAndAction.title,
