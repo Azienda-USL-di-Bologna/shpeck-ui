@@ -275,7 +275,7 @@ export class MailListService {
     }
   }
 
-  public checkCurrentStatusAndRegister(exe: any): void {
+  /* public checkCurrentStatusAndRegister(exe: any): void {
     if (this.selectedMessages && this.selectedMessages.length === 1) {
       const filtersAndSorts: FiltersAndSorts = new FiltersAndSorts();
       filtersAndSorts.addFilter(new FilterDefinition("id", FILTER_TYPES.not_string.equals, this.selectedMessages[0].id));
@@ -302,7 +302,7 @@ export class MailListService {
         }
       });
     }
-  }
+  } */
 
   /**
    * Questa funzione ritorna un booleano che indica se i messaggi selezionati sono spostabili.
