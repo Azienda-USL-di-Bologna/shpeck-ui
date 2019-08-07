@@ -222,7 +222,7 @@
                             class="display-text text-background little-margin-left">{{message?.messageFolderList[0]?.idFolder.description}}</span>
 
                         <!-- oggetto della mail -->
-                        <span class="display-text little-margin-left" [ngClass]="{'display-bold':!message.seen}">{{message.subject}}</span>
+                        <span class="display-text little-margin-left" [ngClass]="{'display-bold':!message.seen}" [pTooltip]="message.subject" tooltipPosition="top">{{message.subject}}</span>
                         <!-- <div class="display-text" [ngClass]="{'display-bold':!message.seen}">{{message.id + " -- " + message.subject}}</div>  -->
                     </div>
                 </td>
