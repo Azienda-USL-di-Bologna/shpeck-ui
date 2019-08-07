@@ -15,7 +15,6 @@ import { ToolBarService } from "../toolbar/toolbar.service";
 import { MailListService } from "./mail-list.service";
 import { NoteService } from "src/app/services/note.service";
 import { NtJwtLoginService, UtenteUtilities } from "@bds/nt-jwt-login";
-import { query } from "@angular/core/src/render3";
 import { Menu } from "primeng/menu";
 import { AppCustomization } from "src/environments/app-customization";
 import { SettingsService } from "src/app/services/settings.service";

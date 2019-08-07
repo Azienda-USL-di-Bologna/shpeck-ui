@@ -1,5 +1,5 @@
 <!-- *ngIf="_selectedFolder || _filters" -->
-<p-table #dt *ngIf="_selectedPecId"
+<p-table #dt *ngIf="_selectedPecId && totalRecords > 0"
     [lazy]="true" (onLazyLoad)="lazyLoad($event)"
     scrollHeight="100%"
     [value]="drafts"
@@ -53,6 +53,9 @@
     </ng-template>
 </p-table>
 
+<div *ngIf="totalRecords === 0 && !!!loading" class="flex-1 message-align flex-direction-col">
+        <p style="margin: 0">La cartella selezionata non contiene elementi</p>
+</div>
 
 <!-- POPUP DEL DETAIL -->
 <p-dialog *ngIf="displayDetailPopup" [(visible)]="displayDetailPopup" class="popup-mail-detail">

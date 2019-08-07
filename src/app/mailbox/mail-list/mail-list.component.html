@@ -39,7 +39,7 @@
     
 </div> -->
 <!-- <div class="box-table"> -->
-    <p-table #dt *ngIf="_selectedTag || _selectedFolder || _filters" [lazy]="true" (onLazyLoad)="lazyLoad($event)" scrollHeight="100%"
+    <p-table #dt *ngIf="totalRecords > 0 && (_selectedTag || _selectedFolder || _filters)" [lazy]="true" (onLazyLoad)="lazyLoad($event)" scrollHeight="100%"
         [value]="mailListService.messages" [columns]="cols" [paginator]="false" [loading]="loading" [autoLayout]="true"
         [responsive]="true" [totalRecords]="totalRecords" [(selection)]="mailListService.selectedMessages"
         contextMenuSelectionMode="joint" selectionMode="multiple" [metaKeySelection]="true" [lazyLoadOnInit]="false"
@@ -242,6 +242,11 @@
     <p style="margin: 0">Non ci sono elementi da visualizzare.</p>
     <p style="margin: 0.5em">Selezionare una cartella o effettuare una ricerca.</p>
 </div>
+<div *ngIf=" (_selectedTag || _selectedFolder || _filters) && (totalRecords === 0 && !!!loading)" class="flex-1 message-align flex-direction-col">
+    <p *ngIf="_filters" style="margin: 0">Nessun elemento trovato</p>
+    <p *ngIf="!_filters && _selectedFolder" style="margin: 0">La cartella selezionata non contiene elementi</p>
+</div>
+
 <p-contextMenu #cm [model]="cmItems" styleClass="context-menu-mail-list"></p-contextMenu>
 
 <p-confirmDialog #cd acceptLabel="Sì" rejectLabel="No" [style]="{width: '20vw', top: '40%'}">
