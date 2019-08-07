@@ -24,7 +24,7 @@
       pTooltip="Apri dettaglio ricevute">
     </button>
   </div>
-  <div *ngIf="message?.inOut === inOut?.IN" class="recepit-detail">
+  <div *ngIf="fullMessage && message?.inOut === inOut?.IN" class="recepit-detail">
     <div class="recepit-dates">
       <li class="recepit-date">
         <span class="recepit-date-label">Ricevuto il:</span>

@@ -10,6 +10,7 @@ import { FolderService } from "src/app/services/folder.service";
 import { TagService } from "src/app/services/tag.service";
 import { MailListService } from "../mail-list/mail-list.service";
 import { UtenteUtilities, NtJwtLoginService } from "@bds/nt-jwt-login";
+import { ShpeckMessageService } from 'src/app/services/shpeck-message.service';
 
 @Component({
   selector: "app-mail-folders",
@@ -98,7 +99,7 @@ export class MailFoldersComponent implements OnInit, OnDestroy {
       private folderService: FolderService,
       private mailFoldersService: MailFoldersService,
       private primeMessageService: MessageService,
-      private toolBarService: ToolBarService,
+      private shpeckMessageService: ShpeckMessageService,
       private loginService: NtJwtLoginService,
       private tagService: TagService,
       private mailListService: MailListService) {
@@ -559,6 +560,7 @@ export class MailFoldersComponent implements OnInit, OnDestroy {
       // break;
       case "onNodeSelect":
         if (this.mailfolders && event.node && !(event.node as MyTreeNode).editable) {
+          this.shpeckMessageService.manageMessageEvent(null, null);
           this.mailfolders.map(m => m.styleClass = MailFoldersComponent.ROOT_NODE_NOT_SELECTED_STYLE_CLASS);
           this.selectRootNode(event.node, true);
 
