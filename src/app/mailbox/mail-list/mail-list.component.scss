@@ -353,3 +353,18 @@ p-table,
 ::ng-deep .popup-mail-detail  app-mail-detail {
   height: 100%;
 }
+
+::ng-deep .tooltip-oggetto-mail {
+  // position: absolute;
+  // top: 50%;
+  // 
+  //width: 50vw !important;
+  width: fit-content;
+  max-width: 20vw;
+  .ui-tooltip-text {
+    // overflow: scroll;
+    //transform: translateY(-50%);
+    max-height: 50vh;
+    overflow: hidden
+  }
+}

@@ -449,7 +449,7 @@ export class MailListService {
    * Questa funzione si occupa di settare i messaggi come visti o non visti.
    * @param menuItem
    */
-  public setSeen(seen: boolean, idFolderToReloadUnSeen?: number): void {
+  public setSeen(seen: boolean, reloadUnSeen: boolean = false): void {
     const messagesToUpdate: BatchOperation[] = [];
     this.selectedMessages.forEach((message: Message) => {
       if (message.seen !== seen) {
@@ -471,8 +471,10 @@ export class MailListService {
     if (messagesToUpdate.length > 0) {
       this.messageService.batchHttpCall(messagesToUpdate).subscribe( () => {
         // reload Folder
-        if (idFolderToReloadUnSeen) {
-          this.mailFoldersService.doReloadFolder(idFolderToReloadUnSeen);
+        if (reloadUnSeen) {
+          this.selectedMessages.forEach((message: Message) => {
+            this.mailFoldersService.doReloadFolder(message.messageFolderList[0].idFolder.id);
+          });
         }
       });
     }
