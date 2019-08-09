@@ -125,10 +125,10 @@ input:focus {
 
 /******* Editor *******/
 ::ng-deep .ui-editor-content.ql-container.ql-snow {
-  overflow: auto;
-  word-break: break-word !important;
-  word-break: break-all;
-  // min-height: 250px;
+  // overflow: auto;
+  // word-break: break-word !important;
+  // word-break: break-all;
+  min-height: 20px;
 }
 
 p-editor {
