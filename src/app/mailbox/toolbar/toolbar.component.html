@@ -51,7 +51,7 @@
         [disabled]="!(toolBarService.buttonObs.get('moveActive') | async)">
         <!-- <img class="images-pos" src="assets/images/icons/folder_export.png" width="24px" alt="Sposta in">     margin-l-15-->
       </button>
-      <p-menu #moveMenu [popup]="true" [model]="moveMenuItems"></p-menu>
+      <p-menu #moveMenu class="move-menu" [popup]="true" [model]="moveMenuItems"></p-menu>
       <!-- Fascicola -->
       <button
         pButton type="button" label="Fascicola"
