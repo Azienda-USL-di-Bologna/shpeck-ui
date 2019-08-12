@@ -450,6 +450,7 @@ export class MailListService {
    * @param menuItem
    */
   public setSeen(seen: boolean, reloadUnSeen: boolean = false): void {
+    console.log("setseen messaggi: ", this.selectedMessages);
     const messagesToUpdate: BatchOperation[] = [];
     this.selectedMessages.forEach((message: Message) => {
       if (message.seen !== seen) {
@@ -472,8 +473,12 @@ export class MailListService {
       this.messageService.batchHttpCall(messagesToUpdate).subscribe( () => {
         // reload Folder
         if (reloadUnSeen) {
+          const map: any = {};
           this.selectedMessages.forEach((message: Message) => {
-            this.mailFoldersService.doReloadFolder(message.messageFolderList[0].idFolder.id);
+            if (!map[message.messageFolderList[0].idFolder.id]) {
+              this.mailFoldersService.doReloadFolder(message.messageFolderList[0].idFolder.id);
+              map[message.messageFolderList[0].idFolder.id] = true;
+            }
           });
         }
       });

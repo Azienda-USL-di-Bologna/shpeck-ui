@@ -10,7 +10,7 @@ import { FolderService } from "src/app/services/folder.service";
 import { TagService } from "src/app/services/tag.service";
 import { MailListService } from "../mail-list/mail-list.service";
 import { UtenteUtilities, NtJwtLoginService } from "@bds/nt-jwt-login";
-import { ShpeckMessageService } from 'src/app/services/shpeck-message.service';
+import { ShpeckMessageService } from "src/app/services/shpeck-message.service";
 
 @Component({
   selector: "app-mail-folders",
@@ -428,7 +428,7 @@ export class MailFoldersComponent implements OnInit, OnDestroy {
       // prima rimuovo la parte "(numero messaggi)" dal label, poi se il numero dei messaggi non letti è > 0 lo reinserisco con il numero aggiornato
       folderNode.label = folderNode.label.replace(/(\s*\(.*\))/gm, "");
       if (res > 0) {
-        folderNode.label = folderNode.label + `(${res})`;
+        folderNode.label = folderNode.label + ` (${res})`;
       }
     });
     setTimeout(() => {

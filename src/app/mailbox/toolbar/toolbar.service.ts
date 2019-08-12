@@ -110,7 +110,7 @@ export class ToolBarService {
 
     this.subscriptions.push(this.messageService.messageEvent.subscribe((messageEvent: MessageEvent) => {
       if (messageEvent) {
-        console.log("DATA = ", messageEvent);
+        // console.log("DATA = ", messageEvent);
         this.messageEvent = messageEvent;
         this.selectedMessages = this.messageEvent.selectedMessages;
         this.buttonsObservables.get("archiveActive").next(this.mailListService.isArchiveActive());

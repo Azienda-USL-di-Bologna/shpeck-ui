@@ -64,6 +64,8 @@ export class MailListComponent implements OnInit, OnDestroy {
   public _selectedPec: Pec;
   public _filters: FilterDefinition[];
 
+  private tempSelectedMessages: Message[] = null;
+
   private selectedProjection: string =
     ENTITIES_STRUCTURE.shpeck.message.customProjections
       .CustomMessageForMailList;
@@ -254,6 +256,7 @@ export class MailListComponent implements OnInit, OnDestroy {
 
   ngOnInit() {
     this.subscriptions.push(this.mailFoldersService.pecFolderSelected.subscribe((pecFolderSelected: PecFolder) => {
+      this.tempSelectedMessages = null;
       this.mailListService.selectedMessages = [];
       if (pecFolderSelected) {
         if (pecFolderSelected.type === PecFolderType.FOLDER) {
@@ -385,6 +388,7 @@ export class MailListComponent implements OnInit, OnDestroy {
 
   private loadData(pageCong: PagingConf, lazyFilterAndSort?: FiltersAndSorts, folder?: Folder, tag?: Tag) {
     this.loading = true;
+    // this.mailListService.selectedMessages = [];
     this.messageService
       .getData(
         this.selectedProjection,
@@ -396,6 +400,7 @@ export class MailListComponent implements OnInit, OnDestroy {
         if (data && data.results) {
           this.totalRecords = data.page.totalElements;
           this.mailListService.messages = data.results;
+          console.log("this.mailListService.messages", this.mailListService.messages);
           this.setMailTagVisibility(this.mailListService.messages);
           this.mailFoldersService.doReloadTag(this.mailListService.tags.find(t => t.name === "in_error").id);
         }
@@ -403,6 +408,13 @@ export class MailListComponent implements OnInit, OnDestroy {
         // setTimeout(() => {
         //   console.log(this.selRow.nativeElement.offsetHeight);
         // });
+        /* const temp = this.mailListService.selectedMessages;
+        this.mailListService.selectedMessages = [];
+        const self = this;
+        setTimeout(() => {
+          self.mailListService.selectedMessages = temp;
+        }, 0); */
+        this.dt.selectionChange.emit(this.mailListService.selectedMessages);
       });
   }
 
@@ -600,26 +612,49 @@ export class MailListComponent implements OnInit, OnDestroy {
     }
   }
 
+
+
   public handleEvent(name: string, event: any) {
     console.log("handleEvent", name, event);
+
+    console.log("this.mailListService.selectedMessages  fuori", this.mailListService.selectedMessages);
     switch (name) {
       // non c'è nella documentazione, ma pare che scatti sempre una sola volta anche nelle selezioni multiple.
       // le righe selezionati sono in this.mailListService.selectedMessages e anche in event
+      case "onRowSelect":
       case "selectionChange":
-        // selezione di un singolo messaggio (o come click singolo oppure come click del primo messaggio con il ctrl)
-        if (this.mailListService.selectedMessages.length === 1) {
-          const selectedMessage: Message = this.mailListService.selectedMessages[0];
-          this.mailListService.setSeen(true, true);
-          const emlSource: string = this.getEmlSource(selectedMessage);
-          this.messageService.manageMessageEvent(
-            emlSource,
-            selectedMessage,
-            this.mailListService.selectedMessages
-          );
-          // this.messageClicked.emit(selectedMessage);
-        } else {
-          this.messageService.manageMessageEvent(null, null, this.mailListService.selectedMessages);
-        }
+        event.originalEvent.stopPropagation();
+        /* setTimeout(() => {
+          if (name === "onRowSelect" && event.type === "checkbox" && this.tempSelectedMessages) {
+            const self = this;
+            this.mailListService.selectedMessages = this.mailListService.selectedMessages.concat(self.tempSelectedMessages.filter(function (item) {
+                return self.mailListService.selectedMessages.indexOf(item) < 0;
+            }));
+          }
+          this.tempSelectedMessages = this.mailListService.selectedMessages;
+          console.log("this.tempSelectedMessages", this.tempSelectedMessages);
+          console.log("this.mailListService.selectedMessages", this.mailListService.selectedMessages); */
+          // selezione di un singolo messaggio (o come click singolo oppure come click del primo messaggio con il ctrl)
+          if (this.mailListService.selectedMessages.length === 1) {
+            const selectedMessage: Message = this.mailListService.selectedMessages[0];
+            this.mailListService.setSeen(true, true);
+            const emlSource: string = this.getEmlSource(selectedMessage);
+            this.messageService.manageMessageEvent(
+              emlSource,
+              selectedMessage,
+              this.mailListService.selectedMessages
+            );
+            // this.messageClicked.emit(selectedMessage);
+          } else {
+            this.messageService.manageMessageEvent(null, null, this.mailListService.selectedMessages);
+          }
+          // this.dt.rows;
+          /* this.dt.updateSelectionKeys();
+          this.dt.tableService.onSelectionChange(); */
+        /* }, 0); */
+        break;
+      case "onRowUnselect":
+        /* this.tempSelectedMessages = this.mailListService.selectedMessages; */
         break;
       case "onContextMenuSelect":
         this.setContextMenuItemLook();

@@ -2,7 +2,7 @@ import { Component, OnInit, Input } from "@angular/core";
 import { Message, RecepitType } from "@bds/ng-internauta-model";
 import { Utils } from "src/app/utils/utils";
 import { ShpeckMessageService } from "src/app/services/shpeck-message.service";
-import { EMLSOURCE } from 'src/environments/app-constants';
+import { EMLSOURCE } from "src/environments/app-constants";
 
 @Component({
   selector: "app-recepits",
@@ -16,7 +16,7 @@ export class RecepitsComponent implements OnInit {
 
   @Input("recepits")
   set setRecepits(recepits: Message[]) {
-    console.log("recepit: ", recepits);
+    // console.log("recepit: ", recepits);
     this.recepits = recepits;
   }
 

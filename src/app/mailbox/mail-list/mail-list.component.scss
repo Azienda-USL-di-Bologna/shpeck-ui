@@ -25,6 +25,25 @@ p-table,
   max-height: 100% !important;
   height: 100% !important;
 }
+.column-checkbox {
+  width: 30px;
+}
+::ng-deep .column-checkbox p-tableCheckbox .ui-chkbox.ui-widget .ui-chkbox-box.ui-widget.ui-state-default {
+  //visibility: hidden;
+  opacity: 0;
+}
+.column-checkbox p-tableCheckbox:hover {
+  //visibility: visible;
+  
+}
+::ng-deep .message-row:hover .column-checkbox p-tableCheckbox .ui-chkbox.ui-widget .ui-chkbox-box.ui-widget.ui-state-default {
+  opacity: 1;
+}
+::ng-deep .column-checkbox p-tableCheckbox .ui-chkbox.ui-widget .ui-chkbox-box.ui-widget.ui-state-default.ui-state-active {
+  opacity: 1;
+  border-color: #848484;
+  background-color: #848484;
+}
 .buttons-bar {
   height: 50px;
   display: block;
@@ -136,6 +155,9 @@ p-table,
   // display: inline-block;
   //width: 20px;
 }
+.first-icon-left {
+  padding-left: 0;
+}
 .fa-icon {
   vertical-align: super;
   font-size: 13px;
@@ -175,7 +197,9 @@ p-table,
 .envelope-icon {
   padding-top: 3px;
 }
-
+.seconda-riga {
+  padding-left: 1px;
+}
 .display-text {
   /* margin-left: 20px; */
   display: inline-block;
