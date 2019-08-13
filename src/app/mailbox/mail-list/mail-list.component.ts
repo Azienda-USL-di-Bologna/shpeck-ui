@@ -64,7 +64,7 @@ export class MailListComponent implements OnInit, OnDestroy {
   public _selectedPec: Pec;
   public _filters: FilterDefinition[];
 
-  private tempSelectedMessages: Message[] = null;
+  // private tempSelectedMessages: Message[] = null;
 
   private selectedProjection: string =
     ENTITIES_STRUCTURE.shpeck.message.customProjections
@@ -90,20 +90,6 @@ export class MailListComponent implements OnInit, OnDestroy {
     sortMode: SORT_MODES.desc
   };
   public tagMenuItems:  MenuItem[] = null;
-  /* public orderMenu: MenuItem[] = [
-    {
-      label: "dcs",
-      icon: "fa fa-tag",
-      id: "1",
-      title: "titolo",
-      disabled: false,
-      queryParams: {
-        na: "na"
-      },
-      command: event => () => {}
-    }
-  ]; */
-
   public cmItems: MenuItem[] = [
     {
       label: "NOT_SET",
@@ -256,7 +242,7 @@ export class MailListComponent implements OnInit, OnDestroy {
 
   ngOnInit() {
     this.subscriptions.push(this.mailFoldersService.pecFolderSelected.subscribe((pecFolderSelected: PecFolder) => {
-      this.tempSelectedMessages = null;
+      // this.tempSelectedMessages = null;
       this.mailListService.selectedMessages = [];
       if (pecFolderSelected) {
         if (pecFolderSelected.type === PecFolderType.FOLDER) {
@@ -388,7 +374,6 @@ export class MailListComponent implements OnInit, OnDestroy {
 
   private loadData(pageCong: PagingConf, lazyFilterAndSort?: FiltersAndSorts, folder?: Folder, tag?: Tag) {
     this.loading = true;
-    // this.mailListService.selectedMessages = [];
     this.messageService
       .getData(
         this.selectedProjection,
@@ -408,14 +393,27 @@ export class MailListComponent implements OnInit, OnDestroy {
         // setTimeout(() => {
         //   console.log(this.selRow.nativeElement.offsetHeight);
         // });
-        /* const temp = this.mailListService.selectedMessages;
-        this.mailListService.selectedMessages = [];
-        const self = this;
-        setTimeout(() => {
-          self.mailListService.selectedMessages = temp;
-        }, 0); */
-        this.dt.selectionChange.emit(this.mailListService.selectedMessages);
+
+        // I selected messages sono quelli che sono.
+        // Ma dopo il caricamento devo far puntare tra i messages quelli che sono selected
+        // Altimenti la table non li evidenzia
+        let index;
+        for (let i = 0; i < this.mailListService.selectedMessages.length; i++) {
+          index = this.isMessageinList(this.mailListService.selectedMessages[i].id, this.mailListService.messages);
+          if (index !== -1) {
+            this.mailListService.selectedMessages[i] = this.mailListService.messages[index];
+          }
+        }
       });
+  }
+
+  private isMessageinList(id: number, messages: Message[]) {
+    for (let i = 0; i < messages.length; i++) {
+      if (messages[i].id === id) {
+        return i;
+      }
+    }
+    return -1;
   }
 
   public buildTableEventFilters(filtersDefinition: FilterDefinition[]): { [s: string]: FilterMetadata } {
@@ -612,8 +610,6 @@ export class MailListComponent implements OnInit, OnDestroy {
     }
   }
 
-
-
   public handleEvent(name: string, event: any) {
     console.log("handleEvent", name, event);
 
@@ -624,6 +620,9 @@ export class MailListComponent implements OnInit, OnDestroy {
       case "onRowSelect":
       case "selectionChange":
         event.originalEvent.stopPropagation();
+
+
+        console.log("this.selectionKeys", this.dt.selectionKeys);
         /* setTimeout(() => {
           if (name === "onRowSelect" && event.type === "checkbox" && this.tempSelectedMessages) {
             const self = this;
@@ -855,7 +854,7 @@ export class MailListComponent implements OnInit, OnDestroy {
    * @param event
    */
   private selectedContextMenuItem(event: any) {
-    console.log("check: ", event);
+    // console.log("check: ", event);
     const menuItem: MenuItem = event.item;
     switch (menuItem.id) {
       case "MessageSeen":
