@@ -1328,7 +1328,7 @@ export class MailListComponent implements OnInit, OnDestroy {
       const tagList = messagetagList.map(mt => mt.idTag);
       let tooltip = "Etichette associate:\n";
       tagList.forEach(t => {
-        tooltip = tooltip + t.description + "\n";
+        tooltip = tooltip + "- " + t.description + "\n";
       });
       return {tooltip: tooltip};
     } else {
