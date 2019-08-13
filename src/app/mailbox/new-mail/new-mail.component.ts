@@ -527,4 +527,27 @@ export class NewMailComponent implements OnInit, AfterViewInit {
     this.onSelect(event.emails[0].email, this.lastAddressBookUsed);
     this.displayRubricaPopup = false;
   }
+
+  editorInit(event) {
+    const quill = event.editor;
+    const toolbar = quill.getModule("toolbar");
+    toolbar.addHandler("link", () => {
+      const range = quill.getSelection();
+      if (range.length > 0) {
+        const href = prompt("Inserire l'URL: ");
+        const regex = RegExp("^https?://");
+        const whiteSpateRegex = RegExp("\\s", "g");
+        let hrefWithNoSpace = href.replace(whiteSpateRegex, "");
+        if (regex.test(hrefWithNoSpace)) {
+          quill.format("link", hrefWithNoSpace);
+        } else {
+          const formatHttp = "https://";
+          hrefWithNoSpace = formatHttp + hrefWithNoSpace;
+          quill.format("link", hrefWithNoSpace);
+        }
+      } else {
+        quill.format("link", false);
+      }
+    });
+  }
 }
