@@ -622,7 +622,7 @@ export class MailListComponent implements OnInit, OnDestroy {
         event.originalEvent.stopPropagation();
 
 
-        console.log("this.selectionKeys", this.dt.selectionKeys);
+        // console.log("this.selectionKeys", this.dt.selectionKeys);
         /* setTimeout(() => {
           if (name === "onRowSelect" && event.type === "checkbox" && this.tempSelectedMessages) {
             const self = this;
