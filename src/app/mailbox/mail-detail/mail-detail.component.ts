@@ -39,7 +39,7 @@ export class MailDetailComponent implements OnInit, OnDestroy {
   public message: Message;
   public accordionAttachmentsSelected: boolean = false;
   public recepitsVisible: boolean = false;
-  public getAllEmlAttachmentInProgress: boolean = true;
+  public getAllEmlAttachmentInProgress: boolean = false;
   get inOut() { return InOut; }
 
   @ViewChild("emliframe") private emliframe: ElementRef;
