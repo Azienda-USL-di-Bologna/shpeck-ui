@@ -49,7 +49,7 @@ export class RecepitsComponent implements OnInit {
         fieldType: "object",
         header: "Tipo Ricevuta",
         style: {
-          width: "110px",
+          width: "120px",
           textAlign: "center"
         }
       },
