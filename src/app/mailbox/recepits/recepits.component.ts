@@ -68,7 +68,7 @@ export class RecepitsComponent implements OnInit {
         icon: "pi pi-download",
         onClick: this.dowloadRecepit,
         style: {
-          width: "30px",
+          width: "45px",
           textAlign: "center"
         }
       }
