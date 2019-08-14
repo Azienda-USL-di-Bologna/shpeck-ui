@@ -49,7 +49,7 @@ export class RecepitsComponent implements OnInit {
         fieldType: "object",
         header: "Tipo Ricevuta",
         style: {
-          width: "110px",
+          width: "120px",
           textAlign: "center"
         }
       },
@@ -68,7 +68,7 @@ export class RecepitsComponent implements OnInit {
         icon: "pi pi-download",
         onClick: this.dowloadRecepit,
         style: {
-          width: "30px",
+          width: "45px",
           textAlign: "center"
         }
       }
