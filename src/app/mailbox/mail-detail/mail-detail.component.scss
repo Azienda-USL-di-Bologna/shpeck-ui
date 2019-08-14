@@ -155,6 +155,26 @@
 .scarica-tutti:hover {
   font-weight: 700;
 }
+/* .scarica-tutti-spinner {
+  width: 1em; 
+  height: 1em;
+} */
+@keyframes ui-progress-spinner-color {
+  100%,
+  0% {
+      stroke: #993366;
+  }
+  40% {
+      stroke: #d072a1;
+  }
+  66% {
+      stroke: #88a7c5;
+  }
+  80%,
+  90% {
+      stroke: #203142;
+  }
+}
 
 /* ============ MAIL BODY ============ */
 .mail-body-box {

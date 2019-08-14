@@ -89,6 +89,15 @@
         </div>
         <i *ngIf="fullMessage?.emlData?.attachments" class="far fa-file-zip icona scarica-tutti-icon"></i>
         <span *ngIf="fullMessage?.emlData?.attachments" class="scarica-tutti" (click)="getAllEmlAttachment()">Scarica tutti gli allegati</span>
+        <span *ngIf="getAllEmlAttachmentInProgress">
+          <p-progressSpinner 
+            [style]="{width: '1em', height: '1em', marginLeft: '7px'}"
+            class="scarica-tutti-spinner" 
+            strokeWidth="8" 
+            fill="#FFFFFF" 
+            animationDuration=".5s">
+          </p-progressSpinner>
+        </span>
       </p-accordionTab>
   </p-accordion>
   <div class="mail-body-box" [ngClass]="{'mail-body-box-no-anteprima' : !fullMessage?.emlData?.displayBody}">

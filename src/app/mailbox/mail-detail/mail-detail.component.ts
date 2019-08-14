@@ -39,6 +39,7 @@ export class MailDetailComponent implements OnInit, OnDestroy {
   public message: Message;
   public accordionAttachmentsSelected: boolean = false;
   public recepitsVisible: boolean = false;
+  public getAllEmlAttachmentInProgress: boolean = true;
   get inOut() { return InOut; }
 
   @ViewChild("emliframe") private emliframe: ElementRef;
@@ -219,9 +220,14 @@ export class MailDetailComponent implements OnInit, OnDestroy {
    * Ne faccio partire poi il download.
    */
   public getAllEmlAttachment(): void {
+    this.getAllEmlAttachmentInProgress = true;
     this.messageService.downloadAllEmlAttachment(this.fullMessage.message as Message, this.fullMessage.emlSource).subscribe(
-      response =>
-        Utils.downLoadFile(response, "application/zip", "allegati.zip")
+      response => {
+        Utils.downLoadFile(response, "application/zip", "allegati.zip");
+        this.getAllEmlAttachmentInProgress = false;
+      },
+      err =>
+        this.getAllEmlAttachmentInProgress = false
     );
   }
 
