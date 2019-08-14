@@ -40,7 +40,7 @@ export class RecepitsComponent implements OnInit {
         header: "Data",
         fieldType: "DateTime",
         style: {
-          width: "140px",
+          width: "115px",
           textAlign: "center"
         }
       },
@@ -49,7 +49,7 @@ export class RecepitsComponent implements OnInit {
         fieldType: "object",
         header: "Tipo Ricevuta",
         style: {
-          width: "130px",
+          width: "110px",
           textAlign: "center"
         }
       },
@@ -58,7 +58,7 @@ export class RecepitsComponent implements OnInit {
         header: "Destinatario",
         fieldType: "string",
         style: {
-          width: "280px"
+          width: "270px"
         }
       },
       {
