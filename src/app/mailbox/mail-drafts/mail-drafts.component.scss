@@ -121,7 +121,7 @@ p-table,
 }
 ::ng-deep .column-checkbox p-tableCheckbox .ui-chkbox.ui-widget .ui-chkbox-box.ui-widget.ui-state-default {
   //visibility: hidden;
-  opacity: 0;
+  //opacity: 0;
 }
 ::ng-deep .message-row:hover .column-checkbox p-tableCheckbox .ui-chkbox.ui-widget .ui-chkbox-box.ui-widget.ui-state-default {
   opacity: 1;
