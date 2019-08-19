@@ -10,6 +10,14 @@
   min-width: 400px;
 }
 
+/* ========== SELEZIONE SU PIU' MAIL ======== */
+.more-mail-selected {
+  font-weight: bold;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
 /* ============ OGGETTO MAIL ============ */
 .mail-object {
   /* font-size: 1.5em; */

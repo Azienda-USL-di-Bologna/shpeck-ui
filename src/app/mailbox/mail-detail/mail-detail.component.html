@@ -1,4 +1,7 @@
-<div class="detail-container">
+<div class="detail-container more-mail-selected" *ngIf="numberOfMessageSelected !== null && numberOfMessageSelected > 1">
+  {{numberOfMessageSelected}} email selezionate
+</div>
+<div class="detail-container" *ngIf="numberOfMessageSelected === null || numberOfMessageSelected <= 1">
   <h3 class="mail-object">{{fullMessage?.emlData?.subject}}</h3>
   <div *ngIf="message?.inOut === inOut?.OUT" class="recepit-detail">
     <div class="recepit-dates">
