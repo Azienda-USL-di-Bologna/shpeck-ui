@@ -38,6 +38,7 @@ export class MailDetailComponent implements OnInit, OnDestroy {
   public fullMessage: FullMessage;
   public message: Message;
   public numberOfMessageSelected = null;
+  public messageTrueDraftFalse = null;
   public accordionAttachmentsSelected: boolean = false;
   public recepitsVisible: boolean = false;
   public getAllEmlAttachmentInProgress: boolean = false;
@@ -51,6 +52,7 @@ export class MailDetailComponent implements OnInit, OnDestroy {
     /* Mi sottoscrivo al messageEvent */
     this.subscription.push(this.messageService.messageEvent.subscribe(
       (messageEvent: MessageEvent) => {
+        this.messageTrueDraftFalse = true;
         this.numberOfMessageSelected = null;
         if (messageEvent && messageEvent.downloadedMessage) {
           if (messageEvent.downloadedMessage.message) {
@@ -74,9 +76,15 @@ export class MailDetailComponent implements OnInit, OnDestroy {
     ));
     this.subscription.push(this.draftService.draftEvent.subscribe(
       (draftEvent: DraftEvent) => {
+        this.messageTrueDraftFalse = false;
+        this.numberOfMessageSelected = null;
         if (draftEvent && draftEvent.fullDraft) {
           this.manageDownloadedMessage(draftEvent.fullDraft);
         } else if (!draftEvent || !draftEvent.selectedDrafts || !(draftEvent.selectedDrafts.length > 1)) {
+          this.fullMessage = null;
+          this.setLook();
+        } else if (draftEvent && draftEvent.selectedDrafts && (draftEvent.selectedDrafts.length > 1)) {
+          this.numberOfMessageSelected = draftEvent.selectedDrafts.length;
           this.fullMessage = null;
           this.setLook();
         }

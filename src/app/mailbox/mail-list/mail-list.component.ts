@@ -619,6 +619,7 @@ export class MailListComponent implements OnInit, OnDestroy {
       // le righe selezionati sono in this.mailListService.selectedMessages e anche in event
       case "onRowSelect":
       case "selectionChange":
+      case "onRowUnselect":
         event.originalEvent.stopPropagation();
 
 
@@ -652,9 +653,9 @@ export class MailListComponent implements OnInit, OnDestroy {
           this.dt.tableService.onSelectionChange(); */
         /* }, 0); */
         break;
-      case "onRowUnselect":
+
         /* this.tempSelectedMessages = this.mailListService.selectedMessages; */
-        break;
+        // break;
       case "onContextMenuSelect":
         this.setContextMenuItemLook();
         break;

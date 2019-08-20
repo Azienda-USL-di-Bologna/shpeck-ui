@@ -110,6 +110,7 @@ export class MailDraftsComponent implements OnInit, OnDestroy {
       // non c'è nella documentazione, ma pare che scatti sempre una sola volta anche nelle selezioni multiple.
       // le righe selezionati sono in this.selectedMessages e anche in event
       case "onRowSelect":
+      case "onRowUnselect":
       case "selectionChange":
         event.originalEvent.stopPropagation();
         // selezione di un singolo messaggio (o come click singolo oppure come click del primo messaggio con il ctrl)
