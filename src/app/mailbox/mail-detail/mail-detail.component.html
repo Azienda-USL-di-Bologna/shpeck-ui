@@ -1,4 +1,7 @@
-<div class="detail-container">
+<div class="detail-container more-mail-selected" *ngIf="numberOfMessageSelected !== null && numberOfMessageSelected > 1">
+  {{numberOfMessageSelected}} {{messageTrueDraftFalse ? 'email' : 'bozze'}} selezionate
+</div>
+<div class="detail-container" *ngIf="numberOfMessageSelected === null || numberOfMessageSelected <= 1">
   <h3 class="mail-object">{{fullMessage?.emlData?.subject}}</h3>
   <div *ngIf="message?.inOut === inOut?.OUT" class="recepit-detail">
     <div class="recepit-dates">
@@ -24,7 +27,7 @@
       pTooltip="Apri dettaglio ricevute">
     </button>
   </div>
-  <div *ngIf="message?.inOut === inOut?.IN" class="recepit-detail">
+  <div *ngIf="fullMessage && message?.inOut === inOut?.IN" class="recepit-detail">
     <div class="recepit-dates">
       <li class="recepit-date">
         <span class="recepit-date-label">Ricevuto il:</span>
@@ -89,6 +92,15 @@
         </div>
         <i *ngIf="fullMessage?.emlData?.attachments" class="far fa-file-zip icona scarica-tutti-icon"></i>
         <span *ngIf="fullMessage?.emlData?.attachments" class="scarica-tutti" (click)="getAllEmlAttachment()">Scarica tutti gli allegati</span>
+        <span *ngIf="getAllEmlAttachmentInProgress">
+          <p-progressSpinner 
+            [style]="{width: '1em', height: '1em', marginLeft: '7px'}"
+            class="scarica-tutti-spinner" 
+            strokeWidth="8" 
+            fill="#FFFFFF" 
+            animationDuration=".5s">
+          </p-progressSpinner>
+        </span>
       </p-accordionTab>
   </p-accordion>
   <div class="mail-body-box" [ngClass]="{'mail-body-box-no-anteprima' : !fullMessage?.emlData?.displayBody}">

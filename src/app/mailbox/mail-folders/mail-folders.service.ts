@@ -61,10 +61,14 @@ export class MailFoldersService {
     return this._reloadFolder[idFolder].asObservable();
   }
 
-  public doReloadFolder(idFolder: number, unSeen= true): void {
+  public doReloadFolder(idFolder: number, unSeen = true): void {
     const result = this.countMessageInFolder(idFolder, unSeen);
-    console.log("doReloadFolder",result);
-    result.subscribe((res: number) => this._reloadFolder[idFolder].next(res) );
+    // console.log("doReloadFolder", result);
+    result.subscribe((res: number) => {
+      if (this._reloadFolder[idFolder]) {
+        this._reloadFolder[idFolder].next(res);
+      }
+    });
   }
 
   public get pecFoldersAndTags(): Observable<FoldersAndTags> {

@@ -1,5 +1,6 @@
 <!-- *ngIf="_selectedFolder || _filters" -->
-<p-table #dt *ngIf="_selectedPecId"
+<!-- (selectionChange)="handleEvent('selectionChange', $event)" -->
+<p-table #dt *ngIf="_selectedPecId && totalRecords > 0"
     [lazy]="true" (onLazyLoad)="lazyLoad($event)"
     scrollHeight="100%"
     [value]="drafts"
@@ -18,12 +19,16 @@
     [rowTrackBy]="trackByFn"
     [scrollable]="true" [virtualRowHeight]="virtualRowHeight" [virtualScroll]="true" [virtualScrollDelay]="150"
     (onRowSelect)="handleEvent('onRowSelect', $event)" (onRowUnselect)="handleEvent('onRowUnselect', $event)"
-    (selectionChange)="handleEvent('selectionChange', $event)"
+    
     (onContextMenuSelect)="handleEvent('onContextMenuSelect', $event)"
+    dataKey="id"
     >
     <ng-template pTemplate="body" let-rowData let-draft let-rowIndex="rowIndex">
         <tr #selRow class="message-row" [pSelectableRow]="rowData" [pSelectableRowIndex]="rowIndex" [pContextMenuRow]="rowData"
             (dblclick)="openDetailPopup($event, rowData, message)">
+            <td class="column-checkbox">
+                <p-tableCheckbox [value]="rowData"></p-tableCheckbox>
+            </td>
             <td>
                 <div class = "mail-icons-container">
                 </div>
@@ -53,6 +58,9 @@
     </ng-template>
 </p-table>
 
+<div *ngIf="totalRecords === 0 && !!!loading" class="flex-1 message-align flex-direction-col">
+        <p style="margin: 0">La cartella selezionata non contiene elementi</p>
+</div>
 
 <!-- POPUP DEL DETAIL -->
 <p-dialog *ngIf="displayDetailPopup" [(visible)]="displayDetailPopup" class="popup-mail-detail">

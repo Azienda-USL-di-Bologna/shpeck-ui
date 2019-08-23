@@ -32,7 +32,8 @@ export class ShpeckMessageService extends NextSDREntityProvider {
    */
   public manageMessageEvent(emlSource: string, messageToDownload?: Message, selectedMessages?: Message[]) {
     if (!messageToDownload && !selectedMessages) {
-      throw new Error("missing parameters");
+      // commentato da gdm e sal per RM #34610 perché ci serve passare tutto a null per far si che la parte destra venga svuotata quando si clicca su una cartella o su una casella
+      // throw new Error("missing parameters");
     }
     if (messageToDownload && messageToDownload.id) {
       this.extractEmlData(messageToDownload.id, EMLSOURCE.MESSAGE).subscribe(

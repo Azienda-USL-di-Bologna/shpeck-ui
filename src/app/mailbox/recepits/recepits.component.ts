@@ -2,7 +2,7 @@ import { Component, OnInit, Input } from "@angular/core";
 import { Message, RecepitType } from "@bds/ng-internauta-model";
 import { Utils } from "src/app/utils/utils";
 import { ShpeckMessageService } from "src/app/services/shpeck-message.service";
-import { EMLSOURCE } from 'src/environments/app-constants';
+import { EMLSOURCE } from "src/environments/app-constants";
 
 @Component({
   selector: "app-recepits",
@@ -16,7 +16,7 @@ export class RecepitsComponent implements OnInit {
 
   @Input("recepits")
   set setRecepits(recepits: Message[]) {
-    console.log("recepit: ", recepits);
+    // console.log("recepit: ", recepits);
     this.recepits = recepits;
   }
 
@@ -40,7 +40,7 @@ export class RecepitsComponent implements OnInit {
         header: "Data",
         fieldType: "DateTime",
         style: {
-          width: "140px",
+          width: "115px",
           textAlign: "center"
         }
       },
@@ -49,7 +49,7 @@ export class RecepitsComponent implements OnInit {
         fieldType: "object",
         header: "Tipo Ricevuta",
         style: {
-          width: "130px",
+          width: "120px",
           textAlign: "center"
         }
       },
@@ -58,7 +58,7 @@ export class RecepitsComponent implements OnInit {
         header: "Destinatario",
         fieldType: "string",
         style: {
-          width: "280px"
+          width: "270px"
         }
       },
       {
@@ -68,7 +68,7 @@ export class RecepitsComponent implements OnInit {
         icon: "pi pi-download",
         onClick: this.dowloadRecepit,
         style: {
-          width: "30px",
+          width: "45px",
           textAlign: "center"
         }
       }

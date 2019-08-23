@@ -10,6 +10,14 @@
   min-width: 400px;
 }
 
+/* ========== SELEZIONE SU PIU' MAIL ======== */
+.more-mail-selected {
+  font-weight: bold;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
 /* ============ OGGETTO MAIL ============ */
 .mail-object {
   /* font-size: 1.5em; */
@@ -155,6 +163,26 @@
 .scarica-tutti:hover {
   font-weight: 700;
 }
+/* .scarica-tutti-spinner {
+  width: 1em; 
+  height: 1em;
+} */
+@keyframes ui-progress-spinner-color {
+  100%,
+  0% {
+      stroke: #993366;
+  }
+  40% {
+      stroke: #d072a1;
+  }
+  66% {
+      stroke: #88a7c5;
+  }
+  80%,
+  90% {
+      stroke: #203142;
+  }
+}
 
 /* ============ MAIL BODY ============ */
 .mail-body-box {
@@ -179,7 +207,9 @@
 
 /* =========== RECEPIT DIALOG ============ */
 ::ng-deep .recepit-dialog {
-  width: 70%;
+  width: 50vw;
+  top: 35%;
+  left: 25%;
 }
 ::ng-deep .recepit-dialog .ui-dialog-footer {
   text-align: center !important;

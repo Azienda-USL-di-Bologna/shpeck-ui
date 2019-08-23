@@ -72,7 +72,9 @@ export class MailDraftsComponent implements OnInit, OnDestroy {
     private mailboxService: MailboxService) { }
 
   ngOnInit() {
+    this.selectedDrafts = [];
     this.subscriptions.push(this.draftService.reload.subscribe(idDraft => {
+      this.selectedDrafts = [];
       if (idDraft) {
         this.loadData(null, null, idDraft);
       } else {
@@ -107,7 +109,10 @@ export class MailDraftsComponent implements OnInit, OnDestroy {
     switch (name) {
       // non c'è nella documentazione, ma pare che scatti sempre una sola volta anche nelle selezioni multiple.
       // le righe selezionati sono in this.selectedMessages e anche in event
+      case "onRowSelect":
+      case "onRowUnselect":
       case "selectionChange":
+        event.originalEvent.stopPropagation();
         // selezione di un singolo messaggio (o come click singolo oppure come click del primo messaggio con il ctrl)
         if (this.selectedDrafts.length === 1) {
           const selectedDraft: Draft = this.selectedDrafts[0];
@@ -210,8 +215,24 @@ export class MailDraftsComponent implements OnInit, OnDestroy {
         // setTimeout(() => {
         //   console.log(this.selRow.nativeElement.offsetHeight);
         // });
+        let index;
+        for (let i = 0; i < this.selectedDrafts.length; i++) {
+          index = this.isDraftinList(this.selectedDrafts[i].id, this.drafts);
+          if (index !== -1) {
+            this.selectedDrafts[i] = this.drafts[index];
+          }
+        }
       });
     }
+  }
+
+  private isDraftinList(id: number, drafts: Draft[]) {
+    for (let i = 0; i < drafts.length; i++) {
+      if (drafts[i].id === id) {
+        return i;
+      }
+    }
+    return -1;
   }
 
   private buildDraftInitialFilterAndSort() {
