@@ -721,11 +721,16 @@ export class MailListService {
    */
   public isReaddressActive(specificMessage?: Message): boolean {
     const message: Message = specificMessage ? specificMessage : this.selectedMessages[0];
-    if ((!specificMessage && this.selectedMessages.length !== 1) ||
+    if (
+      (!specificMessage && this.selectedMessages.length !== 1) ||
       message.inOut !== "IN" ||
       message.messageFolderList[0].idFolder.type === FolderType.TRASH ||
-      (message.messageTagList && message.messageTagList
-        .some(messageTag => messageTag.idTag.name === "readdressed_out" || messageTag.idTag.name === "registered"))) {
+      (message.messageTagList && message.messageTagList.some(messageTag =>
+            messageTag.idTag.name === "readdressed_out" ||
+            messageTag.idTag.name === "registered" ||
+            messageTag.idTag.name === "in_registration"
+        ))
+    ) {
       return false;
     } else {
       return true;
