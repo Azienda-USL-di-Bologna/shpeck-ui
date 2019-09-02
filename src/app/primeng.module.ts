@@ -24,6 +24,7 @@ import { ToastModule } from "primeng/toast";
 import { ConfirmDialogModule } from "primeng/confirmdialog";
 import { RadioButtonModule } from "primeng/radiobutton";
 import { MenubarModule } from "primeng/menubar";
+import { ProgressSpinnerModule } from "primeng/progressspinner";
 
 @NgModule({
     declarations: [],
@@ -55,7 +56,8 @@ import { MenubarModule } from "primeng/menubar";
         ToastModule,
         ConfirmDialogModule,
         RadioButtonModule,
-        MenubarModule
+        MenubarModule,
+        ProgressSpinnerModule
     ],
     exports: [
         DynamicDialogModule,
@@ -85,7 +87,8 @@ import { MenubarModule } from "primeng/menubar";
         ToastModule,
         ConfirmDialogModule,
         RadioButtonModule,
-        MenubarModule
+        MenubarModule,
+        ProgressSpinnerModule
     ]
 })
 export class PrimengModule { }

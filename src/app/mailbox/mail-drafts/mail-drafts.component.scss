@@ -7,12 +7,31 @@
   display: flex;
   flex-direction: column;
 }
+p-table,
+::ng-deep p-table > div,
+::ng-deep p-table > div > div,
+::ng-deep p-table > div > div > div {
+  height: 100%;
+}
+::ng-deep p-table > div > div > div div.ui-table-scrollable-body {
+  max-height: 100% !important;
+  height: 100% !important;
+}
 //body .ui-table .ui-table-tbody > tr > td
 
 ::ng-deep .ui-table-tbody > tr > td {
   border: none !important;
+  overflow: hidden;
 }
 
+.message-align {
+  justify-content: center;
+  align-items: center;
+}
+
+.flex-direction-col {
+  flex-direction: column;
+}
 .display-block {
   display: block;
 }
@@ -95,4 +114,20 @@
 
 ::ng-deep .context-menu-mail-list {
   margin: -128px 0 0 -312px;
+}
+
+.column-checkbox {
+  width: 30px;
+}
+::ng-deep .column-checkbox p-tableCheckbox .ui-chkbox.ui-widget .ui-chkbox-box.ui-widget.ui-state-default {
+  //visibility: hidden;
+  opacity: 0.5;
+}
+::ng-deep .message-row:hover .column-checkbox p-tableCheckbox .ui-chkbox.ui-widget .ui-chkbox-box.ui-widget.ui-state-default {
+  opacity: 1;
+}
+::ng-deep .column-checkbox p-tableCheckbox .ui-chkbox.ui-widget .ui-chkbox-box.ui-widget.ui-state-default.ui-state-active {
+  opacity: 1;
+  border-color: #848484;
+  background-color: #848484;
 }

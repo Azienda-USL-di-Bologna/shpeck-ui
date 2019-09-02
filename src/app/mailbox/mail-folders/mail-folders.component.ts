@@ -10,6 +10,7 @@ import { FolderService } from "src/app/services/folder.service";
 import { TagService } from "src/app/services/tag.service";
 import { MailListService } from "../mail-list/mail-list.service";
 import { UtenteUtilities, NtJwtLoginService } from "@bds/nt-jwt-login";
+import { ShpeckMessageService } from "src/app/services/shpeck-message.service";
 
 @Component({
   selector: "app-mail-folders",
@@ -98,7 +99,7 @@ export class MailFoldersComponent implements OnInit, OnDestroy {
       private folderService: FolderService,
       private mailFoldersService: MailFoldersService,
       private primeMessageService: MessageService,
-      private toolBarService: ToolBarService,
+      private shpeckMessageService: ShpeckMessageService,
       private loginService: NtJwtLoginService,
       private tagService: TagService,
       private mailListService: MailListService) {
@@ -148,10 +149,14 @@ export class MailFoldersComponent implements OnInit, OnDestroy {
               this.mailfolders.push(this.buildNode(pec));
             }
           }
-          this.selectedNode = this.mailfolders[0];
-          this.mailFoldersService.selectedPecFolder(this.mailfolders[0].data,
-            this.mailfolders[0].children.map((c: MyTreeNode) => c.data.data) as Folder[],
-            (this.mailfolders[0].data.data as Pec).tagList);
+          this.selectRootNode(this.mailfolders[0], false);
+          this.selectedNode = this.mailfolders[0].children.find((childNode: MyTreeNode) => (childNode.data.data as Folder).type === FolderType.INBOX);
+          if (this.selectedNode) {
+            this.selectedNode.data.pec = this.mailfolders[0].data.data as Pec;
+            this.mailFoldersService.selectedPecFolder(this.selectedNode.data,
+              this.mailfolders[0].children.map((c: MyTreeNode) => c.data.data) as Folder[],
+              (this.mailfolders[0].data.data as Pec).tagList);
+          }
         }
       }
     ));
@@ -173,17 +178,6 @@ export class MailFoldersComponent implements OnInit, OnDestroy {
           p.id = pec.id;
           folder.idPec = p;
           const folderNode: MyTreeNode = this.buildFolderNode(folder, this.buildFolderIcons(folder));
-          switch (folder.name) {
-            case "inbox":
-              this.mailFoldersService.getReloadFolder(folder.id).subscribe(res => {
-                console.log("number of unread messages: ", res);
-                res > 0 ? folderNode.label = `In arrivo (${res})` : folderNode.label = "In arrivo";
-              });
-              setTimeout(() => {
-                this.mailFoldersService.doReloadFolder(folder.id);
-              });
-              break;
-          }
           children.push(folderNode);
         } else {
           foldersCustom.push(folder);
@@ -405,6 +399,8 @@ export class MailFoldersComponent implements OnInit, OnDestroy {
   }
 
   private buildFolderNode(folder: Folder, folderIcons: any, editable: boolean = false): MyTreeNode {
+
+
     let expandedIcon = "fa fa-folder-open smaller-icon";
     let collapsedIcon = "fa fa-folder smaller-icon";
     if (folder.name === "readdressed") {
@@ -414,7 +410,8 @@ export class MailFoldersComponent implements OnInit, OnDestroy {
       collapsedIcon = "material-icons-outlined registered-icon";
       expandedIcon =  "material-icons-outlined registered-icon";
     }
-    return {
+
+    const folderNode: MyTreeNode = {
       label: folder.description,
       data: {
         type: PecFolderType.FOLDER,
@@ -426,6 +423,20 @@ export class MailFoldersComponent implements OnInit, OnDestroy {
       editable: editable,
       key: PecFolderType.FOLDER + "_" + (folder.id ? folder.id : "new")
     };
+    // sottoscrizione all'observable che scatta quando devo ricaricare il numero dei messaggi non letti
+    this.mailFoldersService.getReloadFolder(folder.id).subscribe(res => {
+      // prima rimuovo la parte "(numero messaggi)" dal label, poi se il numero dei messaggi non letti è > 0 lo reinserisco con il numero aggiornato
+      folderNode.label = folderNode.label.replace(/(\s*\(.*\))/gm, "");
+      if (res > 0) {
+        folderNode.label = folderNode.label + ` (${res})`;
+      }
+    });
+    setTimeout(() => {
+      // fa scattare la chiamata che fa il calcolo delle mail non lette che a sua volta fa scattare la sottoscrizione sopra
+      this.mailFoldersService.doReloadFolder(folder.id);
+    });
+
+    return folderNode;
   }
 
   private buildTagNode(tag: Tag, label: string, icon: string, editable: boolean): MyTreeNode {
@@ -549,6 +560,7 @@ export class MailFoldersComponent implements OnInit, OnDestroy {
       // break;
       case "onNodeSelect":
         if (this.mailfolders && event.node && !(event.node as MyTreeNode).editable) {
+          this.shpeckMessageService.manageMessageEvent(null, null);
           this.mailfolders.map(m => m.styleClass = MailFoldersComponent.ROOT_NODE_NOT_SELECTED_STYLE_CLASS);
           this.selectRootNode(event.node, true);
 

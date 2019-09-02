@@ -8,10 +8,10 @@
   display: flex;
   flex-direction: column;
 }
-.box-table {
-  display: flex;
-  flex: 1;
-}
+// .box-table {
+//   display: flex;
+//   flex: 1;
+// }
 .d-flex {
   display: flex;
 }
@@ -23,7 +23,26 @@ p-table,
 }
 ::ng-deep p-table > div > div > div div.ui-table-scrollable-body {
   max-height: 100% !important;
-  height: 100% !important;
+  // height: 100% !important;
+}
+.column-checkbox {
+  width: 30px;
+}
+::ng-deep .column-checkbox p-tableCheckbox .ui-chkbox.ui-widget .ui-chkbox-box.ui-widget.ui-state-default {
+  //visibility: hidden;
+  opacity: 0.5;
+}
+.column-checkbox p-tableCheckbox:hover {
+  //visibility: visible;
+  
+}
+::ng-deep .message-row:hover .column-checkbox p-tableCheckbox .ui-chkbox.ui-widget .ui-chkbox-box.ui-widget.ui-state-default {
+  opacity: 1;
+}
+::ng-deep .column-checkbox p-tableCheckbox .ui-chkbox.ui-widget .ui-chkbox-box.ui-widget.ui-state-default.ui-state-active {
+  opacity: 1;
+  border-color: #848484;
+  background-color: #848484;
 }
 .buttons-bar {
   height: 50px;
@@ -136,6 +155,9 @@ p-table,
   // display: inline-block;
   //width: 20px;
 }
+.first-icon-left {
+  padding-left: 0;
+}
 .fa-icon {
   vertical-align: super;
   font-size: 13px;
@@ -148,7 +170,7 @@ p-table,
 
 .second-line-icon {
   font-size: 18px;
-  
+
   // float: right;
 }
 .second-line-icon-fa {
@@ -175,7 +197,9 @@ p-table,
 .envelope-icon {
   padding-top: 3px;
 }
-
+.seconda-riga {
+  padding-left: 1px;
+}
 .display-text {
   /* margin-left: 20px; */
   display: inline-block;
@@ -224,12 +248,14 @@ p-table,
   // color: rgb(250, 250, 250);
   font-size: 18px;
 }
+.mi-fist-line {
+  vertical-align: text-top;
+}
 .material-icons.fa-icons {
   // color: rgb(250, 250, 250);
   font-size: 16px;
   color: #393939
 }
-
 ::ng-deep .local-offer-icon::before {
   content: 'local_offer';
 }
@@ -279,7 +305,19 @@ p-table,
   resize: none;
 }
 
+/* MENU ETICHETTE */
+::ng-deep .message-labels-icon-action,
+::ng-deep .message-labels + p-contextmenusub {
+  width: auto;
+}
+::ng-deep .message-labels + p-contextmenusub ul a {
+  width: fit-content;
+}
+::ng-deep .message-labels + p-contextmenusub ul li {
+  width: max-content;
+}
 ::ng-deep .message-moves + p-contextmenusub ul a::after,
+::ng-deep .message-labels-icon-action > ul > li > a::after,
 ::ng-deep .message-labels + p-contextmenusub ul a::after {
   display: block;
   content: attr(title);
@@ -288,16 +326,17 @@ p-table,
   margin-left: 2em;
   overflow: hidden;
   visibility: hidden;
+  /* width: min-content; */
 }
-
 ::ng-deep .message-moves + p-contextmenusub ul {
   max-height: 330px;
 }
+::ng-deep .message-labels-icon-action > ul,
 ::ng-deep .message-labels + p-contextmenusub ul {
   max-height: 297px;
 }
-
 ::ng-deep .message-moves + p-contextmenusub ul,
+::ng-deep .message-labels-icon-action > ul,
 ::ng-deep .message-labels + p-contextmenusub ul {
   overflow-y: auto;
   width: fit-content !important;
@@ -306,12 +345,16 @@ p-table,
   max-width: 300px;
   overflow-x: hidden;
 }
-
 ::ng-deep .message-labels + p-contextmenusub .ui-menuitem-icon.fas.fa-square,
 ::ng-deep .message-labels + p-contextmenusub .ui-menuitem-icon.fas.fa-check,
 ::ng-deep .message-labels + p-contextmenusub .ui-menuitem-icon.fas.fa-tag,
 ::ng-deep .message-labels + p-contextmenusub .ui-menuitem-icon.fas.fa-check-square,
-::ng-deep .message-labels + p-contextmenusub .ui-menuitem-icon.fas.fa-minus-square {
+::ng-deep .message-labels + p-contextmenusub .ui-menuitem-icon.fas.fa-minus-square,
+::ng-deep .message-labels-icon-action .ui-menuitem-icon.fas.fa-square,
+::ng-deep .message-labels-icon-action .ui-menuitem-icon.fas.fa-check,
+::ng-deep .message-labels-icon-action .ui-menuitem-icon.fas.fa-tag,
+::ng-deep .message-labels-icon-action .ui-menuitem-icon.fas.fa-check-square,
+::ng-deep .message-labels-icon-action .ui-menuitem-icon.fas.fa-minus-square {
   font-size: 1.1em !important;
 }
 
@@ -333,4 +376,19 @@ p-table,
 }
 ::ng-deep .popup-mail-detail  app-mail-detail {
   height: 100%;
+}
+
+::ng-deep .tooltip-oggetto-mail {
+  // position: absolute;
+  // top: 50%;
+  // 
+  //width: 50vw !important;
+  width: fit-content;
+  max-width: 20vw;
+  .ui-tooltip-text {
+    // overflow: scroll;
+    //transform: translateY(-50%);
+    max-height: 50vh;
+    overflow: hidden
+  }
 }

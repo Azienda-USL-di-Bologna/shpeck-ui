@@ -110,7 +110,7 @@ export class ToolBarService {
 
     this.subscriptions.push(this.messageService.messageEvent.subscribe((messageEvent: MessageEvent) => {
       if (messageEvent) {
-        console.log("DATA = ", messageEvent);
+        // console.log("DATA = ", messageEvent);
         this.messageEvent = messageEvent;
         this.selectedMessages = this.messageEvent.selectedMessages;
         this.buttonsObservables.get("archiveActive").next(this.mailListService.isArchiveActive());
@@ -133,7 +133,7 @@ export class ToolBarService {
           this.draftEvent = draftEvent;
           if (draftEvent) {
             this.buttonsObservables.get("editVisible").next(true);
-            this.buttonsObservables.get("editActive").next(true);
+            this.buttonsObservables.get("editActive").next(this.draftEvent.selectedDrafts && this.draftEvent.selectedDrafts.length === 1 ? true : false);
             const puoInviareMail = this.mailListService.isNewMailActive(this._selectedPec.id);
             if (puoInviareMail) {
               this.buttonsObservables.get("deleteActive").next(true);

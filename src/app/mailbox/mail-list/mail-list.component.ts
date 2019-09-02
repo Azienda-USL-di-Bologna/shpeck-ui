@@ -1,6 +1,6 @@
 import { Component, OnInit, Output, EventEmitter, ViewChild, ElementRef, OnDestroy } from "@angular/core";
 import { buildLazyEventFiltersAndSorts } from "@bds/primeng-plugin";
-import { Message, ENTITIES_STRUCTURE, MessageAddress, AddresRoleType, Folder, MessageTag, InOut, Tag, Pec, MessageType, FolderType, Note, FluxPermission, Azienda, MessageStatus } from "@bds/ng-internauta-model";
+import { Message, ENTITIES_STRUCTURE, MessageAddress, AddresRoleType, Folder, MessageTag, InOut, Tag, Pec, MessageType, FolderType, Note, FluxPermission, Azienda, MessageStatus, TagType } from "@bds/ng-internauta-model";
 import { ShpeckMessageService, MessageEvent } from "src/app/services/shpeck-message.service";
 import { FiltersAndSorts, FilterDefinition, FILTER_TYPES, SortDefinition, SORT_MODES, PagingConf, BatchOperation, BatchOperationTypes } from "@nfa/next-sdr";
 import { TagService } from "src/app/services/tag.service";
@@ -15,7 +15,6 @@ import { ToolBarService } from "../toolbar/toolbar.service";
 import { MailListService } from "./mail-list.service";
 import { NoteService } from "src/app/services/note.service";
 import { NtJwtLoginService, UtenteUtilities } from "@bds/nt-jwt-login";
-import { query } from "@angular/core/src/render3";
 import { Menu } from "primeng/menu";
 import { AppCustomization } from "src/environments/app-customization";
 import { SettingsService } from "src/app/services/settings.service";
@@ -56,6 +55,7 @@ export class MailListComponent implements OnInit, OnDestroy {
   @ViewChild("idtag") private inputTextTag;
   @ViewChild("registrationMenu") private registrationMenu: Menu;
   @ViewChild("archiviationMenu") private archiviationMenu: Menu;
+  @ViewChild("tagMenu") private tagMenu: Menu;
   // @ViewChild("ordermenu") private ordermenu: Menu;
 
   public _selectedTag: Tag;
@@ -63,6 +63,8 @@ export class MailListComponent implements OnInit, OnDestroy {
   public _selectedPecId: number;
   public _selectedPec: Pec;
   public _filters: FilterDefinition[];
+
+  // private tempSelectedMessages: Message[] = null;
 
   private selectedProjection: string =
     ENTITIES_STRUCTURE.shpeck.message.customProjections
@@ -87,21 +89,7 @@ export class MailListComponent implements OnInit, OnDestroy {
     field: "receiveTime",
     sortMode: SORT_MODES.desc
   };
-
-  /* public orderMenu: MenuItem[] = [
-    {
-      label: "dcs",
-      icon: "fa fa-tag",
-      id: "1",
-      title: "titolo",
-      disabled: false,
-      queryParams: {
-        na: "na"
-      },
-      command: event => () => {}
-    }
-  ]; */
-
+  public tagMenuItems:  MenuItem[] = null;
   public cmItems: MenuItem[] = [
     {
       label: "NOT_SET",
@@ -238,7 +226,7 @@ export class MailListComponent implements OnInit, OnDestroy {
   public noteObject: Note = new Note();
   public fromOrTo: any;
   public loading = false;
-  public virtualRowHeight: number = 70;
+  public virtualRowHeight: number = 75;
   public totalRecords: number;
   public rowsNmber = 10;
   public cols = [
@@ -254,6 +242,7 @@ export class MailListComponent implements OnInit, OnDestroy {
 
   ngOnInit() {
     this.subscriptions.push(this.mailFoldersService.pecFolderSelected.subscribe((pecFolderSelected: PecFolder) => {
+      // this.tempSelectedMessages = null;
       this.mailListService.selectedMessages = [];
       if (pecFolderSelected) {
         if (pecFolderSelected.type === PecFolderType.FOLDER) {
@@ -396,6 +385,7 @@ export class MailListComponent implements OnInit, OnDestroy {
         if (data && data.results) {
           this.totalRecords = data.page.totalElements;
           this.mailListService.messages = data.results;
+          console.log("this.mailListService.messages", this.mailListService.messages);
           this.setMailTagVisibility(this.mailListService.messages);
           this.mailFoldersService.doReloadTag(this.mailListService.tags.find(t => t.name === "in_error").id);
         }
@@ -403,7 +393,27 @@ export class MailListComponent implements OnInit, OnDestroy {
         // setTimeout(() => {
         //   console.log(this.selRow.nativeElement.offsetHeight);
         // });
+
+        // I selected messages sono quelli che sono.
+        // Ma dopo il caricamento devo far puntare tra i messages quelli che sono selected
+        // Altimenti la table non li evidenzia
+        let index;
+        for (let i = 0; i < this.mailListService.selectedMessages.length; i++) {
+          index = this.isMessageinList(this.mailListService.selectedMessages[i].id, this.mailListService.messages);
+          if (index !== -1) {
+            this.mailListService.selectedMessages[i] = this.mailListService.messages[index];
+          }
+        }
       });
+  }
+
+  private isMessageinList(id: number, messages: Message[]) {
+    for (let i = 0; i < messages.length; i++) {
+      if (messages[i].id === id) {
+        return i;
+      }
+    }
+    return -1;
   }
 
   public buildTableEventFilters(filtersDefinition: FilterDefinition[]): { [s: string]: FilterMetadata } {
@@ -602,25 +612,50 @@ export class MailListComponent implements OnInit, OnDestroy {
 
   public handleEvent(name: string, event: any) {
     console.log("handleEvent", name, event);
+
+    console.log("this.mailListService.selectedMessages  fuori", this.mailListService.selectedMessages);
     switch (name) {
       // non c'è nella documentazione, ma pare che scatti sempre una sola volta anche nelle selezioni multiple.
       // le righe selezionati sono in this.mailListService.selectedMessages e anche in event
+      case "onRowSelect":
       case "selectionChange":
-        // selezione di un singolo messaggio (o come click singolo oppure come click del primo messaggio con il ctrl)
-        if (this.mailListService.selectedMessages.length === 1) {
-          const selectedMessage: Message = this.mailListService.selectedMessages[0];
-          this.mailListService.setSeen(true);
-          const emlSource: string = this.getEmlSource(selectedMessage);
-          this.messageService.manageMessageEvent(
-            emlSource,
-            selectedMessage,
-            this.mailListService.selectedMessages
-          );
-          // this.messageClicked.emit(selectedMessage);
-        } else {
-          this.messageService.manageMessageEvent(null, null, this.mailListService.selectedMessages);
-        }
+      case "onRowUnselect":
+        event.originalEvent.stopPropagation();
+
+
+        // console.log("this.selectionKeys", this.dt.selectionKeys);
+        /* setTimeout(() => {
+          if (name === "onRowSelect" && event.type === "checkbox" && this.tempSelectedMessages) {
+            const self = this;
+            this.mailListService.selectedMessages = this.mailListService.selectedMessages.concat(self.tempSelectedMessages.filter(function (item) {
+                return self.mailListService.selectedMessages.indexOf(item) < 0;
+            }));
+          }
+          this.tempSelectedMessages = this.mailListService.selectedMessages;
+          console.log("this.tempSelectedMessages", this.tempSelectedMessages);
+          console.log("this.mailListService.selectedMessages", this.mailListService.selectedMessages); */
+          // selezione di un singolo messaggio (o come click singolo oppure come click del primo messaggio con il ctrl)
+          if (this.mailListService.selectedMessages.length === 1) {
+            const selectedMessage: Message = this.mailListService.selectedMessages[0];
+            this.mailListService.setSeen(true, true);
+            const emlSource: string = this.getEmlSource(selectedMessage);
+            this.messageService.manageMessageEvent(
+              emlSource,
+              selectedMessage,
+              this.mailListService.selectedMessages
+            );
+            // this.messageClicked.emit(selectedMessage);
+          } else {
+            this.messageService.manageMessageEvent(null, null, this.mailListService.selectedMessages);
+          }
+          // this.dt.rows;
+          /* this.dt.updateSelectionKeys();
+          this.dt.tableService.onSelectionChange(); */
+        /* }, 0); */
         break;
+
+        /* this.tempSelectedMessages = this.mailListService.selectedMessages; */
+        // break;
       case "onContextMenuSelect":
         this.setContextMenuItemLook();
         break;
@@ -821,11 +856,11 @@ export class MailListComponent implements OnInit, OnDestroy {
    * @param event
    */
   private selectedContextMenuItem(event: any) {
-    console.log("check: ", event);
+    // console.log("check: ", event);
     const menuItem: MenuItem = event.item;
     switch (menuItem.id) {
       case "MessageSeen":
-        this.mailListService.setSeen(menuItem.queryParams.seen);
+        this.mailListService.setSeen(menuItem.queryParams.seen, true);
         break;
       case "MessageDelete":
         this.deletingConfirmation();
@@ -1279,8 +1314,33 @@ export class MailListComponent implements OnInit, OnDestroy {
       additionalData: additionalData
     };
   }
-  /*
 
-    background-color: rgba(153,51,102,0.1) !important;
-  */
+
+  public getTaggedStatus(message: Message): any {
+    if (!message.messageTagList) {
+      return false;
+    }
+    // Se ho almeno un tag CUSTOM o un tag SYSTEM_INSERTABLE_DELETABLE (tranne il tag con name in_error)
+    const messagetagList = message.messageTagList.filter(
+      mt => {
+        return mt.idTag.firstLevel === false && mt.idTag.visible === true;
+      });
+
+    if (messagetagList && messagetagList.length > 0) {
+      const tagList = messagetagList.map(mt => mt.idTag);
+      let tooltip = "Etichette associate:\n";
+      tagList.forEach(t => {
+        tooltip = tooltip + "- " + t.description + "\n";
+      });
+      return {tooltip: tooltip};
+    } else {
+      return false;
+    }
+  }
+
+  public iconTaggedClicked(event: any, message: Message, taggedStatus: string) {
+    this.mailListService.selectedMessages = [message];
+    this.tagMenuItems = this.mailListService.buildTagsMenuItems(this.selectedContextMenuItem, this.showNewTagPopup);
+    this.tagMenu.toggle(event);
+  }
 }

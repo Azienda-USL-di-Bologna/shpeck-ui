@@ -81,7 +81,7 @@
         <li class="flex-1 flex-dir-col min-height-0" style="margin: 0">
           <!-- <label for="body">Testo: </label> -->
           <span class="height-100 d-flex flex-1 min-height-0">
-            <p-editor #editor id="body" formControlName="body">
+            <p-editor #editor id="body" formControlName="body"  (onInit)="editorInit($event)">
             </p-editor>
           </span>
         </li>

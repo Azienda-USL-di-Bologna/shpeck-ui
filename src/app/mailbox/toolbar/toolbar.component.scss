@@ -51,6 +51,16 @@
     top: 30%;
 }
 
+::ng-deep .move-menu > div {
+    max-height: 330px;
+    overflow-y: auto;
+    width: fit-content !important;
+    width: -moz-fit-content;
+    min-width: 224px;
+    max-width: 300px;
+    overflow-x: hidden;
+}
+
 .buttons {
     width: 62px !important;
 }

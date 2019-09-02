@@ -37,8 +37,11 @@ export class MailDetailComponent implements OnInit, OnDestroy {
 
   public fullMessage: FullMessage;
   public message: Message;
+  public numberOfMessageSelected = null;
+  public messageTrueDraftFalse = null;
   public accordionAttachmentsSelected: boolean = false;
   public recepitsVisible: boolean = false;
+  public getAllEmlAttachmentInProgress: boolean = false;
   get inOut() { return InOut; }
 
   @ViewChild("emliframe") private emliframe: ElementRef;
@@ -49,6 +52,8 @@ export class MailDetailComponent implements OnInit, OnDestroy {
     /* Mi sottoscrivo al messageEvent */
     this.subscription.push(this.messageService.messageEvent.subscribe(
       (messageEvent: MessageEvent) => {
+        this.messageTrueDraftFalse = true;
+        this.numberOfMessageSelected = null;
         if (messageEvent && messageEvent.downloadedMessage) {
           if (messageEvent.downloadedMessage.message) {
             try {
@@ -62,14 +67,24 @@ export class MailDetailComponent implements OnInit, OnDestroy {
         } else if (!messageEvent || !messageEvent.selectedMessages || !(messageEvent.selectedMessages.length > 1)) {
           this.fullMessage = null;
           this.setLook();
+        } else if (messageEvent && messageEvent.selectedMessages && (messageEvent.selectedMessages.length > 1)) {
+          this.numberOfMessageSelected = messageEvent.selectedMessages.length;
+          this.fullMessage = null;
+          this.setLook();
         }
       }
     ));
     this.subscription.push(this.draftService.draftEvent.subscribe(
       (draftEvent: DraftEvent) => {
+        this.messageTrueDraftFalse = false;
+        this.numberOfMessageSelected = null;
         if (draftEvent && draftEvent.fullDraft) {
           this.manageDownloadedMessage(draftEvent.fullDraft);
         } else if (!draftEvent || !draftEvent.selectedDrafts || !(draftEvent.selectedDrafts.length > 1)) {
+          this.fullMessage = null;
+          this.setLook();
+        } else if (draftEvent && draftEvent.selectedDrafts && (draftEvent.selectedDrafts.length > 1)) {
+          this.numberOfMessageSelected = draftEvent.selectedDrafts.length;
           this.fullMessage = null;
           this.setLook();
         }
@@ -219,9 +234,14 @@ export class MailDetailComponent implements OnInit, OnDestroy {
    * Ne faccio partire poi il download.
    */
   public getAllEmlAttachment(): void {
+    this.getAllEmlAttachmentInProgress = true;
     this.messageService.downloadAllEmlAttachment(this.fullMessage.message as Message, this.fullMessage.emlSource).subscribe(
-      response =>
-        Utils.downLoadFile(response, "application/zip", "allegati.zip")
+      response => {
+        Utils.downLoadFile(response, "application/zip", "allegati.zip");
+        this.getAllEmlAttachmentInProgress = false;
+      },
+      err =>
+        this.getAllEmlAttachmentInProgress = false
     );
   }
 
