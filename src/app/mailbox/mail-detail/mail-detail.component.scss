@@ -25,6 +25,8 @@
   overflow: auto;
   min-height: 20px;
   max-height: 10vh;
+  word-wrap: break-word;
+  word-break: break-all;
 }
 .recepit-detail {
   display: flex;
