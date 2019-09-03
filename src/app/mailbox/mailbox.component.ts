@@ -97,6 +97,8 @@ export class MailboxComponent implements OnInit, AfterViewInit, AfterViewChecked
           this._selectedPecId = selectedFolder.fk_idPec.id;
           if (selectedFolder.type === FolderType.DRAFT) {
             this.componentToLoad = "mail-draft";
+          } else if (selectedFolder.type === FolderType.OUTBOX) {
+            this.componentToLoad = "mail-outbox";
           } else {
             this.componentToLoad = "mail-list";
           }

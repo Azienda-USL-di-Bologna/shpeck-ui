@@ -1,0 +1,133 @@
+/* :host,  */.flex-1 {
+    display: flex;
+    flex: 1;
+}
+:host {
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+}
+p-table,
+::ng-deep p-table > div,
+::ng-deep p-table > div > div,
+::ng-deep p-table > div > div > div {
+    height: 100%;
+}
+::ng-deep p-table > div > div > div div.ui-table-scrollable-body {
+    max-height: 100% !important;
+    height: 100% !important;
+}
+//body .ui-table .ui-table-tbody > tr > td
+
+::ng-deep .ui-table-tbody > tr > td {
+  border: none !important;
+  overflow: hidden;
+}
+
+.message-align {
+  justify-content: center;
+  align-items: center;
+}
+
+.flex-direction-col {
+  flex-direction: column;
+}
+.display-block {
+  display: block;
+}
+
+.extra-margin {
+  margin-left: 11px;
+}
+
+.mail-icon {
+  padding-left: 5px;
+}
+
+.mail-date {
+  float: right;
+}
+
+.display-icon {
+  position: absolute;
+}
+
+.envelope-icon {
+  padding-top: 3px;
+}
+
+.display-body {
+  margin-left: 5px;
+ /*  display: inline; */
+  overflow: hidden;
+  color: gray;
+
+}
+
+.pad-left-19 {
+  padding-left: 19px;
+}
+
+.display-text {
+  margin-left: 20px;
+}
+
+.display-bold {
+  font-weight: bold;
+}
+
+.loading-text {
+  display: block;
+  background-color: #f1f1f1;
+  min-height: 19px;
+  animation: pulse 1s infinite ease-in-out;
+  text-indent: -99999px;
+  overflow: hidden;
+}
+
+.message-row {
+  font-size: 12px !important;
+  width: 100% !important;
+  //align-items: stretch;
+  //flex-direction: row;
+  height: 70px !important;
+  //white-space-collapsing: collapse;
+  //text-wrap: none;
+  white-space: nowrap;
+  //overflow: scroll;
+}
+
+.material-icons.mail-icons {
+  // color: rgb(250, 250, 250);
+  font-size: 18px;
+}
+
+.second-line-icon {
+  font-size: 18px;
+  display: block;
+  float: right;
+}
+
+.visibility-hidden {
+  visibility: hidden !important;
+}
+
+::ng-deep .context-menu-mail-list {
+  margin: -128px 0 0 -312px;
+}
+
+.column-checkbox {
+  width: 30px;
+}
+::ng-deep .column-checkbox p-tableCheckbox .ui-chkbox.ui-widget .ui-chkbox-box.ui-widget.ui-state-default {
+  //visibility: hidden;
+  opacity: 0.5;
+}
+::ng-deep .message-row:hover .column-checkbox p-tableCheckbox .ui-chkbox.ui-widget .ui-chkbox-box.ui-widget.ui-state-default {
+  opacity: 1;
+}
+::ng-deep .column-checkbox p-tableCheckbox .ui-chkbox.ui-widget .ui-chkbox-box.ui-widget.ui-state-default.ui-state-active {
+  opacity: 1;
+  border-color: #848484;
+  background-color: #848484;
+}

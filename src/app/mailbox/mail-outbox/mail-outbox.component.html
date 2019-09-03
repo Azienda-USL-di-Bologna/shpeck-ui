@@ -1,0 +1,78 @@
+<p-table #ot *ngIf="_selectedPecId && totalRecords > 0" 
+  [lazy]="true" (onLazyLoad)="lazyLoad($event)"
+  scrollHeight="100%" 
+  [value]="outboxMails" 
+  [columns]="cols" 
+  [paginator]="false" 
+  [loading]="loading" 
+  [autoLayout]="true"
+  [responsive]="true" 
+  [totalRecords]="totalRecords" 
+  [(selection)]="selectedOutboxMails" 
+  contextMenuSelectionMode="joint"
+  selectionMode="multiple" 
+  [metaKeySelection]="true" 
+  [lazyLoadOnInit]="false" 
+  [rows]="rowsNmber"
+  [rowTrackBy]="trackByFn" 
+  [scrollable]="true" 
+  [virtualRowHeight]="virtualRowHeight" 
+  [virtualScroll]="true"
+  [virtualScrollDelay]="150" 
+  (onRowSelect)="handleEvent('onRowSelect', $event)"
+  (onRowUnselect)="handleEvent('onRowUnselect', $event)"
+  (onContextMenuSelect)="handleEvent('onContextMenuSelect', $event)" 
+  dataKey="id">
+  <ng-template pTemplate="body" let-rowData let-outbox let-rowIndex="rowIndex">
+    <tr #selRow class="message-row" 
+      [pSelectableRow]="rowData" 
+      [pSelectableRowIndex]="rowIndex"
+      [pContextMenuRow]="rowData" 
+      (dblclick)="openDetailPopup($event, rowData, message)">
+      <td class="column-checkbox">
+        <p-tableCheckbox [value]="rowData"></p-tableCheckbox>
+      </td>
+      <td>
+        <div class="mail-icons-container">
+        </div>
+        <div class="display-block">
+          <span class="pi pi-user display-icon"></span>
+          <label class="pad-left-19">A: </label>
+          <span *ngIf="outbox?.toAddresses">
+            <span *ngFor="let address of outbox.toAddresses">{{address}}; </span>
+          </span>
+          <!-- <span *ngIf="!(outbox?.toAddresses)"></span> -->
+          <span class="second-line-icon" [ngClass]="{'visibility-hidden':!outbox?.attachmentsNumber}"><i
+              [pTooltip]="outbox?.attachmentsNumber + ' allegati'" tooltipPosition="top"
+              class="material-icons second-line-icon">attach_file</i></span>
+          <!-- data della mail -->
+          <span class="mail-date">
+            {{outbox?.updateTime | date: 'EE d MMM y, H:mm'}}
+          </span>
+        </div>
+        <div class="display-block extra-margin">
+          <span class="fa fa-envelope-open-text display-icon envelope-icon"></span>
+          <span class="display-text">{{outbox.subject ||'Nessun oggetto'}}</span>
+          <div class="display-body">{{outbox.body | stripeHtml | slice:0:300 }} </div>
+          <!-- <div class="display-text" [ngClass]="{'display-bold':!message.seen}">{{message.id + " -- " + message.subject}}</div>  -->
+        </div>
+      </td>
+    </tr>
+  </ng-template>
+</p-table>
+
+<div *ngIf="totalRecords === 0 && !!!loading" class="flex-1 message-align flex-direction-col">
+  <p style="margin: 0">La cartella selezionata non contiene elementi</p>
+</div>
+
+<!-- POPUP DEL DETAIL -->
+<p-dialog *ngIf="displayDetailPopup" [(visible)]="displayDetailPopup" class="popup-mail-detail">
+  <p-header>
+    Dettaglio
+  </p-header>
+  <app-mail-detail></app-mail-detail>
+  <p-footer>
+    <button type="button" pButton (click)="displayDetailPopup = false" label="Chiudi"
+      class="ui-button-raised ui-button-secondary button-styles custom-secondary-button"></button>
+  </p-footer>
+</p-dialog>

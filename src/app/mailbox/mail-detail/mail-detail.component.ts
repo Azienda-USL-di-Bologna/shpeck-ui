@@ -10,6 +10,7 @@ import { FiltersAndSorts, FilterDefinition, FILTER_TYPES, SortDefinition, SORT_M
 import { Utils } from "src/app/utils/utils";
 import { DraftService, DraftEvent } from "src/app/services/draft.service";
 import { EMLSOURCE } from "src/environments/app-constants";
+import { OutboxService, OutboxEvent } from "src/app/services/outbox.service";
 
 
 @Component({
@@ -46,7 +47,10 @@ export class MailDetailComponent implements OnInit, OnDestroy {
 
   @ViewChild("emliframe") private emliframe: ElementRef;
 
-  constructor(private messageService: ShpeckMessageService, private draftService: DraftService, private http: HttpClient) { }
+  constructor(private messageService: ShpeckMessageService,
+    private draftService: DraftService,
+    private http: HttpClient,
+    private outboxService: OutboxService) { }
 
   public ngOnInit(): void {
     /* Mi sottoscrivo al messageEvent */
@@ -85,6 +89,22 @@ export class MailDetailComponent implements OnInit, OnDestroy {
           this.setLook();
         } else if (draftEvent && draftEvent.selectedDrafts && (draftEvent.selectedDrafts.length > 1)) {
           this.numberOfMessageSelected = draftEvent.selectedDrafts.length;
+          this.fullMessage = null;
+          this.setLook();
+        }
+      }
+    ));
+    this.subscription.push(this.outboxService.outboxEvent.subscribe(
+      (outboxEvent: OutboxEvent) => {
+        this.messageTrueDraftFalse = true;
+        this.numberOfMessageSelected = null;
+        if (outboxEvent && outboxEvent.fullOutboxMail) {
+          this.manageDownloadedMessage(outboxEvent.fullOutboxMail);
+        } else if (!outboxEvent || !outboxEvent.selectedOutboxMails || !(outboxEvent.selectedOutboxMails.length > 1)) {
+          this.fullMessage = null;
+          this.setLook();
+        } else if (outboxEvent && outboxEvent.selectedOutboxMails && (outboxEvent.selectedOutboxMails.length > 1)) {
+          this.numberOfMessageSelected = null;
           this.fullMessage = null;
           this.setLook();
         }

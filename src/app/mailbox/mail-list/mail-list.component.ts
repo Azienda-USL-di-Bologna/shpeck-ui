@@ -247,7 +247,7 @@ export class MailListComponent implements OnInit, OnDestroy {
       if (pecFolderSelected) {
         if (pecFolderSelected.type === PecFolderType.FOLDER) {
           const selectedFolder: Folder = pecFolderSelected.data as Folder;
-          if (selectedFolder.type !== FolderType.DRAFT) {
+          if ((selectedFolder.type !== FolderType.DRAFT) && (selectedFolder.type !== FolderType.OUTBOX)) {
             this._selectedPecId = selectedFolder.fk_idPec.id;
             this._selectedPec = pecFolderSelected.pec;
             this.setFolder(selectedFolder);

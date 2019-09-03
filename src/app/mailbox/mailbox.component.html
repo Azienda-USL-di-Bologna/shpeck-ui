@@ -34,6 +34,7 @@
           (messageClicked)="messageClicked($event)">
         </app-mail-list>
         <app-mail-drafts *ngIf="componentToLoad === 'mail-draft'" [pecId]="_selectedPecId"></app-mail-drafts>
+        <app-mail-outbox *ngIf="componentToLoad === 'mail-outbox'" [pecId]="_selectedPecId"></app-mail-outbox>
       </div>
 
       <div [ngClass]="hideDetail ? 'hidden' : 'slider'" #rightSlider class="text-center">
