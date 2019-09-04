@@ -14,7 +14,7 @@ export class SearchContactComponent implements OnInit {
   public contactForm: FormGroup;
   // public contact: any;
 
-  @ViewChild("search") searchField: AutoComplete;
+  @ViewChild("search", null) searchField: AutoComplete;
 
   @Output() addressChosedByBook = new EventEmitter<any>();
   @Output() closeRubricaPopup = new EventEmitter<any>();
