@@ -45,7 +45,7 @@ export class MailDetailComponent implements OnInit, OnDestroy {
   public getAllEmlAttachmentInProgress: boolean = false;
   get inOut() { return InOut; }
 
-  @ViewChild("emliframe") private emliframe: ElementRef;
+  @ViewChild("emliframe", null) private emliframe: ElementRef;
 
   constructor(private messageService: ShpeckMessageService,
     private draftService: DraftService,

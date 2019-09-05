@@ -30,10 +30,10 @@ export class ToolbarComponent implements OnDestroy {
 
   public showErrorDialog: boolean = false;
 
-  @ViewChild("closeDialog") closeField: ElementRef;
-  @ViewChild("search") searchField: ElementRef;
-  @ViewChild("moveMenu") private moveMenu: Menu;
-  @ViewChild("archiveMenu") private archiveMenu: Menu;
+  @ViewChild("closeDialog", null) closeField: ElementRef;
+  @ViewChild("search", null) searchField: ElementRef;
+  @ViewChild("moveMenu", null) private moveMenu: Menu;
+  @ViewChild("archiveMenu", null) private archiveMenu: Menu;
 
   constructor(public dialogService: DialogService,
     private pecService: PecService,
