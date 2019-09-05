@@ -691,8 +691,7 @@ export class MailFoldersComponent implements OnInit, OnDestroy {
 
   private updateFolder(folder: Folder): void {
     this.previousSelectedNode = this.selectedNode;
-    // console.log("UtilityFunctions.buildKrintHeaders()", UtilityFunctions.buildKrintHeaders());
-    this.folderService.patchHttpCall(folder, folder.id, undefined, undefined/* , UtilityFunctions.buildKrintHeaders() */).subscribe((f: Folder) => {
+    this.folderService.patchHttpCall(folder, folder.id).subscribe((f: Folder) => {
       this.previousSelectedNode.data.data = f;
       const pecFolderList: Folder[] = (this.previousSelectedNode.parent.data.data as Pec).folderList;
       const index = pecFolderList.findIndex(childFolder => f.id === childFolder.id);
