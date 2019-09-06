@@ -16,9 +16,9 @@ import { AutoComplete } from "primeng/primeng";
 })
 export class NewMailComponent implements OnInit, AfterViewInit {
 
-  @ViewChild("toAutoComplete") toAutoComplete: AutoComplete;
-  @ViewChild("ccAutoComplete") ccAutoComplete: AutoComplete;
-  @ViewChild("editor") editor: Editor;
+  @ViewChild("toAutoComplete", null) toAutoComplete: AutoComplete;
+  @ViewChild("ccAutoComplete", null) ccAutoComplete: AutoComplete;
+  @ViewChild("editor", null) editor: Editor;
   private fromAddress: string = ""; // Indirizzo che ha inviato la mail in caso di Rispondi e Rispondi a tutti
   private toAddressesForLabel: string[] = [];
   private ccAddressesForLabel: string[] = [];

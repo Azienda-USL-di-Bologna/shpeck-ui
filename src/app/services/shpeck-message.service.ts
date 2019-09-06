@@ -3,7 +3,7 @@ import { NextSDREntityProvider } from "@nfa/next-sdr";
 import { HttpClient } from "@angular/common/http";
 import { DatePipe } from "@angular/common";
 import { getInternautaUrl, BaseUrlType, CUSTOM_SERVER_METHODS, EMLSOURCE } from "src/environments/app-constants";
-import { ENTITIES_STRUCTURE, Message, Draft } from "@bds/ng-internauta-model";
+import { ENTITIES_STRUCTURE, Message, Draft, Outbox } from "@bds/ng-internauta-model";
 import { Observable, BehaviorSubject } from "rxjs";
 import { EmlAttachment } from "../classes/eml-attachment";
 import { EmlData } from "../classes/eml-data";
@@ -113,7 +113,7 @@ export class ShpeckMessageService extends NextSDREntityProvider {
  * Descrive un messaggio comprensivo sia dei metadati (Message) che del suo eml (EmlData)
  */
 export interface FullMessage {
-  message: Message | Draft;
+  message: Message | Draft | Outbox;
   emlData: EmlData;
   emlSource: string;
 }

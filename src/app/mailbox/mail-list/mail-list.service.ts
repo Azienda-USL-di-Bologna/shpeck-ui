@@ -452,9 +452,12 @@ export class MailListService {
   public setSeen(seen: boolean, reloadUnSeen: boolean = false): void {
     console.log("setseen messaggi: ", this.selectedMessages);
     const messagesToUpdate: BatchOperation[] = [];
+    const messaggioDaInviare: Message = new Message();
     this.selectedMessages.forEach((message: Message) => {
       if (message.seen !== seen) {
-        message.seen = seen;
+        messaggioDaInviare.seen = seen;
+        messaggioDaInviare.id = message.id;
+        messaggioDaInviare.version = message.version;
         messagesToUpdate.push({
           id: message.id,
           operation: BatchOperationTypes.UPDATE,
@@ -462,19 +465,22 @@ export class MailListService {
             BaseUrls.get(BaseUrlType.Shpeck) +
             "/" +
             ENTITIES_STRUCTURE.shpeck.message.path,
-          entityBody: message,
+          entityBody: messaggioDaInviare,
           additionalData: null,
-          returnProjection: null
+          returnProjection: ENTITIES_STRUCTURE.shpeck.message.customProjections
+          .CustomMessageForMailList
         });
       }
     });
     // const inFolder = this.folders.filter(folder => folder.type === "INBOX")[0].id;
     if (messagesToUpdate.length > 0) {
-      this.messageService.batchHttpCall(messagesToUpdate).subscribe( () => {
+      this.messageService.batchHttpCall(messagesToUpdate).subscribe( (messages) => {
+        console.log(messages);
         // reload Folder
         if (reloadUnSeen) {
           const map: any = {};
           this.selectedMessages.forEach((message: Message) => {
+            message.seen = seen;
             if (!map[message.messageFolderList[0].idFolder.id]) {
               this.mailFoldersService.doReloadFolder(message.messageFolderList[0].idFolder.id);
               map[message.messageFolderList[0].idFolder.id] = true;
@@ -721,11 +727,16 @@ export class MailListService {
    */
   public isReaddressActive(specificMessage?: Message): boolean {
     const message: Message = specificMessage ? specificMessage : this.selectedMessages[0];
-    if ((!specificMessage && this.selectedMessages.length !== 1) ||
+    if (
+      (!specificMessage && this.selectedMessages.length !== 1) ||
       message.inOut !== "IN" ||
       message.messageFolderList[0].idFolder.type === FolderType.TRASH ||
-      (message.messageTagList && message.messageTagList
-        .some(messageTag => messageTag.idTag.name === "readdressed_out" || messageTag.idTag.name === "registered"))) {
+      (message.messageTagList && message.messageTagList.some(messageTag =>
+            messageTag.idTag.name === "readdressed_out" ||
+            messageTag.idTag.name === "registered" ||
+            messageTag.idTag.name === "in_registration"
+        ))
+    ) {
       return false;
     } else {
       return true;

@@ -10,6 +10,7 @@ import { FiltersAndSorts, FilterDefinition, FILTER_TYPES, SortDefinition, SORT_M
 import { Utils } from "src/app/utils/utils";
 import { DraftService, DraftEvent } from "src/app/services/draft.service";
 import { EMLSOURCE } from "src/environments/app-constants";
+import { OutboxService, OutboxEvent } from "src/app/services/outbox.service";
 
 
 @Component({
@@ -44,9 +45,12 @@ export class MailDetailComponent implements OnInit, OnDestroy {
   public getAllEmlAttachmentInProgress: boolean = false;
   get inOut() { return InOut; }
 
-  @ViewChild("emliframe") private emliframe: ElementRef;
+  @ViewChild("emliframe", null) private emliframe: ElementRef;
 
-  constructor(private messageService: ShpeckMessageService, private draftService: DraftService, private http: HttpClient) { }
+  constructor(private messageService: ShpeckMessageService,
+    private draftService: DraftService,
+    private http: HttpClient,
+    private outboxService: OutboxService) { }
 
   public ngOnInit(): void {
     /* Mi sottoscrivo al messageEvent */
@@ -90,6 +94,22 @@ export class MailDetailComponent implements OnInit, OnDestroy {
         }
       }
     ));
+    this.subscription.push(this.outboxService.outboxEvent.subscribe(
+      (outboxEvent: OutboxEvent) => {
+        this.messageTrueDraftFalse = true;
+        this.numberOfMessageSelected = null;
+        if (outboxEvent && outboxEvent.fullOutboxMail) {
+          this.manageDownloadedMessage(outboxEvent.fullOutboxMail);
+        } else if (!outboxEvent || !outboxEvent.selectedOutboxMails || !(outboxEvent.selectedOutboxMails.length > 1)) {
+          this.fullMessage = null;
+          this.setLook();
+        } else if (outboxEvent && outboxEvent.selectedOutboxMails && (outboxEvent.selectedOutboxMails.length > 1)) {
+          this.numberOfMessageSelected = null;
+          this.fullMessage = null;
+          this.setLook();
+        }
+      }
+    ));
   }
 
   public ngOnDestroy(): void {
@@ -123,6 +143,8 @@ export class MailDetailComponent implements OnInit, OnDestroy {
       data.displayBody = data.htmlTextImgEmbedded != null ? data.htmlTextImgEmbedded : (
         data.htmlText != null ? data.htmlText : data.plainText != null ? data.plainText.replace(/\n/g, "<br/>") : null
       );
+      console.log("E ora data.displayBody", data.displayBody);
+      
     }
 
     /* Per la posta inviata carico le ricevute */
@@ -193,6 +215,7 @@ export class MailDetailComponent implements OnInit, OnDestroy {
    */
   public customizeIframeContent(): void {
     if (this.emliframe) {
+      console.log("customizeIframeContent -> this.emliframe", this.emliframe);
       const iframeContent = this.emliframe.nativeElement.contentDocument || this.emliframe.nativeElement.contentWindow;
       /* Aggiungo target="_blank" ai vari a in modo che i link si aprano in un altro tab */
       const elements = iframeContent.getElementsByTagName("a");
@@ -212,6 +235,8 @@ export class MailDetailComponent implements OnInit, OnDestroy {
         } else {
           style.appendChild(document.createTextNode(data));
         }
+        console.log("alla fine -> this.emliframe", this.emliframe);
+        
       });
     }
   }

@@ -34,7 +34,8 @@ export class MessageFolderService extends NextSDREntityProvider {
             },
             idUtente: {
               id: idUtente
-            }
+            },
+            version: messageFolder.version
           },
           additionalData: null,
           returnProjection: null
