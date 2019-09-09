@@ -410,9 +410,9 @@ export class MailListService {
 
   private buildMessageTagOperationInsert(message: Message, tagName: string) {
     const mTag: MessageTag = new MessageTag();
-    mTag.idMessage = message;
+    mTag.idMessage = { id: message.id } as Message;
     mTag.idUtente = { id: this.loggedUser.getUtente().id } as Utente;
-    mTag.idTag = this.tags.find(tag => tag.name === tagName);
+    mTag.idTag = { id: this.tags.find(tag => tag.name === tagName).id } as Tag;
     return {
       idTag: mTag.idTag.id,
       batchOp: {
@@ -452,9 +452,11 @@ export class MailListService {
   public setSeen(seen: boolean, reloadUnSeen: boolean = false): void {
     console.log("setseen messaggi: ", this.selectedMessages);
     const messagesToUpdate: BatchOperation[] = [];
-    const messaggioDaInviare: Message = new Message();
+    let messaggioDaInviare: Message = null;
+    const selectedMessagesTemp = this.selectedMessages;
     this.selectedMessages.forEach((message: Message) => {
       if (message.seen !== seen) {
+        messaggioDaInviare = new Message();
         messaggioDaInviare.seen = seen;
         messaggioDaInviare.id = message.id;
         messaggioDaInviare.version = message.version;
@@ -474,13 +476,14 @@ export class MailListService {
     });
     // const inFolder = this.folders.filter(folder => folder.type === "INBOX")[0].id;
     if (messagesToUpdate.length > 0) {
-      this.messageService.batchHttpCall(messagesToUpdate).subscribe( (messages) => {
+      this.messageService.batchHttpCall(messagesToUpdate).subscribe((messages) => {
         console.log(messages);
         // reload Folder
         if (reloadUnSeen) {
           const map: any = {};
-          this.selectedMessages.forEach((message: Message) => {
+          selectedMessagesTemp.forEach((message: Message) => {
             message.seen = seen;
+            message.version = messages.find(m => m.id === message.id).entityBody.version;
             if (!map[message.messageFolderList[0].idFolder.id]) {
               this.mailFoldersService.doReloadFolder(message.messageFolderList[0].idFolder.id);
               map[message.messageFolderList[0].idFolder.id] = true;
