@@ -303,9 +303,13 @@ export class MailListService {
     return this.isMoveActive() && this.loggedUser.hasPecPermission(this.selectedMessages[0].fk_idPec.id, PecPermission.ELIMINA);
   }
 
-  public isNewMailActive(idPec?: number): boolean {
+  public isNewMailActive(idPec?: number, selectedPec?: Pec): boolean {
     idPec = idPec || this.selectedMessages[0].fk_idPec.id;
-    return this.loggedUser.hasPecPermission(idPec, PecPermission.RISPONDE) || this.loggedUser.hasPecPermission(idPec, PecPermission.ELIMINA);
+    if (selectedPec && selectedPec.attiva) {
+      return this.loggedUser.hasPecPermission(idPec, PecPermission.RISPONDE) || this.loggedUser.hasPecPermission(idPec, PecPermission.ELIMINA);
+    } else {
+      return false;
+    }
   }
 
 
