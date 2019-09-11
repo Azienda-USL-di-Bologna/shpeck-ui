@@ -17,8 +17,15 @@
     (keyup.enter)="onEnterPressed($event, folderInput.value)"
     (keydown.esc)="onEscPressed($event)"
     [attr.disabled]="node.editable ? null : ''">
-    <div *ngIf="!!!node.editable">{{node.label}}</div>
-</ng-template>
+    <div 
+      *ngIf="!!!node.editable" 
+      [ngStyle]="{'font-style': (node.data.type ==='pec' && !node.data.data.attiva) ? 'italic' : 'normal'}"
+      pTooltip="{{(node.data.type ==='pec' && !node.data.data.attiva) ?'disattiva':''}}"
+      tooltipPosition="top">
+      {{node.label}} {{(node.data.type ==='pec' && !node.data.data.attiva) ?'- disattiva':''}}
+    </div>
+    <!-- <span *ngIf="node.data.type ==='pec' && !node.data.data.attiva">disattiva</span> -->
+  </ng-template>
 </p-tree>
 
 <!-- *ngIf="!!node.editable" -->

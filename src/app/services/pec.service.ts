@@ -32,6 +32,7 @@ export class PecService extends NextSDREntityProvider {
 
   private buildFolderInitialFilterAndSort(): FiltersAndSorts {
     const filter = new FiltersAndSorts();
+    filter.addSort(new SortDefinition("attiva", SORT_MODES.desc));
     filter.addSort(new SortDefinition("indirizzo", SORT_MODES.asc));
     filter.addAdditionalData(new AdditionalDataDefinition("OperationRequested", "FilterPecPerStandardPermissions"));
     return filter;
