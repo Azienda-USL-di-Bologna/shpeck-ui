@@ -70,7 +70,7 @@ export function getInternautaUrl(type: BaseUrlType): string {
     let port;
     const wl = window.location;
     if (wl.hostname === "localhost" && type === BaseUrlType.Intimus) {
-        return "https://gdml.internal.ausl.bologna.it";
+        return "placeholder";
     }
         // if (type === BaseUrlType.Intimus) {
         //     port = INTIMUS_LOCALHOST_PORT;

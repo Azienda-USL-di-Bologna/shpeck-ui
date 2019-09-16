@@ -33,7 +33,6 @@
 //             if (sessionStorage.getItem("loginMethod") !== "sso") {
 //                 this.router.navigate(["/login"]);
 //             } else {
-//                 window.location.href = "https://gdml.internal.ausl.bologna.it/Shibboleth.sso/Logout";
 //             }
 
 //         });
