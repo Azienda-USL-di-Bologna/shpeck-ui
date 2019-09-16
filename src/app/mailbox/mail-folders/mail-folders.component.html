@@ -20,9 +20,9 @@
     <div 
       *ngIf="!!!node.editable" 
       [ngStyle]="{'font-style': (node.data.type ==='pec' && !node.data.data.attiva) ? 'italic' : 'normal'}"
-      pTooltip="{{(node.data.type ==='pec' && !node.data.data.attiva) ?'disattiva':''}}"
+      pTooltip="{{(node.data.type ==='pec' && !node.data.data.attiva) ?'disattivata':''}}"
       tooltipPosition="top">
-      {{node.label}} {{(node.data.type ==='pec' && !node.data.data.attiva) ?'- disattiva':''}}
+      {{node.label}} {{(node.data.type ==='pec' && !node.data.data.attiva) ?'- disattivata':''}}
     </div>
     <!-- <span *ngIf="node.data.type ==='pec' && !node.data.data.attiva">disattiva</span> -->
   </ng-template>
