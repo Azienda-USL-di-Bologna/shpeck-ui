@@ -33,6 +33,7 @@ import { RecepitsComponent } from "./mailbox/recepits/recepits.component";
 import { ShpeckMessageService } from "./services/shpeck-message.service";
 import { MessageFolderService } from "./services/message-folder.service";
 import { DraftService } from "./services/draft.service";
+import { OutboxService } from "./services/outbox.service";
 import { NextSdrModule } from "@nfa/next-sdr";
 
 // add support to italian language in application when using pipeDate
@@ -41,6 +42,7 @@ import { registerLocaleData } from "@angular/common";
 import localeIt from "@angular/common/locales/it";
 import localeItExtra from "@angular/common/locales/extra/it";
 import { MailDraftsComponent } from "./mailbox/mail-drafts/mail-drafts.component";
+import { MailOutboxComponent } from "./mailbox/mail-outbox/mail-outbox.component";
 import { StripeHtmlPipe } from "./pipes/stripe-html.pipe";
 import { MailListService } from "./mailbox/mail-list/mail-list.service";
 import { CommandManagerService } from "./services/command-manager.service";
@@ -66,7 +68,8 @@ registerLocaleData(localeIt, "it-IT", localeItExtra);
     MailDraftsComponent,
     StripeHtmlPipe,
     ReaddressComponent,
-    SearchContactComponent
+    SearchContactComponent,
+    MailOutboxComponent
   ],
   imports: [
     NtJwtLoginModule.forRoot(loginModuleConfig),
@@ -88,6 +91,7 @@ registerLocaleData(localeIt, "it-IT", localeItExtra);
     PecService,
     TagService,
     DraftService,
+    OutboxService,
     FolderService,
     MessageService,
     ShpeckMessageService,

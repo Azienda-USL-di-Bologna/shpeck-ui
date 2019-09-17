@@ -49,13 +49,13 @@ export class MailListComponent implements OnInit, OnDestroy {
 
   @Output() public messageClicked = new EventEmitter<Message>();
 
-  @ViewChild("selRow") private selRow: ElementRef;
-  @ViewChild("dt") private dt: Table;
-  @ViewChild("noteArea") private noteArea;
-  @ViewChild("idtag") private inputTextTag;
-  @ViewChild("registrationMenu") private registrationMenu: Menu;
-  @ViewChild("archiviationMenu") private archiviationMenu: Menu;
-  @ViewChild("tagMenu") private tagMenu: Menu;
+  @ViewChild("selRow", null) private selRow: ElementRef;
+  @ViewChild("dt", null) private dt: Table;
+  @ViewChild("noteArea", null) private noteArea;
+  @ViewChild("idtag", null) private inputTextTag;
+  @ViewChild("registrationMenu", null) private registrationMenu: Menu;
+  @ViewChild("archiviationMenu", null) private archiviationMenu: Menu;
+  @ViewChild("tagMenu", null) private tagMenu: Menu;
   // @ViewChild("ordermenu") private ordermenu: Menu;
 
   public _selectedTag: Tag;
@@ -247,7 +247,7 @@ export class MailListComponent implements OnInit, OnDestroy {
       if (pecFolderSelected) {
         if (pecFolderSelected.type === PecFolderType.FOLDER) {
           const selectedFolder: Folder = pecFolderSelected.data as Folder;
-          if (selectedFolder.type !== FolderType.DRAFT) {
+          if ((selectedFolder.type !== FolderType.DRAFT) && (selectedFolder.type !== FolderType.OUTBOX)) {
             this._selectedPecId = selectedFolder.fk_idPec.id;
             this._selectedPec = pecFolderSelected.pec;
             this.setFolder(selectedFolder);

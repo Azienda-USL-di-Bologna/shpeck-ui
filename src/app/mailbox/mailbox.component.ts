@@ -24,13 +24,13 @@ export class MailboxComponent implements OnInit, AfterViewInit, AfterViewChecked
   public message: Message;
   public _selectedPecId: number;
   // @ViewChild("leftSide") private leftSide: ElementRef;
-  @ViewChild("mailFolder") private mailFolder: ElementRef;
-  @ViewChild("rightSide") private rightSide: ElementRef;
-  @ViewChild("mailContainer") private mailContainer: ElementRef;
-  @ViewChild("mailList") private mailList: ElementRef;
-  @ViewChild("mailDetail") private mailDetail: ElementRef;
-  @ViewChild("rightSlider") private rightSlider: ElementRef;
-  @ViewChild("leftSlider") private leftSlider: ElementRef;
+  @ViewChild("mailFolder", null) private mailFolder: ElementRef;
+  @ViewChild("rightSide", null) private rightSide: ElementRef;
+  @ViewChild("mailContainer", null) private mailContainer: ElementRef;
+  @ViewChild("mailList", null) private mailList: ElementRef;
+  @ViewChild("mailDetail", null) private mailDetail: ElementRef;
+  @ViewChild("rightSlider", null) private rightSlider: ElementRef;
+  @ViewChild("leftSlider", null) private leftSlider: ElementRef;
 
   public rightSideVisible: boolean;
   public flexGridClass = "p-col-8";
@@ -97,6 +97,8 @@ export class MailboxComponent implements OnInit, AfterViewInit, AfterViewChecked
           this._selectedPecId = selectedFolder.fk_idPec.id;
           if (selectedFolder.type === FolderType.DRAFT) {
             this.componentToLoad = "mail-draft";
+          } else if (selectedFolder.type === FolderType.OUTBOX) {
+            this.componentToLoad = "mail-outbox";
           } else {
             this.componentToLoad = "mail-list";
           }

@@ -28,7 +28,7 @@ export class MailDraftsComponent implements OnInit, OnDestroy {
       this.loadData(null);
     });
   }
-  @ViewChild("dt") private dt: Table;
+  @ViewChild("dt", null) private dt: Table;
   private previousFilter: FilterDefinition[] = [];
   private selectedProjection: string =
     ENTITIES_STRUCTURE.shpeck.draftlite.standardProjections.DraftLiteWithIdPec;

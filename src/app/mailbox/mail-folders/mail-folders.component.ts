@@ -11,6 +11,7 @@ import { TagService } from "src/app/services/tag.service";
 import { MailListService } from "../mail-list/mail-list.service";
 import { UtenteUtilities, NtJwtLoginService } from "@bds/nt-jwt-login";
 import { ShpeckMessageService } from "src/app/services/shpeck-message.service";
+import { UtilityFunctions } from "@bds/nt-communicator";
 
 @Component({
   selector: "app-mail-folders",
@@ -27,9 +28,9 @@ export class MailFoldersComponent implements OnInit, OnDestroy {
   private subscriptions: Subscription[] = [];
   private loggedUser: UtenteUtilities;
 
-  @ViewChild("cm") public cm: ContextMenu;
-  @ViewChild("tree") public tree: Tree;
-  @ViewChildren("folderInput") public folderInput: ElementRef[];
+  @ViewChild("cm", null) public cm: ContextMenu;
+  @ViewChild("tree", null) public tree: Tree;
+  @ViewChildren("folderInput", null) public folderInput: ElementRef[];
 
   // @ViewChild("manageFolderPanel") public manageFolderPanel: OverlayPanel;
 
