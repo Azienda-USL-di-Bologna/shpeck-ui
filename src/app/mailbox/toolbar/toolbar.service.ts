@@ -207,7 +207,7 @@ export class ToolBarService {
             reloadOnDelete: false
           },
           header: "Nuova Mail",
-          width: "auto",
+          width: "80%",
           styleClass: "new-draft",
           contentStyle: { "overflow": "visible", "height": "85vh" },
           closable: false,
