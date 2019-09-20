@@ -146,9 +146,7 @@ export class MailFoldersComponent implements OnInit, OnDestroy {
       (myPecs: Pec[]) => {
         if (myPecs) {
           for (const pec of myPecs) {
-            if (pec) {
-              this.mailfolders.push(this.buildNode(pec));
-            }
+            this.mailfolders.push(this.buildNode(pec));
           }
           this.selectRootNode(this.mailfolders[0], false);
           this.selectedNode = this.mailfolders[0].children.find((childNode: MyTreeNode) => (childNode.data.data as Folder).type === FolderType.INBOX);

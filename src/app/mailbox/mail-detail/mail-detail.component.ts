@@ -143,8 +143,6 @@ export class MailDetailComponent implements OnInit, OnDestroy {
       data.displayBody = data.htmlTextImgEmbedded != null ? data.htmlTextImgEmbedded : (
         data.htmlText != null ? data.htmlText : data.plainText != null ? data.plainText.replace(/\n/g, "<br/>") : null
       );
-      console.log("E ora data.displayBody", data.displayBody);
-      
     }
 
     /* Per la posta inviata carico le ricevute */
@@ -215,7 +213,6 @@ export class MailDetailComponent implements OnInit, OnDestroy {
    */
   public customizeIframeContent(): void {
     if (this.emliframe) {
-      console.log("customizeIframeContent -> this.emliframe", this.emliframe);
       const iframeContent = this.emliframe.nativeElement.contentDocument || this.emliframe.nativeElement.contentWindow;
       /* Aggiungo target="_blank" ai vari a in modo che i link si aprano in un altro tab */
       const elements = iframeContent.getElementsByTagName("a");
@@ -235,8 +232,6 @@ export class MailDetailComponent implements OnInit, OnDestroy {
         } else {
           style.appendChild(document.createTextNode(data));
         }
-        console.log("alla fine -> this.emliframe", this.emliframe);
-        
       });
     }
   }

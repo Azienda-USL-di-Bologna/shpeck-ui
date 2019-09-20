@@ -78,7 +78,7 @@ export class ToolBarService {
           this.buttonsObservables.get("moveActive").next(false);
           this._selectedPec = this.myPecs.filter(p => p.id === idPec)[0];
 
-          const puoInviareMail = this.mailListService.isNewMailActive(idPec);
+          const puoInviareMail = this.mailListService.isNewMailActive(idPec, this._selectedPec);
           if (puoInviareMail) {
             this.buttonsObservables.get("newMailActive").next(true);
           } else {
@@ -187,38 +187,55 @@ export class ToolBarService {
   }
 
   public newMail(action) {
-
-    const draftMessage = new Draft();
-    draftMessage.idPec = {id: this._selectedPec.id} as Pec;
-    if (action !== TOOLBAR_ACTIONS.NEW) {
-      if (!this.messageEvent || !this.messageEvent.downloadedMessage) {
-        this.messagePrimeService.add(
-          { severity: "error", summary: "Errore", detail: "Errore! Non è possibile agire sulla mail. Contattare BabelCare" });
-        return;
-      }
-    }
-    this.draftService.postHttpCall(draftMessage).subscribe((draft: Draft) => {
-      const ref = this.dialogService.open(NewMailComponent, {
-        data: {
-          fullMessage: this.messageEvent ? this.messageEvent.downloadedMessage : undefined,
-          idDraft: draft.id,
-          pec: this._selectedPec,
-          action: action,
-          reloadOnDelete: false
-        },
-        header: "Nuova Mail",
-        width: "auto",
-        styleClass: "new-draft",
-        contentStyle: { "overflow": "visible", "height": "85vh" },
-        closable: false,
-        closeOnEscape: false
-      });
-      ref.onClose.subscribe((el) => {
-        if (el) {
-          console.log("Ref: ", el);
+      if (this._selectedPec.attiva) {
+      const draftMessage = new Draft();
+      draftMessage.idPec = { id: this._selectedPec.id } as Pec;
+      if (action !== TOOLBAR_ACTIONS.NEW) {
+        if (!this.messageEvent || !this.messageEvent.downloadedMessage) {
+          this.messagePrimeService.add(
+            { severity: "error", summary: "Errore", detail: "Errore! Non è possibile agire sulla mail. Contattare BabelCare" });
+          return;
         }
+      }
+      this.draftService.postHttpCall(draftMessage).subscribe((draft: Draft) => {
+        const ref = this.dialogService.open(NewMailComponent, {
+          data: {
+            fullMessage: this.messageEvent ? this.messageEvent.downloadedMessage : undefined,
+            idDraft: draft.id,
+            pec: this._selectedPec,
+            action: action,
+            reloadOnDelete: false
+          },
+          header: "Nuova Mail",
+          width: "80%",
+          styleClass: "new-draft",
+          contentStyle: { "overflow": "visible", "height": "85vh" },
+          closable: false,
+          closeOnEscape: false
+        });
+        ref.onClose.subscribe((el) => {
+          if (el) {
+            console.log("Ref: ", el);
+          }
+        });
+      },
+        (error: any) => {
+          if (error) {
+            this.messagePrimeService.add({
+              severity: "error",
+              summary: "Errore",
+              detail: "Errore! Non è possibile agire su una PEC non attiva. Contattare BabelCare"
+            });
+          }
+        }
+      );
+    } else {
+      this.messagePrimeService.add({
+        severity: "error",
+        summary: "Errore",
+        detail: "Errore! Non è possibile agire su una PEC non attiva. Contattare BabelCare"
       });
-    });
+    }
   }
 
   public editMail() {
