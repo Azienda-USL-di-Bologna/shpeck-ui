@@ -1,4 +1,5 @@
-<div class="p-col container p-nogutter">
+<div class="p-col container p-nogutter" 
+  [ngClass]="fontSize === 'small' ? 'general-font-size-small' : fontSize === 'medium' ? 'general-font-size-medium' : 'general-font-size-big'">
 
   <div class="buttons-bar" style="background-color: sandybrown">
     <app-toolbar (filtersEmitter)="onFilterSelection($event)"></app-toolbar>
@@ -24,10 +25,10 @@
           (messageClicked)="messageClicked($event)">
         </app-mail-list> -->
         <div class="filter-box">
-            <div class="filter-box-left" >
-                {{_selectedFolder ? _selectedFolder.description : _selectedTag ? _selectedTag.description : _selectedPec?.indirizzo}}
-            </div>
-            <div class="filter-box-right"  (click)="sortingmenu.toggle($event)" [pTooltip]="tooltipSorting">Ordina</div>
+          <div class="filter-box-left">
+              {{_selectedFolder ? _selectedFolder.description : _selectedTag ? _selectedTag.description : _selectedPec?.indirizzo}}
+          </div>
+          <div class="filter-box-right"  (click)="sortingmenu.toggle($event)" [pTooltip]="tooltipSorting">Ordina</div>
         </div>
         <p-menu #sortingmenu appendTo="body" [showTransitionOptions]="'0ms'" [hideTransitionOptions]="'0ms'" [popup]="true" [model]="sortMenuItem"></p-menu>
         <app-mail-list *ngIf="componentToLoad === 'mail-list'"

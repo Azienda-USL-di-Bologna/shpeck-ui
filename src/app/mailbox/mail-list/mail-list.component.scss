@@ -26,7 +26,7 @@ p-table,
   // height: 100% !important;
 }
 .column-checkbox {
-  width: 30px;
+  width: 32px;
 }
 ::ng-deep .column-checkbox p-tableCheckbox .ui-chkbox.ui-widget .ui-chkbox-box.ui-widget.ui-state-default {
   //visibility: hidden;
@@ -183,7 +183,7 @@ p-table,
   // right: 1%;
   //float: right;
   margin: 0 7px;
-  width: 130px;
+  // width: 130px;
 }
 
 .visibility-hidden {
@@ -233,6 +233,15 @@ p-table,
   //text-wrap: none;
   white-space: nowrap;
   //overflow: scroll;
+}
+::ng-deep .general-font-size-small .message-row {
+  font-size: 12px !important;
+}
+::ng-deep .general-font-size-medium .message-row {
+  font-size: 13px !important;
+}
+::ng-deep .general-font-size-big .message-row {
+  font-size: 14px !important;
 }
 
 .button-centopx button {
