@@ -163,20 +163,53 @@ p-table,
   font-size: 13px;
   margin-left: 1px;
 }
+::ng-deep .general-font-size-small .fa-icon {
+  font-size: 13px;
+}
+::ng-deep .general-font-size-medium .fa-icon {
+  font-size: 14px;
+}
+::ng-deep .general-font-size-big .fa-icon {
+  font-size: 15px;
+}
 .second-line-error {
   font-size: 15px;
   display: block;
 }
-
+::ng-deep .general-font-size-small .second-line-error {
+  font-size: 15px !important;
+}
+::ng-deep .general-font-size-medium .second-line-error {
+  font-size: 16px !important;
+}
+::ng-deep .general-font-size-big .second-line-error {
+  font-size: 17px !important;
+}
 .second-line-icon {
   font-size: 18px;
-
-  // float: right;
+}
+::ng-deep .general-font-size-small .second-line-icon {
+  font-size: 18px !important;
+}
+::ng-deep .general-font-size-medium .second-line-icon {
+  font-size: 19px !important;
+}
+::ng-deep .general-font-size-big .second-line-icon {
+  font-size: 20px !important;
 }
 .second-line-icon-fa {
   font-size: 14px;
   margin-right: 3px;
   vertical-align: super;
+}
+::ng-deep .general-font-size-small .second-line-icon-fa {
+  font-size: 14px !important;
+}
+::ng-deep .general-font-size-medium .second-line-icon-fa {
+  font-size: 15px !important;
+}
+::ng-deep .general-font-size-big .second-line-icon-fa {
+  font-size: 16px !important;
 }
 .mail-date {
   // position: absolute;
@@ -196,6 +229,15 @@ p-table,
 
 .envelope-icon {
   padding-top: 3px;
+}
+::ng-deep .general-font-size-small .envelope-icon {
+  font-size: 14px !important;
+}
+::ng-deep .general-font-size-medium .envelope-icon {
+  font-size: 15px !important;
+}
+::ng-deep .general-font-size-big .envelope-icon {
+  font-size: 16px !important;
 }
 .seconda-riga {
   padding-left: 1px;
@@ -256,6 +298,15 @@ p-table,
 .material-icons.mail-icons,  .material-icons-outlined.mail-icons{
   // color: rgb(250, 250, 250);
   font-size: 18px;
+}
+::ng-deep .general-font-size-small .material-icons.mail-icons, ::ng-deep .general-font-size-small .material-icons-outlined.mail-icons {
+  font-size: 18px !important;
+}
+::ng-deep .general-font-size-medium .material-icons.mail-icons, ::ng-deep .general-font-size-medium .material-icons-outlined.mail-icons {
+  font-size: 19px !important;
+}
+::ng-deep .general-font-size-big .material-icons.mail-icons, ::ng-deep .general-font-size-big .material-icons-outlined.mail-icons {
+  font-size: 20px !important;
 }
 .mi-fist-line {
   vertical-align: text-top;
