@@ -3,6 +3,7 @@ import { DynamicDialogRef } from "primeng/api";
 import { NtJwtLoginService, UtenteUtilities } from "@bds/nt-jwt-login";
 import { SettingsService } from "src/app/services/settings.service";
 import { Subscription } from "rxjs";
+import { FONTSIZE } from "src/environments/app-constants";
 
 @Component({
   selector: "app-settings",
@@ -35,10 +36,14 @@ export class SettingsComponent implements OnInit, OnDestroy {
     if (this.model.hideDetail === null || this.model.hideDetail === undefined) {
       this.model.hideDetail = false;
     }
+    const fontSize = this.impostazioniService.getFontSize();
+    this.model.fontSize = fontSize ? fontSize : FONTSIZE.BIG;
+
   }
 
   saveSettings() {
     this.impostazioniService.setHideDetail(this.model.hideDetail.toString());
+    this.impostazioniService.setFontSize(this.model.fontSize);
     this.subscription =
       this.loggedUser.setImpostazioniApplicazione(this.loginService, this.impostazioniService.getImpostazioniVisualizzazione())
       .subscribe((newSettings) => {
@@ -61,6 +66,7 @@ export class SettingsComponent implements OnInit, OnDestroy {
 
 export class Impostazioni {
   hideDetail: boolean;
+  fontSize: string;
 
   constructor() { }
 }

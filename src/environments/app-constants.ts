@@ -90,4 +90,10 @@ export function getInternautaUrl(type: BaseUrlType): string {
     return out;
 }
 
+export const FONTSIZE = {
+    SMALL: "small",
+    MEDIUM: "medium",
+    BIG: "big"
+};
+
 

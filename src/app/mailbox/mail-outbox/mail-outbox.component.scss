@@ -96,6 +96,15 @@ p-table,
   white-space: nowrap;
   //overflow: scroll;
 }
+::ng-deep .general-font-size-small .message-row {
+  font-size: 12px !important;
+}
+::ng-deep .general-font-size-medium .message-row {
+  font-size: 13px !important;
+}
+::ng-deep .general-font-size-big .message-row {
+  font-size: 14px !important;
+}
 
 .material-icons.mail-icons {
   // color: rgb(250, 250, 250);

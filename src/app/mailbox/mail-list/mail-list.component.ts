@@ -20,6 +20,7 @@ import { AppCustomization } from "src/environments/app-customization";
 import { SettingsService } from "src/app/services/settings.service";
 import { FormGroup, FormControl, Validators } from "@angular/forms";
 import { MailboxService, Sorting } from "../mailbox.service";
+import { ContextMenu } from "primeng/primeng";
 
 @Component({
   selector: "app-mail-list",
@@ -238,7 +239,7 @@ export class MailListComponent implements OnInit, OnDestroy {
       minWidth: "85px"
     }
   ];
-
+  @ViewChild("cm", null) private contextMenu: ContextMenu;
 
   ngOnInit() {
     this.subscriptions.push(this.mailFoldersService.pecFolderSelected.subscribe((pecFolderSelected: PecFolder) => {
@@ -621,8 +622,7 @@ export class MailListComponent implements OnInit, OnDestroy {
       case "selectionChange":
       case "onRowUnselect":
         event.originalEvent.stopPropagation();
-
-
+        this.contextMenu.hide();
         // console.log("this.selectionKeys", this.dt.selectionKeys);
         /* setTimeout(() => {
           if (name === "onRowSelect" && event.type === "checkbox" && this.tempSelectedMessages) {
