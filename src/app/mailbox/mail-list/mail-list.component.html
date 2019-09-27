@@ -17,7 +17,7 @@
     [rows]="rowsNmber" [rowTrackBy]="trackByFn" [contextMenu]="cm" [scrollable]="true"
     [virtualRowHeight]="virtualRowHeight" [virtualScroll]="true" [virtualScrollDelay]="150"
     (onRowSelect)="handleEvent('onRowSelect', $event)" (onRowUnselect)="handleEvent('onRowUnselect', $event)"
-    dataKey="id"
+    dataKey="id" (mouseenter)="handleEvent('onMouseEnter', $event)"
     (onContextMenuSelect)="handleEvent('onContextMenuSelect', $event)">
     <ng-template pTemplate="body" let-rowData let-message let-rowIndex="rowIndex">
         <tr #selRow class="message-row" [pSelectableRow]="rowData" [pSelectableRowIndex]="rowIndex"
@@ -39,11 +39,12 @@
                                     class="material-icons-outlined mail-icons icon-enabled"
                                     [ngClass]="{'icon-disabled': registrationstatus === 'NOT_REGISTABLE', 'icon-used': (registrationstatus === 'REGISTERED' || registrationstatus === 'IN_REGISTRATION')}"
                                     [ngStyle]="registrationstatus === 'REGISTERED' && {'color': 'darkcyan'} || registrationstatus === 'IN_REGISTRATION' && {'color': 'orange'}"
-                                    (click)="iconRegistrationClicked($event, message, registrationstatus)">
+                                    (click)="iconRegistrationClicked($event, message, registrationstatus)"
+                                    >
                                     {{registrationstatus === 'REGISTERED' || registrationstatus === 'IN_REGISTRATION' ? "assignment_turned_in" : "assignment"}}
                                         <!-- (registrationstatus === "REGISTABLE" ? "assignment_returned" : "assignment_returned")}} -->
                                 </i>
-                                <p-menu appendTo="body" #registrationMenu [popup]="true" [model]="aziendeProtocollabiliSubCmItems"></p-menu>
+                                <p-menu appendTo="body"  (onShow)="tagsMenuStatus('registerMenuOpened')" #registrationMenu [popup]="true" [model]="aziendeProtocollabiliSubCmItems"></p-menu>
                             </ng-template>
                             <ng-template [ngTemplateOutlet]="registrationTemplate"
                                 [ngTemplateOutletContext]="{$implicit: getRegistrationStatus(message)}">
@@ -94,9 +95,10 @@
                                     class="fa fa-server fa-rotate-270 mail-icons icon-enabled"
                                     [ngClass]="{'icon-disabled': archivedstatus === 'NOT_ARCHIVABLE', 'icon-used': archivedstatus === 'ARCHIVED'}"
                                     [ngStyle]="archivedstatus === 'ARCHIVED' && {'color': 'darkcyan'}"
-                                    (click)="iconArchiveClicked($event, message, archivedstatus)">
+                                    (click)="iconArchiveClicked($event, message, archivedstatus)"
+                                    >
                                 </i>
-                                <p-menu appendTo="body" #archiviationMenu [popup]="true" [model]="aziendeFascicolabiliSubCmItems"></p-menu>
+                                <p-menu appendTo="body" (onShow)="tagsMenuStatus('archiveMenuOpened')" #archiviationMenu [popup]="true" [model]="aziendeFascicolabiliSubCmItems"></p-menu>
                             </ng-template>
                             <ng-template [ngTemplateOutlet]="archivedTemplate"
                                 [ngTemplateOutletContext]="{$implicit: getArchiviationStatus(message)}">
@@ -109,9 +111,10 @@
                                     tooltipPosition="top"
                                     class="material-icons local-offer-icon mail-icons icon-enabled mi-fist-line"
                                     [ngStyle]="taggedstatus && {'color': 'darkcyan'}"
-                                    (click)="iconTaggedClicked($event, message, taggedstatus)">
+                                    (click)="iconTaggedClicked($event, message, taggedstatus)"
+                                    >
                                 </i>
-                                <p-menu appendTo="body" #tagMenu [popup]="true" [model]="tagMenuItems" styleClass="message-labels-icon-action"></p-menu>
+                                <p-menu appendTo="body" (onShow)="tagsMenuStatus('tagsMenuOpened')" #tagMenu [popup]="true" [model]="tagMenuItems" styleClass="message-labels-icon-action"></p-menu>
                             </ng-template>
                             <ng-template [ngTemplateOutlet]="taggedTemplate"
                                 [ngTemplateOutletContext]="{$implicit: getTaggedStatus(message)}">

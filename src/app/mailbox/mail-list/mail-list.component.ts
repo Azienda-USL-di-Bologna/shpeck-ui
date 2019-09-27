@@ -240,6 +240,11 @@ export class MailListComponent implements OnInit, OnDestroy {
     }
   ];
   @ViewChild("cm", null) private contextMenu: ContextMenu;
+  private tagsMenuOpened = {
+    registerMenuOpened : false,
+    archiveMenuOpened : false,
+    tagMenuOpened : false
+  };
 
   ngOnInit() {
     this.subscriptions.push(this.mailFoldersService.pecFolderSelected.subscribe((pecFolderSelected: PecFolder) => {
@@ -612,9 +617,9 @@ export class MailListComponent implements OnInit, OnDestroy {
   }
 
   public handleEvent(name: string, event: any) {
-    console.log("handleEvent", name, event);
+    console.log("handleEvent", name);
 
-    console.log("this.mailListService.selectedMessages  fuori", this.mailListService.selectedMessages);
+    // console.log("this.mailListService.selectedMessages  fuori", this.mailListService.selectedMessages);
     switch (name) {
       // non c'è nella documentazione, ma pare che scatti sempre una sola volta anche nelle selezioni multiple.
       // le righe selezionati sono in this.mailListService.selectedMessages e anche in event
@@ -656,6 +661,17 @@ export class MailListComponent implements OnInit, OnDestroy {
 
         /* this.tempSelectedMessages = this.mailListService.selectedMessages; */
         // break;
+      case "onMouseEnter":
+        if (this.tagsMenuOpened.registerMenuOpened) {
+          this.registrationMenu.hide();
+        }
+        if (this.tagsMenuOpened.archiveMenuOpened) {
+          this.archiviationMenu.hide();
+        }
+        if (this.tagsMenuOpened.tagMenuOpened) {
+          this.tagMenu.hide();
+        }
+        break;
       case "onContextMenuSelect":
         this.setContextMenuItemLook();
         break;
@@ -1167,18 +1183,22 @@ export class MailListComponent implements OnInit, OnDestroy {
   }
 
   public prepareAndOpenDialogRegistrationDetail(messageTag: MessageTag, additionalData: any) {
-    this.registrationDetail = {
-      numeroProposta: additionalData.idDocumento.numeroProposta,
-      numeroProtocollo: additionalData.idDocumento.numeroProtocollo,
-      oggetto: additionalData.idDocumento.oggetto,
-      descrizioneUtente: additionalData.idUtente.descrizione,
-      codiceRegistro: additionalData.idDocumento.codiceRegistro,
-      anno: additionalData.idDocumento.anno,
-      descrizioneAzienda: additionalData.idAzienda.descrizione,
-      data: additionalData.idDocumento.dataProtocollo ?
-        additionalData.idDocumento.dataProtocollo.replace(" ", ", ") :
-        new Date(messageTag.inserted).toLocaleDateString("it-IT", { hour: "numeric", minute: "numeric" })
-    };
+    if (additionalData) {
+      this.registrationDetail = {
+        numeroProposta: additionalData.idDocumento ? additionalData.idDocumento.numeroProposta : "(informazione non disponibile)",
+        numeroProtocollo: additionalData.idDocumento ? additionalData.idDocumento.numeroProtocollo : "(informazione non disponibile)",
+        oggetto: additionalData.idDocumento ? additionalData.idDocumento.oggetto : "(informazione non disponibile)",
+        descrizioneUtente: additionalData.idUtente ? additionalData.idUtente.descrizione : "(informazione non disponibile)",
+        codiceRegistro: additionalData.idDocumento ? additionalData.idDocumento.codiceRegistro : null,
+        anno: additionalData.idDocumento ? additionalData.idDocumento.anno : null,
+        descrizioneAzienda: additionalData.idAzienda ? additionalData.idAzienda.descrizione : "(informazione non disponibile)",
+        data: additionalData.idDocumento && additionalData.idDocumento.dataProtocollo ?
+          additionalData.idDocumento.dataProtocollo.replace(" ", ", ") :
+          new Date(messageTag.inserted).toLocaleDateString("it-IT", { hour: "numeric", minute: "numeric" })
+      };
+    } else {
+      this.registrationDetail = {}
+    }
     this.displayRegistrationDetail = true;
   }
 
@@ -1341,5 +1361,37 @@ export class MailListComponent implements OnInit, OnDestroy {
     this.mailListService.selectedMessages = [message];
     this.tagMenuItems = this.mailListService.buildTagsMenuItems(this.selectedContextMenuItem, this.showNewTagPopup);
     this.tagMenu.toggle(event);
+  }
+
+  public tagsMenuStatus(status) {
+    switch (status) {
+      case "registerMenuOpened":
+        this.tagsMenuOpened.registerMenuOpened = true;
+        if (this.tagsMenuOpened.archiveMenuOpened) {
+          this.archiviationMenu.hide();
+        }
+        if (this.tagsMenuOpened.tagMenuOpened) {
+          this.tagMenu.hide();
+        }
+        break;
+      case "archiveMenuOpened":
+        this.tagsMenuOpened.archiveMenuOpened = true;
+        if (this.tagsMenuOpened.registerMenuOpened) {
+          this.registrationMenu.hide();
+        }
+        if (this.tagsMenuOpened.tagMenuOpened) {
+          this.tagMenu.hide();
+        }
+        break;
+      case "tagsMenuOpened":
+        this.tagsMenuOpened.tagMenuOpened = true;
+        if (this.tagsMenuOpened.registerMenuOpened) {
+          this.registrationMenu.hide();
+        }
+        if (this.tagsMenuOpened.archiveMenuOpened) {
+          this.archiviationMenu.hide();
+        }
+        break;
+    }
   }
 }
