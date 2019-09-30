@@ -25,6 +25,7 @@ import { ConfirmDialogModule } from "primeng/confirmdialog";
 import { RadioButtonModule } from "primeng/radiobutton";
 import { MenubarModule } from "primeng/menubar";
 import { ProgressSpinnerModule } from "primeng/progressspinner";
+import { CommonComponentsModule } from "@bds/common-components";
 
 @NgModule({
     declarations: [],
@@ -57,7 +58,8 @@ import { ProgressSpinnerModule } from "primeng/progressspinner";
         ConfirmDialogModule,
         RadioButtonModule,
         MenubarModule,
-        ProgressSpinnerModule
+        ProgressSpinnerModule,
+        CommonComponentsModule
     ],
     exports: [
         DynamicDialogModule,
@@ -88,7 +90,8 @@ import { ProgressSpinnerModule } from "primeng/progressspinner";
         ConfirmDialogModule,
         RadioButtonModule,
         MenubarModule,
-        ProgressSpinnerModule
+        ProgressSpinnerModule,
+        CommonComponentsModule
     ]
 })
 export class PrimengModule { }
