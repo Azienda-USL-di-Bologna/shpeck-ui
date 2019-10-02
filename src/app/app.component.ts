@@ -1,12 +1,13 @@
 import { Component, OnInit } from "@angular/core";
 import { MenuItem, DialogService } from "primeng/api";
 import { NtJwtLoginService, UtenteUtilities, UtilityFunctions } from "@bds/nt-jwt-login";
-import { getInternautaUrl, BaseUrlType, MAILBOX_ROUTE, LOGIN_ROUTE } from "src/environments/app-constants";
+import { BaseUrlType, MAILBOX_ROUTE, LOGIN_ROUTE, APPLICATION } from "src/environments/app-constants";
 import { IntimusClientService } from "@bds/nt-communicator";
 import { PopupMessaggiService } from "@bds/common-components";
 import { HeaderFeaturesConfig } from "@bds/primeng-plugin";
 import { SettingsComponent } from "./settings/settings.component";
 import { ActivatedRoute, Router, Params } from "@angular/router";
+import { getInternautaUrl } from "@bds/ng-internauta-model";
 
 @Component({
   selector: "app-root",
@@ -46,6 +47,8 @@ export class AppComponent implements OnInit {
     this.loginService.loggedUser$.subscribe((utente: UtenteUtilities) => {
       if (utente) {
         this.utenteConnesso = utente;
+        const intimusUrl = getInternautaUrl(BaseUrlType.Intimus);
+        this.intimusClient.start(intimusUrl, APPLICATION, this.utenteConnesso.getUtente().idPersona.id, this.utenteConnesso.getUtente().aziendaLogin.id);
         console.log("loggedUser", this.utenteConnesso);
       }
     });
