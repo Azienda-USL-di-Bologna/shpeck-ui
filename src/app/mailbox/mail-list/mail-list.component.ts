@@ -1015,13 +1015,8 @@ export class MailListComponent implements OnInit, OnDestroy {
    * Chiedo conferma sulla cancellazione dei messaggi selezioni.
    * In caso affermativo faccio partire la cancellazione spostamento nel cestino).
    */
-  private deletingConfirmation() {
-    let message: string;
-    if (this.toolBarService.selectedFolder.type === FolderType.DRAFT) {
-      message = "Sei sicuro di voler eliminare le bozze selezionate?";
-    } else {
-      message = "Sei sicuro di voler eliminare i messaggi selezionati?";
-    }
+  public deletingConfirmation(newMessage?: string) {
+    const message: string = newMessage ? newMessage : "Sei sicuro di voler eliminare i messaggi selezionati?";
     this.confirmationService.confirm({
       message: message,
       header: "Conferma",
@@ -1223,6 +1218,7 @@ export class MailListComponent implements OnInit, OnDestroy {
     }
     return this.mailListService.isReaddressActive(message) ? "READDRESSABLE" : "NOT_READDRESSABLE";
   }
+
 
   /**
    * Questa funzione scatta al click sull'icona di reindirizzamento.

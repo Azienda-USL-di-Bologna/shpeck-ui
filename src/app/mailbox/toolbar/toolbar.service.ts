@@ -78,7 +78,7 @@ export class ToolBarService {
           this.buttonsObservables.get("moveActive").next(false);
           this._selectedPec = this.myPecs.filter(p => p.id === idPec)[0];
 
-          const puoInviareMail = this.mailListService.isNewMailActive(idPec, this._selectedPec);
+          const puoInviareMail = this.mailListService.isNewMailActive(this._selectedPec);
           if (puoInviareMail) {
             this.buttonsObservables.get("newMailActive").next(true);
           } else {
@@ -134,7 +134,7 @@ export class ToolBarService {
           if (draftEvent) {
             this.buttonsObservables.get("editVisible").next(true);
             this.buttonsObservables.get("editActive").next(this.draftEvent.selectedDrafts && this.draftEvent.selectedDrafts.length === 1 ? true : false);
-            const puoInviareMail = this.mailListService.isNewMailActive(this._selectedPec.id, null, true);
+            const puoInviareMail = this.mailListService.isNewMailActive(null, true);
             if (puoInviareMail) {
               this.buttonsObservables.get("deleteActive").next(true);
             }
