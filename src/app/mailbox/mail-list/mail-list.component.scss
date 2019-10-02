@@ -132,6 +132,14 @@ p-table,
   flex-wrap: nowrap;
   justify-content: flex-end;
 }
+
+.seconda-riga-destra {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: nowrap;
+  justify-content: flex-end;
+}
+
 .inout-message {
   /* border-radius: 50px;
   border: 1px solid rgb(211, 211, 211) */
@@ -172,17 +180,17 @@ p-table,
 ::ng-deep .general-font-size-big .fa-icon {
   font-size: 15px;
 }
-.second-line-error {
+.first-line-error {
   font-size: 15px;
   display: block;
 }
-::ng-deep .general-font-size-small .second-line-error {
+::ng-deep .general-font-size-small .first-line-error {
   font-size: 15px !important;
 }
-::ng-deep .general-font-size-medium .second-line-error {
+::ng-deep .general-font-size-medium .first-line-error {
   font-size: 16px !important;
 }
-::ng-deep .general-font-size-big .second-line-error {
+::ng-deep .general-font-size-big .first-line-error {
   font-size: 17px !important;
 }
 .second-line-icon {
@@ -197,6 +205,18 @@ p-table,
 ::ng-deep .general-font-size-big .second-line-icon {
   font-size: 20px !important;
 }
+
+::ng-deep .general-font-size-small .delete-icon {
+  font-size: 20px !important;
+}
+::ng-deep .general-font-size-medium .delete-icon {
+  font-size: 21px !important;
+}
+::ng-deep .general-font-size-big .delete-icon {
+  font-size: 22px !important;
+}
+
+
 .second-line-icon-fa {
   font-size: 14px;
   margin-right: 3px;
@@ -241,6 +261,10 @@ p-table,
 }
 .seconda-riga {
   padding-left: 1px;
+  display: flex;
+  flex-direction: row;
+  flex-wrap: nowrap;
+  justify-content: space-between;
 }
 .display-text {
   /* margin-left: 20px; */

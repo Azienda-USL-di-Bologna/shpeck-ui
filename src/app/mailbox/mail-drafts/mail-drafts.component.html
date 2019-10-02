@@ -30,33 +30,56 @@
                 <p-tableCheckbox [value]="rowData"></p-tableCheckbox>
             </td>
             <td>
-                <div class = "mail-icons-container">
-                </div>
-                <div class = "display-block">
-                    <span class = "pi pi-user display-icon"></span>
-                    <label class="pad-left-19">A: </label>
-                    <span *ngIf="draft?.toAddresses">
-                      <span *ngFor="let address of draft.toAddresses">{{address}}; </span>
-                    </span>
-                    <!-- <span *ngIf="!(draft?.toAddresses)"></span> -->
-                    <span class="second-line-icon" [ngClass]="{'visibility-hidden':!draft?.attachmentsNumber}"><i
-                        [pTooltip]="draft?.attachmentsNumber + ' allegati'" tooltipPosition="top"
-                        class="material-icons second-line-icon">attach_file</i></span>
-                    <!-- data della bozza -->
-                    <span class="mail-date">
+                <div class="mail-icons-container">
+                    <!-- PRIMA RIGA -->
+                    <div class="display-block">
+                        <span class="pi pi-user display-icon"></span>
+                        <label class="pad-left-19">A: </label>
+                        <span *ngIf="draft?.toAddresses">
+                            <span *ngFor="let address of draft.toAddresses">{{address}};</span>
+                        </span>
+                        <!-- <span *ngIf="!(draft?.toAddresses)"></span> -->
+                        <span class="second-line-icon" [ngClass]="{'visibility-hidden':!draft?.attachmentsNumber}"><i
+                            [pTooltip]="draft?.attachmentsNumber + ' allegati'" tooltipPosition="top"
+                            class="material-icons second-line-icon">attach_file</i></span>
+                        <!-- data della bozza -->
+                        <span class="mail-date">
                             {{draft?.updateTime | date: 'EE d MMM y, H:mm'}}
-                    </span>
-                </div>
-                <div class = "display-block extra-margin">
-                    <span class="fa fa-envelope-open-text display-icon envelope-icon"></span>
-                    <span class="display-text">{{draft.subject ||'Nessun oggetto'}}</span>
+                        </span>
+                    </div>
+                    <!-- <div class = "display-block extra-margin"> -->
+                    <!-- SECONDA RIGA -->
+                    <div class="seconda-riga">
+                        <div>
+                            <span class="fa fa-envelope-open-text display-icon envelope-icon"></span>
+                            <span class="display-text">{{draft.subject ||'Nessun oggetto'}}</span>
+                        </div>
+                        
+                        <i class="material-icons-outlined delete-icon" 
+                        (click)="deletingConfirmation()">
+                            delete
+                        </i>
+                    </div>
+                    <!-- TERZA RIGA -->
                     <div class="display-body">{{draft.body | stripeHtml | slice:0:300 }} </div>
-                    <!-- <div class="display-text" [ngClass]="{'display-bold':!message.seen}">{{message.id + " -- " + message.subject}}</div>  -->
+                    <!-- </div> -->                    
                 </div>
             </td>
         </tr>
     </ng-template>
 </p-table>
+<p-confirmDialog #cd [style]="{width: '22.5vw', top: '40%'}">
+    <p-footer>
+        <button
+        type="button" class="buttons ui-button-raised ui-button-secondary custom-secondary-button"
+        pButton icon="fas fa-check" label="Sì" (click)="cd.accept()">
+        </button>
+        <button
+        type="button" class="buttons ui-button-raised ui-button-secondary custom-secondary-button"
+        pButton icon="fas fa-times" label="No" (click)="cd.reject()">
+        </button>
+    </p-footer>
+</p-confirmDialog>
 
 <div *ngIf="totalRecords === 0 && !!!loading" class="flex-1 message-align flex-direction-col">
         <p style="margin: 0">La cartella selezionata non contiene elementi</p>

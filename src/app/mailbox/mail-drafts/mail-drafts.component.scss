@@ -23,7 +23,11 @@ p-table,
   border: none !important;
   overflow: hidden;
 }
-
+.mail-icons-container {
+  display: flex;
+  flex-direction: column;
+  flex-wrap: nowrap;
+}
 .message-align {
   justify-content: center;
   align-items: center;
@@ -115,6 +119,23 @@ p-table,
   font-size: 18px;
   display: block;
   float: right;
+}
+
+.seconda-riga {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: nowrap;
+  justify-content: space-between;
+}
+
+::ng-deep .general-font-size-small .delete-icon {
+  font-size: 20px !important;
+}
+::ng-deep .general-font-size-medium .delete-icon {
+  font-size: 21px !important;
+}
+::ng-deep .general-font-size-big .delete-icon {
+  font-size: 22px !important;
 }
 
 .visibility-hidden {
