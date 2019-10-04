@@ -65,6 +65,13 @@ export class SettingsService {
     this.impostazioniVisualizzazione[AppCustomization.shpeck.hideDetail] = hideDetailValue;
   }
 
+
+  getFontSize() {
+    return this.impostazioniVisualizzazione[AppCustomization.shpeck.fontSize];
+  }
+  setFontSize(fontSizeValue: string) {
+    this.impostazioniVisualizzazione[AppCustomization.shpeck.fontSize] = fontSizeValue;
+  }
   /**
    * Lancia la notifica di cambiamento delle impostazioni ai sottoscrittori
    * @param settings L'oggetto che contiene le nuove impostazioni

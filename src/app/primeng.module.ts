@@ -26,6 +26,7 @@ import { RadioButtonModule } from "primeng/radiobutton";
 import { MenubarModule } from "primeng/menubar";
 import { ProgressSpinnerModule } from "primeng/progressspinner";
 import { CommonComponentsModule } from "@bds/common-components";
+import { SliderModule } from "primeng/slider";
 
 @NgModule({
     declarations: [],
@@ -59,7 +60,8 @@ import { CommonComponentsModule } from "@bds/common-components";
         RadioButtonModule,
         MenubarModule,
         ProgressSpinnerModule,
-        CommonComponentsModule
+        CommonComponentsModule,
+        SliderModule
     ],
     exports: [
         DynamicDialogModule,
@@ -91,7 +93,8 @@ import { CommonComponentsModule } from "@bds/common-components";
         RadioButtonModule,
         MenubarModule,
         ProgressSpinnerModule,
-        CommonComponentsModule
+        CommonComponentsModule,
+        SliderModule
     ]
 })
 export class PrimengModule { }

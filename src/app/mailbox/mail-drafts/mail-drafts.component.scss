@@ -23,7 +23,11 @@ p-table,
   border: none !important;
   overflow: hidden;
 }
-
+.mail-icons-container {
+  display: flex;
+  flex-direction: column;
+  flex-wrap: nowrap;
+}
 .message-align {
   justify-content: center;
   align-items: center;
@@ -86,7 +90,7 @@ p-table,
 }
 
 .message-row {
-  font-size: 12px !important;
+  font-size: 12px;
   width: 100% !important;
   //align-items: stretch;
   //flex-direction: row;
@@ -95,6 +99,15 @@ p-table,
   //text-wrap: none;
   white-space: nowrap;
   //overflow: scroll;
+}
+::ng-deep .general-font-size-small .message-row {
+  font-size: 12px !important;
+}
+::ng-deep .general-font-size-medium .message-row {
+  font-size: 13px !important;
+}
+::ng-deep .general-font-size-big .message-row {
+  font-size: 14px !important;
 }
 
 .material-icons.mail-icons {
@@ -108,6 +121,23 @@ p-table,
   float: right;
 }
 
+.seconda-riga {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: nowrap;
+  justify-content: space-between;
+}
+
+::ng-deep .general-font-size-small .delete-icon {
+  font-size: 20px !important;
+}
+::ng-deep .general-font-size-medium .delete-icon {
+  font-size: 21px !important;
+}
+::ng-deep .general-font-size-big .delete-icon {
+  font-size: 22px !important;
+}
+
 .visibility-hidden {
   visibility: hidden !important;
 }
@@ -117,7 +147,7 @@ p-table,
 }
 
 .column-checkbox {
-  width: 30px;
+  width: 32px;
 }
 ::ng-deep .column-checkbox p-tableCheckbox .ui-chkbox.ui-widget .ui-chkbox-box.ui-widget.ui-state-default {
   //visibility: hidden;

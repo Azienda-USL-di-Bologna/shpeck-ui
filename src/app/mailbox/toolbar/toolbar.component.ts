@@ -75,6 +75,10 @@ export class ToolbarComponent implements OnDestroy {
         this.archiveMenuItems = this.toolBarService.buildArchiveMenuItems(this.askConfirmationBeforeArchiviation);
         this.archiveMenu.toggle(event);
         break;
+      case "mouseout":
+        this.moveMenu.hide();
+        this.archiveMenu.hide();
+        break;
     }
   }
 

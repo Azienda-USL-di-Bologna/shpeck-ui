@@ -176,6 +176,15 @@ app-mail-list, app-mail-drafts {
     top: 11px;
   }
 }
+.general-font-size-small .filter-box {
+  font-size: 12px;
+}
+.general-font-size-medium .filter-box {
+  font-size: 13px;
+}
+.general-font-size-big .filter-box {
+  font-size: 14px;
+}
 
 /* ========= MAIL DETAIL ========== */
 .mail-detail {

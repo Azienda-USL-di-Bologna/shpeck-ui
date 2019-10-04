@@ -17,7 +17,7 @@
     [rows]="rowsNmber" [rowTrackBy]="trackByFn" [contextMenu]="cm" [scrollable]="true"
     [virtualRowHeight]="virtualRowHeight" [virtualScroll]="true" [virtualScrollDelay]="150"
     (onRowSelect)="handleEvent('onRowSelect', $event)" (onRowUnselect)="handleEvent('onRowUnselect', $event)"
-    dataKey="id"
+    dataKey="id" (mouseenter)="handleEvent('onMouseEnter', $event)"
     (onContextMenuSelect)="handleEvent('onContextMenuSelect', $event)">
     <ng-template pTemplate="body" let-rowData let-message let-rowIndex="rowIndex">
         <tr #selRow class="message-row" [pSelectableRow]="rowData" [pSelectableRowIndex]="rowIndex"
@@ -31,7 +31,7 @@
                         <!-- ICONE AZIONE -->
                         <!-- protocollato-->
                         <span class="mail-icon first-icon-left">
-                            <ng-template  #registrationTemplate let-registrationstatus>
+                            <ng-template #registrationTemplate let-registrationstatus>
                                 <i
                                     [pTooltip]="registrationstatus === 'REGISTERED' ? 'Vedi dettaglio protocollazione' :
                                         (registrationstatus === 'REGISTABLE' ? 'Protocolla il messaggio' : registrationstatus === 'IN_REGISTRATION' ? 'In protocollazione' : 'Il messaggio non può essere protocollato')"
@@ -39,11 +39,12 @@
                                     class="material-icons-outlined mail-icons icon-enabled"
                                     [ngClass]="{'icon-disabled': registrationstatus === 'NOT_REGISTABLE', 'icon-used': (registrationstatus === 'REGISTERED' || registrationstatus === 'IN_REGISTRATION')}"
                                     [ngStyle]="registrationstatus === 'REGISTERED' && {'color': 'darkcyan'} || registrationstatus === 'IN_REGISTRATION' && {'color': 'orange'}"
-                                    (click)="iconRegistrationClicked($event, message, registrationstatus)">
+                                    (click)="iconRegistrationClicked($event, message, registrationstatus)"
+                                    >
                                     {{registrationstatus === 'REGISTERED' || registrationstatus === 'IN_REGISTRATION' ? "assignment_turned_in" : "assignment"}}
                                         <!-- (registrationstatus === "REGISTABLE" ? "assignment_returned" : "assignment_returned")}} -->
                                 </i>
-                                <p-menu appendTo="body" #registrationMenu [popup]="true" [model]="aziendeProtocollabiliSubCmItems"></p-menu>
+                                <p-menu appendTo="body"  (onShow)="tagsMenuStatus('registerMenuOpened')" #registrationMenu [popup]="true" [model]="aziendeProtocollabiliSubCmItems"></p-menu>
                             </ng-template>
                             <ng-template [ngTemplateOutlet]="registrationTemplate"
                                 [ngTemplateOutletContext]="{$implicit: getRegistrationStatus(message)}">
@@ -94,9 +95,10 @@
                                     class="fa fa-server fa-rotate-270 mail-icons icon-enabled"
                                     [ngClass]="{'icon-disabled': archivedstatus === 'NOT_ARCHIVABLE', 'icon-used': archivedstatus === 'ARCHIVED'}"
                                     [ngStyle]="archivedstatus === 'ARCHIVED' && {'color': 'darkcyan'}"
-                                    (click)="iconArchiveClicked($event, message, archivedstatus)">
+                                    (click)="iconArchiveClicked($event, message, archivedstatus)"
+                                    >
                                 </i>
-                                <p-menu appendTo="body" #archiviationMenu [popup]="true" [model]="aziendeFascicolabiliSubCmItems"></p-menu>
+                                <p-menu appendTo="body" (onShow)="tagsMenuStatus('archiveMenuOpened')" #archiviationMenu [popup]="true" [model]="aziendeFascicolabiliSubCmItems"></p-menu>
                             </ng-template>
                             <ng-template [ngTemplateOutlet]="archivedTemplate"
                                 [ngTemplateOutletContext]="{$implicit: getArchiviationStatus(message)}">
@@ -109,9 +111,10 @@
                                     tooltipPosition="top"
                                     class="material-icons local-offer-icon mail-icons icon-enabled mi-fist-line"
                                     [ngStyle]="taggedstatus && {'color': 'darkcyan'}"
-                                    (click)="iconTaggedClicked($event, message, taggedstatus)">
+                                    (click)="iconTaggedClicked($event, message, taggedstatus)"
+                                    >
                                 </i>
-                                <p-menu appendTo="body" #tagMenu [popup]="true" [model]="tagMenuItems" styleClass="message-labels-icon-action"></p-menu>
+                                <p-menu appendTo="body" (onShow)="tagsMenuStatus('tagsMenuOpened')" #tagMenu [popup]="true" [model]="tagMenuItems" styleClass="message-labels-icon-action"></p-menu>
                             </ng-template>
                             <ng-template [ngTemplateOutlet]="taggedTemplate"
                                 [ngTemplateOutletContext]="{$implicit: getTaggedStatus(message)}">
@@ -166,25 +169,35 @@
                             {{message.receiveTime | date: 'EE d MMM y, H:mm' | titlecase}}
                         </span>
                         <!-- iconcina degli errori -->
-                        <span class="second-line-error icon-default-color"
+                        <span class="first-line-error icon-default-color"
                             [ngClass]="{'visibility-hidden':!(message?.iconsVisibility?.in_error || message.messageStatus === 'ERROR'),'warn-color': message?.iconsVisibility?.in_error}">
                             <i
                                 [pTooltip]="getTagDescription('in_error')"
                                 tooltipPosition="top"
-                                class="fas fa-exclamation-triangle second-line-error">
+                                class="fas fa-exclamation-triangle first-line-error">
                             </i>
                         </span>
                     </span>
                 </div>
-                <div class="display-block seconda-riga">
+                <div class="seconda-riga">
                     <!-- <span class="pi pi-user icon-default-color second-line-icon"></span> -->
                     <!-- <span *ngIf="message.fromOrTo.fromOrTo === 'FROM'" title="Mittente" class="pi pi-angle-left icon-default-color second-line-icon"></span>
                     <span *ngIf="message.fromOrTo.fromOrTo === 'TO'" title="Destinatari" class="pi pi-angle-right icon-default-color second-line-icon"></span> -->
 
-                    <span *ngIf="message.fromOrTo.fromOrTo === 'FROM'" title="Mittente" class="fa fa-user-edit icon-default-color second-line-icon second-line-icon-fa"></span>
-                    <span *ngIf="message.fromOrTo.fromOrTo === 'TO'" title="Destinatari" class="fa fa-user-friends icon-default-color second-line-icon second-line-icon-fa"></span>
-
-                    <div class="display-text text-from-or-to" [ngClass]="{'display-bold':!message.seen}">{{message.fromOrTo.description}}</div>
+                    <div>
+                        <span *ngIf="message.fromOrTo.fromOrTo === 'FROM'" title="Mittente" class="fa fa-user-edit icon-default-color second-line-icon second-line-icon-fa"></span>
+                        <span *ngIf="message.fromOrTo.fromOrTo === 'TO'" title="Destinatari" class="fa fa-user-friends icon-default-color second-line-icon second-line-icon-fa"></span>
+                        <div class="display-text text-from-or-to" [ngClass]="{'display-bold':!message.seen}">{{message.fromOrTo.description}}</div>
+                    </div>
+                    
+                    
+                    <i class="material-icons-outlined delete-icon" 
+                        (click)="deletingConfirmation('Sei sicuro di voler eliminare il messaggio?')"
+                        *ngIf="_selectedFolder?.type !== 'TRASH' && mailListService?.loggedUserCanDelete === true">
+                        delete
+                    </i>
+                    
+                    
                 </div>
                 <div class="display-block extra-margin" style="overflow-x: hidden">
                     <!-- iconcina della mail -->

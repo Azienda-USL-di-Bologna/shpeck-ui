@@ -7,7 +7,8 @@ export const AppCustomization = {
             offsetWidth: "shpeck.rigthside.offsetWidth"
         }, */
         hideDetail: "shpeck.hideDetail",
-        version: "shpeck.version"
+        version: "shpeck.version",
+        fontSize: "shpeck.fontSize"
     }
 };
 
