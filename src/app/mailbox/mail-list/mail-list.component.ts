@@ -642,7 +642,9 @@ export class MailListComponent implements OnInit, OnDestroy {
           // selezione di un singolo messaggio (o come click singolo oppure come click del primo messaggio con il ctrl)
           if (this.mailListService.selectedMessages.length === 1) {
             const selectedMessage: Message = this.mailListService.selectedMessages[0];
-            this.mailListService.setSeen(true, true);
+            if (event.type === "row") {
+              this.mailListService.setSeen(true, true);
+            }
             const emlSource: string = this.getEmlSource(selectedMessage);
             this.messageService.manageMessageEvent(
               emlSource,
