@@ -226,3 +226,12 @@
     width: 100%;
     display: flex;
 }
+
+::ng-deep .ui-tooltip {
+  width: fit-content;
+  max-width: initial;
+}
+
+::ng-deep .ui-tooltip .ui-tooltip-text {
+  width: fit-content;
+}
