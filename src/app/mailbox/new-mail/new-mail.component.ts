@@ -529,9 +529,13 @@ export class NewMailComponent implements OnInit, AfterViewInit {
   }
 
   editorInit(event) {
-    const quill = event.editor;
-    const toolbar = quill.getModule("toolbar");
-    toolbar.addHandler("link", () => {
+    // console.log(event, a);
+    /* const quill = event.editor;
+    const toolbar = quill.getModule("toolbar"); */
+    /* getQuill;
+    const Link = Quill.import("formats/link");
+    Link.sanitize = function(url) { // modify url if desired return url; } */
+    /* toolbar.addHandler("link", () => {
       const range = quill.getSelection();
       if (range.length > 0) {
         const href = prompt("Inserire l'URL: ");
@@ -557,6 +561,6 @@ export class NewMailComponent implements OnInit, AfterViewInit {
       } else {
         quill.format("link", false);
       }
-    });
+    }); */
   }
 }
