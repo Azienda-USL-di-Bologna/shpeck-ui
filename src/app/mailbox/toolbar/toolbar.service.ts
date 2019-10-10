@@ -85,10 +85,13 @@ export class ToolBarService {
             this.buttonsObservables.get("newMailActive").next(false);
           }
 
-          if (pecFolderSelected.type === PecFolderType.FOLDER && (this.selectedFolder.type === FolderType.OUTBOX || this.selectedFolder.type === FolderType.DRAFT) || pecFolderSelected.type === PecFolderType.TAG) {
-            this.buttonsObservables.get("searchActive").next(false);
-          } else {
+          // La ricerca è attiva ovunque purché non sia dentro a bozze o posta in uscita
+          if ((pecFolderSelected.type === PecFolderType.FOLDER && this.selectedFolder.type !== FolderType.OUTBOX && this.selectedFolder.type !== FolderType.DRAFT) ||
+                pecFolderSelected.type === PecFolderType.TAG ||
+                pecFolderSelected.type === PecFolderType.PEC) {
             this.buttonsObservables.get("searchActive").next(true);
+          } else {
+            this.buttonsObservables.get("searchActive").next(false);
           }
         }
       }));
