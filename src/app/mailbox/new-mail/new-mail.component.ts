@@ -529,7 +529,7 @@ export class NewMailComponent implements OnInit, AfterViewInit {
   }
 
   editorInit(event) {
-    // console.log(event, a);
+    console.log("inside Quill", event);
     /* const quill = event.editor;
     const toolbar = quill.getModule("toolbar"); */
     /* getQuill;
@@ -562,5 +562,54 @@ export class NewMailComponent implements OnInit, AfterViewInit {
         quill.format("link", false);
       }
     }); */
+    const tooltips = {
+      bold: "Grassetto (CTRL+B)",
+      italic: "Corsivo (CTRL+I)",
+      underline: "Sottolineato (CTRL+U)",
+      link: "Inserisci collegamento ipertestuale (CTRL+K)",
+      image: "Inserisci immagini incorporate",
+      "code-block": "Blocco di codice",
+      clean : "Rimuovi formattazione"
+    };
+
+    const showTooltip = (el) => {
+      const tool = el.className.replace("ql-", "");
+      if (tooltips[tool]) {
+        el.setAttribute("title", tooltips[tool]);
+      } else if (el && el.value && el.value === "ordered") {
+        el.setAttribute("title", "Elenco numerato");
+      } else if (el && el.value && el.value === "bullet") {
+        el.setAttribute("title", "Elenco puntato");
+      }
+    };
+
+    const toolbarElement = document.querySelector(".ql-toolbar");
+    if (toolbarElement) {
+      const matches = toolbarElement.querySelectorAll("button");
+      const arrays = Array.prototype.slice.call(matches); // Array.from(matches);
+      for (let i = 0; i < matches.length; i++) {
+        showTooltip(matches[i]);
+      }
+      const header = document.querySelector(".ql-header");
+      if (header) {
+        header.setAttribute("title", "Dimensione carattere");
+      }
+      const font = document.querySelector(".ql-font");
+      if (font) {
+        font.setAttribute("title", "Tipo di carattere");
+      }
+      const color = document.querySelector(".ql-color");
+      if (color) {
+        color.setAttribute("title", "Colore carattere");
+      }
+      const background = document.querySelector(".ql-background");
+      if (background) {
+        background.setAttribute("title", "Colore sfondo");
+      }
+      const align = document.querySelector(".ql-align");
+      if (align) {
+        align.setAttribute("title", "Allinea testo");
+      }
+    }
   }
 }
