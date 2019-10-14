@@ -25,12 +25,14 @@ export class MailListService {
   public annotedTag: Tag;
   public selectedMessages: Message[] = [];
   public loggedUser: UtenteUtilities;
+  public loggedUserCanDelete: boolean = false;
 
   private subscriptions: Subscription[] = [];
   private selectedTag: Tag = null;
 
   private _newTagInserted: BehaviorSubject<Tag> = new BehaviorSubject<Tag>(null);
   private messageEvent: MessageEvent;
+  private idPec: number;
 
 
   constructor(
@@ -45,6 +47,7 @@ export class MailListService {
       if (utente) {
         if (!this.loggedUser || utente.getUtente().id !== this.loggedUser.getUtente().id) {
           this.loggedUser = utente;
+          this.loggedUserCanDelete = this.loggedUserHasPermission(PecPermission.ELIMINA);
         }
       }
     }));
@@ -58,6 +61,8 @@ export class MailListService {
         this.tags = foldersAndTags.tags;
         if (this.folders) {
           this.trashFolder = this.folders.find(f => f.type === FolderType.TRASH);
+          this.idPec = this.folders[0].idPec.id;
+          this.loggedUserCanDelete = this.loggedUserHasPermission(PecPermission.ELIMINA);
         }
         if (this.tags) {
           this.annotedTag = this.tags.find(t => t.name === "annotated");
@@ -326,17 +331,22 @@ export class MailListService {
   }
 
 
+  public loggedUserHasPermission(permission: PecPermission): boolean {
+    return this.loggedUser.hasPecPermission(this.idPec, permission);
+  }
+
+
   /**
    * Questa funzione ritorna un booleano che indica se i messaggi selezionati sono cancellabili (spostabili nel cestino).
    */
   public isDeleteActive(): boolean {
-    return this.isMoveActive() && this.loggedUser.hasPecPermission(this.selectedMessages[0].fk_idPec.id, PecPermission.ELIMINA);
+    //return this.isMoveActive() && this.loggedUser.hasPecPermission(this.selectedMessages[0].fk_idPec.id, PecPermission.ELIMINA);
+    return this.isMoveActive() && this.loggedUserHasPermission(PecPermission.ELIMINA);
   }
 
-  public isNewMailActive(idPec?: number, selectedPec?: Pec): boolean {
-    idPec = idPec || this.selectedMessages[0].fk_idPec.id;
-    if (selectedPec && selectedPec.attiva) {
-      return this.loggedUser.hasPecPermission(idPec, PecPermission.RISPONDE) || this.loggedUser.hasPecPermission(idPec, PecPermission.ELIMINA);
+  public isNewMailActive(selectedPec?: Pec, isDraft = false): boolean {
+    if ((selectedPec && selectedPec.attiva) || isDraft) {
+      return this.loggedUserHasPermission(PecPermission.RISPONDE) || this.loggedUserHasPermission(PecPermission.ELIMINA);
     } else {
       return false;
     }

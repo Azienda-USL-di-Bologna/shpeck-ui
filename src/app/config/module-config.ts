@@ -1,4 +1,4 @@
-import { NTJWTModuleConfig } from "@bds/nt-jwt-login";
+import { NTJWTModuleConfig, LogoutType } from "@bds/nt-jwt-login";
 import { LOGIN_ROUTE, LOCALHOST_PORT, APPLICATION, MAILBOX_ROUTE } from "../../environments/app-constants";
 
 export const loginModuleConfig: NTJWTModuleConfig = {
@@ -8,6 +8,8 @@ export const loginModuleConfig: NTJWTModuleConfig = {
     localhostPort: LOCALHOST_PORT,
     applicazione: APPLICATION,
     logoutRedirectRoute: MAILBOX_ROUTE,
-    sessionExpireSeconds: 1800, // 0 = distattivato
-    pingInterval: 900 // 0 disattivato
+    // sessionExpireSeconds: 1800, // 0 = distattivato
+    pingInterval: 900, //  0 disattivato, 900 parametro deciso per prod
+    // logout type SSO sync oppure local
+    logoutType: LogoutType.SSO_SYNC
 };

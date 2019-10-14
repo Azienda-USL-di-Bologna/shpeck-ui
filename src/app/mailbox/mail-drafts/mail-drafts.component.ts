@@ -1,7 +1,7 @@
 import { Component, OnInit, Input, OnDestroy, ViewChild } from "@angular/core";
 import { Draft, ENTITIES_STRUCTURE } from "@bds/ng-internauta-model";
 import { FILTER_TYPES, FilterDefinition, PagingConf, FiltersAndSorts, SortDefinition, SORT_MODES } from "@nfa/next-sdr";
-import { LazyLoadEvent, FilterMetadata } from "primeng/api";
+import { LazyLoadEvent, FilterMetadata, ConfirmationService } from "primeng/api";
 import { DatePipe } from "@angular/common";
 import { buildLazyEventFiltersAndSorts } from "@bds/primeng-plugin";
 import { DraftService } from "src/app/services/draft.service";
@@ -69,7 +69,8 @@ export class MailDraftsComponent implements OnInit, OnDestroy {
     private settingsService: SettingsService,
     private draftLiteService: DraftLiteService,
     private datepipe: DatePipe,
-    private mailboxService: MailboxService) { }
+    private mailboxService: MailboxService,
+    private confirmationService: ConfirmationService) { }
 
   ngOnInit() {
     this.selectedDrafts = [];
@@ -266,11 +267,23 @@ export class MailDraftsComponent implements OnInit, OnDestroy {
     }
   }
 
-  trackByFn(index, item) {
+  public trackByFn(index, item) {
     return item.id;
   }
 
-  ngOnDestroy() {
+  public deletingConfirmation() {
+    this.confirmationService.confirm({
+      message: "Vuoi eliminare definitivamente la bozza selezionata?",
+      header: "Conferma",
+      icon: "pi pi-exclamation-triangle",
+      accept: () => {
+        this.draftService.deleteDraftMessage(this.selectedDrafts[0].id, true, true);
+      },
+      reject: () => {}
+    });
+  }
+
+  public ngOnDestroy() {
     for (const s of this.subscriptions) {
       s.unsubscribe();
     }

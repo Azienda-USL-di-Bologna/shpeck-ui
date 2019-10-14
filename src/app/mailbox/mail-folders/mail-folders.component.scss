@@ -83,10 +83,20 @@
 // }
 
 ::ng-deep .tree-style, ::ng-deep .ui-tree-container {
-    font-size: 13px !important;
+   /*  font-size: 13px !important; */
     border: none !important;
     padding: 0 !important;
 }
+/* ::ng-deep .general-font-size-small .tree-style, ::ng-deep .general-font-size-small .ui-tree-container {
+    font-size: 13px !important;
+}
+::ng-deep .general-font-size-medium .tree-style, ::ng-deep .general-font-size-medium .ui-tree-container {
+    font-size: 14px !important;
+}
+::ng-deep .general-font-size-big .tree-style, ::ng-deep .general-font-size-big .ui-tree-container {
+    font-size: 15px !important;
+} */
+      
 
 // ::ng-deep .ui-treenode-content-selected {
 //     background-color: aquamarine;
@@ -98,50 +108,71 @@
 //     font-weight: bold;
 //   }
 
-  ::ng-deep body .ui-tree .ui-tree-container .ui-treenode .ui-treenode-content .ui-treenode-label.ui-state-highlight {
-    background-color: #eaeaea !important;
-    color: black;
-    font-weight: bold;
-  }
+::ng-deep body .ui-tree .ui-tree-container .ui-treenode .ui-treenode-content .ui-treenode-label.ui-state-highlight {
+  background-color: #eaeaea !important;
+  color: black;
+  font-weight: bold;
+}
 
-  ::ng-deep .tree-node-style {
-    // font-size: 0.90em !important;
-    font-size: 12px !important;
-    // background-color: white !important;
-    // color: black !important;
-    font-weight: normal !important;
+::ng-deep .tree-node-style {
+  // font-size: 0.90em !important;
+  /* font-size: 12px !important; */
+  // background-color: white !important;
+  // color: black !important;
+  font-weight: normal !important;
 }
 
 ::ng-deep .tree-node-style .ui-inputtext,
 ::ng-deep .root-tree-node-style .ui-inputtext,
 ::ng-deep .root-tree-node-style-selected .ui-inputtext {
-    border: none !important;
-    font-size: 12px !important;
+  border: none !important;
+  /* font-size: 12px !important; */
 }
 
 ::ng-deep .tree-node-style.ui-treenode-leaf .ui-treenode-label {
-    background-color: white !important;
+  background-color: white !important;
 }
 
 ::ng-deep .root-tree-node-style {
-    font-size: 12px !important;
-    // background-color: white !important;
-    // color: black !important;
-    font-weight: normal !important;
+  font-size: 12px !important;
+  // background-color: white !important;
+  // color: black !important;
+  font-weight: normal !important;
+}
+::ng-deep .general-font-size-small .root-tree-node-style {
+  font-size: 12px !important;
+}
+::ng-deep .general-font-size-medium .root-tree-node-style {
+  font-size: 13px !important;
+}
+::ng-deep .general-font-size-big .root-tree-node-style {
+  font-size: 14px !important;
 }
 
+
+
 ::ng-deep .root-tree-node-style-selected {
-    font-size: 12px !important;
-    color: black !important;
-    background-color: #eaeaea;
-    font-weight: bold;
-  }
+  font-size: 12px !important;
+  color: black !important;
+  background-color: #eaeaea;
+  font-weight: bold;
+}
+::ng-deep .general-font-size-small .root-tree-node-style-selected {
+  font-size: 12px !important;
+}
+::ng-deep .general-font-size-medium .root-tree-node-style-selected {
+  font-size: 13px !important;
+}
+::ng-deep .general-font-size-big .root-tree-node-style-selected {
+  font-size: 14px !important;
+}
+
 
 ::ng-deep .root-tree-node-style-selected .ui-treenode-label {
-    // font-size: 12px !important;
-    background-color: #eaeaea !important;
-    // color: black  !important;
-    // font-weight: bold !important;
+  // font-size: 12px !important;
+  background-color: #eaeaea !important;
+  // color: black  !important;
+  // font-weight: bold !important;
 }
 
 ::ng-deep .context-menu-mail-folders {

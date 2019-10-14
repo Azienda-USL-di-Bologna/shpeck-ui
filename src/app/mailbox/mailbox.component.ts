@@ -7,6 +7,7 @@ import { FilterDefinition, SORT_MODES } from "@nfa/next-sdr";
 import { MailFoldersService, PecFolder, PecFolderType } from "./mail-folders/mail-folders.service";
 import { MenuItem } from "primeng/api";
 import { MailboxService, Sorting } from "./mailbox.service";
+import { FONTSIZE } from "src/environments/app-constants";
 
 @Component({
   selector: "app-mailbox",
@@ -36,6 +37,7 @@ export class MailboxComponent implements OnInit, AfterViewInit, AfterViewChecked
   public flexGridClass = "p-col-8";
   public sliding: boolean = false;
   public hideDetail = false;
+  public fontSize = FONTSIZE.BIG;
   public componentToLoad: string = "mail-list";
 
   public tooltipSorting = "L'ordinamento è impostato su data discendente";
@@ -85,6 +87,7 @@ export class MailboxComponent implements OnInit, AfterViewInit, AfterViewChecked
     // this.setLook();
     this.subscriptions.push(this.settingsService.settingsChangedNotifier$.subscribe(newSettings => {
       this.hideDetail = newSettings[AppCustomization.shpeck.hideDetail] === "true";
+      this.fontSize = newSettings[AppCustomization.shpeck.fontSize] ? newSettings[AppCustomization.shpeck.fontSize] : FONTSIZE.BIG;
       if (this.hideDetail) {
         this.mailList.nativeElement.style.flex = "1";
       }
@@ -199,6 +202,8 @@ export class MailboxComponent implements OnInit, AfterViewInit, AfterViewChecked
     this.setResponsiveSliders();
     if (this.settingsService.getImpostazioniVisualizzazione()) {
       this.hideDetail = this.settingsService.getHideDetail() === "true";
+      const fontSize = this.settingsService.getFontSize();
+      this.fontSize = fontSize ? fontSize : FONTSIZE.BIG;
     }
   }
 
