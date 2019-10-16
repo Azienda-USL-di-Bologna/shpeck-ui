@@ -289,17 +289,43 @@ p-table,
   overflow: hidden;
 }
 
-.message-row {
+.message-row-font-size-small {
   font-size: 12px !important;
   width: 100% !important;
   //align-items: stretch;
   //flex-direction: row;
-  height: 70px !important;
+  height: 78px !important;
   //white-space-collapsing: collapse;
   //text-wrap: none;
   white-space: nowrap;
   //overflow: scroll;
 }
+
+.message-row-font-size-medium {
+  font-size: 13px !important;
+  width: 100% !important;
+  //align-items: stretch;
+  //flex-direction: row;
+  height: 84px !important;
+  //white-space-collapsing: collapse;
+  //text-wrap: none;
+  white-space: nowrap;
+  //overflow: scroll;
+}
+
+.message-row-font-size-big {
+  font-size: 14px !important;
+  width: 100% !important;
+  //align-items: stretch;
+  //flex-direction: row;
+  height: 89px !important;
+  //white-space-collapsing: collapse;
+  //text-wrap: none;
+  white-space: nowrap;
+  //overflow: scroll;
+}
+
+
 ::ng-deep .general-font-size-small .message-row {
   font-size: 12px !important;
 }

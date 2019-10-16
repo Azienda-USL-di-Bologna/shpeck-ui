@@ -20,7 +20,8 @@
     dataKey="id" (mouseenter)="handleEvent('onMouseEnter', $event)"
     (onContextMenuSelect)="handleEvent('onContextMenuSelect', $event)">
     <ng-template pTemplate="body" let-rowData let-message let-rowIndex="rowIndex">
-        <tr #selRow class="message-row" [pSelectableRow]="rowData" [pSelectableRowIndex]="rowIndex"
+        <tr #selRow [ngClass]="fontSize === 'small' ? 'message-row-font-size-small' : fontSize === 'medium' ? 'message-row-font-size-medium' : 'message-row-font-size-big'"
+        [pSelectableRow]="rowData" [pSelectableRowIndex]="rowIndex"
             [pContextMenuRow]="rowData" (dblclick)="openDetailPopup($event, rowData, message)">
             <td class="column-checkbox">
                 <p-tableCheckbox [value]="rowData"></p-tableCheckbox>

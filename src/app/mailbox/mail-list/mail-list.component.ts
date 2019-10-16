@@ -7,7 +7,7 @@ import { TagService } from "src/app/services/tag.service";
 import { Observable, Subscription } from "rxjs";
 import { DatePipe } from "@angular/common";
 import { Table } from "primeng/table";
-import { TOOLBAR_ACTIONS, EMLSOURCE, BaseUrls, BaseUrlType } from "src/environments/app-constants";
+import { TOOLBAR_ACTIONS, EMLSOURCE, BaseUrls, BaseUrlType, FONTSIZE } from "src/environments/app-constants";
 import { MenuItem, LazyLoadEvent, FilterMetadata, ConfirmationService, MessageService } from "primeng/api";
 import { Utils } from "src/app/utils/utils";
 import { MailFoldersService, PecFolderType, PecFolder } from "../mail-folders/mail-folders.service";
@@ -227,7 +227,16 @@ export class MailListComponent implements OnInit, OnDestroy {
   public noteObject: Note = new Note();
   public fromOrTo: any;
   public loading = false;
-  public virtualRowHeight: number = 75;
+  public fontSize = FONTSIZE.BIG;
+  private VIRTUAL_ROW_HEIGHTS = {
+    small: 78,
+    medium: 84,
+    big: 89
+  };
+  // private SMALL_SIZE_VIRTUAL_ROW_HEIGHT = 77;
+  // private MEDIUM_SIZE_VIRTUAL_ROW_HEIGHT = 83;
+  // private LARGE_SIZE_VIRTUAL_ROW_HEIGHT = 89;
+  public virtualRowHeight: number = this.VIRTUAL_ROW_HEIGHTS[FONTSIZE.BIG];
   public totalRecords: number;
   public rowsNmber = 10;
   public cols = [
@@ -285,9 +294,17 @@ export class MailListComponent implements OnInit, OnDestroy {
     }));
     this.subscriptions.push(this.settingsService.settingsChangedNotifier$.subscribe(newSettings => {
       this.openDetailInPopup = newSettings[AppCustomization.shpeck.hideDetail] === "true";
+      const newFontSize = newSettings[AppCustomization.shpeck.fontSize] ? newSettings[AppCustomization.shpeck.fontSize] : FONTSIZE.BIG;
+      if (newFontSize !== this.fontSize) {
+        this.fontSize = newFontSize;
+        this.virtualRowHeight = this.VIRTUAL_ROW_HEIGHTS[this.fontSize];
+        this.setFolder(this._selectedFolder);
+      }
     }));
     if (this.settingsService.getImpostazioniVisualizzazione()) {
       this.openDetailInPopup = this.settingsService.getHideDetail() === "true";
+      this.fontSize = this.settingsService.getFontSize() ? this.settingsService.getFontSize() : FONTSIZE.BIG;
+      this.virtualRowHeight = this.VIRTUAL_ROW_HEIGHTS[this.fontSize];
     }
     this.subscriptions.push(this.messageService.messageEvent.subscribe(
       (messageEvent: MessageEvent) => {
@@ -378,14 +395,14 @@ export class MailListComponent implements OnInit, OnDestroy {
     return this.tagService.getData(null, filtersAndSorts, null, null);
   }
 
-  private loadData(pageCong: PagingConf, lazyFilterAndSort?: FiltersAndSorts, folder?: Folder, tag?: Tag) {
+  private loadData(pageConf: PagingConf, lazyFilterAndSort?: FiltersAndSorts, folder?: Folder, tag?: Tag) {
     this.loading = true;
     this.messageService
       .getData(
         this.selectedProjection,
         this.buildInitialFilterAndSort(folder, tag),
         lazyFilterAndSort,
-        pageCong
+        pageConf
       )
       .subscribe(data => {
         if (data && data.results) {
@@ -1194,7 +1211,7 @@ export class MailListComponent implements OnInit, OnDestroy {
           new Date(messageTag.inserted).toLocaleDateString("it-IT", { hour: "numeric", minute: "numeric" })
       };
     } else {
-      this.registrationDetail = {}
+      this.registrationDetail = {};
     }
     this.displayRegistrationDetail = true;
   }
