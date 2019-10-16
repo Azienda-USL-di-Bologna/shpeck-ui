@@ -530,6 +530,21 @@ export class NewMailComponent implements OnInit, AfterViewInit {
 
   editorInit(event) {
     console.log("inside Quill", event);
+    const quill = event.editor;
+    const toolbar = quill.getModule("toolbar");
+    /* toolbar.addHandler("link", (value) => {
+      if (value) {
+        const range = quill.getSelection();
+        let preview = quill.getText(range);
+        if (/^\S+@\S+\.\S+$/.test(preview) && preview.indexOf("mailto:") !== 0) {
+          preview = "mailto:" + preview;
+        }
+        const tooltip = quill.theme.tooltip;
+        tooltip.edit("link", "ciao");
+      } else {
+        quill.format("link", false);
+      }
+    }); */
     /* const quill = event.editor;
     const toolbar = quill.getModule("toolbar"); */
     /* getQuill;
