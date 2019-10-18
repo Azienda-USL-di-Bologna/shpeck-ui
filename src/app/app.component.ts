@@ -8,6 +8,7 @@ import { HeaderFeaturesConfig } from "@bds/primeng-plugin";
 import { SettingsComponent } from "./settings/settings.component";
 import { ActivatedRoute, Router, Params } from "@angular/router";
 import { getInternautaUrl, BaseUrlType } from "@bds/ng-internauta-model";
+import Quill from "quill";
 
 @Component({
   selector: "app-root",
@@ -29,6 +30,14 @@ export class AppComponent implements OnInit {
     private popupMessaggiService: PopupMessaggiService) { }
 
   ngOnInit() {
+    const Link = Quill.import("formats/link");
+    Link.sanitize = function(url) {
+      if (!url.startsWith("http://") && !url.startsWith("https://")) {
+        url = "https://" + url;
+      }
+      return url;
+    };
+
     this.headerFeaturesConfig = new HeaderFeaturesConfig();
     this.headerFeaturesConfig.showCambioUtente = true;
     this.headerFeaturesConfig.showLogOut = true;

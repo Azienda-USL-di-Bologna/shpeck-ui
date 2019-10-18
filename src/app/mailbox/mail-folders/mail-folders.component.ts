@@ -839,6 +839,27 @@ export class MailFoldersComponent implements OnInit, OnDestroy {
     }
   }
 
+  public buildTooltipForNode(node: any) {
+    if (node.data.type === "pec") {
+      if (node.data.data.attiva) {
+        let listAziendeString = "";
+        let index = 0;
+        for (const a of node.data.data.pecAziendaList) {
+          index++;
+          listAziendeString += "- " + a.idAzienda.descrizione + "\n";
+        }
+        if (index > 0) {
+          listAziendeString = (index > 1 ? "Associata alle aziende: \n" : "Associata all'azienda: \n") + listAziendeString;
+        }
+        return listAziendeString;
+      } else {
+        return "disattivata";
+      }
+    }
+
+    return "";
+  }
+
   public ngOnDestroy() {
     for (const s of this.subscriptions) {
       s.unsubscribe();
