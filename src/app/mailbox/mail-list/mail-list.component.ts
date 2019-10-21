@@ -238,7 +238,7 @@ export class MailListComponent implements OnInit, OnDestroy {
   // private LARGE_SIZE_VIRTUAL_ROW_HEIGHT = 89;
   public virtualRowHeight: number = this.VIRTUAL_ROW_HEIGHTS[FONTSIZE.BIG];
   public totalRecords: number;
-  public rowsNmber = 10;
+  public rowsNmber = 50;
   public cols = [
     {
       field: "subject",
@@ -408,6 +408,7 @@ export class MailListComponent implements OnInit, OnDestroy {
         if (data && data.results) {
           this.totalRecords = data.page.totalElements;
           this.mailListService.messages = data.results;
+          console.log("total records", this.totalRecords);
           console.log("this.mailListService.messages", this.mailListService.messages);
           this.setMailTagVisibility(this.mailListService.messages);
           this.mailFoldersService.doReloadTag(this.mailListService.tags.find(t => t.name === "in_error").id);
@@ -506,7 +507,7 @@ export class MailListComponent implements OnInit, OnDestroy {
         };
       }
       this.pageConf.conf = {
-        limit: this.rowsNmber * 2,
+        limit: this.rowsNmber,
         offset: 0
       };
       const filtersAndSorts: FiltersAndSorts = buildLazyEventFiltersAndSorts(
