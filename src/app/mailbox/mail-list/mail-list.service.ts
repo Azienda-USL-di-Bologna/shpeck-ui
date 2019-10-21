@@ -342,6 +342,12 @@ export class MailListService {
           this.messages = Utils.arrayDiff(this.messages, this.selectedMessages);
           this.mailFoldersService.doReloadFolder(messagesFolder[0].fk_idFolder.id);
           this.mailFoldersService.doReloadFolder(idFolder);
+          this.selectedMessages = [];
+          this.messageService.manageMessageEvent(
+            null,
+            null,
+            this.selectedMessages
+          );
         });
     }
   }
