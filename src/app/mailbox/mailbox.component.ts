@@ -1,4 +1,4 @@
-import { Component, OnInit, ViewChild, ElementRef, AfterViewInit, AfterViewChecked, OnChanges, HostListener, Output, EventEmitter } from "@angular/core";
+import { Component, OnInit, ViewChild, ElementRef, AfterViewInit, AfterViewChecked, OnChanges, HostListener } from "@angular/core";
 import { Subscription } from "rxjs";
 import { SettingsService } from "../services/settings.service";
 import { AppCustomization } from "src/environments/app-customization";
@@ -6,7 +6,7 @@ import { Folder, Message, FolderType, Tag, Pec, Menu } from "@bds/ng-internauta-
 import { FilterDefinition, SORT_MODES } from "@nfa/next-sdr";
 import { MailFoldersService, PecFolder, PecFolderType } from "./mail-folders/mail-folders.service";
 import { MenuItem } from "primeng/api";
-import { MailboxService, Sorting } from "./mailbox.service";
+import { MailboxService, Sorting, TotalMessageNumberDescriptor } from "./mailbox.service";
 import { FONTSIZE } from "src/environments/app-constants";
 
 @Component({
@@ -16,7 +16,7 @@ import { FONTSIZE } from "src/environments/app-constants";
 })
 export class MailboxComponent implements OnInit, AfterViewInit, AfterViewChecked, OnChanges {
 
-  public folderSelected: Folder;
+  public pecFolderSelected: PecFolder;
   public _selectedPec: Pec;
   public _selectedTag: Tag;
   public _selectedFolder: Folder;
@@ -39,6 +39,7 @@ export class MailboxComponent implements OnInit, AfterViewInit, AfterViewChecked
   public hideDetail = false;
   public fontSize = FONTSIZE.BIG;
   public componentToLoad: string = "mail-list";
+  public totalMessageNumberDescriptor: TotalMessageNumberDescriptor;
 
   public tooltipSorting = "L'ordinamento è impostato su data discendente";
   public sortMenuItem: MenuItem[] = [
@@ -93,6 +94,9 @@ export class MailboxComponent implements OnInit, AfterViewInit, AfterViewChecked
       }
     }));
     this.subscriptions.push(this.mailFoldersService.pecFolderSelected.subscribe((pecFolderSelected: PecFolder) => {
+      // al cambio di cartella/tag setto a null il numero di messaggi in modo che sparisca e ricompaia poi dopo che i nuovi messaggi sono stati caricati
+      this.totalMessageNumberDescriptor = null;
+      this.pecFolderSelected = pecFolderSelected;
       if (pecFolderSelected) {
         if (pecFolderSelected.type === PecFolderType.FOLDER) {
           const selectedFolder: Folder = pecFolderSelected.data as Folder;
@@ -118,6 +122,28 @@ export class MailboxComponent implements OnInit, AfterViewInit, AfterViewChecked
           this._selectedPecId = this._selectedPec.id;
           this._selectedFolder = null;
           this._selectedTag = null;
+        }
+      }
+    }));
+    this.subscriptions.push(this.mailboxService.totalMessageNumberDescriptor$.subscribe((totalMessageNumberDescriptor: TotalMessageNumberDescriptor) => {
+      if (totalMessageNumberDescriptor) {
+        if (this.pecFolderSelected.type === totalMessageNumberDescriptor.pecFolder.type) {
+          switch (totalMessageNumberDescriptor.pecFolder.type) {
+            case PecFolderType.FOLDER:
+              const receivedSelectedFolder: Folder = totalMessageNumberDescriptor.pecFolder.data as Folder;
+              const folderSelected: Folder = this.pecFolderSelected.data as Folder;
+              if (receivedSelectedFolder.id === folderSelected.id) {
+                this.totalMessageNumberDescriptor = totalMessageNumberDescriptor;
+              }
+            break;
+            case PecFolderType.TAG:
+              const tagSelected: Tag = totalMessageNumberDescriptor.pecFolder.data as Tag;
+              const receivedSelectedTag: Tag = totalMessageNumberDescriptor.pecFolder.data as Tag;
+              if (receivedSelectedTag.id === tagSelected.id) {
+                this.totalMessageNumberDescriptor = totalMessageNumberDescriptor;
+              }
+            break;
+          }
         }
       }
     }));
@@ -152,15 +178,15 @@ export class MailboxComponent implements OnInit, AfterViewInit, AfterViewChecked
     this.message = messageClicked;
   }
 
-  public onFolderSelected(folder: Folder) {
-    // faccio la copia per fare in modo che scatti sempre l'input di mail-list-component, altrimento se l'oggetto è lo stesso non scatterebbe
-    if (folder) {
-      this.folderSelected = new Folder();
-      Object.assign(this.folderSelected , folder);
-    } else {
-      this.folderSelected = null;
-    }
-  }
+  // public onFolderSelected(folder: Folder) {
+  //   // faccio la copia per fare in modo che scatti sempre l'input di mail-list-component, altrimento se l'oggetto è lo stesso non scatterebbe
+  //   if (folder) {
+  //     this.folderSelected = new Folder();
+  //     Object.assign(this.folderSelected , folder);
+  //   } else {
+  //     this.folderSelected = null;
+  //   }
+  // }
 
   public onFilterSelection(filters: FilterDefinition[]) {
     this.filtersSelected = filters;

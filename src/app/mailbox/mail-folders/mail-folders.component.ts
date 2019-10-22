@@ -2,8 +2,7 @@ import { Component, OnInit, ViewEncapsulation, OnDestroy, ViewChild, ElementRef,
 import { Pec, Folder, FolderType, Tag, TagType, Utente } from "@bds/ng-internauta-model";
 import { PecService } from "src/app/services/pec.service";
 import { TreeNode, MenuItem, MessageService } from "primeng/api";
-import { MailFoldersService, PecFolder, PecFolderType, FoldersAndTags } from "./mail-folders.service";
-import { ToolBarService } from "../toolbar/toolbar.service";
+import { MailFoldersService, PecFolder, PecFolderType } from "./mail-folders.service";
 import { Subscription } from "rxjs";
 import { ContextMenu, Tree } from "primeng/primeng";
 import { FolderService } from "src/app/services/folder.service";
@@ -11,7 +10,6 @@ import { TagService } from "src/app/services/tag.service";
 import { MailListService } from "../mail-list/mail-list.service";
 import { UtenteUtilities, NtJwtLoginService } from "@bds/nt-jwt-login";
 import { ShpeckMessageService } from "src/app/services/shpeck-message.service";
-import { UtilityFunctions } from "@bds/nt-communicator";
 
 @Component({
   selector: "app-mail-folders",

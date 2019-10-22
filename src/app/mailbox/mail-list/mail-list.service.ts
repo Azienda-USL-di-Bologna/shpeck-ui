@@ -30,7 +30,7 @@ export class MailListService {
   private subscriptions: Subscription[] = [];
   private selectedTag: Tag = null;
 
-  private _newTagInserted: BehaviorSubject<Tag> = new BehaviorSubject<Tag>(null);
+  private _newTagInserted$: BehaviorSubject<Tag> = new BehaviorSubject<Tag>(null);
   private messageEvent: MessageEvent;
   private idPec: number;
 
@@ -84,9 +84,8 @@ export class MailListService {
   }
 
   public get newTagInserted(): Observable<Tag> {
-    return this._newTagInserted.asObservable();
+    return this._newTagInserted$.asObservable();
   }
-
 
   /**
    * Questa funzione si occupa di creare un MenuItem[] che contenga come items le folders passate.
@@ -310,7 +309,7 @@ export class MailListService {
    * Questa funzione ritorna un booleano che indica se i messaggi selezionati sono cancellabili (spostabili nel cestino).
    */
   public isDeleteActive(): boolean {
-    //return this.isMoveActive() && this.loggedUser.hasPecPermission(this.selectedMessages[0].fk_idPec.id, PecPermission.ELIMINA);
+    // return this.isMoveActive() && this.loggedUser.hasPecPermission(this.selectedMessages[0].fk_idPec.id, PecPermission.ELIMINA);
     return this.isMoveActive() && this.loggedUserHasPermission(PecPermission.ELIMINA);
   }
 
@@ -365,7 +364,7 @@ export class MailListService {
   public createAndApplyTag(tagName) {
     this.createTag(tagName).subscribe(
       (res: Tag) => {
-        this._newTagInserted.next(res);
+        this._newTagInserted$.next(res);
         // this.tags.push(res);
         this.toggleTag(res);
         this.messagePrimeService.add(

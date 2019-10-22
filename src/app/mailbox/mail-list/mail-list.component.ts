@@ -19,7 +19,7 @@ import { Menu } from "primeng/menu";
 import { AppCustomization } from "src/environments/app-customization";
 import { SettingsService } from "src/app/services/settings.service";
 import { FormGroup, FormControl, Validators } from "@angular/forms";
-import { MailboxService, Sorting } from "../mailbox.service";
+import { MailboxService, Sorting, TotalMessageNumberDescriptor } from "../mailbox.service";
 import { ContextMenu } from "primeng/primeng";
 
 @Component({
@@ -58,6 +58,9 @@ export class MailListComponent implements OnInit, OnDestroy {
   @ViewChild("archiviationMenu", null) private archiviationMenu: Menu;
   @ViewChild("tagMenu", null) private tagMenu: Menu;
   // @ViewChild("ordermenu") private ordermenu: Menu;
+
+  // serve per mandarlo al mailbox-component
+  private pecFolderSelected: PecFolder;
 
   public _selectedTag: Tag;
   public _selectedFolder: Folder;
@@ -259,6 +262,7 @@ export class MailListComponent implements OnInit, OnDestroy {
     this.subscriptions.push(this.mailFoldersService.pecFolderSelected.subscribe((pecFolderSelected: PecFolder) => {
       // this.tempSelectedMessages = null;
       this.mailListService.selectedMessages = [];
+      this.pecFolderSelected = pecFolderSelected;
       if (pecFolderSelected) {
         if (pecFolderSelected.type === PecFolderType.FOLDER) {
           const selectedFolder: Folder = pecFolderSelected.data as Folder;
@@ -397,6 +401,10 @@ export class MailListComponent implements OnInit, OnDestroy {
 
   private loadData(pageConf: PagingConf, lazyFilterAndSort?: FiltersAndSorts, folder?: Folder, tag?: Tag) {
     this.loading = true;
+    // mi devo salvare la folder/tag selezionata al momento del caricamento,
+    // perché nella subscribe quando la invio al mailbox-component per scrivere il numero di messaggi
+    // la selezione potrebbe essere cambiata e quindi manderei un dato errato
+    const folderSelected = this.pecFolderSelected;
     this.messageService
       .getData(
         this.selectedProjection,
@@ -407,6 +415,12 @@ export class MailListComponent implements OnInit, OnDestroy {
       .subscribe(data => {
         if (data && data.results) {
           this.totalRecords = data.page.totalElements;
+          // mando l'evento con il numero di messaggi (serve a mailbox-component perché lo deve scrivere nella barra superiore)
+          this.mailboxService.setTotalMessageNumberDescriptor({
+            messageNumber: this.totalRecords,
+            pecFolder: folderSelected // folder/tag che era selezionato quando lo scaricamento dei messaggi è iniziato
+          } as TotalMessageNumberDescriptor);
+
           this.mailListService.messages = data.results;
           console.log("total records", this.totalRecords);
           console.log("this.mailListService.messages", this.mailListService.messages);

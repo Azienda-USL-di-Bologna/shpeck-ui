@@ -9,8 +9,9 @@ import { Observable, Subscription } from "rxjs";
 import { SettingsService } from "src/app/services/settings.service";
 import { DraftLiteService } from "src/app/services/draft-lite.service";
 import { AppCustomization } from "src/environments/app-customization";
-import { MailboxService, Sorting } from "../mailbox.service";
+import { MailboxService, Sorting, TotalMessageNumberDescriptor } from "../mailbox.service";
 import { Table } from "primeng/table";
+import { PecFolder, MailFoldersService } from '../mail-folders/mail-folders.service';
 
 @Component({
   selector: "app-mail-drafts",
@@ -28,6 +29,9 @@ export class MailDraftsComponent implements OnInit, OnDestroy {
       this.loadData(null);
     });
   }
+
+  public pecFolderSelected: PecFolder;
+
   @ViewChild("dt", null) private dt: Table;
   private previousFilter: FilterDefinition[] = [];
   private selectedProjection: string =
@@ -70,6 +74,7 @@ export class MailDraftsComponent implements OnInit, OnDestroy {
     private draftLiteService: DraftLiteService,
     private datepipe: DatePipe,
     private mailboxService: MailboxService,
+    private mailFoldersService: MailFoldersService,
     private confirmationService: ConfirmationService) { }
 
   ngOnInit() {
@@ -81,6 +86,9 @@ export class MailDraftsComponent implements OnInit, OnDestroy {
       } else {
         this.loadData(null);
       }
+    }));
+    this.subscriptions.push(this.mailFoldersService.pecFolderSelected.subscribe((pecFolderSelected: PecFolder) => {
+      this.pecFolderSelected = pecFolderSelected;
     }));
     this.subscriptions.push(this.settingsService.settingsChangedNotifier$.subscribe(newSettings => {
       this.openDetailInPopup = newSettings[AppCustomization.shpeck.hideDetail] === "true";
@@ -198,10 +206,21 @@ export class MailDraftsComponent implements OnInit, OnDestroy {
   private loadData(pageCong: PagingConf, lazyFilterAndSort?: FiltersAndSorts, idDraft?: number) {
     if (this._selectedPecId) {
       this.loading = true;
+
+      // mi devo salvare la folder/tag selezionata al momento del caricamento,
+      // perché nella subscribe quando la invio al mailbox-component per scrivere il numero di messaggi
+      // la selezione potrebbe essere cambiata e quindi manderei un dato errato
+      const folderSelected = this.pecFolderSelected;
       this.draftLiteService.getData(this.selectedProjection, this.buildDraftInitialFilterAndSort(), lazyFilterAndSort, pageCong).subscribe(data => {
         if (data && data.results) {
           console.log("DATA = ", data);
           this.totalRecords = data.page.totalElements;
+          // mando l'evento con il numero di messaggi (serve a mailbox-component perché lo deve scrivere nella barra superiore)
+          this.mailboxService.setTotalMessageNumberDescriptor({
+            messageNumber: this.totalRecords,
+            pecFolder: folderSelected // folder/tag che era selezionato quando lo scaricamento dei messaggi è iniziato
+          } as TotalMessageNumberDescriptor);
+
           this.drafts = data.results;
           if (idDraft) {
             const selectedDraft: Draft = this.drafts.find(value => value.id === idDraft);
