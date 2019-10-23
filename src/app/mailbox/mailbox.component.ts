@@ -66,6 +66,18 @@ export class MailboxComponent implements OnInit, AfterViewInit, AfterViewChecked
         field: "messageExtensionList.addressFrom"
       },
       command: event => this.changeSorting(event)
+    },
+    {
+      label: "Letto",
+      icon: "",
+      id: "sortLetto",
+      title: "letto",
+      disabled: false,
+      queryParams: {
+        sort: null,
+        field: "seen"
+      },
+      command: event => this.changeSorting(event)
     }
   ];
 
