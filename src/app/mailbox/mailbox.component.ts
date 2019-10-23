@@ -68,7 +68,7 @@ export class MailboxComponent implements OnInit, AfterViewInit, AfterViewChecked
       command: event => this.changeSorting(event)
     },
     {
-      label: "Letto",
+      label: "Da leggere",
       icon: "",
       id: "sortLetto",
       title: "letto",
