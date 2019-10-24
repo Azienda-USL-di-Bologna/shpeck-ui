@@ -3,7 +3,7 @@ import { Tag, Folder, Message, FolderType, InOut, ENTITIES_STRUCTURE, FluxPermis
 import { MenuItem, MessageService } from "primeng/api";
 import { Utils } from "src/app/utils/utils";
 import { MessageFolderService } from "src/app/services/message-folder.service";
-import { Subscription, Observable, BehaviorSubject } from "rxjs";
+import { Subscription, Observable, BehaviorSubject, Subject } from "rxjs";
 import { MailFoldersService, FoldersAndTags, PecFolderType, PecFolder } from "../mail-folders/mail-folders.service";
 import { NtJwtLoginService, UtenteUtilities } from "@bds/nt-jwt-login";
 import { BatchOperation, BatchOperationTypes, FILTER_TYPES, FiltersAndSorts, FilterDefinition } from "@nfa/next-sdr";
@@ -12,6 +12,7 @@ import { MessageEvent, ShpeckMessageService } from "src/app/services/shpeck-mess
 import { DialogService } from "primeng/api";
 import { ReaddressComponent } from "../readdress/readdress.component";
 import { TagService } from "src/app/services/tag.service";
+import { MailboxService, TotalMessageNumberDescriptor } from "../mailbox.service";
 
 @Injectable({
   providedIn: "root"
@@ -33,6 +34,9 @@ export class MailListService {
   private _newTagInserted$: BehaviorSubject<Tag> = new BehaviorSubject<Tag>(null);
   private messageEvent: MessageEvent;
   private idPec: number;
+  public totalRecords$: Subject<number> = new Subject();
+  public totalRecords: number;
+  private pecFolderSelected: PecFolder;
 
 
   constructor(
@@ -42,6 +46,7 @@ export class MailListService {
     private mailFoldersService: MailFoldersService,
     private loginService: NtJwtLoginService,
     private messageService: ShpeckMessageService,
+    private mailboxService: MailboxService,
     private tagService: TagService) {
     this.subscriptions.push(this.loginService.loggedUser$.subscribe((utente: UtenteUtilities) => {
       if (utente) {
@@ -71,6 +76,7 @@ export class MailListService {
     }));
     this.subscriptions.push(this.mailFoldersService.pecFolderSelected.subscribe((pecFolderSelected: PecFolder) => {
       if (pecFolderSelected) {
+        this.pecFolderSelected = pecFolderSelected;
         if (pecFolderSelected.type === PecFolderType.TAG) {
           this.selectedTag = pecFolderSelected.data as Tag;
         } else {
@@ -327,30 +333,40 @@ export class MailListService {
    *@param idFolder di folder passato ( fk_idPreviousFolder )
    */
   public moveMessages(idFolder: number): void {
-    if (idFolder && (typeof(idFolder) === "number" )) {
+    if (idFolder && (typeof (idFolder) === "number")) {
+      const numberOfSelectedMessages: number = this.selectedMessages.length;
       const messagesFolder: MessageFolder[] = this.selectedMessages.map((message: Message) => {
         return message.messageFolderList[0];  // Basta prendere il primo elemente perché ogni messaggio può essere in una sola cartella
       });
-      this.messageFolderService
-        .moveMessagesToFolder(
-          messagesFolder,
-          idFolder,
-          this.loggedUser.getUtente().id
-        )
-        .subscribe(res => {
-          this.messages = Utils.arrayDiff(this.messages, this.selectedMessages);
-          this.mailFoldersService.doReloadFolder(messagesFolder[0].fk_idFolder.id);
-          this.mailFoldersService.doReloadFolder(idFolder);
-          this.selectedMessages = [];
-          this.messageService.manageMessageEvent(
-            null,
-            null,
-            this.selectedMessages
-          );
-        });
+        this.messageFolderService
+          .moveMessagesToFolder(
+            messagesFolder,
+            idFolder,
+            this.loggedUser.getUtente().id
+          ).subscribe(
+            res => {
+              this.messages = Utils.arrayDiff(this.messages, this.selectedMessages);
+              this.mailFoldersService.doReloadFolder(messagesFolder[0].fk_idFolder.id);
+              this.mailFoldersService.doReloadFolder(idFolder);
+              this.selectedMessages = [];
+              this.messageService.manageMessageEvent(
+                null,
+                null,
+                this.selectedMessages
+              );
+              this.refreshAndSendTotalMessagesNumber(numberOfSelectedMessages);
+          });
     }
   }
 
+  public refreshAndSendTotalMessagesNumber(movedMessages: number, pecFolder: PecFolder = this.pecFolderSelected) {
+    this.totalRecords -= movedMessages;
+      // mando l'evento con il numero di messaggi (serve a mailbox-component perché lo deve scrivere nella barra superiore)
+      this.mailboxService.setTotalMessageNumberDescriptor({
+        messageNumber: this.totalRecords,
+        pecFolder: pecFolder // folder/tag che era selezionato quando lo scaricamento dei messaggi è iniziato
+      } as TotalMessageNumberDescriptor);
+  }
 
   /**
    * Questa funzione si occupa di spostare i selectedMessages nel cestino.

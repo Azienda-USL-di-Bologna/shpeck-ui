@@ -240,7 +240,6 @@ export class MailListComponent implements OnInit, OnDestroy {
   // private MEDIUM_SIZE_VIRTUAL_ROW_HEIGHT = 83;
   // private LARGE_SIZE_VIRTUAL_ROW_HEIGHT = 89;
   public virtualRowHeight: number = this.VIRTUAL_ROW_HEIGHTS[FONTSIZE.BIG];
-  public totalRecords: number;
   public rowsNmber = 50;
   public cols = [
     {
@@ -414,15 +413,11 @@ export class MailListComponent implements OnInit, OnDestroy {
       )
       .subscribe(data => {
         if (data && data.results) {
-          this.totalRecords = data.page.totalElements;
+          this.mailListService.totalRecords = data.page.totalElements;
           // mando l'evento con il numero di messaggi (serve a mailbox-component perché lo deve scrivere nella barra superiore)
-          this.mailboxService.setTotalMessageNumberDescriptor({
-            messageNumber: this.totalRecords,
-            pecFolder: folderSelected // folder/tag che era selezionato quando lo scaricamento dei messaggi è iniziato
-          } as TotalMessageNumberDescriptor);
+          this.mailListService.refreshAndSendTotalMessagesNumber(0, folderSelected);
 
           this.mailListService.messages = data.results;
-          console.log("total records", this.totalRecords);
           console.log("this.mailListService.messages", this.mailListService.messages);
           this.setMailTagVisibility(this.mailListService.messages);
           this.mailFoldersService.doReloadTag(this.mailListService.tags.find(t => t.name === "in_error").id);
