@@ -265,6 +265,7 @@ export class MailListService {
     }
   }
 
+  // prova per far recuperare dal branch default per deploy emergenza
   public checkCurrentStatusAndRegister(exe: any): void {
     if (this.selectedMessages && this.selectedMessages.length === 1) {
       const filtersAndSorts: FiltersAndSorts = new FiltersAndSorts();
@@ -293,6 +294,35 @@ export class MailListService {
       });
     }
   }
+
+  /* public checkCurrentStatusAndRegister(exe: any): void {
+    if (this.selectedMessages && this.selectedMessages.length === 1) {
+      const filtersAndSorts: FiltersAndSorts = new FiltersAndSorts();
+      filtersAndSorts.addFilter(new FilterDefinition("id", FILTER_TYPES.not_string.equals, this.selectedMessages[0].id));
+      this.messageService
+      .getData(
+        ENTITIES_STRUCTURE.shpeck.message.customProjections.CustomMessageForMailList,
+        filtersAndSorts,
+        null,
+        null
+      )
+      .subscribe(data => {
+        if (data && data.results && data.results.length === 1) {
+          const message =  (data.results[0] as Message);
+          let registrable = true;
+          if (message.messageTagList && message.messageTagList.length > 0) {
+            registrable = !message.messageTagList.some(mt => mt.idTag.name === "registered" || mt.idTag.name === "in_registration");
+          }
+          if (registrable) {
+            exe();
+          } else {
+            this.messagePrimeService.add(
+              { severity: "error", summary: "Attenzione", detail: "Il messaggio risulta già protocollato. Si consiglia di aggiornare la pagina." });
+          }
+        }
+      });
+    }
+  } */
 
   /**
    * Questa funzione ritorna un booleano che indica se i messaggi selezionati sono spostabili.

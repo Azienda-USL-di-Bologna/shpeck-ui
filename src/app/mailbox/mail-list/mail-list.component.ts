@@ -874,6 +874,7 @@ export class MailListComponent implements OnInit, OnDestroy {
 
     console.log("command", decodedUrl);
 
+    // prova per far recuperare dal branch default per deploy emergenza
     this.mailListService.checkCurrentStatusAndRegister(() => {
       window.open(decodedUrl);
       // Setto subito il tag in modo che l'icona cambi
