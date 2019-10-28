@@ -828,9 +828,9 @@ export class MailListService {
     if (message) {
       const aziendeWithFluxPermission = this.loggedUser.getAziendeWithPermission(FluxPermission.REDIGE);
       if (aziendeWithFluxPermission && aziendeWithFluxPermission.length > 0) {
-        const mieAziendeGiaProtocoll: string[] = this.loggedUser.getUtente()["aziende"].filter(x => this.getIdAziendeDoveMessaggioGiaProtocollato(message).includes(x.id))
+        const mieAziendeGiaProtocoll: string[] = this.loggedUser.getUtente()["aziende"].filter(x => this.getIdAziendeDoveMessaggioGiaProtocollato(message).indexOf(x.id) > -1)
           .map(a => a.codice);
-        mieAziendeProtocollabili = aziendeWithFluxPermission.filter(x => !mieAziendeGiaProtocoll.includes(x));
+        mieAziendeProtocollabili = aziendeWithFluxPermission.filter(x => mieAziendeGiaProtocoll.indexOf(x) === -1);
       }
     }
     return mieAziendeProtocollabili;
