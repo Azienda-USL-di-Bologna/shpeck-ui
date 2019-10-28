@@ -35,15 +35,15 @@
                             <ng-template #registrationTemplate let-registrationstatus>
                                 <i
                                     [pTooltip]="registrationstatus === 'REGISTERED' ? 'Vedi dettaglio protocollazione' :
-                                        (registrationstatus === 'REGISTABLE' ? 'Protocolla il messaggio' : registrationstatus === 'IN_REGISTRATION' ? 'In protocollazione' : 'Il messaggio non può essere protocollato')"
+                                        (registrationstatus === 'REGISTRABLE' ? 'Protocolla il messaggio' : registrationstatus === 'IN_REGISTRATION' ? 'In protocollazione' : 'Il messaggio non può essere protocollato')"
                                     tooltipPosition="top"
                                     class="material-icons-outlined mail-icons icon-enabled"
-                                    [ngClass]="{'icon-disabled': registrationstatus === 'NOT_REGISTABLE', 'icon-used': (registrationstatus === 'REGISTERED' || registrationstatus === 'IN_REGISTRATION')}"
+                                    [ngClass]="{'icon-disabled': registrationstatus === 'NOT_REGISTRABLE', 'icon-used': (registrationstatus === 'REGISTERED' || registrationstatus === 'IN_REGISTRATION')}"
                                     [ngStyle]="registrationstatus === 'REGISTERED' && {'color': 'darkcyan'} || registrationstatus === 'IN_REGISTRATION' && {'color': 'orange'}"
                                     (click)="iconRegistrationClicked($event, message, registrationstatus)"
                                     >
                                     {{registrationstatus === 'REGISTERED' || registrationstatus === 'IN_REGISTRATION' ? "assignment_turned_in" : "assignment"}}
-                                        <!-- (registrationstatus === "REGISTABLE" ? "assignment_returned" : "assignment_returned")}} -->
+                                        <!-- (registrationstatus === "REGISTRABLE" ? "assignment_returned" : "assignment_returned")}} -->
                                 </i>
                                 <p-menu appendTo="body"  (onShow)="tagsMenuStatus('registerMenuOpened')" #registrationMenu [popup]="true" [model]="aziendeProtocollabiliSubCmItems"></p-menu>
                             </ng-template>
@@ -286,19 +286,41 @@
 </p-dialog>
 
 <!-- DIALOG CHE MOSTRA IL DETTAGLIO DELLA PROTOCOLLAZIONE -->
-<p-dialog [(visible)]="displayRegistrationDetail">
+<p-dialog [(visible)]="registrationDetail.displayRegistrationDetail">
     <p-header>
         Dettaglio protocollazione
     </p-header>
-    <div *ngIf="registrationDetail?.numeroProtocollo">Il {{registrationDetail?.data}}: {{registrationDetail?.descrizioneUtente}} ha protocollato il messaggio in {{registrationDetail?.descrizioneAzienda}}.</div>
-    <div *ngIf="!registrationDetail?.numeroProtocollo">Il {{registrationDetail?.data}}: {{registrationDetail?.descrizioneUtente}} ha iniziato la protocollazione del messaggio in {{registrationDetail?.descrizioneAzienda}}.</div>
-    <div *ngIf="registrationDetail?.numeroProtocollo">{{registrationDetail?.codiceRegistro}}{{registrationDetail?.numeroProtocollo}}/{{registrationDetail?.anno}}: {{registrationDetail?.oggetto}}</div>
-    <div *ngIf="!registrationDetail?.numeroProtocollo">Prop. {{registrationDetail?.numeroProposta}}: {{registrationDetail?.oggetto}}</div>
+    <ul *ngIf="registrationDetail.additionalData">
+        <li *ngFor="let additionalData of registrationDetail.additionalData">
+            <p *ngIf="additionalData?.numeroProtocollo"><b>Il {{additionalData?.data}}:</b> {{additionalData?.descrizioneUtente}} ha protocollato il messaggio in {{additionalData?.descrizioneAzienda}}.</p>
+            <p *ngIf="!additionalData?.numeroProtocollo"><b>Il {{additionalData?.data}}</b>: {{additionalData?.descrizioneUtente}} ha iniziato la protocollazione del messaggio in {{additionalData?.descrizioneAzienda}}.</p>
+            <p *ngIf="additionalData?.numeroProtocollo">{{additionalData?.codiceRegistro}}{{additionalData?.numeroProtocollo}}/{{additionalData?.anno}}: {{additionalData?.oggetto}}</p>
+            <p *ngIf="!additionalData?.numeroProtocollo">Prop. {{additionalData?.numeroProposta}}: {{additionalData?.oggetto}}</p>
+        </li>
+    </ul>
     <p-footer>
-        <button type="button" pButton (click)="displayRegistrationDetail = false" label="Ok"
-        class="ui-button-raised ui-button-secondary button-styles custom-secondary-button"></button>
+        <button *ngIf="registrationDetail.buttonRegistration"
+        type="button" pButton 
+            (click)="iconRegistrationClicked($event, registrationDetail.message, 'REGISTRABLE')" 
+            label="Protocolla ancora"
+            class="ui-button-raised ui-button-secondary button-styles custom-secondary-button">
+        </button>
+        <button type="button" pButton (click)="registrationDetail.displayRegistrationDetail = false" label="Ok"
+            class="ui-button-raised ui-button-secondary button-styles custom-secondary-button">
+        </button>
     </p-footer>
 </p-dialog>
+
+<!-- <button *ngIf="archiviationDetail.buttonArchivable" type="button" pButton
+(click)="iconArchiveClicked($event, archiviationDetail.message, 'ARCHIVABLE')"
+label="Fascicola ancora"
+class="ui-button-raised ui-button-secondary button-styles custom-secondary-button">
+</button>
+<button type="button" pButton
+(click)="archiviationDetail.displayArchiviationDetail = false"
+label="Ok"
+class="ui-button-raised ui-button-secondary button-styles custom-secondary-button">
+</button> -->
 
 <!-- DIALOG CHE MOSTRA IL DETTAGLIO DEL REINDIRIZZAMENTO -->
 <p-dialog [(visible)]="readdressDetail.displayReaddressDetail">

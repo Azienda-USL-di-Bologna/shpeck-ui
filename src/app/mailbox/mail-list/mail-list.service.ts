@@ -249,7 +249,7 @@ export class MailListService {
   /*
    * Questa funzione ritorna un booleano che indica se il messaggio selezionato è protocollabile.
    */
-  public isRegisterActive(specificMessage?: Message): boolean {
+/*   public isRegisterActive(specificMessage?: Message): boolean {
     const message: Message = specificMessage ? specificMessage : this.selectedMessages[0];
     if ((!specificMessage && this.selectedMessages.length !== 1) ||
       message.inOut !== InOut.IN ||
@@ -263,10 +263,32 @@ export class MailListService {
     } else {
       return true;
     }
+  } */
+
+  // il messaggio è protocollabile se non è già stato protocollato in tutte le aziende
+  public isRegisterActive(message: Message, codiceAzienda?: string): boolean {
+    if (!message ||
+      message.inOut !== InOut.IN ||
+      (message.messageType !== MessageType.MAIL && message.messageType !== MessageType.PEC) ||
+      message.messageFolderList[0].idFolder.type === "TRASH" ||
+      (message.messageTagList && message.messageTagList
+        .some(messageTag => messageTag.idTag.name === "readdressed_out"))) {
+      return false;
+    } else {
+      const aziendeProtocollabili = this.getCodiciMieAziendeProtocollabili(message);
+      if (aziendeProtocollabili.length === 0) {
+        return false;
+      } else { // se ho aziende protocollabil
+        if (codiceAzienda) { // se ho passato l'azienda vado a vedere se è tra le aziende protocollabili
+          return aziendeProtocollabili.some(e => e === codiceAzienda);
+        } else { // se non ho passato un codice azienda è protocollabile
+          return true;
+        }
+      }
+    }
   }
 
-  // prova per far recuperare dal branch default per deploy emergenza
-  public checkCurrentStatusAndRegister(exe: any): void {
+  public checkCurrentStatusAndRegister(exe: any, codiceAzienda: string): void {
     if (this.selectedMessages && this.selectedMessages.length === 1) {
       const filtersAndSorts: FiltersAndSorts = new FiltersAndSorts();
       filtersAndSorts.addFilter(new FilterDefinition("id", FILTER_TYPES.not_string.equals, this.selectedMessages[0].id));
@@ -280,11 +302,7 @@ export class MailListService {
       .subscribe(data => {
         if (data && data.results && data.results.length === 1) {
           const message =  (data.results[0] as Message);
-          let registrable = true;
-          if (message.messageTagList && message.messageTagList.length > 0) {
-            registrable = !message.messageTagList.some(mt => mt.idTag.name === "registered" || mt.idTag.name === "in_registration");
-          }
-          if (registrable) {
+          if (this.isRegisterActive(message, codiceAzienda)) {
             exe();
           } else {
             this.messagePrimeService.add(
@@ -765,14 +783,67 @@ export class MailListService {
     return aziendeMenuItems;
   }
 
+  // restituisce array d'interi con gli id delle aziende su cui il messaggio è stato protocollato
+  private getIdAziendeDoveMessaggioGiaProtocollato(message: Message): number[] {
+    let additionalDataAziende: number[] = [];
+    if (message && message.messageTagList) {
+      const mtRegistered: MessageTag = message.messageTagList.find(mt => mt.idTag.name === "registered");
+      let additionaDataRegistered: any;
+      if (mtRegistered) {
+        additionaDataRegistered = JSON.parse(mtRegistered.additionalData);
+      }
+      const mtInRegistration = message.messageTagList.find(mt => mt.idTag.name === "in_registration");
+      let additionaDataInRegistration: any;
+      if (mtInRegistration) {
+        additionaDataInRegistration = JSON.parse(mtInRegistration.additionalData);
+      }
+      if (additionaDataRegistered) {
+        if (additionaDataRegistered instanceof Array) {
+          additionaDataRegistered.forEach(element => {
+            additionalDataAziende.push(element.idAzienda.id);
+          });
+        } else {
+          additionalDataAziende.push(additionaDataRegistered.idAzienda.id);
+        }
+      }
+      if (additionaDataInRegistration) {
+        if (additionaDataInRegistration instanceof Array) {
+          additionaDataInRegistration.forEach(element => {
+            additionalDataAziende.push(element.idAzienda.id);
+          });
+        } else {
+          additionalDataAziende.push(additionaDataInRegistration.idAzienda.id);
+        }
+      }
+      // tolgo i duplicati
+      if (additionalDataAziende.length > 0) {
+        additionalDataAziende = Array.from(new Set(additionalDataAziende));
+      }
+    }
+    return additionalDataAziende;
+  }
+
+  private getCodiciMieAziendeProtocollabili(message: Message): string[] {
+    let mieAziendeProtocollabili: string[] = [];
+    if (message) {
+      const aziendeWithFluxPermission = this.loggedUser.getAziendeWithPermission(FluxPermission.REDIGE);
+      if (aziendeWithFluxPermission && aziendeWithFluxPermission.length > 0) {
+        const mieAziendeGiaProtocoll: string[] = this.loggedUser.getUtente()["aziende"].filter(x => this.getIdAziendeDoveMessaggioGiaProtocollato(message).includes(x.id))
+          .map(a => a.codice);
+        mieAziendeProtocollabili = aziendeWithFluxPermission.filter(x => !mieAziendeGiaProtocoll.includes(x));
+      }
+    }
+    return mieAziendeProtocollabili;
+  }
+
   /**
    * Questa funzione si occupa di creare un MenuItem[] che contenga come items la
    * lista delle aziende su cui l'utente loggato ha il permesso redige per la funzione protocolla Pec.
    * @param command
    */
-  public buildRegistrationMenuItems(selectedPec: Pec, command: (any) => any): MenuItem[] {
+  public buildRegistrationMenuItems(message: Message, selectedPec: Pec, command: (any) => any): MenuItem[] {
     return this.buildAziendeMenuItems(
-      this.loggedUser.getAziendeWithPermission(FluxPermission.REDIGE),
+      this.getCodiciMieAziendeProtocollabili(message),
       selectedPec,
       "MessageRegistration",
       command
@@ -869,6 +940,7 @@ export class MailListService {
       });
     }
   }
+
 }
 
 interface MessageTagOp {
