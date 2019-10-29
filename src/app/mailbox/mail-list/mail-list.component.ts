@@ -1266,6 +1266,12 @@ export class MailListComponent implements OnInit, OnDestroy {
   }
 
   private buildSingleRegistrationAdditionaData(additionalDataElement: any, messageTag: MessageTag): any {
+    let data = new Date(messageTag.inserted).toLocaleDateString("it-IT", { hour: "numeric", minute: "numeric" });
+    if (additionalDataElement.idDocumento && additionalDataElement.idDocumento.dataProtocollo) {
+      data = additionalDataElement.idDocumento.dataProtocollo.replace(" ", ", ");
+    } else if (additionalDataElement.idDocumento && additionalDataElement.idDocumento.dataProposta) {
+      data = additionalDataElement.idDocumento.dataProposta.replace(" ", ", ");
+    }
     return {
       numeroProposta: additionalDataElement.idDocumento ? additionalDataElement.idDocumento.numeroProposta : "(informazione non disponibile)",
       numeroProtocollo: additionalDataElement.idDocumento ? additionalDataElement.idDocumento.numeroProtocollo : "(informazione non disponibile)",
@@ -1274,9 +1280,7 @@ export class MailListComponent implements OnInit, OnDestroy {
       codiceRegistro: additionalDataElement.idDocumento ? additionalDataElement.idDocumento.codiceRegistro : null,
       anno: additionalDataElement.idDocumento ? additionalDataElement.idDocumento.anno : null,
       descrizioneAzienda: additionalDataElement.idAzienda ? additionalDataElement.idAzienda.descrizione : "(informazione non disponibile)",
-      data: additionalDataElement.idDocumento && additionalDataElement.idDocumento.dataProtocollo ?
-        additionalDataElement.idDocumento.dataProtocollo.replace(" ", ", ") :
-        new Date(messageTag.inserted).toLocaleDateString("it-IT", { hour: "numeric", minute: "numeric" }),
+      data: data
     };
   }
 
