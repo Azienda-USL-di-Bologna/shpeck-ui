@@ -9,7 +9,7 @@ export const loginModuleConfig: NTJWTModuleConfig = {
     applicazione: APPLICATION,
     logoutRedirectRoute: MAILBOX_ROUTE,
     // sessionExpireSeconds: 1800, // 0 = distattivato
-    pingInterval: 900, //  0 disattivato, 900 parametro deciso per prod
+    pingInterval: 10, //  0 disattivato, 900 parametro deciso per prod
     // logout type SSO sync oppure local
     logoutType: LogoutType.SSO_SYNC
 };
