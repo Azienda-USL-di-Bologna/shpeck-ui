@@ -765,7 +765,7 @@ export class MailListComponent implements OnInit, OnDestroy {
         case "MessageReplyAll":
         case "MessageForward":
           element.disabled = false;
-          if (this.mailListService.selectedMessages.length > 1 || !this.mailListService.isNewMailActive()) {
+          if (this.mailListService.selectedMessages.length > 1 || !this.mailListService.isNewMailActive(this._selectedPec)) {
             element.disabled = true;
           }
           break;
@@ -1172,7 +1172,7 @@ export class MailListComponent implements OnInit, OnDestroy {
       return this.mailListService.isRegisterActive(message) ? "REGISTRABLE" : "NOT_REGISTRABLE";
     }
     // ha dei tag. restituisco REGISTERED se ha il tag registered, IN_REGISTRATION se ha il tag in_registration, altrimenti guardo se è protocollabile
-    return message.messageTagList.find(mt => mt.idTag.name === "registered") ? "REGISTERED" : 
+    return message.messageTagList.find(mt => mt.idTag.name === "registered") ? "REGISTERED" :
       message.messageTagList.find(mt => mt.idTag.name === "in_registration") ? "IN_REGISTRATION" :
         this.mailListService.isRegisterActive(message) ? "REGISTRABLE" : "NOT_REGISTRABLE";
   }
@@ -1185,7 +1185,7 @@ export class MailListComponent implements OnInit, OnDestroy {
    * @param registrable
    */
   public iconRegistrationClicked(event: any, message: Message, registrationStatus: string) {
-    let messageTag = null;
+    const messageTag = null;
     if (message) {
       switch (registrationStatus) {
         case "REGISTERED":

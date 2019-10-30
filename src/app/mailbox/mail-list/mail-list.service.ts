@@ -369,7 +369,7 @@ export class MailListService {
 
   public isNewMailActive(selectedPec?: Pec, isDraft = false): boolean {
     if ((selectedPec && selectedPec.attiva) || isDraft) {
-      if (!this.idPec && selectedPec) {
+      if (selectedPec) {
         this.idPec = selectedPec.id;
       }
       return this.loggedUserHasPermission(PecPermission.RISPONDE) || this.loggedUserHasPermission(PecPermission.ELIMINA);

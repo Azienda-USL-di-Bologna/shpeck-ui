@@ -192,9 +192,10 @@
                     </div>
                     
                     
-                    <i class="material-icons-outlined delete-icon" 
+                    <i *ngIf="_selectedFolder?.type !== 'TRASH' && mailListService?.loggedUserCanDelete === true"
+                        class="material-icons-outlined delete-icon" 
                         (click)="deletingConfirmation('Sei sicuro di voler eliminare il messaggio?')"
-                        *ngIf="_selectedFolder?.type !== 'TRASH' && mailListService?.loggedUserCanDelete === true">
+                        pTooltip="Elimina il messaggio">
                         delete
                     </i>
                     
