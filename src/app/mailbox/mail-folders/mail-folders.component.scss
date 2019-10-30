@@ -82,6 +82,9 @@
 ::ng-deep .ui-treenode-children p-treenode li {
   height: 29px;
 }
+::ng-deep .ui-treenode-children p-treenode .root-tree-node-style {
+  height: initial;
+}
 // :host .tree-style-box.body.ui-tree {
 //     cursor: e-resize !important;
 //     color: blueviolet !important;
