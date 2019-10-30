@@ -67,8 +67,21 @@
     margin-right: 4px !important;
 }
 
+::ng-deep .ui-treenode-icon.material-icons-outlined {
+  vertical-align: sub !important;
+}
 
+::ng-deep .ui-treenode-icon.material-icons-outlined + .ui-treenode-label.ui-corner-all {
+  vertical-align: baseline !important;
+}
 
+::ng-deep body .ui-tree .ui-tree-container .ui-treenode {
+  padding: 0;
+}
+
+::ng-deep .ui-treenode-children p-treenode li {
+  height: 29px;
+}
 // :host .tree-style-box.body.ui-tree {
 //     cursor: e-resize !important;
 //     color: blueviolet !important;
