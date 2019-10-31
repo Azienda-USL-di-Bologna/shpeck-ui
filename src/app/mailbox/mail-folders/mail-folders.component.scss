@@ -251,3 +251,10 @@
 ::ng-deep .ui-tooltip .ui-tooltip-text {
   width: fit-content;
 }
+
+::ng-deep .buttons-color-picker {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-around;
+}
+/* ::ng-deep .nodeStylefolder_1376 .general-style-icon { color: #2876bf !important; } */

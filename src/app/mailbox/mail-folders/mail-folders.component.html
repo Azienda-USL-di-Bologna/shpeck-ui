@@ -17,7 +17,7 @@
     (keyup.enter)="onEnterPressed($event, folderInput.value)"
     (keydown.esc)="onEscPressed($event)"
     [attr.disabled]="node.editable ? null : ''">
-    <div 
+    <div #actualTarget
       *ngIf="!!!node.editable" 
       [ngStyle]="{'font-style': (node.data.type ==='pec' && !node.data.data.attiva) ? 'italic' : 'normal'}"
       pTooltip="{{buildTooltipForNode(node)}}"
@@ -25,8 +25,30 @@
       {{node.label}} {{(node.data.type ==='pec' && !node.data.data.attiva) ?'- disattivata':''}}
     </div>
     <!-- <span *ngIf="node.data.type ==='pec' && !node.data.data.attiva">disattiva</span> -->
+    <p-overlayPanel #op appendTo="body" (onShow)="aaa('show')" (onHide)="aaa('hide')">
+      <div>
+        <p-colorPicker [(ngModel)]="color" *ngIf="pickershow" inline="true" appendTo="body" (onChange)="nodeColorIsActuallyChanging()"></p-colorPicker>
+      </div>
+      <div class="buttons-color-picker">
+        <button pButton type="button" 
+          class="custom-primary-button" 
+          (click)="saveNewColor()" 
+          label="Salva">
+        </button>
+        <button pButton type="button" 
+          class="custom-primary-button" 
+          (click)="closeColorEditing(false)" 
+          label="Chiudi">
+        </button>
+      </div>
+    </p-overlayPanel>
   </ng-template>
 </p-tree>
+<!-- 
+
+  style="position: absolute;"
+ -->
+
 
 <!-- *ngIf="!!node.editable" -->
 <p-contextMenu #cm [hidden]="!(cmItems?.length > 0)" [model]="cmItems" styleClass = "context-menu-mail-folders"></p-contextMenu>

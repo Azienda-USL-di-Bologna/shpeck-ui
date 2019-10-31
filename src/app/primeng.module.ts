@@ -27,6 +27,9 @@ import { MenubarModule } from "primeng/menubar";
 import { ProgressSpinnerModule } from "primeng/progressspinner";
 import { CommonComponentsModule } from "@bds/common-components";
 import { SliderModule } from "primeng/slider";
+import { ColorPickerModule } from "primeng/colorpicker";
+import { InplaceModule } from "primeng/inplace";
+
 
 @NgModule({
     declarations: [],
@@ -61,7 +64,9 @@ import { SliderModule } from "primeng/slider";
         MenubarModule,
         ProgressSpinnerModule,
         CommonComponentsModule,
-        SliderModule
+        SliderModule,
+        ColorPickerModule,
+        InplaceModule
     ],
     exports: [
         DynamicDialogModule,
@@ -94,7 +99,9 @@ import { SliderModule } from "primeng/slider";
         MenubarModule,
         ProgressSpinnerModule,
         CommonComponentsModule,
-        SliderModule
+        SliderModule,
+        ColorPickerModule,
+        InplaceModule
     ]
 })
 export class PrimengModule { }
