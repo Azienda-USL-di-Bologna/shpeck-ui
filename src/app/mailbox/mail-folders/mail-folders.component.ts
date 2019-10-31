@@ -377,9 +377,7 @@ export class MailFoldersComponent implements OnInit, OnDestroy {
       }
     }
   }
-  public pickerOverlayHiding() {
-    this.pickershow = false;
-  }
+
 
   private buildCustomFolder(pecContainer: Pec, name?: string): Folder {
     const folder: Folder = new Folder();
@@ -922,10 +920,15 @@ export class MailFoldersComponent implements OnInit, OnDestroy {
    * @param node
    */
   public closeColorEditing(hoSalvato = false): void {
-    if (!hoSalvato) {
+    /* if (!hoSalvato) {
       this.checkIfStyleAlreadyExistsAndSetColorToNode(this.selectedNode, this.initialColor);
-    }
+    } */
     this.op.hide();
+  }
+
+  public pickerOverlayHiding() {
+    this.pickershow = false;
+    this.checkIfStyleAlreadyExistsAndSetColorToNode(this.selectedNode, this.initialColor);
   }
 
   public saveNewColor(): void {
@@ -950,6 +953,7 @@ export class MailFoldersComponent implements OnInit, OnDestroy {
       tag.additionalData = JSON.stringify(a);
       this.updateTag(tag);
     }
+    this.initialColor = this.color;
     this.closeColorEditing(true);
   }
 
