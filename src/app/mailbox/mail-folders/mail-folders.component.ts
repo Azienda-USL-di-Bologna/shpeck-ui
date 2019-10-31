@@ -329,8 +329,6 @@ export class MailFoldersComponent implements OnInit, OnDestroy {
           }
           break;
         case "Coloring":
-          console.log("eccomi", event);
-          console.log("selected", this.elementSelected);
           this.color = "#2e4a65";
           this.initialColor = "#2e4a65";
           if (this.elementSelected.node.data.data.additionalData) {
@@ -379,12 +377,8 @@ export class MailFoldersComponent implements OnInit, OnDestroy {
       }
     }
   }
-  public aaa(aa) {
-    console.log("sta succedendo: ", aa);
-    setTimeout(function() { }, 0);
-    if (aa === "hide") {
-      this.pickershow = false;
-    }
+  public pickerOverlayHiding() {
+    this.pickershow = false;
   }
 
   private buildCustomFolder(pecContainer: Pec, name?: string): Folder {
@@ -443,9 +437,6 @@ export class MailFoldersComponent implements OnInit, OnDestroy {
       collapsedIcon = "material-icons-outlined bigger-icon trash-icon";
       expandedIcon =  "material-icons-outlined bigger-icon trash-icon";
     }
-
-
-
     return {expandedIcon: expandedIcon, collapsedIcon: collapsedIcon};
   }
 
@@ -546,7 +537,6 @@ export class MailFoldersComponent implements OnInit, OnDestroy {
       case "onContextMenuSelect":
         this.op.hide();
         this.selectedNode = event.node;
-        console.log("elementselect", event);
         this.elementSelected = event;
         this.mailfolders.map(m => m.styleClass = MailFoldersComponent.ROOT_NODE_NOT_SELECTED_STYLE_CLASS);
 

@@ -25,7 +25,7 @@
       {{node.label}} {{(node.data.type ==='pec' && !node.data.data.attiva) ?'- disattivata':''}}
     </div>
     <!-- <span *ngIf="node.data.type ==='pec' && !node.data.data.attiva">disattiva</span> -->
-    <p-overlayPanel #op appendTo="body" (onShow)="aaa('show')" (onHide)="aaa('hide')">
+    <p-overlayPanel #op appendTo="body" (onHide)="pickerOverlayHiding()">
       <div>
         <p-colorPicker [(ngModel)]="color" *ngIf="pickershow" inline="true" appendTo="body" (onChange)="nodeColorIsActuallyChanging()"></p-colorPicker>
       </div>
