@@ -10,9 +10,9 @@
     </div>
     (selectionChange)="handleEvent('selectionChange', $event)"
 </div> -->
-<p-table #dt *ngIf="totalRecords > 0 && (_selectedTag || _selectedFolder || _filters)" [lazy]="true" (onLazyLoad)="lazyLoad($event)" scrollHeight="100%"
+<p-table #dt *ngIf="mailListService.totalRecords > 0 && (_selectedTag || _selectedFolder || _filters)" [lazy]="true" (onLazyLoad)="lazyLoad($event)" scrollHeight="100%"
     [value]="mailListService.messages" [columns]="cols" [paginator]="false" [loading]="loading" [autoLayout]="true"
-    [responsive]="true" [totalRecords]="totalRecords" [(selection)]="mailListService.selectedMessages"
+    [responsive]="true" [totalRecords]="mailListService.totalRecords" [(selection)]="mailListService.selectedMessages"
     contextMenuSelectionMode="joint" selectionMode="multiple" [metaKeySelection]="true" [lazyLoadOnInit]="false"
     [rows]="rowsNmber" [rowTrackBy]="trackByFn" [contextMenu]="cm" [scrollable]="true"
     [virtualRowHeight]="virtualRowHeight" [virtualScroll]="true" [virtualScrollDelay]="150"
@@ -35,15 +35,15 @@
                             <ng-template #registrationTemplate let-registrationstatus>
                                 <i
                                     [pTooltip]="registrationstatus === 'REGISTERED' ? 'Vedi dettaglio protocollazione' :
-                                        (registrationstatus === 'REGISTABLE' ? 'Protocolla il messaggio' : registrationstatus === 'IN_REGISTRATION' ? 'In protocollazione' : 'Il messaggio non può essere protocollato')"
+                                        (registrationstatus === 'REGISTRABLE' ? 'Protocolla il messaggio' : registrationstatus === 'IN_REGISTRATION' ? 'In protocollazione' : 'Il messaggio non può essere protocollato')"
                                     tooltipPosition="top"
                                     class="material-icons-outlined mail-icons icon-enabled"
-                                    [ngClass]="{'icon-disabled': registrationstatus === 'NOT_REGISTABLE', 'icon-used': (registrationstatus === 'REGISTERED' || registrationstatus === 'IN_REGISTRATION')}"
+                                    [ngClass]="{'icon-disabled': registrationstatus === 'NOT_REGISTRABLE', 'icon-used': (registrationstatus === 'REGISTERED' || registrationstatus === 'IN_REGISTRATION')}"
                                     [ngStyle]="registrationstatus === 'REGISTERED' && {'color': 'darkcyan'} || registrationstatus === 'IN_REGISTRATION' && {'color': 'orange'}"
                                     (click)="iconRegistrationClicked($event, message, registrationstatus)"
                                     >
                                     {{registrationstatus === 'REGISTERED' || registrationstatus === 'IN_REGISTRATION' ? "assignment_turned_in" : "assignment"}}
-                                        <!-- (registrationstatus === "REGISTABLE" ? "assignment_returned" : "assignment_returned")}} -->
+                                        <!-- (registrationstatus === "REGISTRABLE" ? "assignment_returned" : "assignment_returned")}} -->
                                 </i>
                                 <p-menu appendTo="body"  (onShow)="tagsMenuStatus('registerMenuOpened')" #registrationMenu [popup]="true" [model]="aziendeProtocollabiliSubCmItems"></p-menu>
                             </ng-template>
@@ -192,9 +192,10 @@
                     </div>
                     
                     
-                    <i class="material-icons-outlined delete-icon" 
+                    <i *ngIf="_selectedFolder?.type !== 'TRASH' && mailListService?.loggedUserCanDelete === true"
+                        class="material-icons-outlined delete-icon" 
                         (click)="deletingConfirmation('Sei sicuro di voler eliminare il messaggio?')"
-                        *ngIf="_selectedFolder?.type !== 'TRASH' && mailListService?.loggedUserCanDelete === true">
+                        pTooltip="Elimina il messaggio">
                         delete
                     </i>
                     
@@ -229,7 +230,7 @@
     <p style="margin: 0">Non ci sono elementi da visualizzare.</p>
     <p style="margin: 0.5em">Selezionare una cartella o effettuare una ricerca.</p>
 </div>
-<div *ngIf=" (_selectedTag || _selectedFolder || _filters) && (totalRecords === 0 && !!!loading)" class="flex-1 message-align flex-direction-col">
+<div *ngIf=" (_selectedTag || _selectedFolder || _filters) && (mailListService.totalRecords === 0 && !!!loading)" class="flex-1 message-align flex-direction-col">
     <p *ngIf="_filters" style="margin: 0">Nessun elemento trovato</p>
     <p *ngIf="!_filters && _selectedFolder" style="margin: 0">La cartella selezionata non contiene elementi</p>
 </div>
@@ -286,19 +287,41 @@
 </p-dialog>
 
 <!-- DIALOG CHE MOSTRA IL DETTAGLIO DELLA PROTOCOLLAZIONE -->
-<p-dialog [(visible)]="displayRegistrationDetail">
+<p-dialog [(visible)]="registrationDetail.displayRegistrationDetail">
     <p-header>
         Dettaglio protocollazione
     </p-header>
-    <div *ngIf="registrationDetail?.numeroProtocollo">Il {{registrationDetail?.data}}: {{registrationDetail?.descrizioneUtente}} ha protocollato il messaggio in {{registrationDetail?.descrizioneAzienda}}.</div>
-    <div *ngIf="!registrationDetail?.numeroProtocollo">Il {{registrationDetail?.data}}: {{registrationDetail?.descrizioneUtente}} ha iniziato la protocollazione del messaggio in {{registrationDetail?.descrizioneAzienda}}.</div>
-    <div *ngIf="registrationDetail?.numeroProtocollo">{{registrationDetail?.codiceRegistro}}{{registrationDetail?.numeroProtocollo}}/{{registrationDetail?.anno}}: {{registrationDetail?.oggetto}}</div>
-    <div *ngIf="!registrationDetail?.numeroProtocollo">Prop. {{registrationDetail?.numeroProposta}}: {{registrationDetail?.oggetto}}</div>
+    <ul *ngIf="registrationDetail.additionalData">
+        <li *ngFor="let additionalData of registrationDetail.additionalData">
+            <p *ngIf="additionalData?.numeroProtocollo"><b>Il {{additionalData?.data}}:</b> {{additionalData?.descrizioneUtente}} ha protocollato il messaggio in {{additionalData?.descrizioneAzienda}}.</p>
+            <p *ngIf="!additionalData?.numeroProtocollo"><b>Il {{additionalData?.data}}</b>: {{additionalData?.descrizioneUtente}} ha iniziato la protocollazione del messaggio in {{additionalData?.descrizioneAzienda}}.</p>
+            <p *ngIf="additionalData?.numeroProtocollo">{{additionalData?.codiceRegistro}}{{additionalData?.numeroProtocollo}}/{{additionalData?.anno}}: {{additionalData?.oggetto}}</p>
+            <p *ngIf="!additionalData?.numeroProtocollo">Prop. {{additionalData?.numeroProposta}}: {{additionalData?.oggetto}}</p>
+        </li>
+    </ul>
     <p-footer>
-        <button type="button" pButton (click)="displayRegistrationDetail = false" label="Ok"
-        class="ui-button-raised ui-button-secondary button-styles custom-secondary-button"></button>
+        <button *ngIf="registrationDetail.buttonRegistration"
+        type="button" pButton 
+            (click)="iconRegistrationClicked($event, registrationDetail.message, 'REGISTRABLE')" 
+            label="Protocolla ancora"
+            class="ui-button-raised ui-button-secondary button-styles custom-secondary-button">
+        </button>
+        <button type="button" pButton (click)="registrationDetail.displayRegistrationDetail = false" label="Ok"
+            class="ui-button-raised ui-button-secondary button-styles custom-secondary-button">
+        </button>
     </p-footer>
 </p-dialog>
+
+<!-- <button *ngIf="archiviationDetail.buttonArchivable" type="button" pButton
+(click)="iconArchiveClicked($event, archiviationDetail.message, 'ARCHIVABLE')"
+label="Fascicola ancora"
+class="ui-button-raised ui-button-secondary button-styles custom-secondary-button">
+</button>
+<button type="button" pButton
+(click)="archiviationDetail.displayArchiviationDetail = false"
+label="Ok"
+class="ui-button-raised ui-button-secondary button-styles custom-secondary-button">
+</button> -->
 
 <!-- DIALOG CHE MOSTRA IL DETTAGLIO DEL REINDIRIZZAMENTO -->
 <p-dialog [(visible)]="readdressDetail.displayReaddressDetail">

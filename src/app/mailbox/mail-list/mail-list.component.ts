@@ -19,7 +19,7 @@ import { Menu } from "primeng/menu";
 import { AppCustomization } from "src/environments/app-customization";
 import { SettingsService } from "src/app/services/settings.service";
 import { FormGroup, FormControl, Validators } from "@angular/forms";
-import { MailboxService, Sorting } from "../mailbox.service";
+import { MailboxService, Sorting, TotalMessageNumberDescriptor } from "../mailbox.service";
 import { ContextMenu } from "primeng/primeng";
 
 @Component({
@@ -58,6 +58,9 @@ export class MailListComponent implements OnInit, OnDestroy {
   @ViewChild("archiviationMenu", null) private archiviationMenu: Menu;
   @ViewChild("tagMenu", null) private tagMenu: Menu;
   // @ViewChild("ordermenu") private ordermenu: Menu;
+
+  // serve per mandarlo al mailbox-component
+  private pecFolderSelected: PecFolder;
 
   public _selectedTag: Tag;
   public _selectedFolder: Folder;
@@ -205,7 +208,6 @@ export class MailListComponent implements OnInit, OnDestroy {
   public displayNote: boolean = false;
   public displayNewTagPopup: boolean = false;
   public displayProtocollaDialog = false;
-  public displayRegistrationDetail = false;
   public displayDetailPopup = false;
   public openDetailInPopup = false;
   public readdressDetail: any = {
@@ -216,8 +218,13 @@ export class MailListComponent implements OnInit, OnDestroy {
       out: null
     }
   };
+  public registrationDetail: any = {
+    message: undefined,
+    additionalData: undefined,
+    displayRegistrationDetail: false,
+    buttonRegistration: false,
+  };
   public tagForm;
-  public registrationDetail: any = null;
   public archiviationDetail: any = {
     displayArchiviationDetail: false,
     buttonArchivable: false,
@@ -237,8 +244,7 @@ export class MailListComponent implements OnInit, OnDestroy {
   // private MEDIUM_SIZE_VIRTUAL_ROW_HEIGHT = 83;
   // private LARGE_SIZE_VIRTUAL_ROW_HEIGHT = 89;
   public virtualRowHeight: number = this.VIRTUAL_ROW_HEIGHTS[FONTSIZE.BIG];
-  public totalRecords: number;
-  public rowsNmber = 10;
+  public rowsNmber = 50;
   public cols = [
     {
       field: "subject",
@@ -259,6 +265,7 @@ export class MailListComponent implements OnInit, OnDestroy {
     this.subscriptions.push(this.mailFoldersService.pecFolderSelected.subscribe((pecFolderSelected: PecFolder) => {
       // this.tempSelectedMessages = null;
       this.mailListService.selectedMessages = [];
+      this.pecFolderSelected = pecFolderSelected;
       if (pecFolderSelected) {
         if (pecFolderSelected.type === PecFolderType.FOLDER) {
           const selectedFolder: Folder = pecFolderSelected.data as Folder;
@@ -397,6 +404,10 @@ export class MailListComponent implements OnInit, OnDestroy {
 
   private loadData(pageConf: PagingConf, lazyFilterAndSort?: FiltersAndSorts, folder?: Folder, tag?: Tag) {
     this.loading = true;
+    // mi devo salvare la folder/tag selezionata al momento del caricamento,
+    // perché nella subscribe quando la invio al mailbox-component per scrivere il numero di messaggi
+    // la selezione potrebbe essere cambiata e quindi manderei un dato errato
+    const folderSelected = this.pecFolderSelected;
     this.messageService
       .getData(
         this.selectedProjection,
@@ -406,7 +417,10 @@ export class MailListComponent implements OnInit, OnDestroy {
       )
       .subscribe(data => {
         if (data && data.results) {
-          this.totalRecords = data.page.totalElements;
+          this.mailListService.totalRecords = data.page.totalElements;
+          // mando l'evento con il numero di messaggi (serve a mailbox-component perché lo deve scrivere nella barra superiore)
+          this.mailListService.refreshAndSendTotalMessagesNumber(0, folderSelected);
+
           this.mailListService.messages = data.results;
           console.log("this.mailListService.messages", this.mailListService.messages);
           this.setMailTagVisibility(this.mailListService.messages);
@@ -506,7 +520,7 @@ export class MailListComponent implements OnInit, OnDestroy {
         };
       }
       this.pageConf.conf = {
-        limit: this.rowsNmber * 2,
+        limit: this.rowsNmber,
         offset: 0
       };
       const filtersAndSorts: FiltersAndSorts = buildLazyEventFiltersAndSorts(
@@ -751,17 +765,20 @@ export class MailListComponent implements OnInit, OnDestroy {
         case "MessageReplyAll":
         case "MessageForward":
           element.disabled = false;
-          if (this.mailListService.selectedMessages.length > 1 || !this.mailListService.isNewMailActive()) {
+          if (this.mailListService.selectedMessages.length > 1 || !this.mailListService.isNewMailActive(this._selectedPec)) {
             element.disabled = true;
           }
           break;
         case "MessageRegistration":
-          element.disabled = false;
-          if (!this.mailListService.isRegisterActive()) {
-            element.disabled = true;
-            this.cmItems.find(f => f.id === "MessageRegistration").items = null;
-          } else {
-            this.cmItems.find(f => f.id === "MessageRegistration").items = this.mailListService.buildRegistrationMenuItems(this._selectedPec, this.selectedContextMenuItem);
+          element.disabled = true;
+          if (this.mailListService.selectedMessages.length === 1) {
+            const selectedMessaage = this.mailListService.selectedMessages[0];
+            if (this.mailListService.isRegisterActive(selectedMessaage)) {
+              element.disabled = false;
+              this.cmItems.find(f => f.id === "MessageRegistration").items = this.mailListService.buildRegistrationMenuItems(selectedMessaage, this._selectedPec, this.selectedContextMenuItem);
+            } else {
+              this.cmItems.find(f => f.id === "MessageRegistration").items = null;
+            }
           }
           break;
         case "MessageNote":
@@ -866,8 +883,8 @@ export class MailListComponent implements OnInit, OnDestroy {
 
     // prova per far recuperare dal branch default per deploy emergenza
     this.mailListService.checkCurrentStatusAndRegister(() => {
-      window.open(decodedUrl);
-      // Setto subito il tag in modo che l'icona cambi
+      window.open(decodedUrl); },
+/*       // Setto subito il tag in modo che l'icona cambi
       if (!this.mailListService.selectedMessages[0].messageTagList) {
         this.mailListService.selectedMessages[0].messageTagList = [];
       }
@@ -881,7 +898,8 @@ export class MailListComponent implements OnInit, OnDestroy {
       newMessageTag.idTag = newTag;
       newMessageTag.inserted = new Date();
       this.mailListService.selectedMessages[0].messageTagList.push(newMessageTag);
-    });
+    }, */
+    event.item.queryParams.codiceAzienda);
   }
 
 
@@ -1150,11 +1168,13 @@ export class MailListComponent implements OnInit, OnDestroy {
    */
   public getRegistrationStatus(message: Message): string {
     if (!message.messageTagList) {
-      return this.mailListService.isRegisterActive(message) ? "REGISTABLE" : "NOT_REGISTABLE";
+      // se non ha nessun tag, vado a vedere se è protocollabile
+      return this.mailListService.isRegisterActive(message) ? "REGISTRABLE" : "NOT_REGISTRABLE";
     }
+    // ha dei tag. restituisco REGISTERED se ha il tag registered, IN_REGISTRATION se ha il tag in_registration, altrimenti guardo se è protocollabile
     return message.messageTagList.find(mt => mt.idTag.name === "registered") ? "REGISTERED" :
       message.messageTagList.find(mt => mt.idTag.name === "in_registration") ? "IN_REGISTRATION" :
-        this.mailListService.isRegisterActive(message) ? "REGISTABLE" : "NOT_REGISTABLE";
+        this.mailListService.isRegisterActive(message) ? "REGISTRABLE" : "NOT_REGISTRABLE";
   }
 
   /**
@@ -1165,56 +1185,103 @@ export class MailListComponent implements OnInit, OnDestroy {
    * @param registrable
    */
   public iconRegistrationClicked(event: any, message: Message, registrationStatus: string) {
-    let messageTag = null;
-    switch (registrationStatus) {
-      case "REGISTERED":
-        messageTag = message.messageTagList.find(mt => mt.idTag.name === "registered");
-        this.prepareAndOpenDialogRegistrationDetail(messageTag, JSON.parse(messageTag.additionalData));
-        break;
-      case "REGISTABLE":
-        this.aziendeProtocollabiliSubCmItems = this.mailListService.buildRegistrationMenuItems(this._selectedPec, this.selectedContextMenuItem);
-        this.registrationMenu.toggle(event);
-        break;
-      case "NOT_REGISTABLE":
-        this.messagePrimeService.add({
-          severity: "warn",
-          summary: "Attenzione",
-          detail: "Questo messaggio non può essere protocollato.", life: 3500
-        });
-        break;
-      case "IN_REGISTRATION":
-        messageTag = message.messageTagList.find(mt => mt.idTag.name === "in_registration");
-        if (!messageTag.additionalData || messageTag.additionalData === "{}") {
+    const messageTag = null;
+    if (message) {
+      switch (registrationStatus) {
+        case "REGISTERED":
+          // apro la popup con le informazioni sul tag
+          this.prepareAndOpenDialogRegistrationDetail(message);
+          break;
+        case "REGISTRABLE":
+          // apro il menu
+          this.aziendeProtocollabiliSubCmItems = this.mailListService.buildRegistrationMenuItems(message, this._selectedPec, this.selectedContextMenuItem);
+          this.registrationMenu.toggle(event);
+          break;
+        case "NOT_REGISTRABLE":
           this.messagePrimeService.add({
             severity: "warn",
             summary: "Attenzione",
-            detail: "Questo messaggio è in fase di protocollazione.", life: 3500
+            detail: "Questo messaggio non può essere protocollato.", life: 3500
           });
-        } else {
-          this.prepareAndOpenDialogRegistrationDetail(messageTag, JSON.parse(messageTag.additionalData));
-        }
-        break;
+          break;
+        case "IN_REGISTRATION":
+/*           messageTag = message.messageTagList.find(mt => mt.idTag.name === "in_registration");
+          if (!messageTag.additionalData || messageTag.additionalData === "{}") {
+            this.messagePrimeService.add({
+              severity: "warn",
+              summary: "Attenzione",
+              detail: "Questo messaggio è in fase di protocollazione.", life: 3500
+            });
+          } else {
+          } */
+          this.prepareAndOpenDialogRegistrationDetail(message);
+          break;
+      }
     }
   }
 
-  public prepareAndOpenDialogRegistrationDetail(messageTag: MessageTag, additionalData: any) {
-    if (additionalData) {
-      this.registrationDetail = {
-        numeroProposta: additionalData.idDocumento ? additionalData.idDocumento.numeroProposta : "(informazione non disponibile)",
-        numeroProtocollo: additionalData.idDocumento ? additionalData.idDocumento.numeroProtocollo : "(informazione non disponibile)",
-        oggetto: additionalData.idDocumento ? additionalData.idDocumento.oggetto : "(informazione non disponibile)",
-        descrizioneUtente: additionalData.idUtente ? additionalData.idUtente.descrizione : "(informazione non disponibile)",
-        codiceRegistro: additionalData.idDocumento ? additionalData.idDocumento.codiceRegistro : null,
-        anno: additionalData.idDocumento ? additionalData.idDocumento.anno : null,
-        descrizioneAzienda: additionalData.idAzienda ? additionalData.idAzienda.descrizione : "(informazione non disponibile)",
-        data: additionalData.idDocumento && additionalData.idDocumento.dataProtocollo ?
-          additionalData.idDocumento.dataProtocollo.replace(" ", ", ") :
-          new Date(messageTag.inserted).toLocaleDateString("it-IT", { hour: "numeric", minute: "numeric" })
-      };
-    } else {
-      this.registrationDetail = {};
+  public prepareAndOpenDialogRegistrationDetail(message: Message) {
+    this.registrationDetail = {
+      message: undefined,
+      additionalData: undefined,
+      displayRegistrationDetail: false,
+      buttonRegistration: false,
+    };
+
+    if (message && message.messageTagList) {
+      const registrationDetailsAdditionalData: any[] = [];
+      const messageTagRegistered: MessageTag = message.messageTagList.find(mt => mt.idTag.name === "registered");
+      const messageTagInRegistration: MessageTag  = message.messageTagList.find(mt => mt.idTag.name === "in_registration");
+      const messageTagsRegInReg: MessageTag[] = [];
+      if (messageTagRegistered) {
+        messageTagsRegInReg.push(messageTagRegistered);
+      }
+      if (messageTagInRegistration) {
+        messageTagsRegInReg.push(messageTagInRegistration);
+      }
+
+      messageTagsRegInReg.forEach(mt => {
+        const additionalData = JSON.parse(mt.additionalData);
+        if (additionalData) {
+          if (additionalData instanceof Array) {
+            additionalData.forEach(element => {
+              registrationDetailsAdditionalData.push(this.buildSingleRegistrationAdditionaData(element, mt));
+            });
+          } else {
+            registrationDetailsAdditionalData.push(this.buildSingleRegistrationAdditionaData(additionalData, mt));
+          }
+        }
+      });
+
+      if (registrationDetailsAdditionalData.length > 0) {
+        this.registrationDetail = {
+          message: message,
+          additionalData: registrationDetailsAdditionalData,
+          displayRegistrationDetail: true,
+          buttonRegistration: this.mailListService.isRegisterActive(message),
+        };
+      }
+
     }
-    this.displayRegistrationDetail = true;
+  }
+
+  private buildSingleRegistrationAdditionaData(additionalDataElement: any, messageTag: MessageTag): any {
+    let data = new Date(messageTag.inserted).toLocaleDateString("it-IT", { hour: "numeric", minute: "numeric" });
+    if (additionalDataElement.idDocumento && additionalDataElement.idDocumento.dataProtocollo) {
+      data = additionalDataElement.idDocumento.dataProtocollo.replace(" ", ", ");
+    } else if (additionalDataElement.idDocumento && additionalDataElement.idDocumento.dataProposta) {
+      data = additionalDataElement.idDocumento.dataProposta.replace(" ", ", ");
+    }
+    return {
+      numeroProposta: additionalDataElement.idDocumento ? additionalDataElement.idDocumento.numeroProposta : "(informazione non disponibile)",
+      numeroProtocollo: additionalDataElement.idDocumento ? additionalDataElement.idDocumento.numeroProtocollo : "(informazione non disponibile)",
+      oggetto: additionalDataElement.idDocumento ? additionalDataElement.idDocumento.oggetto : "(informazione non disponibile)",
+      descrizioneUtente: additionalDataElement.idUtente ? additionalDataElement.idUtente.descrizione : "(informazione non disponibile)",
+      codiceRegistro: additionalDataElement.idDocumento ? additionalDataElement.idDocumento.codiceRegistro : null,
+      anno: additionalDataElement.idDocumento ? additionalDataElement.idDocumento.anno : null,
+      descrizioneAzienda: additionalDataElement.idAzienda ? additionalDataElement.idAzienda.descrizione : "(informazione non disponibile)",
+      data: data
+    };
   }
 
   /**

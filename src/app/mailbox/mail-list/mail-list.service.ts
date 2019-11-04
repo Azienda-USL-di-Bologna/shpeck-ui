@@ -3,7 +3,7 @@ import { Tag, Folder, Message, FolderType, InOut, ENTITIES_STRUCTURE, FluxPermis
 import { MenuItem, MessageService } from "primeng/api";
 import { Utils } from "src/app/utils/utils";
 import { MessageFolderService } from "src/app/services/message-folder.service";
-import { Subscription, Observable, BehaviorSubject } from "rxjs";
+import { Subscription, Observable, BehaviorSubject, Subject } from "rxjs";
 import { MailFoldersService, FoldersAndTags, PecFolderType, PecFolder } from "../mail-folders/mail-folders.service";
 import { NtJwtLoginService, UtenteUtilities } from "@bds/nt-jwt-login";
 import { BatchOperation, BatchOperationTypes, FILTER_TYPES, FiltersAndSorts, FilterDefinition } from "@nfa/next-sdr";
@@ -12,6 +12,7 @@ import { MessageEvent, ShpeckMessageService } from "src/app/services/shpeck-mess
 import { DialogService } from "primeng/api";
 import { ReaddressComponent } from "../readdress/readdress.component";
 import { TagService } from "src/app/services/tag.service";
+import { MailboxService, TotalMessageNumberDescriptor } from "../mailbox.service";
 
 @Injectable({
   providedIn: "root"
@@ -30,9 +31,12 @@ export class MailListService {
   private subscriptions: Subscription[] = [];
   private selectedTag: Tag = null;
 
-  private _newTagInserted: BehaviorSubject<Tag> = new BehaviorSubject<Tag>(null);
+  private _newTagInserted$: BehaviorSubject<Tag> = new BehaviorSubject<Tag>(null);
   private messageEvent: MessageEvent;
   private idPec: number;
+  public totalRecords$: Subject<number> = new Subject();
+  public totalRecords: number;
+  private pecFolderSelected: PecFolder;
 
 
   constructor(
@@ -42,6 +46,7 @@ export class MailListService {
     private mailFoldersService: MailFoldersService,
     private loginService: NtJwtLoginService,
     private messageService: ShpeckMessageService,
+    private mailboxService: MailboxService,
     private tagService: TagService) {
     this.subscriptions.push(this.loginService.loggedUser$.subscribe((utente: UtenteUtilities) => {
       if (utente) {
@@ -71,6 +76,7 @@ export class MailListService {
     }));
     this.subscriptions.push(this.mailFoldersService.pecFolderSelected.subscribe((pecFolderSelected: PecFolder) => {
       if (pecFolderSelected) {
+        this.pecFolderSelected = pecFolderSelected;
         if (pecFolderSelected.type === PecFolderType.TAG) {
           this.selectedTag = pecFolderSelected.data as Tag;
         } else {
@@ -84,9 +90,8 @@ export class MailListService {
   }
 
   public get newTagInserted(): Observable<Tag> {
-    return this._newTagInserted.asObservable();
+    return this._newTagInserted$.asObservable();
   }
-
 
   /**
    * Questa funzione si occupa di creare un MenuItem[] che contenga come items le folders passate.
@@ -244,7 +249,7 @@ export class MailListService {
   /*
    * Questa funzione ritorna un booleano che indica se il messaggio selezionato è protocollabile.
    */
-  public isRegisterActive(specificMessage?: Message): boolean {
+/*   public isRegisterActive(specificMessage?: Message): boolean {
     const message: Message = specificMessage ? specificMessage : this.selectedMessages[0];
     if ((!specificMessage && this.selectedMessages.length !== 1) ||
       message.inOut !== InOut.IN ||
@@ -258,10 +263,32 @@ export class MailListService {
     } else {
       return true;
     }
+  } */
+
+  // il messaggio è protocollabile se non è già stato protocollato in tutte le aziende
+  public isRegisterActive(message: Message, codiceAzienda?: string): boolean {
+    if (!message ||
+      message.inOut !== InOut.IN ||
+      (message.messageType !== MessageType.MAIL && message.messageType !== MessageType.PEC) ||
+      message.messageFolderList[0].idFolder.type === "TRASH" ||
+      (message.messageTagList && message.messageTagList
+        .some(messageTag => messageTag.idTag.name === "readdressed_out"))) {
+      return false;
+    } else {
+      const aziendeProtocollabili = this.getCodiciMieAziendeProtocollabili(message);
+      if (aziendeProtocollabili.length === 0) {
+        return false;
+      } else { // se ho aziende protocollabil
+        if (codiceAzienda) { // se ho passato l'azienda vado a vedere se è tra le aziende protocollabili
+          return aziendeProtocollabili.some(e => e === codiceAzienda);
+        } else { // se non ho passato un codice azienda è protocollabile
+          return true;
+        }
+      }
+    }
   }
 
-  // prova per far recuperare dal branch default per deploy emergenza
-  public checkCurrentStatusAndRegister(exe: any): void {
+  public checkCurrentStatusAndRegister(exe: any, codiceAzienda: string): void {
     if (this.selectedMessages && this.selectedMessages.length === 1) {
       const filtersAndSorts: FiltersAndSorts = new FiltersAndSorts();
       filtersAndSorts.addFilter(new FilterDefinition("id", FILTER_TYPES.not_string.equals, this.selectedMessages[0].id));
@@ -275,15 +302,11 @@ export class MailListService {
       .subscribe(data => {
         if (data && data.results && data.results.length === 1) {
           const message =  (data.results[0] as Message);
-          let registrable = true;
-          if (message.messageTagList && message.messageTagList.length > 0) {
-            registrable = !message.messageTagList.some(mt => mt.idTag.name === "registered" || mt.idTag.name === "in_registration");
-          }
-          if (registrable) {
+          if (this.isRegisterActive(message, codiceAzienda)) {
             exe();
           } else {
             this.messagePrimeService.add(
-              { severity: "error", summary: "Attenzione", detail: "Il messaggio risulta già protocollato. Si consiglia di aggiornare la pagina." });
+              { key: "c", severity: "warn", sticky: true, summary: "Attenzione", detail: "Il messaggio risulta già protocollato. Si consiglia di aggiornare la pagina." });
           }
         }
       });
@@ -340,12 +363,15 @@ export class MailListService {
    * Questa funzione ritorna un booleano che indica se i messaggi selezionati sono cancellabili (spostabili nel cestino).
    */
   public isDeleteActive(): boolean {
-    //return this.isMoveActive() && this.loggedUser.hasPecPermission(this.selectedMessages[0].fk_idPec.id, PecPermission.ELIMINA);
+    // return this.isMoveActive() && this.loggedUser.hasPecPermission(this.selectedMessages[0].fk_idPec.id, PecPermission.ELIMINA);
     return this.isMoveActive() && this.loggedUserHasPermission(PecPermission.ELIMINA);
   }
 
   public isNewMailActive(selectedPec?: Pec, isDraft = false): boolean {
     if ((selectedPec && selectedPec.attiva) || isDraft) {
+      if (selectedPec) {
+        this.idPec = selectedPec.id;
+      }
       return this.loggedUserHasPermission(PecPermission.RISPONDE) || this.loggedUserHasPermission(PecPermission.ELIMINA);
     } else {
       return false;
@@ -358,24 +384,40 @@ export class MailListService {
    *@param idFolder di folder passato ( fk_idPreviousFolder )
    */
   public moveMessages(idFolder: number): void {
-    if (idFolder && (typeof(idFolder) === "number" )) {
+    if (idFolder && (typeof (idFolder) === "number")) {
+      const numberOfSelectedMessages: number = this.selectedMessages.length;
       const messagesFolder: MessageFolder[] = this.selectedMessages.map((message: Message) => {
         return message.messageFolderList[0];  // Basta prendere il primo elemente perché ogni messaggio può essere in una sola cartella
       });
-      this.messageFolderService
-        .moveMessagesToFolder(
-          messagesFolder,
-          idFolder,
-          this.loggedUser.getUtente().id
-        )
-        .subscribe(res => {
-          this.messages = Utils.arrayDiff(this.messages, this.selectedMessages);
-          this.mailFoldersService.doReloadFolder(messagesFolder[0].fk_idFolder.id);
-          this.mailFoldersService.doReloadFolder(idFolder);
-        });
+        this.messageFolderService
+          .moveMessagesToFolder(
+            messagesFolder,
+            idFolder,
+            this.loggedUser.getUtente().id
+          ).subscribe(
+            res => {
+              this.messages = Utils.arrayDiff(this.messages, this.selectedMessages);
+              this.mailFoldersService.doReloadFolder(messagesFolder[0].fk_idFolder.id);
+              this.mailFoldersService.doReloadFolder(idFolder);
+              this.selectedMessages = [];
+              this.messageService.manageMessageEvent(
+                null,
+                null,
+                this.selectedMessages
+              );
+              this.refreshAndSendTotalMessagesNumber(numberOfSelectedMessages);
+          });
     }
   }
 
+  public refreshAndSendTotalMessagesNumber(movedMessages: number, pecFolder: PecFolder = this.pecFolderSelected) {
+    this.totalRecords -= movedMessages;
+      // mando l'evento con il numero di messaggi (serve a mailbox-component perché lo deve scrivere nella barra superiore)
+      this.mailboxService.setTotalMessageNumberDescriptor({
+        messageNumber: this.totalRecords,
+        pecFolder: pecFolder // folder/tag che era selezionato quando lo scaricamento dei messaggi è iniziato
+      } as TotalMessageNumberDescriptor);
+  }
 
   /**
    * Questa funzione si occupa di spostare i selectedMessages nel cestino.
@@ -389,7 +431,7 @@ export class MailListService {
   public createAndApplyTag(tagName) {
     this.createTag(tagName).subscribe(
       (res: Tag) => {
-        this._newTagInserted.next(res);
+        this._newTagInserted$.next(res);
         // this.tags.push(res);
         this.toggleTag(res);
         this.messagePrimeService.add(
@@ -741,14 +783,67 @@ export class MailListService {
     return aziendeMenuItems;
   }
 
+  // restituisce array d'interi con gli id delle aziende su cui il messaggio è stato protocollato
+  private getIdAziendeDoveMessaggioGiaProtocollato(message: Message): number[] {
+    let additionalDataAziende: number[] = [];
+    if (message && message.messageTagList) {
+      const mtRegistered: MessageTag = message.messageTagList.find(mt => mt.idTag.name === "registered");
+      let additionaDataRegistered: any;
+      if (mtRegistered) {
+        additionaDataRegistered = JSON.parse(mtRegistered.additionalData);
+      }
+      const mtInRegistration = message.messageTagList.find(mt => mt.idTag.name === "in_registration");
+      let additionaDataInRegistration: any;
+      if (mtInRegistration) {
+        additionaDataInRegistration = JSON.parse(mtInRegistration.additionalData);
+      }
+      if (additionaDataRegistered) {
+        if (additionaDataRegistered instanceof Array) {
+          additionaDataRegistered.forEach(element => {
+            additionalDataAziende.push(element.idAzienda.id);
+          });
+        } else {
+          additionalDataAziende.push(additionaDataRegistered.idAzienda.id);
+        }
+      }
+      if (additionaDataInRegistration) {
+        if (additionaDataInRegistration instanceof Array) {
+          additionaDataInRegistration.forEach(element => {
+            additionalDataAziende.push(element.idAzienda.id);
+          });
+        } else {
+          additionalDataAziende.push(additionaDataInRegistration.idAzienda.id);
+        }
+      }
+      // tolgo i duplicati
+      if (additionalDataAziende.length > 0) {
+        additionalDataAziende = Array.from(new Set(additionalDataAziende));
+      }
+    }
+    return additionalDataAziende;
+  }
+
+  private getCodiciMieAziendeProtocollabili(message: Message): string[] {
+    let mieAziendeProtocollabili: string[] = [];
+    if (message) {
+      const aziendeWithFluxPermission = this.loggedUser.getAziendeWithPermission(FluxPermission.REDIGE);
+      if (aziendeWithFluxPermission && aziendeWithFluxPermission.length > 0) {
+        const mieAziendeGiaProtocoll: string[] = this.loggedUser.getUtente()["aziende"].filter(x => this.getIdAziendeDoveMessaggioGiaProtocollato(message).indexOf(x.id) > -1)
+          .map(a => a.codice);
+        mieAziendeProtocollabili = aziendeWithFluxPermission.filter(x => mieAziendeGiaProtocoll.indexOf(x) === -1);
+      }
+    }
+    return mieAziendeProtocollabili;
+  }
+
   /**
    * Questa funzione si occupa di creare un MenuItem[] che contenga come items la
    * lista delle aziende su cui l'utente loggato ha il permesso redige per la funzione protocolla Pec.
    * @param command
    */
-  public buildRegistrationMenuItems(selectedPec: Pec, command: (any) => any): MenuItem[] {
+  public buildRegistrationMenuItems(message: Message, selectedPec: Pec, command: (any) => any): MenuItem[] {
     return this.buildAziendeMenuItems(
-      this.loggedUser.getAziendeWithPermission(FluxPermission.REDIGE),
+      this.getCodiciMieAziendeProtocollabili(message),
       selectedPec,
       "MessageRegistration",
       command
@@ -845,6 +940,7 @@ export class MailListService {
       });
     }
   }
+
 }
 
 interface MessageTagOp {
