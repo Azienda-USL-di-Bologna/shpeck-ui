@@ -50,7 +50,7 @@ export class AppComponent implements OnInit {
     this.headerFeaturesConfig.logoutWarning = true;
 
     // configurazione login
-    this.loginService.setloginUrl(getInternautaUrl(BaseUrlType.Login));
+    this.loginService.setLoginUrl(getInternautaUrl(BaseUrlType.Login));
     this.loginService.setImpostazioniApplicazioniUrl(getInternautaUrl(BaseUrlType.ConfigurazioneImpostazioniApplicazioni));
 
     this.loginService.loggedUser$.subscribe((utente: UtenteUtilities) => {

@@ -3,6 +3,7 @@ import { LOGIN_ROUTE, LOCALHOST_PORT, APPLICATION, MAILBOX_ROUTE } from "../../e
 
 export const loginModuleConfig: NTJWTModuleConfig = {
     loginURL: "" /*getInternautaUrl(BaseUrlType.Login)*/,
+    passTokenGeneratorURL: "",
     loginComponentRoute: LOGIN_ROUTE,
     homeComponentRoute: MAILBOX_ROUTE,
     localhostPort: LOCALHOST_PORT,
