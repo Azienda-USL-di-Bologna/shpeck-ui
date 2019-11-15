@@ -1,8 +1,8 @@
 import { Component, OnInit, Input, OnDestroy, ViewChild } from "@angular/core";
 import { FilterDefinition, FILTER_TYPES, PagingConf, SORT_MODES, FiltersAndSorts, SortDefinition } from "@nfa/next-sdr";
-import { ENTITIES_STRUCTURE, OutboxLite, Outbox } from "@bds/ng-internauta-model";
+import { ENTITIES_STRUCTURE, Outbox } from "@bds/ng-internauta-model";
 import { Subscription } from "rxjs";
-import { Sorting, MailboxService } from "../mailbox.service";
+import { Sorting, MailboxService, TotalMessageNumberDescriptor } from "../mailbox.service";
 import { Table } from "primeng/table";
 import { OutboxLiteService } from "src/app/services/outbox-lite.service";
 import { SettingsService } from "src/app/services/settings.service";
@@ -10,7 +10,8 @@ import { DatePipe } from "@angular/common";
 import { OutboxService } from "src/app/services/outbox.service";
 import { FilterMetadata, LazyLoadEvent } from "primeng/api";
 import { buildLazyEventFiltersAndSorts } from "@bds/primeng-plugin";
-import { AppCustomization } from 'src/environments/app-customization';
+import { AppCustomization } from "src/environments/app-customization";
+import { PecFolder, MailFoldersService } from "../mail-folders/mail-folders.service";
 
 @Component({
   selector: "app-mail-outbox",
@@ -28,6 +29,8 @@ export class MailOutboxComponent implements OnInit, OnDestroy {
       this.loadData(null);
     });
   }
+
+  public pecFolderSelected: PecFolder;
 
   @ViewChild("ot", null) private ot: Table;
   private previousFilter: FilterDefinition[] = [];
@@ -70,7 +73,8 @@ export class MailOutboxComponent implements OnInit, OnDestroy {
     private settingsService: SettingsService,
     private datepipe: DatePipe,
     private mailboxService: MailboxService,
-    private outboxService: OutboxService
+    private outboxService: OutboxService,
+    private mailFoldersService: MailFoldersService
   ) { }
 
   ngOnInit() {
@@ -80,7 +84,9 @@ export class MailOutboxComponent implements OnInit, OnDestroy {
       this.selectedOutboxMails = [];
       idOutboxMail ? this.loadData(null, null, idOutboxMail) : this.loadData(null);
     }));
-
+    this.subscriptions.push(this.mailFoldersService.pecFolderSelected.subscribe((pecFolderSelected: PecFolder) => {
+      this.pecFolderSelected = pecFolderSelected;
+    }));
     this.subscriptions.push(this.settingsService.settingsChangedNotifier$.subscribe(newSettings => {
       this.openDetailInPopup = newSettings[AppCustomization.shpeck.hideDetail] === "true";
     }));
@@ -133,12 +139,22 @@ export class MailOutboxComponent implements OnInit, OnDestroy {
   private loadData(pageCong: PagingConf, lazyFilterAndSort?: FiltersAndSorts, idOutboxMail?: number) {
     if (this._selectedPecId) {
       this.loading = true;
+
+      // mi devo salvare la folder/tag selezionata al momento del caricamento,
+      // perché nella subscribe quando la invio al mailbox-component per scrivere il numero di messaggi
+      // la selezione potrebbe essere cambiata e quindi manderei un dato errato
+      const folderSelected = this.pecFolderSelected;
       this.outboxLiteService.getData(this.selectedProjection,
         this.buildOutboxtInitialFilterAndSort(),
         lazyFilterAndSort,
         pageCong).subscribe(data => {
           if (data && data.results) {
             this.totalRecords = data.page.totalElements;
+            // mando l'evento con il numero di messaggi (serve a mailbox-component perché lo deve scrivere nella barra superiore)
+            this.mailboxService.setTotalMessageNumberDescriptor({
+              messageNumber: this.totalRecords,
+              pecFolder: folderSelected // folder/tag che era selezionato quando lo scaricamento dei messaggi è iniziato
+            } as TotalMessageNumberDescriptor);
             this.outboxMails = data.results;
             if (idOutboxMail) {
               const selectedOutboxMail: Outbox = this.selectedOutboxMails.find(value => value.id === idOutboxMail);

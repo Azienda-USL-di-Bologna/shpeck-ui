@@ -209,12 +209,15 @@ p-table,
 
 ::ng-deep .general-font-size-small .delete-icon {
   font-size: 20px !important;
+  cursor: pointer;
 }
 ::ng-deep .general-font-size-medium .delete-icon {
   font-size: 21px !important;
+  cursor: pointer;
 }
 ::ng-deep .general-font-size-big .delete-icon {
   font-size: 22px !important;
+  cursor: pointer;
 }
 
 

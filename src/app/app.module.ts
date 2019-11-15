@@ -45,7 +45,6 @@ import { MailDraftsComponent } from "./mailbox/mail-drafts/mail-drafts.component
 import { MailOutboxComponent } from "./mailbox/mail-outbox/mail-outbox.component";
 import { StripeHtmlPipe } from "./pipes/stripe-html.pipe";
 import { MailListService } from "./mailbox/mail-list/mail-list.service";
-import { CommandManagerService } from "./services/command-manager.service";
 
 // incon - font - styles
 import { MatIconModule } from "@angular/material/icon";
@@ -96,8 +95,7 @@ registerLocaleData(localeIt, "it-IT", localeItExtra);
     MessageService,
     ShpeckMessageService,
     MessageFolderService,
-    MailListService,
-    CommandManagerService
+    MailListService
   ],
   bootstrap: [AppComponent],
   entryComponents: [SettingsComponent, NewMailComponent, ReaddressComponent]

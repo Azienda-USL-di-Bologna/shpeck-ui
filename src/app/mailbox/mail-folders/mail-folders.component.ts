@@ -2,16 +2,14 @@ import { Component, OnInit, ViewEncapsulation, OnDestroy, ViewChild, ElementRef,
 import { Pec, Folder, FolderType, Tag, TagType, Utente } from "@bds/ng-internauta-model";
 import { PecService } from "src/app/services/pec.service";
 import { TreeNode, MenuItem, MessageService } from "primeng/api";
-import { MailFoldersService, PecFolder, PecFolderType, FoldersAndTags } from "./mail-folders.service";
-import { ToolBarService } from "../toolbar/toolbar.service";
+import { MailFoldersService, PecFolder, PecFolderType } from "./mail-folders.service";
 import { Subscription } from "rxjs";
-import { ContextMenu, Tree } from "primeng/primeng";
+import { ContextMenu, Tree, OverlayPanel } from "primeng/primeng";
 import { FolderService } from "src/app/services/folder.service";
 import { TagService } from "src/app/services/tag.service";
 import { MailListService } from "../mail-list/mail-list.service";
 import { UtenteUtilities, NtJwtLoginService } from "@bds/nt-jwt-login";
 import { ShpeckMessageService } from "src/app/services/shpeck-message.service";
-import { UtilityFunctions } from "@bds/nt-communicator";
 
 @Component({
   selector: "app-mail-folders",
@@ -30,6 +28,8 @@ export class MailFoldersComponent implements OnInit, OnDestroy {
 
   @ViewChild("cm", null) public cm: ContextMenu;
   @ViewChild("tree", null) public tree: Tree;
+  @ViewChild("op", null) public op: OverlayPanel;
+  // @ViewChildren("actualTarget", null) public actualTarget: ElementRef[];
   @ViewChildren("folderInput", null) public folderInput: ElementRef[];
 
   // @ViewChild("manageFolderPanel") public manageFolderPanel: OverlayPanel;
@@ -38,9 +38,14 @@ export class MailFoldersComponent implements OnInit, OnDestroy {
   // @Output("folderEmitter") private folderEmitter: EventEmitter<number> = new EventEmitter();
 
   public selectedNode: MyTreeNode;
+  public elementSelected: any;
+  public pickershow = true;
   public previousSelectedNode: MyTreeNode;
   private _abortSaveFolder: boolean = false;
   private _pressedEnter: boolean = false;
+
+  public color: string = "#2e4a65";
+  public initialColor: string;
 
   public pecCmItems: MenuItem[] = [
     {
@@ -77,6 +82,13 @@ export class MailFoldersComponent implements OnInit, OnDestroy {
       queryParams: {},
       command: event => this.selectedContextMenuItem(event)
     },
+    {
+      label: "Colora",
+      id: "Coloring",
+      disabled: false,
+      queryParams: {},
+      command: event => this.selectedContextMenuItem(event)
+    },
   ];
   public tagCmItems: MenuItem[] = [
     {
@@ -89,6 +101,13 @@ export class MailFoldersComponent implements OnInit, OnDestroy {
     {
       label: "Elimina",
       id: "DeleteTag",
+      disabled: false,
+      queryParams: {},
+      command: event => this.selectedContextMenuItem(event)
+    },
+    {
+      label: "Colora",
+      id: "Coloring",
       disabled: false,
       queryParams: {},
       command: event => this.selectedContextMenuItem(event)
@@ -139,6 +158,8 @@ export class MailFoldersComponent implements OnInit, OnDestroy {
         }
       }
     }));
+
+    this.nodeColorIsActuallyChanging = this.nodeColorIsActuallyChanging.bind(this);
   }
 
   ngOnInit() {
@@ -307,6 +328,25 @@ export class MailFoldersComponent implements OnInit, OnDestroy {
               { severity: "error", summary: "Errore", detail: "Non puoi eliminare una cartella di sistema!", life: 3500 });
           }
           break;
+        case "Coloring":
+          this.color = "#2e4a65";
+          this.initialColor = "#2e4a65";
+          if (this.elementSelected.node.data.data.additionalData) {
+            const a =  JSON.parse(this.elementSelected.node.data.data.additionalData);
+            if (a.color) {
+              this.color = a.color;
+              this.initialColor = a.color;
+            }
+          }
+          // this.selectedNode.inColoring = true;
+          // this.op.toggle(event);
+          /* this.selectedNode.inColoring = true;
+          this.pickershow = false;*/
+          this.pickershow = true;
+          // this.op.hide();
+          event.originalEvent.stopPropagation();
+          this.op.show(this.elementSelected.originalEvent);
+          break;
         case "NewTag":
           const tagToInsert = this.buildCustomTag(this.selectedNode.parent.data.data as Pec, "Nuovo Tag");
           this.selectedNode.children.push(this.buildTagNode(tagToInsert, tagToInsert.description, "fa fa-tag ", true));
@@ -337,6 +377,7 @@ export class MailFoldersComponent implements OnInit, OnDestroy {
       }
     }
   }
+
 
   private buildCustomFolder(pecContainer: Pec, name?: string): Folder {
     const folder: Folder = new Folder();
@@ -398,8 +439,6 @@ export class MailFoldersComponent implements OnInit, OnDestroy {
   }
 
   private buildFolderNode(folder: Folder, folderIcons: any, editable: boolean = false): MyTreeNode {
-
-
     let expandedIcon = "fa fa-folder-open smaller-icon";
     let collapsedIcon = "fa fa-folder smaller-icon";
     if (folder.name === "readdressed") {
@@ -422,6 +461,13 @@ export class MailFoldersComponent implements OnInit, OnDestroy {
       editable: editable,
       key: PecFolderType.FOLDER + "_" + (folder.id ? folder.id : "new")
     };
+
+    if (folder.additionalData) {
+      const a = JSON.parse(folder.additionalData);
+      if (a.color) {
+        this.setColorToNode(folderNode, a.color);
+      }
+    }
     // sottoscrizione all'observable che scatta quando devo ricaricare il numero dei messaggi non letti
     this.mailFoldersService.getReloadFolder(folder.id).subscribe(res => {
       // prima rimuovo la parte "(numero messaggi)" dal label, poi se il numero dei messaggi non letti è > 0 lo reinserisco con il numero aggiornato
@@ -452,6 +498,13 @@ export class MailFoldersComponent implements OnInit, OnDestroy {
       editable: editable,
       key: PecFolderType.TAG + "_" + (tag.id ? tag.id : "new")
     };
+
+    if (tag.additionalData) {
+      const a = JSON.parse(tag.additionalData);
+      if (a.color) {
+        this.setColorToNode(treeNode, a.color);
+      }
+    }
     return treeNode;
   }
 
@@ -480,7 +533,9 @@ export class MailFoldersComponent implements OnInit, OnDestroy {
   public handleNodeSelect(name: string, event: any) {
     switch (name) {
       case "onContextMenuSelect":
+        this.op.hide();
         this.selectedNode = event.node;
+        this.elementSelected = event;
         this.mailfolders.map(m => m.styleClass = MailFoldersComponent.ROOT_NODE_NOT_SELECTED_STYLE_CLASS);
 
         if (event.node && !(event.node as MyTreeNode).editable) {
@@ -856,8 +911,78 @@ export class MailFoldersComponent implements OnInit, OnDestroy {
         return "disattivata";
       }
     }
-
     return "";
+  }
+
+  /**
+   * Nascondo l'overlaypanel del colorpicker
+   * @param event
+   * @param node
+   */
+  public closeColorEditing(hoSalvato = false): void {
+    /* if (!hoSalvato) {
+      this.checkIfStyleAlreadyExistsAndSetColorToNode(this.selectedNode, this.initialColor);
+    } */
+    this.op.hide();
+  }
+
+  public pickerOverlayHiding() {
+    this.pickershow = false;
+    this.checkIfStyleAlreadyExistsAndSetColorToNode(this.selectedNode, this.initialColor);
+  }
+
+  public saveNewColor(): void {
+     // Può essere un Folder o un Tag
+    const nodeType: PecFolderType = this.selectedNode.data.type;
+    if (nodeType === PecFolderType.FOLDER) {
+      const folder = this.selectedNode.data.data as Folder;
+      let a: any = {};
+      if (folder.additionalData) {
+        a = JSON.parse(folder.additionalData);
+      }
+      a.color = this.color;
+      folder.additionalData = JSON.stringify(a);
+      this.updateFolder(folder);
+    } else if (nodeType === PecFolderType.TAG) {
+      const tag = this.selectedNode.data.data as Tag;
+      let a: any = {};
+      if (tag.additionalData) {
+        a = JSON.parse(tag.additionalData);
+      }
+      a.color = this.color;
+      tag.additionalData = JSON.stringify(a);
+      this.updateTag(tag);
+    }
+    this.initialColor = this.color;
+    this.closeColorEditing(true);
+  }
+
+  /**
+   * Setto un nuovo colore sul node attualmente selezionato.
+   */
+  public nodeColorIsActuallyChanging(): void {
+    this.checkIfStyleAlreadyExistsAndSetColorToNode(this.selectedNode, this.color);
+  }
+
+  private checkIfStyleAlreadyExistsAndSetColorToNode(node: any, color: string) {
+    const nodeStyle = document.getElementById("nodeDynamicStyle" + node.key);
+    if  (!nodeStyle) {
+      this.setColorToNode(node, color);
+    } else {
+      nodeStyle.innerHTML = `body .nodeStyle${node.key} .general-style-icon { color: ${color} !important; }`;
+    }
+  }
+
+  /**
+   * Creo lo style per il nodo specifico contenente una classe con il colore dato.
+   * Inoltre aggiungo la medesima classe al nodo.
+   */
+  private setColorToNode(node: any, color: string): void {
+    const nodeStyle = document.createElement("style");
+    nodeStyle.id = "nodeDynamicStyle" + node.key;
+    nodeStyle.innerHTML = `body .nodeStyle${node.key} .general-style-icon { color: ${color} !important; }`;
+    document.getElementsByTagName("head")[0].appendChild(nodeStyle);
+    node.styleClass =  node.styleClass + ` nodeStyle${node.key}`;
   }
 
   public ngOnDestroy() {
@@ -873,4 +998,5 @@ export interface MyTreeNode extends TreeNode {
   data?: PecFolder;
   editable?: boolean;
   children?: MyTreeNode[];
+  inColoring?: boolean;
 }
