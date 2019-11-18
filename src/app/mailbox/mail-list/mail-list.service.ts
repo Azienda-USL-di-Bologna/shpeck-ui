@@ -269,7 +269,7 @@ export class MailListService {
   public isRegisterActive(message: Message, codiceAzienda?: string): boolean {
     if (!message ||
       message.inOut !== InOut.IN ||
-      (message.messageType !== MessageType.MAIL && message.messageType !== MessageType.PEC) ||
+      message.messageType !== MessageType.MAIL ||
       message.messageFolderList[0].idFolder.type === "TRASH" ||
       (message.messageTagList && message.messageTagList
         .some(messageTag => messageTag.idTag.name === "readdressed_out"))) {
