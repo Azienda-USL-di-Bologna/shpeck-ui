@@ -26,6 +26,11 @@
     </div>
     <!-- <span *ngIf="node.data.type ==='pec' && !node.data.data.attiva">disattiva</span> -->
     <p-overlayPanel #op appendTo="body" (onHide)="pickerOverlayHiding()">
+      <div class="restore-color">
+        Ripristina
+        <span style="height: 0.5em; width: 0.5em;"></span>
+        <i pButton type="button"  class="button-restore" (click)="ripristinaColor()" tooltipPosition="top" pTooltip="Ripristina il colore di default"></i>
+      </div>
       <div>
         <p-colorPicker [(ngModel)]="color" *ngIf="pickershow" inline="true" appendTo="body" (onChange)="nodeColorIsActuallyChanging()"></p-colorPicker>
       </div>
