@@ -257,4 +257,16 @@
   flex-direction: row;
   justify-content: space-around;
 }
+
+::ng-deep .restore-color {
+  display: flex;
+  justify-content: right;
+  margin-bottom: 10px;
+}
+::ng-deep .restore-color .button-restore {
+  background-color:#2e4a65;
+  height: 1em; 
+  width: 1em;
+  margin: auto 0;
+}
 /* ::ng-deep .nodeStylefolder_1376 .general-style-icon { color: #2876bf !important; } */

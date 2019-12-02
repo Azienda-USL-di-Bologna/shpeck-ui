@@ -931,6 +931,11 @@ export class MailFoldersComponent implements OnInit, OnDestroy {
     this.checkIfStyleAlreadyExistsAndSetColorToNode(this.selectedNode, this.initialColor);
   }
 
+  public ripristinaColor() {
+    this.color = "#2e4a65";
+    this.nodeColorIsActuallyChanging();
+  }
+
   public saveNewColor(): void {
      // Può essere un Folder o un Tag
     const nodeType: PecFolderType = this.selectedNode.data.type;
