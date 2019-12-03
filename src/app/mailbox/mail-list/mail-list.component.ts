@@ -883,7 +883,17 @@ export class MailListComponent implements OnInit, OnDestroy {
 
     // prova per far recuperare dal branch default per deploy emergenza
     this.mailListService.checkCurrentStatusAndRegister(() => {
-      window.open(decodedUrl); },
+
+      // const encodeParams = attivita.idApplicazione.urlGenerationStrategy === UrlsGenerationStrategy.TRUSTED_URL_WITH_CONTEXT_INFORMATION ||
+      //                     attivita.idApplicazione.urlGenerationStrategy === UrlsGenerationStrategy.TRUSTED_URL_WITHOUT_CONTEXT_INFORMATION;
+      const encodeParams = false;
+      const addRichiestaParam = true;
+      const addPassToken = true;
+      this.loginService.buildInterAppUrl(decodedUrl, encodeParams, addRichiestaParam, addPassToken, true).subscribe((url: string) => {
+        console.log("urlAperto:", url);
+      });
+      // window.open(decodedUrl);
+    },
 /*       // Setto subito il tag in modo che l'icona cambi
       if (!this.mailListService.selectedMessages[0].messageTagList) {
         this.mailListService.selectedMessages[0].messageTagList = [];

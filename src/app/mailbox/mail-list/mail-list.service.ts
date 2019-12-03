@@ -741,7 +741,14 @@ export class MailListService {
       decodedUrl = decodedUrl.replace("[id_message]", this.selectedMessages[0].id.toString());
       decodedUrl = decodedUrl.replace("[richiesta]", Utils.genereateGuid());
       console.log("command", decodedUrl);
-      window.open(decodedUrl);
+
+      const encodeParams = false;
+      const addRichiestaParam = true;
+      const addPassToken = true;
+      this.loginService.buildInterAppUrl(decodedUrl, encodeParams, addRichiestaParam, addPassToken, true).subscribe((url: string) => {
+        console.log("urlAperto:", url);
+      });
+      // window.open(decodedUrl);
     }
   }
 
