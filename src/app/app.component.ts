@@ -52,6 +52,7 @@ export class AppComponent implements OnInit {
     // configurazione login
     this.loginService.setLoginUrl(getInternautaUrl(BaseUrlType.Login));
     this.loginService.setImpostazioniApplicazioniUrl(getInternautaUrl(BaseUrlType.ConfigurazioneImpostazioniApplicazioni));
+    this.loginService.setPassTokenGeneratorURL(getInternautaUrl(BaseUrlType.PassTokenGenerator));
 
     this.loginService.loggedUser$.subscribe((utente: UtenteUtilities) => {
       if (utente) {
