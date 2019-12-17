@@ -45,7 +45,7 @@ export class AppComponent implements OnInit {
     this.headerFeaturesConfig.showUserMenu = true;
     this.headerFeaturesConfig.showManuale = true;
     this.headerFeaturesConfig.showProfilo = true;
-    this.headerFeaturesConfig.logoutRedirectRoute = MAILBOX_ROUTE;
+    this.headerFeaturesConfig.logoutRedirectRoute = "/" + MAILBOX_ROUTE;
     this.headerFeaturesConfig.logoutIconPath = "assets/images/signout.svg";
     this.headerFeaturesConfig.logoutWarning = true;
 
@@ -62,7 +62,7 @@ export class AppComponent implements OnInit {
         console.log("loggedUser", this.utenteConnesso);
       }
     });
-    this.route.queryParams.subscribe((params: Params) => UtilityFunctions.manageChangeUserLogin(params, this.loginService, this.router, LOGIN_ROUTE));
+    this.route.queryParams.subscribe((params: Params) => UtilityFunctions.manageChangeUserLogin(params, this.loginService, this.router, "/" + LOGIN_ROUTE));
 
     this.addToMenu.push({
       label: "Impostazioni",
