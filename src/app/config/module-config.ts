@@ -3,6 +3,7 @@ import { LOGIN_ROUTE, LOCALHOST_PORT, APPLICATION, MAILBOX_ROUTE, LOGGED_OUT_ROU
 
 export const loginModuleConfig: NTJWTModuleConfig = {
     loginURL: "" /*getInternautaUrl(BaseUrlType.Login)*/,
+    refreshSessionInternautaUrl: "",
     passTokenGeneratorURL: "",
     loginComponentRoute: "/" + LOGIN_ROUTE,
     homeComponentRoute: "/" + MAILBOX_ROUTE,
@@ -13,5 +14,6 @@ export const loginModuleConfig: NTJWTModuleConfig = {
     // sessionExpireSeconds: 1800, // 0 = distattivato
     pingInterval: 10, //  0 disattivato, 900 parametro deciso per prod
     // logout type SSO sync oppure local
-    logoutType: LogoutType.SSO_SYNC
+    logoutType: LogoutType.SSO_SYNC,
+    mainApp: false
 };
