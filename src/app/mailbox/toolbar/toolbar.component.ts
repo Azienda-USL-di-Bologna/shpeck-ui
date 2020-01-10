@@ -127,24 +127,31 @@ export class ToolbarComponent implements OnDestroy {
    */
   private deletingConfirmation() {
     let message: string;
-    if (this.toolBarService.selectedFolder.type === FolderType.DRAFT) {
-      message = "Vuoi eliminare definitivamente la bozza selezionata?";
-      const drafts = this.toolBarService.draftEvent.selectedDrafts;
-      if (drafts && drafts.length > 1) {
-        message = "Vuoi eliminare definitivamente le bozze selezionate?";
-      }
+
+    if (this.toolBarService.selectedFolder.type === FolderType.TRASH) {
+      this.mailListService.deleteSelectedMessageFromTrash();
     } else {
-      message = "Sei sicuro di voler eliminare i messaggi selezionati?";
+      if (this.toolBarService.selectedFolder.type === FolderType.DRAFT) {
+        message = "Vuoi eliminare definitivamente la bozza selezionata?";
+        const drafts = this.toolBarService.draftEvent.selectedDrafts;
+        if (drafts && drafts.length > 1) {
+          message = "Vuoi eliminare definitivamente le bozze selezionate?";
+        }
+      } else {
+        message = "Sei sicuro di voler eliminare i messaggi selezionati?";
+      }
+      this.confirmationService.confirm({
+        message: message,
+        header: "Conferma",
+        icon: "pi pi-exclamation-triangle",
+        accept: () => {
+          this.toolBarService.handleDelete();
+        },
+        reject: () => {}
+      });
     }
-    this.confirmationService.confirm({
-      message: message,
-      header: "Conferma",
-      icon: "pi pi-exclamation-triangle",
-      accept: () => {
-        this.toolBarService.handleDelete();
-      },
-      reject: () => {}
-    });
+
+    
   }
 
 

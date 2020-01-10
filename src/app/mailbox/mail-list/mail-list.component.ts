@@ -273,6 +273,11 @@ export class MailListComponent implements OnInit, OnDestroy {
             this._selectedPecId = selectedFolder.fk_idPec.id;
             this._selectedPec = pecFolderSelected.pec;
             this.setFolder(selectedFolder);
+            this.cmItems.map(element => {
+              if (element.id === "MessageDelete" && selectedFolder.type === FolderType.TRASH) {
+                element.label = "Elimina definitivamente";
+              }
+          });
           }
         } else if (pecFolderSelected.type === PecFolderType.TAG) {
           const selectedTag: Tag = pecFolderSelected.data as Tag;
@@ -926,7 +931,12 @@ export class MailListComponent implements OnInit, OnDestroy {
         this.mailListService.setSeen(menuItem.queryParams.seen, true);
         break;
       case "MessageDelete":
-        this.deletingConfirmation();
+          const selectedFolder: Folder = this.pecFolderSelected.data as Folder;
+          if (selectedFolder.type === FolderType.TRASH) {
+            this.mailListService.deleteSelectedMessageFromTrash();
+          } else {
+            this.deletingConfirmation();
+          }
         break;
       case "MessageMove":
         this.mailListService.moveMessages(event.item.queryParams.folder.id);

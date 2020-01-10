@@ -38,7 +38,7 @@
       </button>
       <!-- Elimina -->
       <button
-        pButton type="button" label="Elimina"
+        pButton type="button" [label]="toolBarService.deleteLabel | async"
         icon="fa fa-trash" class="button-styles ui-button-raised ui-button-secondary custom-border"
         (click)="handleEvent($event, 'delete')"
         [disabled]="!(toolBarService.buttonObs.get('deleteActive') | async)">
