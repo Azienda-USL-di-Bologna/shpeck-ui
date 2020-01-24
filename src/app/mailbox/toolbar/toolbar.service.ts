@@ -1,5 +1,5 @@
 import { Injectable } from "@angular/core";
-import { BehaviorSubject, Observable, Subscription } from "rxjs";
+import { BehaviorSubject, Observable, Subscription, Observer, of } from "rxjs";
 import { FilterDefinition } from "@nfa/next-sdr";
 import { Draft, Pec, Folder, Message, FolderType, Tag, PecPermission } from "@bds/ng-internauta-model";
 import { NewMailComponent } from "../new-mail/new-mail.component";
@@ -29,6 +29,8 @@ export class ToolBarService {
   public buttonObs: Map<string, Observable<boolean>>;
   public moveMenuItems: MenuItem[];
   private loggedUser: UtenteUtilities;
+
+  public deleteLabel = new BehaviorSubject<string>("Elimina");
 
   public buttonsObservables = new Map([
     ["newMailActive", new BehaviorSubject<boolean>(false)],
@@ -93,6 +95,7 @@ export class ToolBarService {
           } else {
             this.buttonsObservables.get("searchActive").next(false);
           }
+          this.deleteLabel.next("Elimina");
         }
       }));
       this.subscriptions.push(this.pecService.myPecs.subscribe((pecs: Pec[]) => {
@@ -128,6 +131,11 @@ export class ToolBarService {
 
         const isDeleteActive = this.mailListService.isDeleteActive();
         this.buttonsObservables.get("deleteActive").next(isDeleteActive);
+        if (isDeleteActive && this.selectedFolder.type === FolderType.TRASH && this.selectedMessages && this.selectedMessages.length > 0) {
+          this.deleteLabel.next("Elimina definitivamente");
+        } else {
+          this.deleteLabel.next("Elimina");
+        }
       }
     }));
     this.subscriptions.push(this.draftService.draftEvent.subscribe(

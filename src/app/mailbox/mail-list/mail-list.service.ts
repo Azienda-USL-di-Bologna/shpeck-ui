@@ -269,7 +269,7 @@ export class MailListService {
   public isRegisterActive(message: Message, codiceAzienda?: string): boolean {
     if (!message ||
       message.inOut !== InOut.IN ||
-      (message.messageType !== MessageType.MAIL && message.messageType !== MessageType.PEC) ||
+      message.messageType !== MessageType.MAIL ||
       message.messageFolderList[0].idFolder.type === "TRASH" ||
       (message.messageTagList && message.messageTagList
         .some(messageTag => messageTag.idTag.name === "readdressed_out"))) {
@@ -364,7 +364,7 @@ export class MailListService {
    */
   public isDeleteActive(): boolean {
     // return this.isMoveActive() && this.loggedUser.hasPecPermission(this.selectedMessages[0].fk_idPec.id, PecPermission.ELIMINA);
-    return this.isMoveActive() && this.loggedUserHasPermission(PecPermission.ELIMINA);
+    return !this.selectedMessages.some((message: Message) => !message.messageFolderList) && this.selectedMessages && this.selectedMessages.length > 0 && this.loggedUserHasPermission(PecPermission.ELIMINA);
   }
 
   public isNewMailActive(selectedPec?: Pec, isDraft = false): boolean {
@@ -494,6 +494,34 @@ export class MailListService {
     }
   }
 
+  public deleteSelectedMessageFromTrash(): void {
+    const messageFolderOperations: BatchOperation[] = [];
+    let idFolder: any;
+    const mfp: MessageFolderOp[] = [];
+    const numberOfSelectedMessages: number = this.selectedMessages.length;
+
+    for (const message of this.selectedMessages) {
+      const mFolderCall = this.buildMessageFolderOperationDelete(message, FolderType.TRASH);
+        idFolder = mFolderCall.idFolder;
+        messageFolderOperations.push(mFolderCall.batchOp);
+        mfp.push({ message: message, operation: "DELETE" });
+    }
+    if (messageFolderOperations.length > 0) {
+      this.messageService.batchHttpCall(messageFolderOperations).subscribe((res: BatchOperation[]) => {
+          this.messages = Utils.arrayDiff(this.messages, this.selectedMessages);
+          this.mailFoldersService.doReloadFolder(idFolder);
+          this.selectedMessages = [];
+          this.messageService.manageMessageEvent(
+            null,
+            null,
+            this.selectedMessages
+          );
+          this.refreshAndSendTotalMessagesNumber(numberOfSelectedMessages);
+            },
+        err => console.log("error during the operation -> ", err));
+    }
+  }
+
   private buildMessageTagOperationInsert(message: Message, tagName: string) {
     const mTag: MessageTag = new MessageTag();
     mTag.idMessage = { id: message.id } as Message;
@@ -527,6 +555,25 @@ export class MailListService {
           returnProjection: null
         },
         mTag: mTag
+      };
+    }
+  }
+
+  private buildMessageFolderOperationDelete(message: Message, typeFolder: string) {
+    const mFolder: MessageFolder = message.messageFolderList.find(messageFolder => messageFolder.idFolder.type === typeFolder);
+    if (mFolder) {
+      return {
+        idFolder: mFolder.idFolder.id,
+        batchOp: {
+          id: mFolder.id,
+          operation: BatchOperationTypes.DELETE,
+          entityPath:
+            BaseUrls.get(BaseUrlType.Shpeck) + "/" + ENTITIES_STRUCTURE.shpeck.messagefolder.path,
+          entityBody: null,
+          additionalData: null,
+          returnProjection: null
+        },
+        mFolder: mFolder
       };
     }
   }
@@ -637,6 +684,27 @@ export class MailListService {
     });
   }
 
+  private updateMessageFolderList(mFolderOp: MessageFolderOp[], result: BatchOperation[]) {
+    mFolderOp.forEach((item) => {
+      if (item.operation === "INSERT" && result) {
+        const messageFolderToPush: MessageFolder =
+          result.find(bo => (bo.entityBody as MessageFolder).fk_idMessage.id === item.message.id).entityBody as MessageFolder;
+        if (!item.message.messageFolderList) {
+          item.message.messageFolderList = [];
+        }
+        item.message.messageFolderList.push(messageFolderToPush);
+        this.setIconsVisibility(item.message);
+      } else if (item.operation === "DELETE" && result) {
+        item.message.messageFolderList.splice(item.message.messageFolderList.indexOf(item.messageFolder), 1);
+        this.setIconsVisibility(item.message);
+
+        if (this.pecFolderSelected && this.pecFolderSelected.data["FOLDER"] === item.messageFolder.fk_idFolder.id) {
+          this.messages.splice(this.messages.indexOf(this.messages.find(m => m.id === item.messageFolder.fk_idMessage.id)), 1);
+        }
+      }
+    });
+  }
+
   /**
    * Salva la nota aggiunta ad un messaggio e aggiorna il tag associato
    * @param noteObj L'oggetto nota da salvare
@@ -741,7 +809,14 @@ export class MailListService {
       decodedUrl = decodedUrl.replace("[id_message]", this.selectedMessages[0].id.toString());
       decodedUrl = decodedUrl.replace("[richiesta]", Utils.genereateGuid());
       console.log("command", decodedUrl);
-      window.open(decodedUrl);
+
+      const encodeParams = false;
+      const addRichiestaParam = true;
+      const addPassToken = true;
+      this.loginService.buildInterAppUrl(decodedUrl, encodeParams, addRichiestaParam, addPassToken, true).subscribe((url: string) => {
+        console.log("urlAperto:", url);
+      });
+      // window.open(decodedUrl);
     }
   }
 
@@ -947,6 +1022,12 @@ interface MessageTagOp {
   message: Message;
   operation: "INSERT" | "DELETE";
   messageTag?: MessageTag;
+}
+
+interface MessageFolderOp {
+  message: Message;
+  operation: "INSERT" | "DELETE";
+  messageFolder?: MessageFolder;
 }
 
 interface TagIconAction {

@@ -273,6 +273,11 @@ export class MailListComponent implements OnInit, OnDestroy {
             this._selectedPecId = selectedFolder.fk_idPec.id;
             this._selectedPec = pecFolderSelected.pec;
             this.setFolder(selectedFolder);
+            this.cmItems.map(element => {
+              if (element.id === "MessageDelete" && selectedFolder.type === FolderType.TRASH) {
+                element.label = "Elimina definitivamente";
+              }
+          });
           }
         } else if (pecFolderSelected.type === PecFolderType.TAG) {
           const selectedTag: Tag = pecFolderSelected.data as Tag;
@@ -883,7 +888,17 @@ export class MailListComponent implements OnInit, OnDestroy {
 
     // prova per far recuperare dal branch default per deploy emergenza
     this.mailListService.checkCurrentStatusAndRegister(() => {
-      window.open(decodedUrl); },
+
+      // const encodeParams = attivita.idApplicazione.urlGenerationStrategy === UrlsGenerationStrategy.TRUSTED_URL_WITH_CONTEXT_INFORMATION ||
+      //                     attivita.idApplicazione.urlGenerationStrategy === UrlsGenerationStrategy.TRUSTED_URL_WITHOUT_CONTEXT_INFORMATION;
+      const encodeParams = false;
+      const addRichiestaParam = true;
+      const addPassToken = true;
+      this.loginService.buildInterAppUrl(decodedUrl, encodeParams, addRichiestaParam, addPassToken, true).subscribe((url: string) => {
+        console.log("urlAperto:", url);
+      });
+      // window.open(decodedUrl);
+    },
 /*       // Setto subito il tag in modo che l'icona cambi
       if (!this.mailListService.selectedMessages[0].messageTagList) {
         this.mailListService.selectedMessages[0].messageTagList = [];
@@ -916,7 +931,12 @@ export class MailListComponent implements OnInit, OnDestroy {
         this.mailListService.setSeen(menuItem.queryParams.seen, true);
         break;
       case "MessageDelete":
-        this.deletingConfirmation();
+          const selectedFolder: Folder = this.pecFolderSelected.data as Folder;
+          if (selectedFolder.type === FolderType.TRASH) {
+            this.mailListService.deleteSelectedMessageFromTrash();
+          } else {
+            this.deletingConfirmation();
+          }
         break;
       case "MessageMove":
         this.mailListService.moveMessages(event.item.queryParams.folder.id);
