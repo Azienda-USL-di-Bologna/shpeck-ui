@@ -104,7 +104,7 @@ export class MailListService {
   public buildMoveMenuItems(folders: Folder[], selectedFolder: Folder, command: (any) => any): MenuItem[] {
     const foldersSubCmItems = [];
     folders.forEach(f => {
-      if (f.type !== FolderType.DRAFT && f.type !== FolderType.OUTBOX && f.type !== FolderType.TRASH) {
+      if (f.type !== FolderType.DRAFT && f.type !== FolderType.OUTBOX && f.type !== FolderType.TRASH && f.name !== "in_error") {
         let subElementDisabled = false;
         if (selectedFolder && f.id === selectedFolder.id) {
           subElementDisabled = true;
