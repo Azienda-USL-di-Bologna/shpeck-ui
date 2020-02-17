@@ -270,7 +270,7 @@ export class MailListService {
     if (!message ||
       message.inOut !== InOut.IN ||
       message.messageType !== MessageType.MAIL ||
-      message.messageFolderList[0].idFolder.type === "TRASH" ||
+      (message.messageFolderList && message.messageFolderList[0] && message.messageFolderList[0].idFolder.type === "TRASH") ||
       (message.messageTagList && message.messageTagList
         .some(messageTag => messageTag.idTag.name === "readdressed_out"))) {
       return false;
@@ -349,7 +349,7 @@ export class MailListService {
     if (!this.selectedMessages || this.selectedMessages.length === 0) {
       return false;
     } else {
-      return !this.selectedMessages.some((message: Message) => !message.messageFolderList || message.messageFolderList[0].idFolder.type === FolderType.TRASH);
+      return !this.selectedMessages.some((message: Message) => !message.messageFolderList || (message.messageFolderList && message.messageFolderList[0] && message.messageFolderList[0].idFolder.type === FolderType.TRASH));
     }
   }
 
@@ -947,6 +947,7 @@ export class MailListService {
     if (
       (!specificMessage && this.selectedMessages.length !== 1) ||
       message.inOut !== "IN" ||
+      !message.messageFolderList || message.messageFolderList.length === 0 ||
       message.messageFolderList[0].idFolder.type === FolderType.TRASH ||
       (message.messageTagList && message.messageTagList.some(messageTag =>
             messageTag.idTag.name === "readdressed_out" ||
@@ -966,6 +967,7 @@ export class MailListService {
   public isArchiveActive(specificMessage?: Message): boolean {
     const message: Message = specificMessage ? specificMessage : this.selectedMessages[0];
     if ((!specificMessage && this.selectedMessages.length !== 1) ||
+      !message.messageFolderList || message.messageFolderList.length === 0 ||
       message.messageFolderList[0].idFolder.type === FolderType.TRASH) {
       return false;
     } else {
@@ -979,7 +981,7 @@ export class MailListService {
    */
   public isUndeleteActive(specificMessage?: Message): boolean {
     const message: Message = specificMessage ? specificMessage : this.selectedMessages[0];
-    if ( (this.selectedMessages.length === 1) && message.messageFolderList[0].idFolder.type === FolderType.TRASH ) {
+    if ( (this.selectedMessages.length === 1) && (message.messageFolderList && message.messageFolderList[0] && message.messageFolderList[0].idFolder.type === FolderType.TRASH)) {
       return true;
     } else {
       return false;

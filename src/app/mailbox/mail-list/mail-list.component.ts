@@ -1,6 +1,6 @@
 import { Component, OnInit, Output, EventEmitter, ViewChild, ElementRef, OnDestroy } from "@angular/core";
 import { buildLazyEventFiltersAndSorts } from "@bds/primeng-plugin";
-import { Message, ENTITIES_STRUCTURE, MessageAddress, AddresRoleType, Folder, MessageTag, InOut, Tag, Pec, MessageType, FolderType, Note, FluxPermission, Azienda, MessageStatus, TagType } from "@bds/ng-internauta-model";
+import { Message, ENTITIES_STRUCTURE, MessageAddress, AddresRoleType, Folder, MessageTag, InOut, Tag, Pec, MessageType, FolderType, Note, FluxPermission, Azienda, MessageStatus, TagType, MessageFolder } from "@bds/ng-internauta-model";
 import { ShpeckMessageService, MessageEvent } from "src/app/services/shpeck-message.service";
 import { FiltersAndSorts, FilterDefinition, FILTER_TYPES, SortDefinition, SORT_MODES, PagingConf, BatchOperation, BatchOperationTypes } from "@nfa/next-sdr";
 import { TagService } from "src/app/services/tag.service";
@@ -21,6 +21,7 @@ import { SettingsService } from "src/app/services/settings.service";
 import { FormGroup, FormControl, Validators } from "@angular/forms";
 import { MailboxService, Sorting, TotalMessageNumberDescriptor } from "../mailbox.service";
 import { ContextMenu } from "primeng/primeng";
+import { IntimusClientService, IntimusCommand, IntimusCommands, RefreshMailsParams, RefreshMailsParamsOperations, RefreshMailsParamsEntities } from "@bds/nt-communicator";
 
 @Component({
   selector: "app-mail-list",
@@ -42,7 +43,8 @@ export class MailListComponent implements OnInit, OnDestroy {
     private noteService: NoteService,
     private settingsService: SettingsService,
     private loginService: NtJwtLoginService,
-    private mailboxService: MailboxService
+    private mailboxService: MailboxService,
+    private intimusClient: IntimusClientService
   ) {
     this.selectedContextMenuItem = this.selectedContextMenuItem.bind(this);
     this.showNewTagPopup = this.showNewTagPopup.bind(this);
@@ -331,6 +333,130 @@ export class MailListComponent implements OnInit, OnDestroy {
         this.lazyLoad(null);
       }
     }));
+    this.subscriptions.push(this.intimusClient.command$.subscribe((command: IntimusCommand) => {
+      this.manageIntimusCommand(command);
+    }));
+  }
+
+  private manageIntimusCommand(command: IntimusCommand) {
+    switch (command.command) {
+      case IntimusCommands.RefreshMails:
+        switch ((command.params as RefreshMailsParams).operation) {
+          case RefreshMailsParamsOperations.INSERT:
+            console.log("INSERT");
+            this.manageIntimusInsertCommand(command);
+            break;
+          case RefreshMailsParamsOperations.UPDATE:
+            console.log("UPDATE");
+            this.manageIntimusUpdateCommand(command);
+            break;
+          case RefreshMailsParamsOperations.DELETE:
+            console.log("DELETE");
+            this.manageIntimusDeleteCommand(command);
+            break;
+        }
+        break;
+    }
+  }
+
+  private manageIntimusInsertCommand(command: IntimusCommand) {
+    console.log("manageIntimusInsertCommand");
+    const params: RefreshMailsParams = command.params as RefreshMailsParams;
+    if ((params.entity === RefreshMailsParamsEntities.MESSAGE_TAG && params.newRow["id_tag"] === this.pecFolderSelected.data.id) ||
+        (params.entity === RefreshMailsParamsEntities.MESSAGE_FOLDER && params.newRow["id_folder"] === this.pecFolderSelected.data.id)) {
+      const idMessage: number = params.newRow["id_message"];
+      const filterDefinition = new FilterDefinition("id", FILTER_TYPES.not_string.equals, idMessage);
+      const filter: FiltersAndSorts = new FiltersAndSorts();
+      filter.addFilter(filterDefinition);
+      this.messageService.getData(this.selectedProjection, filter, null, null).subscribe((data: any) => {
+
+        this.mailListService.totalRecords++;
+        // mando l'evento con il numero di messaggi (serve a mailbox-component perché lo deve scrivere nella barra superiore)
+        this.mailListService.refreshAndSendTotalMessagesNumber(0, this.pecFolderSelected);
+
+        // this.mailListService.messages = data.results;
+        console.log("this.mailListService.messages", this.mailListService.messages);
+        const newMessage = data.results[0];
+        this.mailListService.messages.unshift(newMessage);
+        this.mailFoldersService.doReloadTag(this.mailListService.tags.find(t => t.name === "in_error").id);
+        this.setMailTagVisibility([newMessage]);
+        if (params.entity === RefreshMailsParamsEntities.MESSAGE_FOLDER) {
+          this.mailFoldersService.doReloadFolder(this.pecFolderSelected.data.id, true);
+        } else if (params.entity === RefreshMailsParamsEntities.MESSAGE_TAG) {
+          this.mailFoldersService.doReloadTag(this.pecFolderSelected.data.id);
+        }
+      });
+    } else {
+      console.log("nothing to do, other tag or folder, only reload badge");
+      if (params.entity === RefreshMailsParamsEntities.MESSAGE_FOLDER) {
+        this.mailFoldersService.doReloadFolder(params.newRow["id_folder"], true);
+      } else if (params.entity === RefreshMailsParamsEntities.MESSAGE_TAG) {
+        this.mailFoldersService.doReloadTag(params.newRow["id_tag"]);
+      }
+    }
+  }
+
+  private manageIntimusDeleteCommand(command: IntimusCommand) {
+    console.log("manageIntimusDeleteCommand");
+    const params: RefreshMailsParams = command.params as RefreshMailsParams;
+    if (params.newRow && params.newRow["id_utente"] === this.loggedUser.getUtente().id) {
+      console.log("nothing to do, same user");
+    } else if (
+          (params.entity === RefreshMailsParamsEntities.MESSAGE_TAG && params.oldRow["id_tag"] === this.pecFolderSelected.data.id) ||
+          (params.entity === RefreshMailsParamsEntities.MESSAGE_FOLDER && params.oldRow["id_folder"] === this.pecFolderSelected.data.id)
+      ) {
+      const idMessage: number = params.oldRow["id_message"];
+      this.mailListService.totalRecords--;
+      this.mailListService.refreshAndSendTotalMessagesNumber(0, this.pecFolderSelected);
+      const messageIndex = this.mailListService.messages.findIndex(message => message.id === idMessage);
+      if (messageIndex >= 0) {
+        this.mailListService.messages.splice(messageIndex, 1);
+      }
+    } else {
+      console.log("nothing to do, other tag or folder, only reload badge");
+      if (params.entity === RefreshMailsParamsEntities.MESSAGE_FOLDER) {
+        this.mailFoldersService.doReloadFolder(params.oldRow["id_folder"], true);
+      } else if (params.entity === RefreshMailsParamsEntities.MESSAGE_TAG) {
+        this.mailFoldersService.doReloadTag(params.oldRow["id_tag"]);
+      }
+    }
+  }
+
+  private manageIntimusUpdateCommand(command: IntimusCommand) {
+    console.log("manageIntimusUpdateCommand");
+    const params: RefreshMailsParams = command.params as RefreshMailsParams;
+    if (params.entity === RefreshMailsParamsEntities.MESSAGE_TAG && params.oldRow["id_tag"] !== params.newRow["id_tag"]) {
+      console.log("changed tag");
+      if (params.oldRow["id_tag"] === this.pecFolderSelected.data.id) {
+        this.manageIntimusDeleteCommand(command);
+      } else if (params.newRow["id_tag"] === this.pecFolderSelected.data.id) {
+        this.manageIntimusInsertCommand(command);
+      }
+    } else if (params.entity === RefreshMailsParamsEntities.MESSAGE_FOLDER && params.oldRow["id_folder"] !== params.newRow["id_folder"]) {
+      console.log("changed folder");
+      if (params.oldRow["id_folder"] === this.pecFolderSelected.data.id) {
+        this.manageIntimusDeleteCommand(command);
+      } else if (params.newRow["id_folder"] === this.pecFolderSelected.data.id) {
+        this.manageIntimusInsertCommand(command);
+      }
+    }
+
+    console.log("reload badges...");
+    if (params.entity === RefreshMailsParamsEntities.MESSAGE_TAG) {
+      if (params.oldRow) {
+        this.mailFoldersService.doReloadTag(params.oldRow["id_tag"]);
+      }
+      if (params.newRow) {
+        this.mailFoldersService.doReloadTag(params.newRow["id_tag"]);
+      }
+    } else if (params.entity === RefreshMailsParamsEntities.MESSAGE_FOLDER) {
+      if (params.oldRow) {
+        this.mailFoldersService.doReloadFolder(params.oldRow["id_folder"], true);
+      }
+      if (params.newRow) {
+        this.mailFoldersService.doReloadFolder(params.newRow["id_folder"], true);
+      }
+    }
   }
 
   public openDetailPopup(event, row, message) {
@@ -721,7 +847,7 @@ export class MailListComponent implements OnInit, OnDestroy {
 
   private getEmlSource(message: Message): string {
     let emlSource: string;
-    if (message.messageFolderList && message.messageFolderList[0].idFolder.type === FolderType.OUTBOX) {
+    if (message.messageFolderList && message.messageFolderList[0] && message.messageFolderList[0].idFolder.type === FolderType.OUTBOX) {
       emlSource = EMLSOURCE.OUTBOX;
     } else {
       emlSource = EMLSOURCE.MESSAGE;
