@@ -497,18 +497,17 @@ export class MailListService {
   public deleteSelectedMessageFromTrash(): void {
     const messageFolderOperations: BatchOperation[] = [];
     let idFolder: any;
-    const mfp: MessageFolderOp[] = []; // Credo non serva
+    // const mfp: MessageFolderOp[] = []; // Credo non serva
     const numberOfSelectedMessages: number = this.selectedMessages.length;
 
     for (const message of this.selectedMessages) {
       const mFolderCall = this.buildMessageFolderOperations(message, FolderType.TRASH, BatchOperationTypes.UPDATE, true);
         idFolder = mFolderCall.idFolder;
         messageFolderOperations.push(mFolderCall.batchOp);
-        mfp.push({ message: message, operation: "DELETE" }); // Credo non serva
+        // mfp.push({ message: message, operation: "DELETE" }); // Credo non serva
     }
     if (messageFolderOperations.length > 0) {
       this.messageService.batchHttpCall(messageFolderOperations).subscribe((res: BatchOperation[]) => {
-        console.log("RES = ", res);
           this.messages = Utils.arrayDiff(this.messages, this.selectedMessages);
           this.mailFoldersService.doReloadFolder(idFolder);
           this.selectedMessages = [];
@@ -564,7 +563,6 @@ export class MailListService {
     const mFolder: MessageFolder = message.messageFolderList.find(messageFolder => messageFolder.idFolder.type === typeFolder);
     if (mFolder) {
       mFolder.deleted = setDeleted !== null ? setDeleted : mFolder.deleted;
-
       return {
         idFolder: mFolder.idFolder.id,
         batchOp: {
