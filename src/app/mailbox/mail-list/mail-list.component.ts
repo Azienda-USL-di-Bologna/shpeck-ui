@@ -554,6 +554,15 @@ export class MailListComponent implements OnInit, OnDestroy {
           folder.id
         )
       );
+      if (folder.type === FolderType.TRASH) {
+        filtersAndSorts.addFilter(
+          new FilterDefinition(
+            "messageFolderList.deleted",
+            FILTER_TYPES.not_string.equals,
+            false
+          )
+        );
+      }
     }
     if (tag) {
       filtersAndSorts.addFilter(

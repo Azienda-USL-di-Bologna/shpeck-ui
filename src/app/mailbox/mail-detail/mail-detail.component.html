@@ -3,7 +3,7 @@
 </div>
 <div class="detail-container" *ngIf="numberOfMessageSelected === null || numberOfMessageSelected <= 1">
   <h3 class="mail-object">{{fullMessage?.emlData?.subject}}</h3>
-  <div *ngIf="message?.inOut === inOut?.OUT" class="recepit-detail">
+  <div *ngIf="message?.inOut === inOut?.OUT && fullMessage?.emlData?.displayBody" class="recepit-detail">
     <div class="recepit-dates">
       <li class="recepit-date">
         <span class="recepit-date-label">Accettata il:</span>
@@ -19,7 +19,7 @@
         </span>
       </li>
     </div>
-    <button *ngIf="message?.inOut === inOut?.OUT"
+    <button *ngIf="message?.inOut === inOut?.OUT && fullMessage?.emlData?.displayBody"
       (click)="recepitsVisible = true"
       pButton style="width: 83px"
       label="Ricevute"
@@ -93,11 +93,11 @@
         <i *ngIf="fullMessage?.emlData?.attachments" class="far fa-file-zip icona scarica-tutti-icon"></i>
         <span *ngIf="fullMessage?.emlData?.attachments" class="scarica-tutti" (click)="getAllEmlAttachment()">Scarica tutti gli allegati</span>
         <span *ngIf="getAllEmlAttachmentInProgress">
-          <p-progressSpinner 
+          <p-progressSpinner
             [style]="{width: '1em', height: '1em', marginLeft: '7px'}"
-            class="scarica-tutti-spinner" 
-            strokeWidth="8" 
-            fill="#FFFFFF" 
+            class="scarica-tutti-spinner"
+            strokeWidth="8"
+            fill="#FFFFFF"
             animationDuration=".5s">
           </p-progressSpinner>
         </span>
