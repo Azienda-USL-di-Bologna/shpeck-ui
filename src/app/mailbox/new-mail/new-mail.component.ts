@@ -363,7 +363,7 @@ export class NewMailComponent implements OnInit, AfterViewInit {
     console.log("EDITOR = ", this.editor);
     const to = this.toAddressesForLabel.join(", ");
     const cc = this.ccAddressesForLabel.length > 0 ? this.ccAddressesForLabel.join(", ") : "";
-    const inviato = message.receiveTime.toLocaleDateString("it-IT", {
+    const inviato = new Date(message.receiveTime).toLocaleDateString("it-IT", {
       weekday: "long",
       year: "numeric",
       month: "long",

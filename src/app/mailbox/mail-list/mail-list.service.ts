@@ -497,14 +497,14 @@ export class MailListService {
   public deleteSelectedMessageFromTrash(): void {
     const messageFolderOperations: BatchOperation[] = [];
     let idFolder: any;
-    const mfp: MessageFolderOp[] = [];
+    // const mfp: MessageFolderOp[] = []; // Credo non serva
     const numberOfSelectedMessages: number = this.selectedMessages.length;
 
     for (const message of this.selectedMessages) {
-      const mFolderCall = this.buildMessageFolderOperationDelete(message, FolderType.TRASH);
+      const mFolderCall = this.buildMessageFolderOperations(message, FolderType.TRASH, BatchOperationTypes.UPDATE, true);
         idFolder = mFolderCall.idFolder;
         messageFolderOperations.push(mFolderCall.batchOp);
-        mfp.push({ message: message, operation: "DELETE" });
+        // mfp.push({ message: message, operation: "DELETE" }); // Credo non serva
     }
     if (messageFolderOperations.length > 0) {
       this.messageService.batchHttpCall(messageFolderOperations).subscribe((res: BatchOperation[]) => {
@@ -559,17 +559,17 @@ export class MailListService {
     }
   }
 
-  private buildMessageFolderOperationDelete(message: Message, typeFolder: string) {
+  private buildMessageFolderOperations(message: Message, typeFolder: string, batchOp: BatchOperationTypes, setDeleted: boolean) {
     const mFolder: MessageFolder = message.messageFolderList.find(messageFolder => messageFolder.idFolder.type === typeFolder);
     if (mFolder) {
+      mFolder.deleted = setDeleted !== null ? setDeleted : mFolder.deleted;
       return {
         idFolder: mFolder.idFolder.id,
         batchOp: {
           id: mFolder.id,
-          operation: BatchOperationTypes.DELETE,
-          entityPath:
-            BaseUrls.get(BaseUrlType.Shpeck) + "/" + ENTITIES_STRUCTURE.shpeck.messagefolder.path,
-          entityBody: null,
+          operation: batchOp,
+          entityPath: BaseUrls.get(BaseUrlType.Shpeck) + "/" + ENTITIES_STRUCTURE.shpeck.messagefolder.path,
+          entityBody: batchOp === BatchOperationTypes.DELETE ? null : mFolder,
           additionalData: null,
           returnProjection: null
         },
