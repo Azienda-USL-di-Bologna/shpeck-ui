@@ -84,7 +84,7 @@ export class MailListComponent implements OnInit, OnDestroy {
     }
   };
 
-  private subscriptions: Subscription[] = [];
+  private subscriptions: {id: number, type: string, subscription: Subscription}[] = [];
   private previousFilter: FilterDefinition[] = [];
   private foldersSubCmItems: MenuItem[] = null;
   private aziendeProtocollabiliSubCmItems: MenuItem[] = null;
@@ -264,7 +264,7 @@ export class MailListComponent implements OnInit, OnDestroy {
   };
 
   ngOnInit() {
-    this.subscriptions.push(this.mailFoldersService.pecFolderSelected.subscribe((pecFolderSelected: PecFolder) => {
+    this.subscriptions.push({id: null, type: "pecFolderSelected", subscription: this.mailFoldersService.pecFolderSelected.subscribe((pecFolderSelected: PecFolder) => {
       // this.tempSelectedMessages = null;
       this.mailListService.selectedMessages = [];
       this.pecFolderSelected = pecFolderSelected;
@@ -293,20 +293,20 @@ export class MailListComponent implements OnInit, OnDestroy {
           this.setFolder(null);
         }
       }
-    }));
-    this.subscriptions.push(this.toolBarService.getFilterTyped.subscribe((filters: FilterDefinition[]) => {
+    })});
+    this.subscriptions.push({id: null, type: "getFilterTyped", subscription: this.toolBarService.getFilterTyped.subscribe((filters: FilterDefinition[]) => {
       if (filters) {
         this.setFilters(filters);
       }
-    }));
-    this.subscriptions.push(this.loginService.loggedUser$.subscribe((utente: UtenteUtilities) => {
+    })});
+    this.subscriptions.push({id: null, type: "loggedUser", subscription: this.loginService.loggedUser$.subscribe((utente: UtenteUtilities) => {
       if (utente) {
         if (!this.loggedUser || utente.getUtente().id !== this.loggedUser.getUtente().id) {
           this.loggedUser = utente;
         }
       }
-    }));
-    this.subscriptions.push(this.settingsService.settingsChangedNotifier$.subscribe(newSettings => {
+    })});
+    this.subscriptions.push({id: null, type: "settingsChangedNotifier", subscription: this.settingsService.settingsChangedNotifier$.subscribe(newSettings => {
       this.openDetailInPopup = newSettings[AppCustomization.shpeck.hideDetail] === "true";
       const newFontSize = newSettings[AppCustomization.shpeck.fontSize] ? newSettings[AppCustomization.shpeck.fontSize] : FONTSIZE.BIG;
       if (newFontSize !== this.fontSize) {
@@ -314,17 +314,17 @@ export class MailListComponent implements OnInit, OnDestroy {
         this.virtualRowHeight = this.VIRTUAL_ROW_HEIGHTS[this.fontSize];
         this.setFolder(this._selectedFolder);
       }
-    }));
+    })});
     if (this.settingsService.getImpostazioniVisualizzazione()) {
       this.openDetailInPopup = this.settingsService.getHideDetail() === "true";
       this.fontSize = this.settingsService.getFontSize() ? this.settingsService.getFontSize() : FONTSIZE.BIG;
       this.virtualRowHeight = this.VIRTUAL_ROW_HEIGHTS[this.fontSize];
     }
-    this.subscriptions.push(this.messageService.messageEvent.subscribe(
+    this.subscriptions.push({id: null, type: "messageEvent", subscription: this.messageService.messageEvent.subscribe(
       (messageEvent: MessageEvent) => {
         // console.log("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa ", messageEvent);
-      }));
-    this.subscriptions.push(this.mailboxService.sorting.subscribe((sorting: Sorting) => {
+      })});
+    this.subscriptions.push({id: null, type: "sorting", subscription: this.mailboxService.sorting.subscribe((sorting: Sorting) => {
       if (sorting) {
         this.sorting = sorting;
         if (this.dt && this.dt.el && this.dt.el.nativeElement) {
@@ -332,10 +332,10 @@ export class MailListComponent implements OnInit, OnDestroy {
         }
         this.lazyLoad(null);
       }
-    }));
-    this.subscriptions.push(this.intimusClient.command$.subscribe((command: IntimusCommand) => {
+    })});
+    this.subscriptions.push({id: null, type: "intimusClient.command", subscription: this.intimusClient.command$.subscribe((command: IntimusCommand) => {
       this.manageIntimusCommand(command);
-    }));
+    })});
   }
 
   private manageIntimusCommand(command: IntimusCommand) {
@@ -410,7 +410,16 @@ export class MailListComponent implements OnInit, OnDestroy {
       this.mailListService.refreshAndSendTotalMessagesNumber(0, this.pecFolderSelected);
       const messageIndex = this.mailListService.messages.findIndex(message => message.id === idMessage);
       if (messageIndex >= 0) {
-        this.mailListService.messages.splice(messageIndex, 1);
+        // se il messaggio interessato è selezionato lo deseleziono
+        // const selectedMessageIndex: number = this.mailListService.selectedMessages.findIndex(m => m.id === idMessage);
+        // if (selectedMessageIndex >= 0) {
+          // this.mailListService.selectedMessages.slice(selectedMessageIndex, 1);
+          // filtro i messaggi selezionati togliendo quello che sto disabilitando, devo per forza riassegnare l'array e non fare un semplice splice perché
+          // altrimenti angular non si accorgerebbe che l'array è cambiato e non mi scatterebbero gli eventi di deselezione della tabella
+          this.mailListService.selectedMessages = this.mailListService.selectedMessages.filter(m => m.id !== idMessage);
+        // }
+        this.mailListService.messages[messageIndex]["moved"] = true;
+        // this.mailListService.messages.splice(messageIndex, 1);
       }
     } else {
       console.log("nothing to do, other tag or folder, only reload badge");
@@ -539,7 +548,18 @@ export class MailListComponent implements OnInit, OnDestroy {
     // perché nella subscribe quando la invio al mailbox-component per scrivere il numero di messaggi
     // la selezione potrebbe essere cambiata e quindi manderei un dato errato
     const folderSelected = this.pecFolderSelected;
-    this.messageService
+
+    /* mi devo dissottoscrivere dalla precedente sottoscrizione di richiesta dei dati prima di sottoscrivermi alla nuova
+     * per farlo mi metto come tipo della sottocrizione "folder_message" in modo da rintracciarla nell'array delle sottoscrizioni e rimuoverla
+    */
+    const currentSubscription = this.subscriptions.findIndex(s => s.type === "folder_message");
+    if (currentSubscription >= 0) {
+      if (this.subscriptions[currentSubscription].subscription) {
+        this.subscriptions[currentSubscription].subscription.unsubscribe();
+      }
+      this.subscriptions.splice(currentSubscription, 1);
+    }
+    this.subscriptions.push({id: folderSelected.data.id, type: "folder_message", subscription: this.messageService
       .getData(
         this.selectedProjection,
         this.buildInitialFilterAndSort(folder, tag),
@@ -572,7 +592,8 @@ export class MailListComponent implements OnInit, OnDestroy {
             this.mailListService.selectedMessages[i] = this.mailListService.messages[index];
           }
         }
-      });
+      })
+    });
   }
 
   private isMessageinList(id: number, messages: Message[]) {
@@ -1311,7 +1332,7 @@ export class MailListComponent implements OnInit, OnDestroy {
 
   public ngOnDestroy() {
     for (const s of this.subscriptions) {
-      s.unsubscribe();
+      s.subscription.unsubscribe();
     }
     this.subscriptions = [];
   }

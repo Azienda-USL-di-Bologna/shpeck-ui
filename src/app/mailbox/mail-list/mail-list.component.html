@@ -20,11 +20,19 @@
     dataKey="id" (mouseenter)="handleEvent('onMouseEnter', $event)"
     (onContextMenuSelect)="handleEvent('onContextMenuSelect', $event)">
     <ng-template pTemplate="body" let-rowData let-message let-rowIndex="rowIndex">
-        <tr #selRow [ngClass]="fontSize === 'small' ? 'message-row-font-size-small' : fontSize === 'medium' ? 'message-row-font-size-medium' : 'message-row-font-size-big'"
-        [pSelectableRow]="rowData" [pSelectableRowIndex]="rowIndex"
-            [pContextMenuRow]="rowData" (dblclick)="openDetailPopup($event, rowData, message)">
-            <td class="column-checkbox">
+        <tr #selRow 
+        [ngClass]="{
+        'message-row-font-size-small': fontSize === 'small',
+        'message-row-font-size-medium': fontSize === 'medium',
+        'message-row-font-size-big': fontSize === 'big',
+        'message-disabled': message['moved'] 
+        }"
+        [pSelectableRow]="rowData" [pSelectableRowIndex]="rowIndex" [pSelectableRowDisabled]="message['moved']"
+            [pContextMenuRow]="rowData" (dblclick)="openDetailPopup($event, rowData, message)"  >
+            <td *ngIf="!message['moved']" class="column-checkbox">
                 <p-tableCheckbox [value]="rowData"></p-tableCheckbox>
+            </td>
+            <td *ngIf="message['moved']" class="column-checkbox">
             </td>
             <td>
                 <div class="mail-icons-container">
@@ -38,8 +46,10 @@
                                         (registrationstatus === 'REGISTRABLE' ? 'Protocolla il messaggio' : registrationstatus === 'IN_REGISTRATION' ? 'In protocollazione' : 'Il messaggio non può essere protocollato')"
                                     tooltipPosition="top"
                                     class="material-icons-outlined mail-icons icon-enabled"
-                                    [ngClass]="{'icon-disabled': registrationstatus === 'NOT_REGISTRABLE', 'icon-used': (registrationstatus === 'REGISTERED' || registrationstatus === 'IN_REGISTRATION')}"
-                                    [ngStyle]="registrationstatus === 'REGISTERED' && {'color': 'darkcyan'} || registrationstatus === 'IN_REGISTRATION' && {'color': 'orange'}"
+                                    [ngClass]="
+                                    {'icon-disabled': registrationstatus === 'NOT_REGISTRABLE' || message['moved'] , 
+                                    'icon-used': (registrationstatus === 'REGISTERED' || registrationstatus === 'IN_REGISTRATION') && !message['moved']}"
+                                    [ngStyle]="!message['moved'] && (registrationstatus === 'REGISTERED' && {'color': 'darkcyan'} || registrationstatus === 'IN_REGISTRATION' && {'color': 'orange'})"
                                     (click)="iconRegistrationClicked($event, message, registrationstatus)"
                                     >
                                     {{registrationstatus === 'REGISTERED' || registrationstatus === 'IN_REGISTRATION' ? "assignment_turned_in" : "assignment"}}
@@ -58,7 +68,9 @@
                                     readdressstatus === 'READDRESSABLE' ? 'Reindirizza il messaggio' : 'Vedi dettagli reindirizzamento'"
                                     tooltipPosition="top"
                                     class="material-icons mail-icons icon-enabled"
-                                    [ngClass]="{'icon-disabled': readdressstatus === 'NOT_READDRESSABLE', 'icon-used': (readdressstatus !== 'NOT_READDRESSABLE' && readdressstatus !== 'READDRESSABLE')}"
+                                    [ngClass]="{
+                                        'icon-disabled': readdressstatus === 'NOT_READDRESSABLE' || message['moved'], 
+                                        'icon-used': (readdressstatus !== 'NOT_READDRESSABLE' && readdressstatus !== 'READDRESSABLE')}"
                                     [ngStyle]="(readdressstatus === 'FULL_READDRESSED' ||
                                         readdressstatus === 'READDRESSED_IN' ||
                                         readdressstatus === 'READDRESSED_OUT') && {'color': 'darkcyan'}"
@@ -79,6 +91,7 @@
                                     tooltipPosition="top"
                                     class="material-icons-outlined mail-icons icon-enabled"
                                     [ngStyle]="annotatedstatus && {'color': 'darkcyan'}"
+                                    [ngClass] = "{'message-disabled': message['moved']}"
                                     (click)="noteHandler(message)">
                                     {{annotatedstatus ? "insert_drive_file" : "note_add"}}
                                 </i>
@@ -94,8 +107,10 @@
                                         (archivedstatus === 'ARCHIVABLE' ? 'Fascicola il messaggio' : 'Il messaggio non può essere fascicolato')"
                                     tooltipPosition="top"
                                     class="fa fa-server fa-rotate-270 mail-icons icon-enabled"
-                                    [ngClass]="{'icon-disabled': archivedstatus === 'NOT_ARCHIVABLE', 'icon-used': archivedstatus === 'ARCHIVED'}"
-                                    [ngStyle]="archivedstatus === 'ARCHIVED' && {'color': 'darkcyan'}"
+                                    [ngClass]="{
+                                        'icon-disabled': archivedstatus === 'NOT_ARCHIVABLE' || message['moved'], 
+                                        'icon-used': archivedstatus === 'ARCHIVED'}"
+                                    [ngStyle]="(archivedstatus === 'ARCHIVED'  && !message['moved']) && {'color': 'darkcyan'}"
                                     (click)="iconArchiveClicked($event, message, archivedstatus)"
                                     >
                                 </i>
@@ -112,6 +127,7 @@
                                     tooltipPosition="top"
                                     class="material-icons local-offer-icon mail-icons icon-enabled mi-fist-line"
                                     [ngStyle]="taggedstatus && {'color': 'darkcyan'}"
+                                    [ngClass] = "{'message-disabled': message['moved']}"
                                     (click)="iconTaggedClicked($event, message, taggedstatus)"
                                     >
                                 </i>
