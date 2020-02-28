@@ -431,7 +431,7 @@ export class MailListComponent implements OnInit, OnDestroy {
           if (params.oldRow["id_folder"]) { // non dovvrebbe mai capitare
             movedInfo = `il messaggio è stato rimosso della cartella ${params.oldRow["folder"]}`;
           } else if (params.oldRow["id_tag"]) {
-            movedInfo = `al messaggio è stato rimosso il tag ${params.oldRow["tag"]} da ${params.oldRow["persona"]}`;
+            movedInfo = `al messaggio è stato rimosso il tag ${params.oldRow["tag"]}`;
           }
         }
         this.mailListService.messages[messageIndex]["movedInfo"] = movedInfo;
