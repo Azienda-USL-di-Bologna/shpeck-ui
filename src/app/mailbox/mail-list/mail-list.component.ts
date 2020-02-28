@@ -396,7 +396,7 @@ export class MailListComponent implements OnInit, OnDestroy {
     }
   }
 
-  private manageIntimusDeleteCommand(command: IntimusCommand) {
+  private manageIntimusDeleteCommand(command: IntimusCommand, permanentDelete: boolean = false) {
     console.log("manageIntimusDeleteCommand");
     const params: RefreshMailsParams = command.params as RefreshMailsParams;
     if (params.newRow && params.newRow["id_utente"] === this.loggedUser.getUtente().id) {
@@ -410,10 +410,6 @@ export class MailListComponent implements OnInit, OnDestroy {
       this.mailListService.refreshAndSendTotalMessagesNumber(0, this.pecFolderSelected);
       const messageIndex = this.mailListService.messages.findIndex(message => message.id === idMessage);
       if (messageIndex >= 0) {
-        // se il messaggio interessato è selezionato lo deseleziono
-        // const selectedMessageIndex: number = this.mailListService.selectedMessages.findIndex(m => m.id === idMessage);
-        // if (selectedMessageIndex >= 0) {
-          // this.mailListService.selectedMessages.slice(selectedMessageIndex, 1);
           // filtro i messaggi selezionati togliendo quello che sto disabilitando, devo per forza riassegnare l'array e non fare un semplice splice perché
           // altrimenti angular non si accorgerebbe che l'array è cambiato e non mi scatterebbero gli eventi di deselezione della tabella
           this.mailListService.selectedMessages = this.mailListService.selectedMessages.filter(m => m.id !== idMessage);
@@ -421,7 +417,9 @@ export class MailListComponent implements OnInit, OnDestroy {
         // }
         this.mailListService.messages[messageIndex]["moved"] = true;
         let movedInfo: string = null;
-        if (params.newRow) {
+        if (permanentDelete) {
+          movedInfo = `il messaggio è stato eliminato definitivamente dalla cartella ${params.newRow["folder"]} da ${params.newRow["persona"]}`;
+        } else if (params.newRow) {
           if (params.newRow["id_folder"]) {
             movedInfo = `il messaggio è stato spostato nella cartella ${params.newRow["folder"]} da ${params.newRow["persona"]}`;
           } else if (params.newRow["id_tag"]) {
@@ -450,7 +448,10 @@ export class MailListComponent implements OnInit, OnDestroy {
   private manageIntimusUpdateCommand(command: IntimusCommand) {
     console.log("manageIntimusUpdateCommand");
     const params: RefreshMailsParams = command.params as RefreshMailsParams;
-    if (params.entity === RefreshMailsParamsEntities.MESSAGE_TAG && params.oldRow["id_tag"] !== params.newRow["id_tag"]) {
+    if (params.entity === RefreshMailsParamsEntities.MESSAGE_FOLDER && !!!params.oldRow["deleted"] && !!params.newRow["deleted"]) {
+      console.log("eliminazione dal cestino");
+      this.manageIntimusDeleteCommand(command);
+    } else if (params.entity === RefreshMailsParamsEntities.MESSAGE_TAG && params.oldRow["id_tag"] !== params.newRow["id_tag"]) {
       console.log("changed tag");
       if (params.oldRow["id_tag"] === this.pecFolderSelected.data.id) {
         this.manageIntimusDeleteCommand(command);

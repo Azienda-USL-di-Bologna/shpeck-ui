@@ -562,7 +562,18 @@ export class MailListService {
   private buildMessageFolderOperations(message: Message, typeFolder: string, batchOp: BatchOperationTypes, setDeleted: boolean) {
     const mFolder: MessageFolder = message.messageFolderList.find(messageFolder => messageFolder.idFolder.type === typeFolder);
     if (mFolder) {
-      mFolder.deleted = setDeleted !== null ? setDeleted : mFolder.deleted;
+      // mFolder.deleted = setDeleted !== null ? setDeleted : mFolder.deleted;
+      if (setDeleted) {
+        mFolder.deleted = true;
+        let utenteEliminatore: Utente;
+        if (mFolder.idUtente) {
+          utenteEliminatore = mFolder.idUtente;
+        } else {
+          utenteEliminatore = new Utente();
+        }
+        utenteEliminatore.id = this.loggedUser.getUtente().id;
+        mFolder.idUtente = utenteEliminatore;
+      }
       return {
         idFolder: mFolder.idFolder.id,
         batchOp: {
