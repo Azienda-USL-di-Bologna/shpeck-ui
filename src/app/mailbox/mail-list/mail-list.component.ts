@@ -450,7 +450,7 @@ export class MailListComponent implements OnInit, OnDestroy {
     const params: RefreshMailsParams = command.params as RefreshMailsParams;
     if (params.entity === RefreshMailsParamsEntities.MESSAGE_FOLDER && !!!params.oldRow["deleted"] && !!params.newRow["deleted"]) {
       console.log("eliminazione dal cestino");
-      this.manageIntimusDeleteCommand(command);
+      this.manageIntimusDeleteCommand(command, true);
     } else if (params.entity === RefreshMailsParamsEntities.MESSAGE_TAG && params.oldRow["id_tag"] !== params.newRow["id_tag"]) {
       console.log("changed tag");
       if (params.oldRow["id_tag"] === this.pecFolderSelected.data.id) {
