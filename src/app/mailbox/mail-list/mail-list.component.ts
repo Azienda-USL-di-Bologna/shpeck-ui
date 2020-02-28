@@ -417,8 +417,24 @@ export class MailListComponent implements OnInit, OnDestroy {
           // filtro i messaggi selezionati togliendo quello che sto disabilitando, devo per forza riassegnare l'array e non fare un semplice splice perché
           // altrimenti angular non si accorgerebbe che l'array è cambiato e non mi scatterebbero gli eventi di deselezione della tabella
           this.mailListService.selectedMessages = this.mailListService.selectedMessages.filter(m => m.id !== idMessage);
+          this.messageService.manageMessageEvent(null, null, this.mailListService.selectedMessages);
         // }
         this.mailListService.messages[messageIndex]["moved"] = true;
+        let movedInfo: string = null;
+        if (params.newRow) {
+          if (params.newRow["id_folder"]) {
+            movedInfo = `il messaggio è stato spostato nella cartella ${params.newRow["folder"]} da ${params.oldRow["persona"]}`;
+          } else if (params.newRow["id_tag"]) {
+            movedInfo = `al messaggio è stato cambiato il tag da ${params.oldRow["tag"]} a ${params.newRow["tag"]} da ${params.oldRow["persona"]}`;
+          }
+        } else {
+          if (params.oldRow["id_folder"]) { // non dovvrebbe mai capitare
+            movedInfo = `il messaggio è stato rimosso della cartella ${params.oldRow["folder"]} da ${params.oldRow["persona"]}`;
+          } else if (params.oldRow["id_tag"]) {
+            movedInfo = `al messaggio è stato rimosso il tag ${params.oldRow["tag"]} da ${params.oldRow["persona"]}`;
+          }
+        }
+        this.mailListService.messages[messageIndex]["movedInfo"] = movedInfo;
         // this.mailListService.messages.splice(messageIndex, 1);
       }
     } else {
@@ -810,7 +826,6 @@ export class MailListComponent implements OnInit, OnDestroy {
 
   public handleEvent(name: string, event: any) {
     console.log("handleEvent", name);
-
     // console.log("this.mailListService.selectedMessages  fuori", this.mailListService.selectedMessages);
     switch (name) {
       // non c'è nella documentazione, ma pare che scatti sempre una sola volta anche nelle selezioni multiple.
@@ -867,7 +882,7 @@ export class MailListComponent implements OnInit, OnDestroy {
         }
         break;
       case "onContextMenuSelect":
-        this.setContextMenuItemLook();
+          this.setContextMenuItemLook();
         break;
       case "saveNote":
         this.saveNote();
@@ -891,93 +906,97 @@ export class MailListComponent implements OnInit, OnDestroy {
    */
   private setContextMenuItemLook() {
     this.cmItems.map(element => {
-      // element.disabled = false;
-      switch (element.id) {
-        case "MessageSeen":
-          if (
-            this.mailListService.selectedMessages.some((message: Message) => !!!message.seen)
-          ) {
-            element.label = "Letto";
-            element.queryParams = { seen: true };
-          } else {
-            element.label = "Da Leggere";
-            element.queryParams = { seen: false };
-          }
-          break;
-        case "MessageMove":
-          element.disabled = false;
-          element.styleClass = "message-moves";
-          if (!this.mailListService.isMoveActive()) {
-            element.disabled = true;
-            this.cmItems.find(f => f.id === "MessageMove").items = null;
-          } else {
-            this.cmItems.find(f => f.id === "MessageMove").items = this.mailListService.buildMoveMenuItems(this.mailListService.folders, this._selectedFolder, this.selectedContextMenuItem);
-          }
-          break;
-        case "MessageLabels":
-          element.disabled = false;
-          element.styleClass = "message-labels";
-          this.cmItems.find(f => f.id === "MessageLabels").items = this.mailListService.buildTagsMenuItems(this.selectedContextMenuItem, this.showNewTagPopup);
-          break;
-        case "MessageDelete":
-          element.disabled = !this.mailListService.isDeleteActive();
-          break;
-        case "MessageReply":
-        case "MessageReplyAll":
-        case "MessageForward":
-          element.disabled = false;
-          if (this.mailListService.selectedMessages.length > 1 || !this.mailListService.isNewMailActive(this._selectedPec)) {
-            element.disabled = true;
-          }
-          break;
-        case "MessageRegistration":
-          element.disabled = true;
-          if (this.mailListService.selectedMessages.length === 1) {
-            const selectedMessaage = this.mailListService.selectedMessages[0];
-            if (this.mailListService.isRegisterActive(selectedMessaage)) {
-              element.disabled = false;
-              this.cmItems.find(f => f.id === "MessageRegistration").items = this.mailListService.buildRegistrationMenuItems(selectedMessaage, this._selectedPec, this.selectedContextMenuItem);
+      if (this.mailListService.selectedMessages.some((message: Message) => !!message["moved"])) {
+        element.disabled = true;
+      } else {
+        // element.disabled = false;
+        switch (element.id) {
+          case "MessageSeen":
+            if (
+              this.mailListService.selectedMessages.some((message: Message) => !!!message.seen)
+            ) {
+              element.label = "Letto";
+              element.queryParams = { seen: true };
             } else {
-              this.cmItems.find(f => f.id === "MessageRegistration").items = null;
+              element.label = "Da Leggere";
+              element.queryParams = { seen: false };
             }
-          }
-          break;
-        case "MessageNote":
-        case "MessageDownload":
-          element.disabled = false;
-          if (this.mailListService.selectedMessages.length > 1) {
+            break;
+          case "MessageMove":
+            element.disabled = false;
+            element.styleClass = "message-moves";
+            if (!this.mailListService.isMoveActive()) {
+              element.disabled = true;
+              this.cmItems.find(f => f.id === "MessageMove").items = null;
+            } else {
+              this.cmItems.find(f => f.id === "MessageMove").items = this.mailListService.buildMoveMenuItems(this.mailListService.folders, this._selectedFolder, this.selectedContextMenuItem);
+            }
+            break;
+          case "MessageLabels":
+            element.disabled = false;
+            element.styleClass = "message-labels";
+            this.cmItems.find(f => f.id === "MessageLabels").items = this.mailListService.buildTagsMenuItems(this.selectedContextMenuItem, this.showNewTagPopup);
+            break;
+          case "MessageDelete":
+            element.disabled = !this.mailListService.isDeleteActive();
+            break;
+          case "MessageReply":
+          case "MessageReplyAll":
+          case "MessageForward":
+            element.disabled = false;
+            if (this.mailListService.selectedMessages.length > 1 || !this.mailListService.isNewMailActive(this._selectedPec)) {
+              element.disabled = true;
+            }
+            break;
+          case "MessageRegistration":
             element.disabled = true;
-          }
-          break;
-        case "ToggleErrorTrue":
-          element.disabled = false;
-          element.disabled = this.mailListService.isToggleErrorDisabled(true);
-          break;
-        case "ToggleErrorFalse":
-          element.disabled = false;
-          element.disabled = !this.mailListService.isToggleErrorDisabled(false);
-          break;
-        case "MessageReaddress":
-          element.disabled = false;
-          if (!this.mailListService.isReaddressActive()) {
-            element.disabled = true;
-          }
-          break;
-        case "MessageArchive":
-          element.disabled = false;
-          if (!this.mailListService.isArchiveActive()) {
-            element.disabled = true;
-            this.cmItems.find(f => f.id === "MessageArchive").items = null;
-          } else {
-            this.cmItems.find(f => f.id === "MessageArchive").items = this.mailListService.buildAziendeUtenteMenuItems(this._selectedPec, this.selectedContextMenuItem);
-          }
-          break;
-        case "MessageUndelete":
-          element.disabled = false;
-          if (!this.mailListService.isUndeleteActive()) {
-            element.disabled = true;
-          }
-          break;
+            if (this.mailListService.selectedMessages.length === 1) {
+              const selectedMessaage = this.mailListService.selectedMessages[0];
+              if (this.mailListService.isRegisterActive(selectedMessaage)) {
+                element.disabled = false;
+                this.cmItems.find(f => f.id === "MessageRegistration").items = this.mailListService.buildRegistrationMenuItems(selectedMessaage, this._selectedPec, this.selectedContextMenuItem);
+              } else {
+                this.cmItems.find(f => f.id === "MessageRegistration").items = null;
+              }
+            }
+            break;
+          case "MessageNote":
+          case "MessageDownload":
+            element.disabled = false;
+            if (this.mailListService.selectedMessages.length > 1) {
+              element.disabled = true;
+            }
+            break;
+          case "ToggleErrorTrue":
+            element.disabled = false;
+            element.disabled = this.mailListService.isToggleErrorDisabled(true);
+            break;
+          case "ToggleErrorFalse":
+            element.disabled = false;
+            element.disabled = !this.mailListService.isToggleErrorDisabled(false);
+            break;
+          case "MessageReaddress":
+            element.disabled = false;
+            if (!this.mailListService.isReaddressActive()) {
+              element.disabled = true;
+            }
+            break;
+          case "MessageArchive":
+            element.disabled = false;
+            if (!this.mailListService.isArchiveActive()) {
+              element.disabled = true;
+              this.cmItems.find(f => f.id === "MessageArchive").items = null;
+            } else {
+              this.cmItems.find(f => f.id === "MessageArchive").items = this.mailListService.buildAziendeUtenteMenuItems(this._selectedPec, this.selectedContextMenuItem);
+            }
+            break;
+          case "MessageUndelete":
+            element.disabled = false;
+            if (!this.mailListService.isUndeleteActive()) {
+              element.disabled = true;
+            }
+            break;
+        }
       }
     });
   }
