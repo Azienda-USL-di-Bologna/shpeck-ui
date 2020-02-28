@@ -423,13 +423,13 @@ export class MailListComponent implements OnInit, OnDestroy {
         let movedInfo: string = null;
         if (params.newRow) {
           if (params.newRow["id_folder"]) {
-            movedInfo = `il messaggio è stato spostato nella cartella ${params.newRow["folder"]} da ${params.oldRow["persona"]}`;
+            movedInfo = `il messaggio è stato spostato nella cartella ${params.newRow["folder"]} da ${params.newRow["persona"]}`;
           } else if (params.newRow["id_tag"]) {
-            movedInfo = `al messaggio è stato cambiato il tag da ${params.oldRow["tag"]} a ${params.newRow["tag"]} da ${params.oldRow["persona"]}`;
+            movedInfo = `al messaggio è stato cambiato il tag da ${params.oldRow["tag"]} a ${params.newRow["tag"]} da ${params.newRow["persona"]}`;
           }
         } else {
           if (params.oldRow["id_folder"]) { // non dovvrebbe mai capitare
-            movedInfo = `il messaggio è stato rimosso della cartella ${params.oldRow["folder"]} da ${params.oldRow["persona"]}`;
+            movedInfo = `il messaggio è stato rimosso della cartella ${params.oldRow["folder"]}`;
           } else if (params.oldRow["id_tag"]) {
             movedInfo = `al messaggio è stato rimosso il tag ${params.oldRow["tag"]} da ${params.oldRow["persona"]}`;
           }
