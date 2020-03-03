@@ -518,19 +518,14 @@ export class MailListComponent implements OnInit, OnDestroy {
       if (params.newRow) {
         this.mailFoldersService.doReloadTag(params.newRow["id_tag"]);
       }
-    } else if (params.entity === RefreshMailsParamsEntities.MESSAGE_FOLDER) {
-      if (params.oldRow) {
-        this.mailFoldersService.doReloadFolder(params.oldRow["id_folder"], true);
-      }
-      if (params.newRow) {
-        this.mailFoldersService.doReloadFolder(params.newRow["id_folder"], true);
-      }
     } else {
-      if (this.pecFolderSelected.type === PecFolderType.FOLDER) {
-        this.mailFoldersService.doReloadFolder(this.pecFolderSelected.data.id, true);
-      } else if (this.pecFolderSelected.type === PecFolderType.TAG) {
-        this.mailFoldersService.doReloadTag(this.pecFolderSelected.data.id);
+      let idFolder: number;
+      if (params.newRow) {
+        idFolder = params.newRow["id_folder"];
+      } else if (params.oldRow) {
+        idFolder = params.oldRow["id_folder"];
       }
+      this.mailFoldersService.doReloadFolder(idFolder, true);
     }
   }
 
