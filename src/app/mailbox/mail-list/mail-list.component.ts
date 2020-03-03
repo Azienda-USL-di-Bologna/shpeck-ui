@@ -399,9 +399,7 @@ export class MailListComponent implements OnInit, OnDestroy {
         }
         // this.mailFoldersService.doReloadTag(this.mailListService.tags.find(t => t.name === "in_error").id);
         console.log("setMailTagVisibility...");
-        setTimeout(() => {
-          this.mailListService.setMailTagVisibility([newMessage]);
-        }, 0);
+        this.mailListService.setMailTagVisibility([newMessage]);
         if (params.entity === RefreshMailsParamsEntities.MESSAGE_FOLDER) {
           console.log("reloading folder badge...");
           this.mailFoldersService.doReloadFolder(this.pecFolderSelected.data.id, true);
@@ -788,7 +786,9 @@ export class MailListComponent implements OnInit, OnDestroy {
   }
 
   trackByFn(index, item) {
-    return item.id;
+    if (item) {
+      return item.id;
+    }
   }
 
   buildInitialFilterAndSort(folder: Folder, tag: Tag): FiltersAndSorts {
