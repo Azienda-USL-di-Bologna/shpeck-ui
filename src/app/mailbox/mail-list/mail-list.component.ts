@@ -416,11 +416,17 @@ export class MailListComponent implements OnInit, OnDestroy {
       this.mailListService.refreshAndSendTotalMessagesNumber(0, this.pecFolderSelected);
       const messageIndex = this.mailListService.messages.findIndex(message => message.id === idMessage);
       if (messageIndex >= 0  && !!!this.mailListService.messages[messageIndex]["moved"]) {
+
+        if (this.mailListService.selectedMessages.length > 0 && this.mailListService.selectedMessages.find(m => m.id === idMessage)) {
+          let messageToShowPreview = null;
+          if (this.mailListService.selectedMessages.length === 1 && this.mailListService.selectedMessages[0].id === idMessage) {
+            messageToShowPreview = this.mailListService.messages[messageIndex];
+          }
           // filtro i messaggi selezionati togliendo quello che sto disabilitando, devo per forza riassegnare l'array e non fare un semplice splice perché
           // altrimenti angular non si accorgerebbe che l'array è cambiato e non mi scatterebbero gli eventi di deselezione della tabella
           this.mailListService.selectedMessages = this.mailListService.selectedMessages.filter(m => m.id !== idMessage);
-          this.messageService.manageMessageEvent(null, null, this.mailListService.selectedMessages);
-        // }
+          this.messageService.manageMessageEvent(null, messageToShowPreview, this.mailListService.selectedMessages);
+        }
         this.mailListService.messages[messageIndex]["moved"] = true;
         let movedInfo: string = null;
         if (permanentDelete) {
@@ -518,6 +524,12 @@ export class MailListComponent implements OnInit, OnDestroy {
       }
       if (params.newRow) {
         this.mailFoldersService.doReloadFolder(params.newRow["id_folder"], true);
+      }
+    } else {
+      if (this.pecFolderSelected.type === PecFolderType.FOLDER) {
+        this.mailFoldersService.doReloadFolder(this.pecFolderSelected.data.id, true);
+      } else if (this.pecFolderSelected.type === PecFolderType.TAG) {
+        this.mailFoldersService.doReloadTag(this.pecFolderSelected.data.id);
       }
     }
   }
