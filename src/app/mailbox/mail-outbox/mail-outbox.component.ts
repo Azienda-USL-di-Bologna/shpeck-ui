@@ -8,7 +8,7 @@ import { OutboxLiteService } from "src/app/services/outbox-lite.service";
 import { SettingsService } from "src/app/services/settings.service";
 import { DatePipe } from "@angular/common";
 import { OutboxService } from "src/app/services/outbox.service";
-import { FilterMetadata, LazyLoadEvent } from "primeng/api";
+import { FilterMetadata, LazyLoadEvent } from "primeng-lts/api";
 import { buildLazyEventFiltersAndSorts } from "@bds/primeng-plugin";
 import { AppCustomization } from "src/environments/app-customization";
 import { PecFolder, MailFoldersService } from "../mail-folders/mail-folders.service";
