@@ -381,6 +381,11 @@ export class MailListComponent implements OnInit, OnDestroy {
       const filter: FiltersAndSorts = new FiltersAndSorts();
       filter.addFilter(filterDefinition);
       this.messageService.getData(this.mailListService.selectedProjection, filter, null, null).subscribe((data: any) => {
+        if (!data || !data.results || data.results.length === 0) {
+          setTimeout(() => {
+            this.manageIntimusInsertCommand(command);
+          }, 10);
+        }
 
         this.mailListService.totalRecords++;
         // mando l'evento con il numero di messaggi (serve a mailbox-component perché lo deve scrivere nella barra superiore)
