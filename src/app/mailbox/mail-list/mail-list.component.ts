@@ -365,7 +365,7 @@ export class MailListComponent implements OnInit, OnDestroy {
    * gestisce l'inserimento di un messaggio nella lista dei messaggi che sto guardando
    * @param command il comando intimus arrivato
    */
-  private manageIntimusInsertCommand(command: IntimusCommand) {
+  private manageIntimusInsertCommand(command: IntimusCommand, times: number = 0) {
     console.log("manageIntimusInsertCommand");
     const params: RefreshMailsParams = command.params as RefreshMailsParams;
     /* non sono io ad aver fatto l'azione e
@@ -383,10 +383,13 @@ export class MailListComponent implements OnInit, OnDestroy {
       this.messageService.getData(this.mailListService.selectedProjection, filter, null, null).subscribe((data: any) => {
         // può capitare che il comando arrivi prima che la transazione sia conclusa, per cui non troverei il messaggio sul database. Se capita, riproco dopo 30ms
         if (!data || !data.results || data.results.length === 0) {
-          console.log("message not ready, rescheduling after 30ms...");
-          setTimeout(() => {
-            this.manageIntimusInsertCommand(command);
-          }, 30);
+          console.log("message not ready");
+          if (times < 10) {
+            console.log(`rescheduling after 30ms for the ${times + 1} time...`);
+            setTimeout(() => {
+              this.manageIntimusInsertCommand(command, ++times);
+            }, 30);
+          }
           return;
         }
         console.log("message ready, proceed...");
