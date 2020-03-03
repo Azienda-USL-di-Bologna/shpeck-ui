@@ -357,6 +357,10 @@ export class MailListComponent implements OnInit, OnDestroy {
     }
   }
 
+  /**
+   * gestisce l'inserimento di un messaggio nella lista dei messaggi che sto guardando
+   * @param command il comando intimus arrivato
+   */
   private manageIntimusInsertCommand(command: IntimusCommand) {
     console.log("manageIntimusInsertCommand");
     const params: RefreshMailsParams = command.params as RefreshMailsParams;
@@ -386,7 +390,7 @@ export class MailListComponent implements OnInit, OnDestroy {
         } else { // se non lo trovo lo inserisco in testa
           this.mailListService.messages.unshift(newMessage);
         }
-        this.mailFoldersService.doReloadTag(this.mailListService.tags.find(t => t.name === "in_error").id);
+        // this.mailFoldersService.doReloadTag(this.mailListService.tags.find(t => t.name === "in_error").id);
         this.mailListService.setMailTagVisibility([newMessage]);
         if (params.entity === RefreshMailsParamsEntities.MESSAGE_FOLDER) {
           this.mailFoldersService.doReloadFolder(this.pecFolderSelected.data.id, true);
@@ -402,9 +406,15 @@ export class MailListComponent implements OnInit, OnDestroy {
     }
   }
 
+  /**
+   * gestisce un comando di cancellazione, cioè quando un messaggio deve essere disabilitato dalla lista dei messaggi che sto guardando
+   * @param command il comando intimus arrivato
+   * @param permanentDelete se il comando è un'eliminazione dal cestino
+   */
   private manageIntimusDeleteCommand(command: IntimusCommand, permanentDelete: boolean = false) {
     console.log("manageIntimusDeleteCommand");
     const params: RefreshMailsParams = command.params as RefreshMailsParams;
+    // se l'utente che ha eseguito il comando sono io non devo fare nulla
     if (params.newRow && params.newRow["id_utente"] === this.loggedUser.getUtente().id) {
       console.log("nothing to do, same user");
     } else if (
@@ -427,9 +437,11 @@ export class MailListComponent implements OnInit, OnDestroy {
           this.mailListService.selectedMessages = this.mailListService.selectedMessages.filter(m => m.id !== idMessage);
           this.messageService.manageMessageEvent(null, messageToShowPreview, this.mailListService.selectedMessages);
         }
+        // per disabilitare il messaggio gli setto la proprietà "moved" a true
         this.mailListService.messages[messageIndex]["moved"] = true;
+        // in movedInfo metto una stringa che spiega cosa è successo al messaggio, sarà poi visualizzata in un tooltip
         let movedInfo: string = null;
-        if (permanentDelete) {
+        if (permanentDelete) { // il messaggio è stato cancellato dal cestino
           movedInfo = `il messaggio è stato eliminato definitivamente dalla cartella ${params.newRow["folder"]} da ${params.newRow["persona"]}`;
         } else if (params.newRow) {
           if (params.newRow["id_folder"]) {
@@ -445,6 +457,7 @@ export class MailListComponent implements OnInit, OnDestroy {
           }
         }
         this.mailListService.messages[messageIndex]["movedInfo"] = movedInfo;
+        this.reloadBadges(params);
         // this.mailListService.messages.splice(messageIndex, 1);
       }
     } else if (params.oldRow["id_utente"] !== this.loggedUser.getUtente().id) {
@@ -494,6 +507,10 @@ export class MailListComponent implements OnInit, OnDestroy {
     this.reloadBadges(params);
   }
 
+  /**
+   * se il messaggio è presente nella lista dei messaggi lo richiede il backend e lo sostituisce nella lista
+   * @param idMessage il messaggio da ricaricare
+   */
   private reloadMessage(idMessage: number) {
     const messageIndex = this.mailListService.messages.findIndex(m => m.id === idMessage);
     if (messageIndex >= 0) {
@@ -509,23 +526,29 @@ export class MailListComponent implements OnInit, OnDestroy {
     }
   }
 
+  /**
+   * ricarica i badge dei tag e delle cartelle a seconda del caso
+   * @param params i params estratti dal comando intimus
+   */
   private reloadBadges(params: RefreshMailsParams) {
     console.log("reloading badges...");
+    // se è cambiato un tag ricarico i badge dei tag
     if (params.entity === RefreshMailsParamsEntities.MESSAGE_TAG) {
+      // se ho rimosso un tag ricarico il badge del tag rimosso
       if (params.oldRow) {
         this.mailFoldersService.doReloadTag(params.oldRow["id_tag"]);
       }
+      // se ho inserito un tag ricarico il badge del tag inserito
       if (params.newRow) {
         this.mailFoldersService.doReloadTag(params.newRow["id_tag"]);
       }
-    } else {
-      let idFolder: number;
+    } else { // per tutti gli altri cambiamenti ricarico i badge delle cartelle interessati nel comando
       if (params.newRow) {
-        idFolder = params.newRow["id_folder"];
-      } else if (params.oldRow) {
-        idFolder = params.oldRow["id_folder"];
+        this.mailFoldersService.doReloadFolder(params.newRow["id_folder"], true);
       }
-      this.mailFoldersService.doReloadFolder(idFolder, true);
+      if (params.oldRow) {
+        this.mailFoldersService.doReloadFolder(params.oldRow["id_folder"], true);
+      }
     }
   }
 
