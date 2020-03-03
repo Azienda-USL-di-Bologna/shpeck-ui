@@ -382,9 +382,11 @@ export class MailListComponent implements OnInit, OnDestroy {
       filter.addFilter(filterDefinition);
       this.messageService.getData(this.mailListService.selectedProjection, filter, null, null).subscribe((data: any) => {
         if (!data || !data.results || data.results.length === 0) {
+          console.log("message not ready, rescheduling after 10ms...");
           setTimeout(() => {
             this.manageIntimusInsertCommand(command);
           }, 10);
+          return;
         }
 
         this.mailListService.totalRecords++;
