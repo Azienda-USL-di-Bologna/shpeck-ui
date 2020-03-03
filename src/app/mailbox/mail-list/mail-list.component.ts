@@ -336,9 +336,13 @@ export class MailListComponent implements OnInit, OnDestroy {
     })});
   }
 
+  /**
+   * gestisce un comando intimus
+   * @param command il comando ricevuto
+   */
   private manageIntimusCommand(command: IntimusCommand) {
     switch (command.command) {
-      case IntimusCommands.RefreshMails:
+      case IntimusCommands.RefreshMails: // comando di refresh delle mail
         switch ((command.params as RefreshMailsParams).operation) {
           case RefreshMailsParamsOperations.INSERT:
             console.log("INSERT");
@@ -384,17 +388,23 @@ export class MailListComponent implements OnInit, OnDestroy {
 
         const newMessage = data.results[0];
         // cerco il messaggio perché potrebbe essere già nella cartella disabilitato (ad esempio se qualcuno l'ha spostato e poi rispostato in questa cartella mentre io la guardo)
+        console.log("searching message in list...");
         const messageIndex = this.mailListService.messages.findIndex(m => m.id === idMessage);
         if (messageIndex >= 0) { // se lo trovo lo riabilito
+          console.log("message found, updating...");
           this.mailListService.messages.splice(messageIndex, 1, newMessage);
         } else { // se non lo trovo lo inserisco in testa
+          console.log("message not found in list, pushing on top...");
           this.mailListService.messages.unshift(newMessage);
         }
         // this.mailFoldersService.doReloadTag(this.mailListService.tags.find(t => t.name === "in_error").id);
+        console.log("setMailTagVisibility...");
         this.mailListService.setMailTagVisibility([newMessage]);
         if (params.entity === RefreshMailsParamsEntities.MESSAGE_FOLDER) {
+          console.log("reloading folder badge...");
           this.mailFoldersService.doReloadFolder(this.pecFolderSelected.data.id, true);
         } else if (params.entity === RefreshMailsParamsEntities.MESSAGE_TAG) {
+          console.log("reloading tag badge...");
           this.mailFoldersService.doReloadTag(this.pecFolderSelected.data.id);
         }
       });
@@ -468,13 +478,19 @@ export class MailListComponent implements OnInit, OnDestroy {
     }
   }
 
+  /**
+   * gestisce un comando di update
+   * @param command il comando intimus arrivato
+   */
   private manageIntimusUpdateCommand(command: IntimusCommand) {
     console.log("manageIntimusUpdateCommand");
     const params: RefreshMailsParams = command.params as RefreshMailsParams;
+    // se l'entità interessata dal comando è message_folder e il messaggio è passato da deleted = false a delete = true, allora vuol dire che il messaggio è stato eliminato dal cestino
     if (params.entity === RefreshMailsParamsEntities.MESSAGE_FOLDER && !!!params.oldRow["deleted"] && !!params.newRow["deleted"]) {
-      console.log("eliminazione dal cestino");
+      console.log("removed from trash");
+      // chiamo la gestione delete passato "true" come permanentDelete, in modo che gestirà il particolare caso di eliminazione dal cestino
       this.manageIntimusDeleteCommand(command, true);
-    } else if (params.entity === RefreshMailsParamsEntities.MESSAGE_TAG && params.oldRow["id_tag"] !== params.newRow["id_tag"]) {
+    } else if (params.entity === RefreshMailsParamsEntities.MESSAGE_TAG && params.oldRow["id_tag"] !== params.newRow["id_tag"]) { // se è cambiato il tag
       console.log("changed tag");
       // se sto guardando un tag è il tag cambiato è proprio quello che sto guardando vuol dire che devo eliminare il messaggio perché è stato spostato
       if (this.pecFolderSelected.type === PecFolderType.TAG && params.oldRow["id_tag"] === this.pecFolderSelected.data.id) {
@@ -487,11 +503,9 @@ export class MailListComponent implements OnInit, OnDestroy {
         const idMessage: number = params.newRow["id_message"];
         this.reloadMessage(idMessage);
       }
+      // è cambiata la cartella di un messaggio e sto guardando una cartella (non un tag), devo fare qualcosa solo se è cambiata la cartella che sto guardando
     } else if (params.entity === RefreshMailsParamsEntities.MESSAGE_FOLDER && params.oldRow["id_folder"] !== params.newRow["id_folder"] && this.pecFolderSelected.type === PecFolderType.FOLDER) {
-      // è cambiata la cartella di un messaggio e sto guardando una cartella (non un tag)
       console.log("changed folder");
-      // devo fare qualcosa solo se è cambiata la cartella che sto guardando
-
       // se la cartella che sto guardando è in oldRow vuol dire che devo eliminare il messaggio perché è stato spostato
       if (params.oldRow["id_folder"] === this.pecFolderSelected.data.id) {
         this.manageIntimusDeleteCommand(command);
