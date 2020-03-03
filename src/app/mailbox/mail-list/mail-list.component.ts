@@ -399,7 +399,9 @@ export class MailListComponent implements OnInit, OnDestroy {
         }
         // this.mailFoldersService.doReloadTag(this.mailListService.tags.find(t => t.name === "in_error").id);
         console.log("setMailTagVisibility...");
-        this.mailListService.setMailTagVisibility([newMessage]);
+        setTimeout(() => {
+          this.mailListService.setMailTagVisibility([newMessage]);
+        }, 0);
         if (params.entity === RefreshMailsParamsEntities.MESSAGE_FOLDER) {
           console.log("reloading folder badge...");
           this.mailFoldersService.doReloadFolder(this.pecFolderSelected.data.id, true);
