@@ -1,5 +1,5 @@
 import { Component, OnInit } from "@angular/core";
-import { MenuItem, DialogService } from "primeng/api";
+import { MenuItem, DialogService } from "primeng-lts/api";
 import { NtJwtLoginService, UtenteUtilities, UtilityFunctions } from "@bds/nt-jwt-login";
 import { MAILBOX_ROUTE, LOGIN_ROUTE, APPLICATION } from "src/environments/app-constants";
 import { IntimusClientService } from "@bds/nt-communicator";

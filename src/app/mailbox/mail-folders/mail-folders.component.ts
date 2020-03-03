@@ -1,10 +1,10 @@
 import { Component, OnInit, ViewEncapsulation, OnDestroy, ViewChild, ElementRef, ViewChildren } from "@angular/core";
 import { Pec, Folder, FolderType, Tag, TagType, Utente } from "@bds/ng-internauta-model";
 import { PecService } from "src/app/services/pec.service";
-import { TreeNode, MenuItem, MessageService } from "primeng/api";
+import { TreeNode, MenuItem, MessageService } from "primeng-lts/api";
 import { MailFoldersService, PecFolder, PecFolderType } from "./mail-folders.service";
 import { Subscription } from "rxjs";
-import { ContextMenu, Tree, OverlayPanel } from "primeng/primeng";
+import { ContextMenu, Tree, OverlayPanel } from "primeng-lts/primeng";
 import { FolderService } from "src/app/services/folder.service";
 import { TagService } from "src/app/services/tag.service";
 import { MailListService } from "../mail-list/mail-list.service";

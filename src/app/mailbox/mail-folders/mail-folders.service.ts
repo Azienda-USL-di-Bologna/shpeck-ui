@@ -1,5 +1,5 @@
 import { Injectable } from "@angular/core";
-import { TreeNode } from "primeng/api";
+import { TreeNode } from "primeng-lts/api";
 import { BehaviorSubject, Observable, Subject } from "rxjs";
 import { Pec, Folder, Tag } from "@bds/ng-internauta-model";
 import { HttpClient } from "@angular/common/http";

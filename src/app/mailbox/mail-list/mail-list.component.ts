@@ -6,21 +6,21 @@ import { FiltersAndSorts, FilterDefinition, FILTER_TYPES, SortDefinition, SORT_M
 import { TagService } from "src/app/services/tag.service";
 import { Observable, Subscription } from "rxjs";
 import { DatePipe } from "@angular/common";
-import { Table } from "primeng/table";
+import { Table } from "primeng-lts/table";
 import { TOOLBAR_ACTIONS, EMLSOURCE, BaseUrls, BaseUrlType, FONTSIZE } from "src/environments/app-constants";
-import { MenuItem, LazyLoadEvent, FilterMetadata, ConfirmationService, MessageService } from "primeng/api";
+import { MenuItem, LazyLoadEvent, FilterMetadata, ConfirmationService, MessageService } from "primeng-lts/api";
 import { Utils } from "src/app/utils/utils";
 import { MailFoldersService, PecFolderType, PecFolder } from "../mail-folders/mail-folders.service";
 import { ToolBarService } from "../toolbar/toolbar.service";
 import { MailListService } from "./mail-list.service";
 import { NoteService } from "src/app/services/note.service";
 import { NtJwtLoginService, UtenteUtilities } from "@bds/nt-jwt-login";
-import { Menu } from "primeng/menu";
+import { Menu } from "primeng-lts/menu";
 import { AppCustomization } from "src/environments/app-customization";
 import { SettingsService } from "src/app/services/settings.service";
 import { FormGroup, FormControl, Validators } from "@angular/forms";
 import { MailboxService, Sorting, TotalMessageNumberDescriptor } from "../mailbox.service";
-import { ContextMenu } from "primeng/primeng";
+import { ContextMenu } from "primeng-lts/primeng";
 import { IntimusClientService, IntimusCommand, IntimusCommands, RefreshMailsParams, RefreshMailsParamsOperations, RefreshMailsParamsEntities } from "@bds/nt-communicator";
 
 @Component({
@@ -72,10 +72,6 @@ export class MailListComponent implements OnInit, OnDestroy {
 
   // private tempSelectedMessages: Message[] = null;
 
-  private selectedProjection: string =
-    ENTITIES_STRUCTURE.shpeck.message.customProjections
-      .CustomMessageForMailList;
-
   private pageConf: PagingConf = {
     mode: "LIMIT_OFFSET",
     conf: {
@@ -91,10 +87,7 @@ export class MailListComponent implements OnInit, OnDestroy {
   private aziendeFascicolabiliSubCmItems: MenuItem[] = null;
   private registerMessageEvent: any = null;
   private loggedUser: UtenteUtilities;
-  private sorting: Sorting = {
-    field: "receiveTime",
-    sortMode: SORT_MODES.desc
-  };
+
   public tagMenuItems:  MenuItem[] = null;
   public cmItems: MenuItem[] = [
     {
@@ -326,7 +319,7 @@ export class MailListComponent implements OnInit, OnDestroy {
       })});
     this.subscriptions.push({id: null, type: "sorting", subscription: this.mailboxService.sorting.subscribe((sorting: Sorting) => {
       if (sorting) {
-        this.sorting = sorting;
+        this.mailListService.sorting = sorting;
         if (this.dt && this.dt.el && this.dt.el.nativeElement) {
           this.dt.el.nativeElement.getElementsByClassName("ui-table-scrollable-body")[0].scrollTop = 0;
         }
@@ -362,24 +355,36 @@ export class MailListComponent implements OnInit, OnDestroy {
   private manageIntimusInsertCommand(command: IntimusCommand) {
     console.log("manageIntimusInsertCommand");
     const params: RefreshMailsParams = command.params as RefreshMailsParams;
-    if ((params.entity === RefreshMailsParamsEntities.MESSAGE_TAG && params.newRow["id_tag"] === this.pecFolderSelected.data.id) ||
-        (params.entity === RefreshMailsParamsEntities.MESSAGE_FOLDER && params.newRow["id_folder"] === this.pecFolderSelected.data.id)) {
+    /* non sono io ad aver fatto l'azione e
+     * sul messaggio è cambiato il tag e io sto guardando quel tag, oppure
+     * sul messaggio è cambiata la cartella e sto guardando quella cartella
+    */
+    if (  params.newRow["id_utente"] !== this.loggedUser.getUtente().id &&
+          ((params.entity === RefreshMailsParamsEntities.MESSAGE_TAG && params.newRow["id_tag"] === this.pecFolderSelected.data.id) ||
+          (params.entity === RefreshMailsParamsEntities.MESSAGE_FOLDER && params.newRow["id_folder"] === this.pecFolderSelected.data.id))
+      ) {
       const idMessage: number = params.newRow["id_message"];
       const filterDefinition = new FilterDefinition("id", FILTER_TYPES.not_string.equals, idMessage);
       const filter: FiltersAndSorts = new FiltersAndSorts();
       filter.addFilter(filterDefinition);
-      this.messageService.getData(this.selectedProjection, filter, null, null).subscribe((data: any) => {
+      this.messageService.getData(this.mailListService.selectedProjection, filter, null, null).subscribe((data: any) => {
 
         this.mailListService.totalRecords++;
         // mando l'evento con il numero di messaggi (serve a mailbox-component perché lo deve scrivere nella barra superiore)
         this.mailListService.refreshAndSendTotalMessagesNumber(0, this.pecFolderSelected);
 
         // this.mailListService.messages = data.results;
-        console.log("this.mailListService.messages", this.mailListService.messages);
+        // console.log("this.mailListService.messages", this.mailListService.messages);
         const newMessage = data.results[0];
-        this.mailListService.messages.unshift(newMessage);
+        // cerco il messaggio perché potrebbe essere già nella cartella disabilitato (ad esempio se qualcuno l'ha spostato e poi rispostato in questa cartella mentre io la guardo)
+        const messageIndex = this.mailListService.messages.findIndex(m => m.id === idMessage);
+        if (messageIndex >= 0) { // se lo trovo lo riabilito
+          this.mailListService.messages.splice(messageIndex, 1, newMessage);
+        } else { // se non lo trovo lo inserisco in testa
+          this.mailListService.messages.unshift(newMessage);
+        }
         this.mailFoldersService.doReloadTag(this.mailListService.tags.find(t => t.name === "in_error").id);
-        this.setMailTagVisibility([newMessage]);
+        this.mailListService.setMailTagVisibility([newMessage]);
         if (params.entity === RefreshMailsParamsEntities.MESSAGE_FOLDER) {
           this.mailFoldersService.doReloadFolder(this.pecFolderSelected.data.id, true);
         } else if (params.entity === RefreshMailsParamsEntities.MESSAGE_TAG) {
@@ -409,7 +414,7 @@ export class MailListComponent implements OnInit, OnDestroy {
       this.mailListService.totalRecords--;
       this.mailListService.refreshAndSendTotalMessagesNumber(0, this.pecFolderSelected);
       const messageIndex = this.mailListService.messages.findIndex(message => message.id === idMessage);
-      if (messageIndex >= 0) {
+      if (messageIndex >= 0  && !!!this.mailListService.messages[messageIndex]["moved"]) {
           // filtro i messaggi selezionati togliendo quello che sto disabilitando, devo per forza riassegnare l'array e non fare un semplice splice perché
           // altrimenti angular non si accorgerebbe che l'array è cambiato e non mi scatterebbero gli eventi di deselezione della tabella
           this.mailListService.selectedMessages = this.mailListService.selectedMessages.filter(m => m.id !== idMessage);
@@ -459,11 +464,31 @@ export class MailListComponent implements OnInit, OnDestroy {
         this.manageIntimusInsertCommand(command);
       }
     } else if (params.entity === RefreshMailsParamsEntities.MESSAGE_FOLDER && params.oldRow["id_folder"] !== params.newRow["id_folder"]) {
+      // è cambiata la cartella di un messaggio
       console.log("changed folder");
-      if (params.oldRow["id_folder"] === this.pecFolderSelected.data.id) {
-        this.manageIntimusDeleteCommand(command);
-      } else if (params.newRow["id_folder"] === this.pecFolderSelected.data.id) {
-        this.manageIntimusInsertCommand(command);
+      // se sto guardando una cartella, allora devo fare qualcosa solo se la cartella interessata è nel comando
+      if (this.pecFolderSelected.type === PecFolderType.FOLDER) {
+        // se sto guardando la cartella in oldRow vuol dire che devo eliminare il messaggio perché è stato spostato
+        if (params.oldRow["id_folder"] === this.pecFolderSelected.data.id) {
+          this.manageIntimusDeleteCommand(command);
+        } else if (params.newRow["id_folder"] === this.pecFolderSelected.data.id) {
+          // se sto guardando la cartella in newRow vuol dire che devo inserire il messaggio perché è stato spostato in questa cartella
+          this.manageIntimusInsertCommand(command);
+        }
+        // se sto guardando un tag devo cercare il messaggio nei messaggi che sto vedendo e aggiornarlo, ma solo se non sono io che sto facendo l'azione
+      } else if (this.pecFolderSelected.type === PecFolderType.TAG && params.newRow["id_utente"] !== this.loggedUser.getUtente().id) {
+        const idMessage: number = params.newRow["id_message"];
+        const messageIndex = this.mailListService.messages.findIndex(m => m.id === idMessage);
+        if (messageIndex >= 0 && this.mailListService.messages[messageIndex]["moved"]) {
+          const filterDefinition = new FilterDefinition("id", FILTER_TYPES.not_string.equals, idMessage);
+          const filter: FiltersAndSorts = new FiltersAndSorts();
+          filter.addFilter(filterDefinition);
+          this.messageService.getData(this.mailListService.selectedProjection, filter, null, null).subscribe((data: any) => {
+            const newMessage = data.results[0];
+            this.mailListService.setMailTagVisibility([newMessage]);
+            this.mailListService.messages[messageIndex] = newMessage;
+          });
+        }
       }
     }
 
@@ -578,7 +603,7 @@ export class MailListComponent implements OnInit, OnDestroy {
     }
     this.subscriptions.push({id: folderSelected.data.id, type: "folder_message", subscription: this.messageService
       .getData(
-        this.selectedProjection,
+        this.mailListService.selectedProjection,
         this.buildInitialFilterAndSort(folder, tag),
         lazyFilterAndSort,
         pageConf
@@ -591,7 +616,7 @@ export class MailListComponent implements OnInit, OnDestroy {
 
           this.mailListService.messages = data.results;
           console.log("this.mailListService.messages", this.mailListService.messages);
-          this.setMailTagVisibility(this.mailListService.messages);
+          this.mailListService.setMailTagVisibility(this.mailListService.messages);
           this.mailFoldersService.doReloadTag(this.mailListService.tags.find(t => t.name === "in_error").id);
         }
         this.loading = false;
@@ -765,64 +790,10 @@ export class MailListComponent implements OnInit, OnDestroy {
     );
     // filtersAndSorts.addSort(new SortDefinition("receiveTime", SORT_MODES.desc));
     // filtersAndSorts.addSort(new SortDefinition("createTime", SORT_MODES.desc));
-    filtersAndSorts.addSort(new SortDefinition(this.sorting.field, this.sorting.sortMode));
+    filtersAndSorts.addSort(new SortDefinition(this.mailListService.sorting.field, this.mailListService.sorting.sortMode));
 
     // filtersAndSorts.addSort(new SortDefinition("messageAddressList.address_role", SORT_MODES.desc));
     return filtersAndSorts;
-  }
-
-  private setMailTagVisibility(messages: Message[]) {
-    messages.map((message: Message) => {
-      this.setFromOrTo(message);
-      this.mailListService.setIconsVisibility(message);
-    });
-  }
-
-  // private setIconsVisibility(message: Message) {
-  //   message["iconsVisibility"] = [];
-  //   if (message.messageTagList && message.messageTagList.length > 0) {
-  //     message.messageTagList.forEach((messageTag: MessageTag) => {
-  //       message["iconsVisibility"][messageTag.idTag.name] = true;
-  //       this.tags[messageTag.idTag.name] = messageTag.idTag;
-  //     });
-  //   }
-  // }
-
-  private setFromOrTo(message: Message) {
-    let addresRoleType: string;
-    switch (message.inOut) {
-      case InOut.IN:
-        addresRoleType = AddresRoleType.FROM;
-        break;
-      case InOut.OUT:
-        addresRoleType = AddresRoleType.TO;
-        break;
-      default:
-        addresRoleType = AddresRoleType.FROM;
-    }
-    if (this.sorting.field === "messageExtensionList.addressFrom") {
-      addresRoleType = AddresRoleType.FROM;
-    }
-    message["fromOrTo"] = {
-      description: "",
-      fromOrTo: addresRoleType
-    };
-    if (message.messageAddressList) {
-      const messageAddressList: MessageAddress[] = message.messageAddressList.filter(
-        (messageAddress: MessageAddress) =>
-          messageAddress.addressRole === addresRoleType
-      );
-      messageAddressList.forEach((messageAddress: MessageAddress) => {
-        // message["fromOrTo"].description += ", " + (messageAddress.idAddress.originalAddress ? messageAddress.idAddress.originalAddress : messageAddress.idAddress.mailAddress);
-        message["fromOrTo"].description += ", " + messageAddress.idAddress.mailAddress;
-      });
-      if ((message["fromOrTo"].description as string).startsWith(",")) {
-        message["fromOrTo"].description = (message["fromOrTo"].description as string).substr(
-          1,
-          (message["fromOrTo"].description as string).length - 1
-        );
-      }
-    }
   }
 
   public handleEvent(name: string, event: any) {
@@ -883,6 +854,7 @@ export class MailListComponent implements OnInit, OnDestroy {
         }
         break;
       case "onContextMenuSelect":
+          console.log("selecrgdfvbd", this.mailListService.selectedMessages);
           this.setContextMenuItemLook();
         break;
       case "saveNote":

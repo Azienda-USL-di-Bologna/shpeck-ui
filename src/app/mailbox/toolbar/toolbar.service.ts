@@ -3,7 +3,7 @@ import { BehaviorSubject, Observable, Subscription, Observer, of } from "rxjs";
 import { FilterDefinition } from "@nfa/next-sdr";
 import { Draft, Pec, Folder, Message, FolderType, Tag, PecPermission } from "@bds/ng-internauta-model";
 import { NewMailComponent } from "../new-mail/new-mail.component";
-import { DialogService, MessageService, MenuItem } from "primeng/api";
+import { DialogService, MessageService, MenuItem } from "primeng-lts/api";
 import { MessageEvent, ShpeckMessageService } from "src/app/services/shpeck-message.service";
 import { DraftService, DraftEvent } from "src/app/services/draft.service";
 import { TOOLBAR_ACTIONS } from "src/environments/app-constants";

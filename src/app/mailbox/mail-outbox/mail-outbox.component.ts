@@ -3,7 +3,7 @@ import { FilterDefinition, FILTER_TYPES, PagingConf, SORT_MODES, FiltersAndSorts
 import { ENTITIES_STRUCTURE, Outbox } from "@bds/ng-internauta-model";
 import { Subscription } from "rxjs";
 import { Sorting, MailboxService, TotalMessageNumberDescriptor } from "../mailbox.service";
-import { Table } from "primeng/table";
+import { Table } from "primeng-lts/table";
 import { OutboxLiteService } from "src/app/services/outbox-lite.service";
 import { SettingsService } from "src/app/services/settings.service";
 import { DatePipe } from "@angular/common";
