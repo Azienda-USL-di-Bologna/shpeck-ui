@@ -381,14 +381,15 @@ export class MailListComponent implements OnInit, OnDestroy {
       const filter: FiltersAndSorts = new FiltersAndSorts();
       filter.addFilter(filterDefinition);
       this.messageService.getData(this.mailListService.selectedProjection, filter, null, null).subscribe((data: any) => {
+        // può capitare che il comando arrivi prima che la transazione sia conclusa, per cui non troverei il messaggio sul database. Se capita, riproco dopo 30ms
         if (!data || !data.results || data.results.length === 0) {
-          console.log("message not ready, rescheduling after 10ms...");
+          console.log("message not ready, rescheduling after 30ms...");
           setTimeout(() => {
             this.manageIntimusInsertCommand(command);
-          }, 10);
+          }, 30);
           return;
         }
-
+        console.log("message ready, proceed...");
         this.mailListService.totalRecords++;
         // mando l'evento con il numero di messaggi (serve a mailbox-component perché lo deve scrivere nella barra superiore)
         this.mailListService.refreshAndSendTotalMessagesNumber(0, this.pecFolderSelected);
