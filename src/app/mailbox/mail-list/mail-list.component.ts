@@ -571,12 +571,49 @@ export class MailListComponent implements OnInit, OnDestroy {
       }
     } else { // per tutti gli altri cambiamenti ricarico i badge delle cartelle interessati nel comando
       if (params.newRow) {
-        this.mailFoldersService.doReloadFolder(params.newRow["id_folder"], true);
+        /* nel caso di nuovo messaggio, capita che la transazione non sia conclusa quando arriva il comando, quindi il numero dei messaggi non letti
+         * non terrebbe conto del nuovo. Per ovviare a questo caso, chiamo una funzione apposita che chiama la doReloadFolder solo dopo che il messaggio
+         * è visibile sul DB, cioè, dopo che la chiamata al backend lo ritnorna
+        */
+        if (!params.newRow["id_utente"] && params.operation === RefreshMailsParamsOperations.INSERT) { // è un nuovo messaggio in arrivo
+          this.reloadBadgesAfterMessageReady(params);
+        } else { // in tutti gli altri casi mi comporto normalmente e ricarico subito il badge della cartella
+          this.mailFoldersService.doReloadFolder(params.newRow["id_folder"], true);
+        }
       }
       if (params.oldRow) {
         this.mailFoldersService.doReloadFolder(params.oldRow["id_folder"], true);
       }
     }
+  }
+
+  /**
+   * Aspetta che il messaggio sia pronto prima di ricaricare il badge
+   * @param params
+   * @param times usato in automatico per la ricorsione, non passare
+   */
+  private reloadBadgesAfterMessageReady(params: RefreshMailsParams, times: number = 1) {
+    const idMessage: number = params.newRow["id_message"];
+      const filterDefinition = new FilterDefinition("id", FILTER_TYPES.not_string.equals, idMessage);
+      const filter: FiltersAndSorts = new FiltersAndSorts();
+      filter.addFilter(filterDefinition);
+      this.messageService.getData(this.mailListService.selectedProjection, filter, null, null).subscribe((data: any) => {
+        // può capitare che il comando arrivi prima che la transazione sia conclusa, per cui non troverei il messaggio sul database. Se capita, riproco dopo 30ms
+        if (!data || !data.results || data.results.length === 0) {
+          console.log("message not ready");
+          if (times <= 10) {
+            console.log(`rescheduling after ${30 * times}ms for the ${times} time...`);
+            setTimeout(() => {
+              this.reloadBadgesAfterMessageReady(params, times + 1);
+            }, 30 * times);
+          } else {
+            console.log("too many tries, stop!");
+          }
+          return;
+        }
+        console.log("message ready, proceed...");
+        this.mailFoldersService.doReloadFolder(params.newRow["id_folder"], true);
+    });
   }
 
   public openDetailPopup(event, row, message) {
