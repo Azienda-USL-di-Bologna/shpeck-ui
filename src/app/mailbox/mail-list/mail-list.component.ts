@@ -385,10 +385,12 @@ export class MailListComponent implements OnInit, OnDestroy {
         if (!data || !data.results || data.results.length === 0) {
           console.log("message not ready");
           if (times < 10) {
-            console.log(`rescheduling after 30ms for the ${times + 1} time...`);
+            console.log(`rescheduling after 30ms for the ${30 * (times + 1)} time...`);
             setTimeout(() => {
               this.manageIntimusInsertCommand(command, ++times);
-            }, 30);
+            }, 30 * times);
+          } else {
+            console.log("too many tries, stop!");
           }
           return;
         }
