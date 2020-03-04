@@ -587,7 +587,7 @@ export class MailListService {
     }
     if (messageFolderOperations.length > 0) {
       this.messageService.batchHttpCall(messageFolderOperations).subscribe((res: BatchOperation[]) => {
-          this.messages = Utils.arrayDiff(this.messages, this.selectedMessages);
+          this.messages = this.messages.filter(m => this.selectedMessages.find(sm => sm.id !== m.id));
           this.mailFoldersService.doReloadFolder(idFolder);
           this.selectedMessages = [];
           this.messageService.manageMessageEvent(
@@ -699,17 +699,25 @@ export class MailListService {
     });
     // const inFolder = this.folders.filter(folder => folder.type === "INBOX")[0].id;
     if (messagesToUpdate.length > 0) {
-      this.messageService.batchHttpCall(messagesToUpdate).subscribe((messages) => {
+      this.messageService.batchHttpCall(messagesToUpdate).subscribe((messages: any[]) => {
         console.log(messages);
         // reload Folder
         if (reloadUnSeen) {
           const map: any = {};
-          selectedMessagesTemp.forEach((message: Message) => {
-            message.seen = seen;
-            message.version = messages.find(m => m.id === message.id).entityBody.version;
-            if (!map[message.messageFolderList[0].idFolder.id]) {
-              this.mailFoldersService.doReloadFolder(message.messageFolderList[0].idFolder.id);
-              map[message.messageFolderList[0].idFolder.id] = true;
+          messages.forEach((bacthOperation: BatchOperation) => {
+            let index: number = this.selectedMessages.findIndex(m => m.id === bacthOperation.id);
+            const updatedMessage = bacthOperation.entityBody as Message;
+            this.setMailTagVisibility([updatedMessage]);
+            if (index >= 0) {
+              this.selectedMessages.splice(index, 1, updatedMessage);
+            }
+            index = this.messages.findIndex(m => m.id === bacthOperation.id);
+            if (index >= 0) {
+              this.messages.splice(index, 1, updatedMessage);
+            }
+            if (!map[updatedMessage.messageFolderList[0].idFolder.id]) {
+              this.mailFoldersService.doReloadFolder(updatedMessage.messageFolderList[0].idFolder.id);
+              map[updatedMessage.messageFolderList[0].idFolder.id] = true;
             }
           });
         }
