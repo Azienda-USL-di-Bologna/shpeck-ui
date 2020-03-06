@@ -6,7 +6,7 @@ import { ENTITIES_STRUCTURE, Draft } from "@bds/ng-internauta-model";
 import { getInternautaUrl, BaseUrlType, CUSTOM_SERVER_METHODS, EMLSOURCE, BaseUrls } from "src/environments/app-constants";
 import { BehaviorSubject, Observable } from "rxjs";
 import { EmlData } from "../classes/eml-data";
-import { MessageService } from "primeng/api";
+import { MessageService } from "primeng-lts/api";
 import { FullMessage } from "./shpeck-message.service";
 
 @Injectable({

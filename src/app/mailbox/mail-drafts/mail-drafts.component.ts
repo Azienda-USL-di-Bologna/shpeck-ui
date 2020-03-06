@@ -1,7 +1,7 @@
 import { Component, OnInit, Input, OnDestroy, ViewChild } from "@angular/core";
 import { Draft, ENTITIES_STRUCTURE } from "@bds/ng-internauta-model";
 import { FILTER_TYPES, FilterDefinition, PagingConf, FiltersAndSorts, SortDefinition, SORT_MODES } from "@nfa/next-sdr";
-import { LazyLoadEvent, FilterMetadata, ConfirmationService } from "primeng/api";
+import { LazyLoadEvent, FilterMetadata, ConfirmationService } from "primeng-lts/api";
 import { DatePipe } from "@angular/common";
 import { buildLazyEventFiltersAndSorts } from "@bds/primeng-plugin";
 import { DraftService } from "src/app/services/draft.service";
@@ -10,8 +10,8 @@ import { SettingsService } from "src/app/services/settings.service";
 import { DraftLiteService } from "src/app/services/draft-lite.service";
 import { AppCustomization } from "src/environments/app-customization";
 import { MailboxService, Sorting, TotalMessageNumberDescriptor } from "../mailbox.service";
-import { Table } from "primeng/table";
-import { PecFolder, MailFoldersService } from '../mail-folders/mail-folders.service';
+import { Table } from "primeng-lts/table";
+import { PecFolder, MailFoldersService } from "../mail-folders/mail-folders.service";
 
 @Component({
   selector: "app-mail-drafts",

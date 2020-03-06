@@ -1,12 +1,12 @@
 import { Component, OnInit, ViewChild, AfterViewInit } from "@angular/core";
 import { FormGroup, FormControl, Validators, FormArray } from "@angular/forms";
-import { DynamicDialogConfig, DialogService, ConfirmationService } from "primeng/api";
+import { DynamicDialogConfig, DialogService, ConfirmationService } from "primeng-lts/api";
 import { Message, Pec, Draft, MessageRelatedType, InOut } from "@bds/ng-internauta-model";
-import { Editor } from "primeng/editor";
+import { Editor } from "primeng-lts/editor";
 import { TOOLBAR_ACTIONS, MAX_FILE_SIZE_UPLOAD } from "src/environments/app-constants";
 import { DraftService } from "src/app/services/draft.service";
-import { Chips } from "primeng/chips";
-import { AutoComplete } from "primeng/primeng";
+import { Chips } from "primeng-lts/chips";
+import { AutoComplete } from "primeng-lts/primeng";
 
 @Component({
   selector: "app-new-mail",

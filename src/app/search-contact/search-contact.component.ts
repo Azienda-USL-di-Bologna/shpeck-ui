@@ -2,7 +2,7 @@ import { Component, OnInit, ViewChild, ElementRef, Output, EventEmitter } from "
 import { HttpClient } from "@angular/common/http";
 import { RubricaService } from "../services/rubrica.service";
 import { FormGroup, Validators, FormControl } from "@angular/forms";
-import { AutoComplete, MessageService } from "primeng/primeng";
+import { AutoComplete, MessageService } from "primeng-lts/primeng";
 
 @Component({
   selector: "app-search-contact",

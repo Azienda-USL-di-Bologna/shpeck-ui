@@ -20,11 +20,21 @@
     dataKey="id" (mouseenter)="handleEvent('onMouseEnter', $event)"
     (onContextMenuSelect)="handleEvent('onContextMenuSelect', $event)">
     <ng-template pTemplate="body" let-rowData let-message let-rowIndex="rowIndex">
-        <tr #selRow [ngClass]="fontSize === 'small' ? 'message-row-font-size-small' : fontSize === 'medium' ? 'message-row-font-size-medium' : 'message-row-font-size-big'"
-        [pSelectableRow]="rowData" [pSelectableRowIndex]="rowIndex"
-            [pContextMenuRow]="rowData" (dblclick)="openDetailPopup($event, rowData, message)">
-            <td class="column-checkbox">
+        <tr #selRow 
+        [pTooltip]="message['moved'] ? message['movedInfo']: null"
+        tooltipPosition="top"
+        [ngClass]="{
+        'message-row-font-size-small': fontSize === 'small',
+        'message-row-font-size-medium': fontSize === 'medium',
+        'message-row-font-size-big': fontSize === 'big',
+        'message-disabled': message['moved'] 
+        }"
+        [pSelectableRow]="rowData" [pSelectableRowIndex]="rowIndex" [pSelectableRowDisabled]="message['moved']"
+            [pContextMenuRow]="rowData" [pContextMenuRowDisabled]="message['moved']" (dblclick)="openDetailPopup($event, rowData, message)"  >
+            <td *ngIf="!message['moved']" class="column-checkbox">
                 <p-tableCheckbox [value]="rowData"></p-tableCheckbox>
+            </td>
+            <td *ngIf="message['moved']" class="column-checkbox">
             </td>
             <td>
                 <div class="mail-icons-container">
@@ -34,13 +44,18 @@
                         <span class="mail-icon first-icon-left">
                             <ng-template #registrationTemplate let-registrationstatus>
                                 <i
-                                    [pTooltip]="registrationstatus === 'REGISTERED' ? 'Vedi dettaglio protocollazione' :
-                                        (registrationstatus === 'REGISTRABLE' ? 'Protocolla il messaggio' : registrationstatus === 'IN_REGISTRATION' ? 'In protocollazione' : 'Il messaggio non può essere protocollato')"
+                                    [pTooltip]="message['moved'] ? null :
+                                                registrationstatus === 'REGISTERED' ? 'Vedi dettaglio protocollazione' :
+                                                (registrationstatus === 'REGISTRABLE' ? 'Protocolla il messaggio' : 
+                                                registrationstatus === 'IN_REGISTRATION' ? 'In protocollazione' :                                                
+                                                'Il messaggio non può essere protocollato')"
                                     tooltipPosition="top"
                                     class="material-icons-outlined mail-icons icon-enabled"
-                                    [ngClass]="{'icon-disabled': registrationstatus === 'NOT_REGISTRABLE', 'icon-used': (registrationstatus === 'REGISTERED' || registrationstatus === 'IN_REGISTRATION')}"
-                                    [ngStyle]="registrationstatus === 'REGISTERED' && {'color': 'darkcyan'} || registrationstatus === 'IN_REGISTRATION' && {'color': 'orange'}"
-                                    (click)="iconRegistrationClicked($event, message, registrationstatus)"
+                                    [ngClass]="
+                                    {'icon-disabled': registrationstatus === 'NOT_REGISTRABLE' || message['moved'] , 
+                                    'icon-used': (registrationstatus === 'REGISTERED' || registrationstatus === 'IN_REGISTRATION') && !message['moved']}"
+                                    [ngStyle]="!message['moved'] && (registrationstatus === 'REGISTERED' && {'color': 'darkcyan'} || registrationstatus === 'IN_REGISTRATION' && {'color': 'orange'})"
+                                    (click)="!message['moved'] ? iconRegistrationClicked($event, message, registrationstatus): null"
                                     >
                                     {{registrationstatus === 'REGISTERED' || registrationstatus === 'IN_REGISTRATION' ? "assignment_turned_in" : "assignment"}}
                                         <!-- (registrationstatus === "REGISTRABLE" ? "assignment_returned" : "assignment_returned")}} -->
@@ -54,15 +69,18 @@
                         <!-- reindirizzato -->
                         <span class="mail-icon">
                             <ng-template  #readdressTemplate let-readdressstatus>
-                                <i [pTooltip]="readdressstatus === 'NOT_READDRESSABLE' ? 'Il messaggio non può essere reindirizzato' :
-                                    readdressstatus === 'READDRESSABLE' ? 'Reindirizza il messaggio' : 'Vedi dettagli reindirizzamento'"
+                                <i [pTooltip]=" message['moved'] ? null :
+                                                readdressstatus === 'NOT_READDRESSABLE' ? 'Il messaggio non può essere reindirizzato' :
+                                                readdressstatus === 'READDRESSABLE' ? 'Reindirizza il messaggio' : 'Vedi dettagli reindirizzamento'"
                                     tooltipPosition="top"
                                     class="material-icons mail-icons icon-enabled"
-                                    [ngClass]="{'icon-disabled': readdressstatus === 'NOT_READDRESSABLE', 'icon-used': (readdressstatus !== 'NOT_READDRESSABLE' && readdressstatus !== 'READDRESSABLE')}"
-                                    [ngStyle]="(readdressstatus === 'FULL_READDRESSED' ||
+                                    [ngClass]="{
+                                        'icon-disabled': readdressstatus === 'NOT_READDRESSABLE' || message['moved'], 
+                                        'icon-used': (readdressstatus !== 'NOT_READDRESSABLE' && readdressstatus !== 'READDRESSABLE') && !message['moved']}"
+                                    [ngStyle]="!message['moved'] && (readdressstatus === 'FULL_READDRESSED' ||
                                         readdressstatus === 'READDRESSED_IN' ||
                                         readdressstatus === 'READDRESSED_OUT') && {'color': 'darkcyan'}"
-                                    (click)="iconReaddressClicked($event, message, readdressstatus)">
+                                    (click)="!message['moved'] ? iconReaddressClicked($event, message, readdressstatus): null">
                                     low_priority
                                 <!--  {{readdressstatus === 'NOT_READDRESSABLE' ? 'call_split' :
                                         readdressstatus === 'READDRESSABLE' ? 'call_split' : 'low_priority'}} -->
@@ -75,11 +93,13 @@
                         <!-- annotato -->
                         <span class="mail-icon">
                             <ng-template  #annotatedTemplate let-annotatedstatus>
-                                <i  [pTooltip]="annotatedstatus ? 'Visualizza la nota' : 'Aggiungi una nota'"
+                                <i  [pTooltip]="message['moved'] ? null :
+                                                annotatedstatus ? 'Visualizza la nota' : 'Aggiungi una nota'"
                                     tooltipPosition="top"
                                     class="material-icons-outlined mail-icons icon-enabled"
                                     [ngStyle]="annotatedstatus && {'color': 'darkcyan'}"
-                                    (click)="noteHandler(message)">
+                                    [ngClass] = "{'message-disabled': message['moved']}"
+                                    (click)="!message['moved'] ? noteHandler(message): null">
                                     {{annotatedstatus ? "insert_drive_file" : "note_add"}}
                                 </i>
                             </ng-template>
@@ -90,13 +110,17 @@
                         <!-- fascicolato -->
                         <span class="mail-icon fa-icon">
                             <ng-template  #archivedTemplate let-archivedstatus>
-                                <i  [pTooltip]="archivedstatus === 'ARCHIVED' ? 'Vedi dettaglio fascicolazione' :
-                                        (archivedstatus === 'ARCHIVABLE' ? 'Fascicola il messaggio' : 'Il messaggio non può essere fascicolato')"
+                                <i  [pTooltip]="message['moved'] ? null :
+                                                archivedstatus === 'ARCHIVED' ? 'Vedi dettaglio fascicolazione' :
+                                                (archivedstatus === 'ARCHIVABLE' ? 'Fascicola il messaggio' : 
+                                                'Il messaggio non può essere fascicolato')"
                                     tooltipPosition="top"
                                     class="fa fa-server fa-rotate-270 mail-icons icon-enabled"
-                                    [ngClass]="{'icon-disabled': archivedstatus === 'NOT_ARCHIVABLE', 'icon-used': archivedstatus === 'ARCHIVED'}"
-                                    [ngStyle]="archivedstatus === 'ARCHIVED' && {'color': 'darkcyan'}"
-                                    (click)="iconArchiveClicked($event, message, archivedstatus)"
+                                    [ngClass]="{
+                                        'icon-disabled': archivedstatus === 'NOT_ARCHIVABLE' || message['moved'], 
+                                        'icon-used': archivedstatus === 'ARCHIVED'}"
+                                    [ngStyle]="(archivedstatus === 'ARCHIVED'  && !message['moved']) && {'color': 'darkcyan'}"
+                                    (click)="!message['moved'] ? iconArchiveClicked($event, message, archivedstatus): null"
                                     >
                                 </i>
                                 <p-menu appendTo="body" (onShow)="tagsMenuStatus('archiveMenuOpened')" #archiviationMenu [popup]="true" [model]="aziendeFascicolabiliSubCmItems"></p-menu>
@@ -108,11 +132,13 @@
                         <!-- taggato -->
                         <span class="mail-icon fa-icon">
                             <ng-template  #taggedTemplate let-taggedstatus>
-                                <i  [pTooltip]="taggedstatus ? taggedstatus.tooltip : 'Gestisci etichette'"
+                                <i  [pTooltip]="message['moved'] ? null :
+                                                taggedstatus ? taggedstatus.tooltip : 'Gestisci etichette'"
                                     tooltipPosition="top"
                                     class="material-icons local-offer-icon mail-icons icon-enabled mi-fist-line"
                                     [ngStyle]="taggedstatus && {'color': 'darkcyan'}"
-                                    (click)="iconTaggedClicked($event, message, taggedstatus)"
+                                    [ngClass] = "{'message-disabled': message['moved']}"
+                                    (click)="!message['moved'] ? iconTaggedClicked($event, message, taggedstatus): null"
                                     >
                                 </i>
                                 <p-menu appendTo="body" (onShow)="tagsMenuStatus('tagsMenuOpened')" #tagMenu [popup]="true" [model]="tagMenuItems" styleClass="message-labels-icon-action"></p-menu>
@@ -134,10 +160,11 @@
                         <span *ngIf="message?.iconsVisibility?.replied || message?.iconsVisibility?.replied_all">
                             <span class="mail-icon"
                                 [ngClass]="{'visibility-hidden':!message['iconsVisibility']['replied_all'] && !message['iconsVisibility']['replied']}">
-                                <i [pTooltip]="getTagDescription('replied_all')" tooltipPosition="top"
+                                <i [pTooltip]=" message['moved'] ? null :
+                                                getTagDescription('replied_all')" tooltipPosition="top"
                                     *ngIf="message['iconsVisibility']['replied_all']; else reply_single"
                                     class="material-icons mail-icons">reply_all</i>
-                                <ng-template #reply_single><i [pTooltip]="getTagDescription('replied')"
+                                <ng-template #reply_single><i [pTooltip]="message['moved'] ? null : getTagDescription('replied')"
                                         tooltipPosition="top" class="material-icons mail-icons">reply</i></ng-template>
                             </span>
                         </span>
@@ -146,7 +173,8 @@
                             class="mail-icon visibility-hidden"><i class="material-icons mail-icons">reply_all</i></span>
                         <!-- inoltra (se non c'è mette visibility-hidden per lasciare lo spazio vuoto ) -->
                         <span class="mail-icon" [ngClass]="{'visibility-hidden':!message?.iconsVisibility?.forwarded}"><i
-                                [pTooltip]="getTagDescription('forwarded')" tooltipPosition="top"
+                                [pTooltip]="message['moved'] ? null :
+                                            getTagDescription('forwarded')" tooltipPosition="top"
                                 class="material-icons mail-icons">forward</i></span>
                         <!-- assegnato (se non c'è mette visibility-hidden per lasciare lo spazio vuoto ) -->
                         <!-- <span class="mail-icon" [ngClass]="{'visibility-hidden':!message?.iconsVisibility?.assigned}"><i
@@ -160,7 +188,8 @@
                         <!-- iconcina degli allegati -->
                         <span class="second-line-icon" [ngClass]="{'visibility-hidden':message?.attachmentsNumber === 0}">
                             <i
-                                [pTooltip]="message?.attachmentsNumber + ' allegati'" tooltipPosition="top"
+                                [pTooltip]="message['moved'] ? null :
+                                            message?.attachmentsNumber + ' allegati'" tooltipPosition="top"
                                 class="material-icons second-line-icon">
                                 attach_file
                             </i>
@@ -173,7 +202,8 @@
                         <span class="first-line-error icon-default-color"
                             [ngClass]="{'visibility-hidden':!(message?.iconsVisibility?.in_error || message.messageStatus === 'ERROR'),'warn-color': message?.iconsVisibility?.in_error}">
                             <i
-                                [pTooltip]="getTagDescription('in_error')"
+                                [pTooltip]="message['moved'] ? null :
+                                            getTagDescription('in_error')"
                                 tooltipPosition="top"
                                 class="fas fa-exclamation-triangle first-line-error">
                             </i>
@@ -194,8 +224,9 @@
                     
                     <i *ngIf="_selectedFolder?.type !== 'TRASH' && mailListService?.loggedUserCanDelete === true"
                         class="material-icons-outlined delete-icon" 
-                        (click)="deletingConfirmation('Sei sicuro di voler eliminare il messaggio?')"
-                        pTooltip="Elimina il messaggio">
+                        (click)="!message['moved'] ? deletingConfirmation('Sei sicuro di voler eliminare il messaggio?'): null"
+                        [pTooltip]="message['moved'] ? null :
+                                    'Elimina il messaggio'">
                         delete
                     </i>
                     
@@ -211,7 +242,7 @@
                         class="display-text text-background little-margin-left">{{message?.messageFolderList[0]?.idFolder.description}}</span>
 
                     <!-- oggetto della mail -->
-                    <span class="display-text little-margin-left" [ngClass]="{'display-bold':!message.seen}" positionStyle="absolute" [pTooltip]="message.subject" tooltipPosition="top" tooltipStyleClass="tooltip-oggetto-mail">{{message.subject}}</span>
+                    <span class="display-text little-margin-left" [ngClass]="{'display-bold':!message.seen}" positionStyle="absolute" [pTooltip]="message['moved'] ? null : message.subject" tooltipPosition="top" tooltipStyleClass="tooltip-oggetto-mail">{{message.subject}}</span>
                     <!-- <div class="display-text" [ngClass]="{'display-bold':!message.seen}">{{message.id + " -- " + message.subject}}</div>  -->
                 </div>
             </td>
