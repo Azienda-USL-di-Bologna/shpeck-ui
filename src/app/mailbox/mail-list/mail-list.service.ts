@@ -43,7 +43,6 @@ export class MailListService {
   private _newTagInserted$: BehaviorSubject<Tag> = new BehaviorSubject<Tag>(null);
   private messageEvent: MessageEvent;
   private idPec: number;
-  public totalRecords$: Subject<number> = new Subject();
   public totalRecords: number;
   private pecFolderSelected: PecFolder;
 
@@ -436,7 +435,6 @@ export class MailListService {
                       null,
                       this.selectedMessages
                     );
-                    this.refreshAndSendTotalMessagesNumber(numberOfSelectedMessages);
                   });
                 });
               }
