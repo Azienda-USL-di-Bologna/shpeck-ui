@@ -465,18 +465,18 @@ export class MailListComponent implements OnInit, OnDestroy {
         // in movedInfo metto una stringa che spiega cosa è successo al messaggio, sarà poi visualizzata in un tooltip
         let movedInfo: string = null;
         if (permanentDelete) { // il messaggio è stato cancellato dal cestino
-          movedInfo = `il messaggio è stato eliminato definitivamente dalla cartella ${params.newRow["folder"]} da ${params.newRow["persona"]}`;
+          movedInfo = `il messaggio è appena stato eliminato definitivamente da ${params.newRow["persona"]}`;
         } else if (params.newRow) {
           if (params.newRow["id_folder"]) {
-            movedInfo = `il messaggio è stato spostato nella cartella ${params.newRow["folder"]} da ${params.newRow["persona"]}`;
+            movedInfo = `il messaggio è appena stato spostato nella cartella ${params.newRow["folder"]} da ${params.newRow["persona"]}`;
           } else if (params.newRow["id_tag"]) {
-            movedInfo = `al messaggio è stato cambiato il tag da ${params.oldRow["tag"]} a ${params.newRow["tag"]} da ${params.newRow["persona"]}`;
+            movedInfo = `al messaggio è appena stata cambiata l'etichetta da ${params.oldRow["tag"]} a ${params.newRow["tag"]} da ${params.newRow["persona"]}`;
           }
         } else {
           if (params.oldRow["id_folder"]) { // non dovvrebbe mai capitare
-            movedInfo = `il messaggio è stato rimosso della cartella ${params.oldRow["folder"]}`;
+            movedInfo = `il messaggio è appena stato rimosso dalla cartella ${params.oldRow["folder"]}`;
           } else if (params.oldRow["id_tag"]) {
-            movedInfo = `al messaggio è stata rimossa l'etichetta ${params.oldRow["tag"]}`;
+            movedInfo = `al messaggio è appena stata rimossa l'etichetta ${params.oldRow["tag"]}`;
           }
         }
         this.mailListService.messages[messageIndex]["movedInfo"] = movedInfo;
