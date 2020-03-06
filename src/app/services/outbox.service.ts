@@ -5,7 +5,7 @@ import { FullMessage } from "./shpeck-message.service";
 import { Outbox, ENTITIES_STRUCTURE } from "@bds/ng-internauta-model";
 import { DatePipe } from "@angular/common";
 import { HttpClient } from "@angular/common/http";
-import { MessageService } from "primeng/api";
+import { MessageService } from "primeng-lts/api";
 import { getInternautaUrl, BaseUrlType, CUSTOM_SERVER_METHODS, EMLSOURCE } from "src/environments/app-constants";
 import { EmlData } from "../classes/eml-data";
 

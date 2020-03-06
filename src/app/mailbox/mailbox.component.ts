@@ -5,7 +5,7 @@ import { AppCustomization } from "src/environments/app-customization";
 import { Folder, Message, FolderType, Tag, Pec, Menu } from "@bds/ng-internauta-model";
 import { FilterDefinition, SORT_MODES } from "@nfa/next-sdr";
 import { MailFoldersService, PecFolder, PecFolderType } from "./mail-folders/mail-folders.service";
-import { MenuItem } from "primeng/api";
+import { MenuItem } from "primeng-lts/api";
 import { MailboxService, Sorting, TotalMessageNumberDescriptor } from "./mailbox.service";
 import { FONTSIZE } from "src/environments/app-constants";
 

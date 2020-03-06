@@ -1,5 +1,5 @@
 import { Component, OnInit } from "@angular/core";
-import { MenuItem, DialogService } from "primeng/api";
+import { MenuItem, DialogService } from "primeng-lts/api";
 import { NtJwtLoginService, UtenteUtilities, UtilityFunctions } from "@bds/nt-jwt-login";
 import { MAILBOX_ROUTE, LOGIN_ROUTE, APPLICATION } from "src/environments/app-constants";
 import { IntimusClientService } from "@bds/nt-communicator";
@@ -58,7 +58,12 @@ export class AppComponent implements OnInit {
       if (utente) {
         this.utenteConnesso = utente;
         const intimusUrl = getInternautaUrl(BaseUrlType.Intimus);
-        this.intimusClient.start(intimusUrl, APPLICATION, this.utenteConnesso.getUtente().idPersona.id, this.utenteConnesso.getUtente().aziendaLogin.id);
+        this.intimusClient.start(
+          intimusUrl,
+          APPLICATION,
+          this.utenteConnesso.getUtente().idPersona.id,
+          this.utenteConnesso.getUtente().aziendaLogin.id,
+          this.utenteConnesso.getUtente().aziende.map(a => a.id));
         console.log("loggedUser", this.utenteConnesso);
       }
     });

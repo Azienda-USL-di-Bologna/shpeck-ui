@@ -18,9 +18,9 @@ import { NtJwtLoginModule } from "@bds/nt-jwt-login";
 import { loginModuleConfig } from "./config/module-config";
 
 import { PrimengPluginModule } from "@bds/primeng-plugin";
-import { DialogService } from "primeng/api";
-import { MessageService } from "primeng/api";
-import { TooltipModule } from "primeng/tooltip";
+import { DialogService } from "primeng-lts/api";
+import { MessageService } from "primeng-lts/api";
+import { TooltipModule } from "primeng-lts/tooltip";
 import { MailFoldersComponent } from "./mailbox/mail-folders/mail-folders.component";
 import { SanitizeHtmlPipe } from "./utils/sanitize-html-pipe";
 import { ToolbarComponent } from "./mailbox/toolbar/toolbar.component";
