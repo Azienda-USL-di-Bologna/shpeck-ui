@@ -487,7 +487,7 @@ export class MailListComponent implements OnInit, OnDestroy {
       // se nei messaggi che sto guardando c'è il messaggio interesatto lo ricarico
       const idMessage: number = params.oldRow["id_message"];
       this.reloadMessage(idMessage);
-      this.reloadBadges(params);
+      this.reloadBadges(params, permanentDelete);
     }
   }
 
@@ -503,35 +503,37 @@ export class MailListComponent implements OnInit, OnDestroy {
       console.log("removed from trash");
       // chiamo la gestione delete passato "true" come permanentDelete, in modo che gestirà il particolare caso di eliminazione dal cestino
       this.manageIntimusDeleteCommand(command, true);
-    } else if (params.entity === RefreshMailsParamsEntities.MESSAGE_TAG && params.oldRow["id_tag"] !== params.newRow["id_tag"]) { // se è cambiato il tag
-      console.log("changed tag");
-      // se sto guardando un tag è il tag cambiato è proprio quello che sto guardando vuol dire che devo eliminare il messaggio perché è stato spostato
-      if (this.pecFolderSelected.type === PecFolderType.TAG && params.oldRow["id_tag"] === this.pecFolderSelected.data.id) {
-        this.manageIntimusDeleteCommand(command);
-        // se sto guardando un tag è il nuovo tag è proprio quello che sto guardando vuol dire che devo inserire il messaggio nella lista
-      } else if (this.pecFolderSelected.type === PecFolderType.TAG && params.newRow["id_tag"] === this.pecFolderSelected.data.id) {
-        this.manageIntimusInsertCommand(command);
-        // altrimenti devo cercare il messaggio nei messaggi che sto vedendo e se lo trovo aggiornarlo, ma solo se non sono io che sto facendo l'azione
-      } else if (params.newRow["id_utente"] !== this.loggedUser.getUtente().id) {
+    } else {
+        if (params.entity === RefreshMailsParamsEntities.MESSAGE_TAG && params.oldRow["id_tag"] !== params.newRow["id_tag"]) { // se è cambiato il tag
+          console.log("changed tag");
+          // se sto guardando un tag è il tag cambiato è proprio quello che sto guardando vuol dire che devo eliminare il messaggio perché è stato spostato
+          if (this.pecFolderSelected.type === PecFolderType.TAG && params.oldRow["id_tag"] === this.pecFolderSelected.data.id) {
+            this.manageIntimusDeleteCommand(command);
+            // se sto guardando un tag è il nuovo tag è proprio quello che sto guardando vuol dire che devo inserire il messaggio nella lista
+          } else if (this.pecFolderSelected.type === PecFolderType.TAG && params.newRow["id_tag"] === this.pecFolderSelected.data.id) {
+            this.manageIntimusInsertCommand(command);
+            // altrimenti devo cercare il messaggio nei messaggi che sto vedendo e se lo trovo aggiornarlo, ma solo se non sono io che sto facendo l'azione
+          } else if (params.newRow["id_utente"] !== this.loggedUser.getUtente().id) {
+            const idMessage: number = params.newRow["id_message"];
+            this.reloadMessage(idMessage);
+          }
+        // è cambiata la cartella di un messaggio e sto guardando una cartella (non un tag), devo fare qualcosa solo se è cambiata la cartella che sto guardando
+        } else if (params.entity === RefreshMailsParamsEntities.MESSAGE_FOLDER && params.oldRow["id_folder"] !== params.newRow["id_folder"] && this.pecFolderSelected.type === PecFolderType.FOLDER) {
+          console.log("changed folder");
+          // se la cartella che sto guardando è in oldRow vuol dire che devo eliminare il messaggio perché è stato spostato
+          if (params.oldRow["id_folder"] === this.pecFolderSelected.data.id) {
+            this.manageIntimusDeleteCommand(command);
+            // se la cartella che sto guardando è in newRow vuol dire che devo inserire il messaggio perché è stato spostato in questa cartella
+          } else if (params.newRow["id_folder"] === this.pecFolderSelected.data.id) {
+            this.manageIntimusInsertCommand(command);
+          }
+        } else if (params.newRow["id_utente"] !== this.loggedUser.getUtente().id) {
+        // cerco il messaggio nei messaggi che sto vedendo e se lo trovo lo aggiorno, ma solo se non sono io che sto facendo l'azione
         const idMessage: number = params.newRow["id_message"];
         this.reloadMessage(idMessage);
       }
-      // è cambiata la cartella di un messaggio e sto guardando una cartella (non un tag), devo fare qualcosa solo se è cambiata la cartella che sto guardando
-    } else if (params.entity === RefreshMailsParamsEntities.MESSAGE_FOLDER && params.oldRow["id_folder"] !== params.newRow["id_folder"] && this.pecFolderSelected.type === PecFolderType.FOLDER) {
-      console.log("changed folder");
-      // se la cartella che sto guardando è in oldRow vuol dire che devo eliminare il messaggio perché è stato spostato
-      if (params.oldRow["id_folder"] === this.pecFolderSelected.data.id) {
-        this.manageIntimusDeleteCommand(command);
-        // se la cartella che sto guardando è in newRow vuol dire che devo inserire il messaggio perché è stato spostato in questa cartella
-      } else if (params.newRow["id_folder"] === this.pecFolderSelected.data.id) {
-        this.manageIntimusInsertCommand(command);
-      }
-    } else if (params.newRow["id_utente"] !== this.loggedUser.getUtente().id) {
-      // cerco il messaggio nei messaggi che sto vedendo e se lo trovo lo aggiorno, ma solo se non sono io che sto facendo l'azione
-      const idMessage: number = params.newRow["id_message"];
-      this.reloadMessage(idMessage);
+      this.reloadBadges(params);
     }
-    this.reloadBadges(params);
   }
 
   /**
@@ -557,7 +559,7 @@ export class MailListComponent implements OnInit, OnDestroy {
    * ricarica i badge dei tag e delle cartelle a seconda del caso
    * @param params i params estratti dal comando intimus
    */
-  private reloadBadges(params: RefreshMailsParams) {
+  private reloadBadges(params: RefreshMailsParams, permanentDelete: boolean = false) {
     console.log("reloading badges...");
     // se è cambiato un tag ricarico i badge dei tag
     if (params.entity === RefreshMailsParamsEntities.MESSAGE_TAG) {
@@ -851,15 +853,6 @@ export class MailListComponent implements OnInit, OnDestroy {
           folder.id
         )
       );
-      if (folder.type === FolderType.TRASH) {
-        filtersAndSorts.addFilter(
-          new FilterDefinition(
-            "messageFolderList.deleted",
-            FILTER_TYPES.not_string.equals,
-            false
-          )
-        );
-      }
     }
     if (tag) {
       filtersAndSorts.addFilter(
@@ -870,6 +863,15 @@ export class MailListComponent implements OnInit, OnDestroy {
         )
       );
     }
+    // escludo i messaggi cancellati logicamente
+    filtersAndSorts.addFilter(
+      new FilterDefinition(
+        "messageFolderList.deleted",
+        FILTER_TYPES.not_string.equals,
+        false
+      )
+    );
+
     // quando effettuo una ricerca generica (avendo selezionato la casella) non vengano considerate le mail nel cestino
     if (tag === null && folder === null) {
       const folderList = this._selectedPec.folderList;
