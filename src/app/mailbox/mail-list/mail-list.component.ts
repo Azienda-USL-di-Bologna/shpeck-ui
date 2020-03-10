@@ -357,6 +357,7 @@ export class MailListComponent implements OnInit, OnDestroy {
             this.manageIntimusDeleteCommand(command);
             break;
         }
+        this.refreshOtherBadge(command);
         break;
     }
   }
@@ -365,14 +366,14 @@ export class MailListComponent implements OnInit, OnDestroy {
    * gestisce l'inserimento di un messaggio nella lista dei messaggi che sto guardando
    * @param command il comando intimus arrivato
    */
-  private manageIntimusInsertCommand(command: IntimusCommand, times: number = 1) {
+  private manageIntimusInsertCommand(command: IntimusCommand, ignoreSameUserCheck: boolean = false, times: number = 1) {
     console.log("manageIntimusInsertCommand");
     const params: RefreshMailsParams = command.params as RefreshMailsParams;
     /* non sono io ad aver fatto l'azione e
      * sul messaggio è cambiato il tag e io sto guardando quel tag, oppure
      * sul messaggio è cambiata la cartella e sto guardando quella cartella
     */
-    if (  params.newRow["id_utente"] !== this.loggedUser.getUtente().id &&
+    if (  (ignoreSameUserCheck || (params.newRow && params.newRow["id_utente"] !== this.loggedUser.getUtente().id)) &&
           ((params.entity === RefreshMailsParamsEntities.MESSAGE_TAG && params.newRow["id_tag"] === this.pecFolderSelected.data.id) ||
           (params.entity === RefreshMailsParamsEntities.MESSAGE_FOLDER && params.newRow["id_folder"] === this.pecFolderSelected.data.id))
       ) {
@@ -387,7 +388,7 @@ export class MailListComponent implements OnInit, OnDestroy {
           if (times <= 10) {
             console.log(`rescheduling after ${30 * times}ms for the ${times} time...`);
             setTimeout(() => {
-              this.manageIntimusInsertCommand(command, times + 1);
+              this.manageIntimusInsertCommand(command, ignoreSameUserCheck, times + 1);
             }, 30 * times);
           } else {
             console.log("too many tries, stop!");
@@ -424,8 +425,18 @@ export class MailListComponent implements OnInit, OnDestroy {
     } else if (params.newRow["id_utente"] !== this.loggedUser.getUtente().id) {
       // se nei messaggi che sto guardando c'è il messaggio interessato lo ricarico
       const idMessage: number = params.newRow["id_message"];
-      this.reloadMessage(idMessage);
-      this.reloadBadges(params);
+      if (
+          (params.entity === RefreshMailsParamsEntities.MESSAGE_FOLDER && this.pecFolderSelected.type === PecFolderType.TAG) ||
+          (params.entity === RefreshMailsParamsEntities.MESSAGE_TAG && this.pecFolderSelected.type === PecFolderType.FOLDER) ||
+          (params.entity === RefreshMailsParamsEntities.MESSAGE_FOLDER && this.pecFolderSelected.type === PecFolderType.FOLDER && 
+           params.newRow && params.newRow["id_folder"] && params.newRow["id_folder"] === this.pecFolderSelected.data.id) ||
+          (params.entity === RefreshMailsParamsEntities.MESSAGE_TAG && this.pecFolderSelected.type === PecFolderType.TAG && 
+           params.newRow && params.newRow["id_tag"] && params.newRow["id_tag"] === this.pecFolderSelected.data.id) || 
+          (params.entity.toString() === "MESSAGE")
+         ) {
+            this.reloadMessage(idMessage);
+      }
+      this.refreshBadges(params);
     }
   }
 
@@ -434,15 +445,16 @@ export class MailListComponent implements OnInit, OnDestroy {
    * @param command il comando intimus arrivato
    * @param permanentDelete se il comando è un'eliminazione dal cestino
    */
-  private manageIntimusDeleteCommand(command: IntimusCommand, permanentDelete: boolean = false) {
+  private manageIntimusDeleteCommand(command: IntimusCommand, permanentDelete: boolean = false, ignoreSameUserCheck: boolean = false) {
     console.log("manageIntimusDeleteCommand");
     const params: RefreshMailsParams = command.params as RefreshMailsParams;
     // se l'utente che ha eseguito il comando sono io non devo fare nulla
-    if (params.newRow && params.newRow["id_utente"] === this.loggedUser.getUtente().id) {
-      console.log("nothing to do, same user");
-    } else if (
-          (params.entity === RefreshMailsParamsEntities.MESSAGE_TAG && params.oldRow["id_tag"] === this.pecFolderSelected.data.id) ||
-          (params.entity === RefreshMailsParamsEntities.MESSAGE_FOLDER && params.oldRow["id_folder"] === this.pecFolderSelected.data.id)
+    if (
+          ( (ignoreSameUserCheck || (params.newRow && params.newRow["id_utente"] !== this.loggedUser.getUtente().id)) &&
+            ( (params.entity === RefreshMailsParamsEntities.MESSAGE_TAG && params.oldRow["id_tag"] === this.pecFolderSelected.data.id) ||
+              (params.entity === RefreshMailsParamsEntities.MESSAGE_FOLDER && params.oldRow["id_folder"] === this.pecFolderSelected.data.id)
+            )
+          )
       ) {
       const idMessage: number = params.oldRow["id_message"];
       this.mailListService.totalRecords--;
@@ -468,26 +480,26 @@ export class MailListComponent implements OnInit, OnDestroy {
           movedInfo = `il messaggio è appena stato eliminato definitivamente da ${params.newRow["persona"]}`;
         } else if (params.newRow) {
           if (params.newRow["id_folder"]) {
-            movedInfo = `il messaggio è appena stato spostato nella cartella ${params.newRow["folder"]} da ${params.newRow["persona"]}`;
+            movedInfo = `il messaggio è appena stato spostato nella cartella ${params.newRow["folder_description"]} da ${params.newRow["persona"]}`;
           } else if (params.newRow["id_tag"]) {
-            movedInfo = `al messaggio è appena stata cambiata l'etichetta da ${params.oldRow["tag"]} a ${params.newRow["tag"]} da ${params.newRow["persona"]}`;
+            movedInfo = `al messaggio è appena stata cambiata l'etichetta da ${params.oldRow["tag_description"]} a ${params.newRow["tag_description"]} da ${params.newRow["persona"]}`;
           }
         } else {
           if (params.oldRow["id_folder"]) { // non dovvrebbe mai capitare
-            movedInfo = `il messaggio è appena stato rimosso dalla cartella ${params.oldRow["folder"]}`;
+            movedInfo = `il messaggio è appena stato rimosso dalla cartella ${params.oldRow["folder_description"]}`;
           } else if (params.oldRow["id_tag"]) {
-            movedInfo = `al messaggio è appena stata rimossa l'etichetta ${params.oldRow["tag"]}`;
+            movedInfo = `al messaggio è appena stata rimossa l'etichetta ${params.oldRow["tag_description"]}`;
           }
         }
         this.mailListService.messages[messageIndex]["movedInfo"] = movedInfo;
-        this.reloadBadges(params);
+        this.refreshBadges(params);
         // this.mailListService.messages.splice(messageIndex, 1);
       }
     } else if (params.oldRow["id_utente"] !== this.loggedUser.getUtente().id) {
       // se nei messaggi che sto guardando c'è il messaggio interesatto lo ricarico
       const idMessage: number = params.oldRow["id_message"];
       this.reloadMessage(idMessage);
-      this.reloadBadges(params, permanentDelete);
+      this.refreshBadges(params);
     }
   }
 
@@ -495,23 +507,23 @@ export class MailListComponent implements OnInit, OnDestroy {
    * gestisce un comando di update
    * @param command il comando intimus arrivato
    */
-  private manageIntimusUpdateCommand(command: IntimusCommand) {
+  private manageIntimusUpdateCommand(command: IntimusCommand, ignoreSameUserCheck: boolean = false) {
     console.log("manageIntimusUpdateCommand");
     const params: RefreshMailsParams = command.params as RefreshMailsParams;
     // se l'entità interessata dal comando è message_folder e il messaggio è passato da deleted = false a delete = true, allora vuol dire che il messaggio è stato eliminato dal cestino
     if (params.entity === RefreshMailsParamsEntities.MESSAGE_FOLDER && !!!params.oldRow["deleted"] && !!params.newRow["deleted"]) {
       console.log("removed from trash");
       // chiamo la gestione delete passato "true" come permanentDelete, in modo che gestirà il particolare caso di eliminazione dal cestino
-      this.manageIntimusDeleteCommand(command, true);
+      this.manageIntimusDeleteCommand(command, true, ignoreSameUserCheck);
     } else {
         if (params.entity === RefreshMailsParamsEntities.MESSAGE_TAG && params.oldRow["id_tag"] !== params.newRow["id_tag"]) { // se è cambiato il tag
           console.log("changed tag");
           // se sto guardando un tag è il tag cambiato è proprio quello che sto guardando vuol dire che devo eliminare il messaggio perché è stato spostato
           if (this.pecFolderSelected.type === PecFolderType.TAG && params.oldRow["id_tag"] === this.pecFolderSelected.data.id) {
-            this.manageIntimusDeleteCommand(command);
+            this.manageIntimusDeleteCommand(command, false, ignoreSameUserCheck);
             // se sto guardando un tag è il nuovo tag è proprio quello che sto guardando vuol dire che devo inserire il messaggio nella lista
           } else if (this.pecFolderSelected.type === PecFolderType.TAG && params.newRow["id_tag"] === this.pecFolderSelected.data.id) {
-            this.manageIntimusInsertCommand(command);
+            this.manageIntimusInsertCommand(command, ignoreSameUserCheck);
             // altrimenti devo cercare il messaggio nei messaggi che sto vedendo e se lo trovo aggiornarlo, ma solo se non sono io che sto facendo l'azione
           } else if (params.newRow["id_utente"] !== this.loggedUser.getUtente().id) {
             const idMessage: number = params.newRow["id_message"];
@@ -522,17 +534,17 @@ export class MailListComponent implements OnInit, OnDestroy {
           console.log("changed folder");
           // se la cartella che sto guardando è in oldRow vuol dire che devo eliminare il messaggio perché è stato spostato
           if (params.oldRow["id_folder"] === this.pecFolderSelected.data.id) {
-            this.manageIntimusDeleteCommand(command);
+            this.manageIntimusDeleteCommand(command, false, ignoreSameUserCheck);
             // se la cartella che sto guardando è in newRow vuol dire che devo inserire il messaggio perché è stato spostato in questa cartella
           } else if (params.newRow["id_folder"] === this.pecFolderSelected.data.id) {
-            this.manageIntimusInsertCommand(command);
+            this.manageIntimusInsertCommand(command, ignoreSameUserCheck);
           }
         } else if (params.newRow["id_utente"] !== this.loggedUser.getUtente().id) {
         // cerco il messaggio nei messaggi che sto vedendo e se lo trovo lo aggiorno, ma solo se non sono io che sto facendo l'azione
         const idMessage: number = params.newRow["id_message"];
         this.reloadMessage(idMessage);
       }
-      this.reloadBadges(params);
+      this.refreshBadges(params);
     }
   }
 
@@ -559,8 +571,8 @@ export class MailListComponent implements OnInit, OnDestroy {
    * ricarica i badge dei tag e delle cartelle a seconda del caso
    * @param params i params estratti dal comando intimus
    */
-  private reloadBadges(params: RefreshMailsParams, permanentDelete: boolean = false) {
-    console.log("reloading badges...");
+  private refreshBadges(params: RefreshMailsParams) {
+    console.log("refreshing badges...");
     // se è cambiato un tag ricarico i badge dei tag
     if (params.entity === RefreshMailsParamsEntities.MESSAGE_TAG) {
       // se ho rimosso un tag ricarico il badge del tag rimosso
@@ -586,6 +598,35 @@ export class MailListComponent implements OnInit, OnDestroy {
       if (params.oldRow) {
         this.mailFoldersService.doReloadFolder(params.oldRow["id_folder"], true);
       }
+    }
+  }
+
+  private refreshOtherBadge(command: IntimusCommand) {
+    const params: RefreshMailsParams = command.params as RefreshMailsParams;
+    if (params.entity === RefreshMailsParamsEntities.MESSAGE_FOLDER && !!!params.oldRow["deleted"] && !!params.newRow["deleted"] && params.newRow["id_error_tag"] && params.newRow["id_error_tag"] !== "") {
+      this.mailFoldersService.doReloadTag(params.newRow["id_error_tag"]);
+    }
+    if (params.entity === RefreshMailsParamsEntities.MESSAGE_TAG) {
+      if (params.newRow && params.newRow["id_utente"] === this.loggedUser.getUtente().id) {
+        switch(params.newRow["tag_name"]) {
+          case "archived":
+          case "registered":
+          case "in_registration":
+            this.reloadMessage(params.newRow["id_message"]);
+            this.mailFoldersService.doReloadTag(params.newRow["id_tag"])
+        }
+      }
+      else if (!params.newRow && params.oldRow && params.oldRow["id_utente"] === this.loggedUser.getUtente().id) {
+        switch(params.oldRow["tag_name"]) {
+          case "archived":
+          case "registered":
+          case "in_registration":
+            this.reloadMessage(params.oldRow["id_message"]);
+            this.mailFoldersService.doReloadTag(params.oldRow["id_tag"])
+        }
+      }
+    } else if (params.entity === RefreshMailsParamsEntities.MESSAGE_FOLDER && params.newRow && params.newRow["id_utente"] === this.loggedUser.getUtente().id && params.newRow["folder_name"] === "registered") {
+      this.manageIntimusUpdateCommand(command, true);
     }
   }
 
