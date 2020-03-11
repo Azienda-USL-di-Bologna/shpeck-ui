@@ -333,6 +333,8 @@ export class MailListComponent implements OnInit, OnDestroy {
     })});
     this.subscriptions.push({id: null, type: "intimusClient.command", subscription: this.intimusClient.command$.subscribe((command: IntimusCommand) => {
       this.manageIntimusCommand(command);
+      // setTimeout(() => {
+      // }, 5000);
     })});
   }
 
@@ -381,7 +383,7 @@ export class MailListComponent implements OnInit, OnDestroy {
       const filterDefinition = new FilterDefinition("id", FILTER_TYPES.not_string.equals, idMessage);
       const filter: FiltersAndSorts = new FiltersAndSorts();
       filter.addFilter(filterDefinition);
-      this.messageService.getData(this.mailListService.selectedProjection, filter, null, null).subscribe((data: any) => {
+      this.subscriptions.push({id: idMessage, type: "AutoRefresh", subscription: this.messageService.getData(this.mailListService.selectedProjection, filter, null, null).subscribe((data: any) => {
         // può capitare che il comando arrivi prima che la transazione sia conclusa, per cui non troverei il messaggio sul database. Se capita, riproco dopo 30ms
         if (!data || !data.results || data.results.length === 0) {
           console.log("message not ready");
@@ -421,7 +423,8 @@ export class MailListComponent implements OnInit, OnDestroy {
           console.log("reloading tag badge...");
           this.mailFoldersService.doReloadTag(this.pecFolderSelected.data.id);
         }
-      });
+      })
+    });
     } else if (params.newRow["id_utente"] !== this.loggedUser.getUtente().id) {
       // se nei messaggi che sto guardando c'è il messaggio interessato lo ricarico
       const idMessage: number = params.newRow["id_message"];
@@ -432,9 +435,11 @@ export class MailListComponent implements OnInit, OnDestroy {
            params.newRow && params.newRow["id_folder"] && params.newRow["id_folder"] === this.pecFolderSelected.data.id) ||
           (params.entity === RefreshMailsParamsEntities.MESSAGE_TAG && this.pecFolderSelected.type === PecFolderType.TAG && 
            params.newRow && params.newRow["id_tag"] && params.newRow["id_tag"] === this.pecFolderSelected.data.id) || 
-          (params.entity.toString() === "MESSAGE")
+          (params.entity === RefreshMailsParamsEntities.MESSAGE)
          ) {
-            this.reloadMessage(idMessage);
+           setTimeout(() => {
+             this.reloadMessage(idMessage, params);
+           }, 0);
       }
       this.refreshBadges(params);
     }
@@ -457,8 +462,9 @@ export class MailListComponent implements OnInit, OnDestroy {
           )
       ) {
       const idMessage: number = params.oldRow["id_message"];
-      this.mailListService.totalRecords--;
-      this.mailListService.refreshAndSendTotalMessagesNumber(0, this.pecFolderSelected);
+      // this.mailListService.totalRecords--;
+      // this.mailListService.refreshAndSendTotalMessagesNumber(0, this.pecFolderSelected);
+     this.unsubscribeFromMessage(idMessage);
       const messageIndex = this.mailListService.messages.findIndex(message => message.id === idMessage);
       if (messageIndex >= 0  && !!!this.mailListService.messages[messageIndex]["moved"]) {
 
@@ -498,7 +504,9 @@ export class MailListComponent implements OnInit, OnDestroy {
     } else if (params.oldRow["id_utente"] !== this.loggedUser.getUtente().id) {
       // se nei messaggi che sto guardando c'è il messaggio interesatto lo ricarico
       const idMessage: number = params.oldRow["id_message"];
-      this.reloadMessage(idMessage);
+      setTimeout(() => {
+        this.reloadMessage(idMessage, params);
+      }, 0);
       this.refreshBadges(params);
     }
   }
@@ -510,6 +518,10 @@ export class MailListComponent implements OnInit, OnDestroy {
   private manageIntimusUpdateCommand(command: IntimusCommand, ignoreSameUserCheck: boolean = false) {
     console.log("manageIntimusUpdateCommand");
     const params: RefreshMailsParams = command.params as RefreshMailsParams;
+    if (!ignoreSameUserCheck && params.newRow["id_utente"] === this.loggedUser.getUtente().id) {
+      console.log("same user");
+      return;
+    }
     // se l'entità interessata dal comando è message_folder e il messaggio è passato da deleted = false a delete = true, allora vuol dire che il messaggio è stato eliminato dal cestino
     if (params.entity === RefreshMailsParamsEntities.MESSAGE_FOLDER && !!!params.oldRow["deleted"] && !!params.newRow["deleted"]) {
       console.log("removed from trash");
@@ -527,7 +539,9 @@ export class MailListComponent implements OnInit, OnDestroy {
             // altrimenti devo cercare il messaggio nei messaggi che sto vedendo e se lo trovo aggiornarlo, ma solo se non sono io che sto facendo l'azione
           } else if (params.newRow["id_utente"] !== this.loggedUser.getUtente().id) {
             const idMessage: number = params.newRow["id_message"];
-            this.reloadMessage(idMessage);
+            setTimeout(() => {
+              this.reloadMessage(idMessage, params);
+            }, 0);
           }
         // è cambiata la cartella di un messaggio e sto guardando una cartella (non un tag), devo fare qualcosa solo se è cambiata la cartella che sto guardando
         } else if (params.entity === RefreshMailsParamsEntities.MESSAGE_FOLDER && params.oldRow["id_folder"] !== params.newRow["id_folder"] && this.pecFolderSelected.type === PecFolderType.FOLDER) {
@@ -542,9 +556,19 @@ export class MailListComponent implements OnInit, OnDestroy {
         } else if (params.newRow["id_utente"] !== this.loggedUser.getUtente().id) {
         // cerco il messaggio nei messaggi che sto vedendo e se lo trovo lo aggiorno, ma solo se non sono io che sto facendo l'azione
         const idMessage: number = params.newRow["id_message"];
-        this.reloadMessage(idMessage);
+        setTimeout(() => {
+          this.reloadMessage(idMessage, params);
+        }, 0);
       }
       this.refreshBadges(params);
+    }
+  }
+
+  private unsubscribeFromMessage(idMessage: number) {
+    const subscriptionIndex: number = this.subscriptions.findIndex(s => s.id === idMessage);
+    if (subscriptionIndex >= 0) {
+      this.subscriptions[subscriptionIndex].subscription.unsubscribe();
+      this.subscriptions.splice(subscriptionIndex, 1);
     }
   }
 
@@ -552,18 +576,41 @@ export class MailListComponent implements OnInit, OnDestroy {
    * se il messaggio è presente nella lista dei messaggi lo richiede il backend e lo sostituisce nella lista
    * @param idMessage il messaggio da ricaricare
    */
-  private reloadMessage(idMessage: number) {
+  private reloadMessage(idMessage: number, params: RefreshMailsParams) {
     const messageIndex = this.mailListService.messages.findIndex(m => m.id === idMessage);
+    let reload: boolean = false;
     if (messageIndex >= 0) {
+      reload = true;
+      if (params.operation === RefreshMailsParamsOperations.UPDATE) {
+        if (params.entity === RefreshMailsParamsEntities.MESSAGE_TAG && this.pecFolderSelected.type === PecFolderType.TAG) {
+          if (params.newRow["id_tag"] !== this.pecFolderSelected.data.id) {
+            reload = !!!this.mailListService.messages[messageIndex]["moved"];
+          }
+        } else if (params.entity === RefreshMailsParamsEntities.MESSAGE_FOLDER && this.pecFolderSelected.type === PecFolderType.FOLDER) {
+          if (params.newRow["id_folder"] === this.pecFolderSelected.data.id) {
+            if (!!!params.oldRow["deleted"] && !!params.newRow["deleted"]) {
+              reload = false;
+            }
+          }
+        } else {
+          reload = !!!this.mailListService.messages[messageIndex]["moved"];
+        }
+      } else {
+        reload = !!!this.mailListService.messages[messageIndex]["moved"];
+      }
+    }
+
+    if (reload) {
+      this.unsubscribeFromMessage(idMessage);
       console.log("message found, refreshing...");
       const filterDefinition = new FilterDefinition("id", FILTER_TYPES.not_string.equals, idMessage);
       const filter: FiltersAndSorts = new FiltersAndSorts();
       filter.addFilter(filterDefinition);
-      this.messageService.getData(this.mailListService.selectedProjection, filter, null, null).subscribe((data: any) => {
+      this.subscriptions.push({id: idMessage, type: "AutoRefresh", subscription: this.messageService.getData(this.mailListService.selectedProjection, filter, null, null).subscribe((data: any) => {
         const newMessage = data.results[0];
         this.mailListService.setMailTagVisibility([newMessage]);
         this.mailListService.messages[messageIndex] = newMessage;
-      });
+      })});
     }
   }
 
@@ -603,29 +650,36 @@ export class MailListComponent implements OnInit, OnDestroy {
 
   private refreshOtherBadge(command: IntimusCommand) {
     const params: RefreshMailsParams = command.params as RefreshMailsParams;
-    if (params.entity === RefreshMailsParamsEntities.MESSAGE_FOLDER && !!!params.oldRow["deleted"] && !!params.newRow["deleted"] && params.newRow["id_error_tag"] && params.newRow["id_error_tag"] !== "") {
+    if (params.entity === RefreshMailsParamsEntities.MESSAGE_FOLDER && params.oldRow && params.newRow && !!!params.oldRow["deleted"] && !!params.newRow["deleted"] && params.newRow["id_error_tag"] && params.newRow["id_error_tag"] !== "") {
+      console.log("refreshing error tag...");
       this.mailFoldersService.doReloadTag(params.newRow["id_error_tag"]);
     }
     if (params.entity === RefreshMailsParamsEntities.MESSAGE_TAG) {
       if (params.newRow && params.newRow["id_utente"] === this.loggedUser.getUtente().id) {
-        switch(params.newRow["tag_name"]) {
+        switch (params.newRow["tag_name"]) {
           case "archived":
           case "registered":
           case "in_registration":
-            this.reloadMessage(params.newRow["id_message"]);
-            this.mailFoldersService.doReloadTag(params.newRow["id_tag"])
+            console.log(`newrow refreshOtherBadge: ${params.entity} with ${params.newRow["tag_name"]}`);
+            setTimeout(() => {
+              this.reloadMessage(params.newRow["id_message"], params);
+            }, 0);
+            this.mailFoldersService.doReloadTag(params.newRow["id_tag"]);
         }
-      }
-      else if (!params.newRow && params.oldRow && params.oldRow["id_utente"] === this.loggedUser.getUtente().id) {
-        switch(params.oldRow["tag_name"]) {
+      } else if (!params.newRow && params.oldRow && params.oldRow["id_utente"] === this.loggedUser.getUtente().id) {
+        switch (params.oldRow["tag_name"]) {
           case "archived":
           case "registered":
           case "in_registration":
-            this.reloadMessage(params.oldRow["id_message"]);
-            this.mailFoldersService.doReloadTag(params.oldRow["id_tag"])
+            console.log(`oldrow refreshOtherBadge: ${params.entity} with ${params.oldRow["tag_name"]}`);
+            setTimeout(() => {
+              this.reloadMessage(params.oldRow["id_message"], params);
+            }, 0);
+            this.mailFoldersService.doReloadTag(params.oldRow["id_tag"]);
         }
       }
     } else if (params.entity === RefreshMailsParamsEntities.MESSAGE_FOLDER && params.newRow && params.newRow["id_utente"] === this.loggedUser.getUtente().id && params.newRow["folder_name"] === "registered") {
+      console.log(`refreshOtherBadge: ${params.entity}, manageIntimusUpdateCommand...`);
       this.manageIntimusUpdateCommand(command, true);
     }
   }
