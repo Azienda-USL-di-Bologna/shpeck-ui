@@ -455,7 +455,7 @@ export class MailListComponent implements OnInit, OnDestroy {
     const params: RefreshMailsParams = command.params as RefreshMailsParams;
     // se l'utente che ha eseguito il comando sono io non devo fare nulla
     if (
-          ( (ignoreSameUserCheck || (params.newRow && params.newRow["id_utente"] !== this.loggedUser.getUtente().id)) &&
+          ( (ignoreSameUserCheck || (params.newRow && params.newRow["id_utente"] !== this.loggedUser.getUtente().id) || (params.oldRow && params.oldRow["id_utente"] !== this.loggedUser.getUtente().id)) &&
             ( (params.entity === RefreshMailsParamsEntities.MESSAGE_TAG && params.oldRow["id_tag"] === this.pecFolderSelected.data.id) ||
               (params.entity === RefreshMailsParamsEntities.MESSAGE_FOLDER && params.oldRow["id_folder"] === this.pecFolderSelected.data.id) ||
               (permanentDelete && this.pecFolderSelected.data.id === params.newRow["id_error_tag"])
