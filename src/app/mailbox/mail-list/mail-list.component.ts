@@ -457,7 +457,8 @@ export class MailListComponent implements OnInit, OnDestroy {
     if (
           ( (ignoreSameUserCheck || (params.newRow && params.newRow["id_utente"] !== this.loggedUser.getUtente().id)) &&
             ( (params.entity === RefreshMailsParamsEntities.MESSAGE_TAG && params.oldRow["id_tag"] === this.pecFolderSelected.data.id) ||
-              (params.entity === RefreshMailsParamsEntities.MESSAGE_FOLDER && params.oldRow["id_folder"] === this.pecFolderSelected.data.id)
+              (params.entity === RefreshMailsParamsEntities.MESSAGE_FOLDER && params.oldRow["id_folder"] === this.pecFolderSelected.data.id) ||
+              (permanentDelete && this.pecFolderSelected.data.id === params.newRow["id_error_tag"])
             )
           )
       ) {
