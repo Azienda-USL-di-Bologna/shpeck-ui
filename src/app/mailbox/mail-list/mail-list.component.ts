@@ -455,14 +455,26 @@ export class MailListComponent implements OnInit, OnDestroy {
     const params: RefreshMailsParams = command.params as RefreshMailsParams;
     // se l'utente che ha eseguito il comando sono io non devo fare nulla
     if (
-          ( (ignoreSameUserCheck || (params.newRow && params.newRow["id_utente"] !== this.loggedUser.getUtente().id) || (params.oldRow && params.oldRow["id_utente"] !== this.loggedUser.getUtente().id)) &&
-            ( (params.entity === RefreshMailsParamsEntities.MESSAGE_TAG && params.oldRow["id_tag"] === this.pecFolderSelected.data.id) ||
+          ( (ignoreSameUserCheck ||
+              (params.newRow && params.newRow["id_utente"] !== this.loggedUser.getUtente().id) ||
+              (params.oldRow && params.oldRow["id_utente"] !== this.loggedUser.getUtente().id) ||
+              (params["id_utente"] !== this.loggedUser.getUtente().id)
+            ) &&
+            ( (params.entity === RefreshMailsParamsEntities.MESSAGE_TAG && params.newRow && params.oldRow && params.oldRow["id_tag"] === this.pecFolderSelected.data.id) ||
+              (params.entity === RefreshMailsParamsEntities.MESSAGE_TAG && !params.oldRow && !params.newRow && params["id"] === this.pecFolderSelected.data.id) ||
               (params.entity === RefreshMailsParamsEntities.MESSAGE_FOLDER && params.oldRow["id_folder"] === this.pecFolderSelected.data.id) ||
               (permanentDelete && this.pecFolderSelected.data.id === params.newRow["id_error_tag"])
             )
           )
       ) {
-      const idMessage: number = params.oldRow["id_message"];
+      let idMessage: number ;
+      if (params.newRow) {
+        idMessage = params.newRow["id_message"];
+      } else if (params.oldRow) {
+        idMessage = params.oldRow["id_message"];
+      } else {
+        idMessage = params["id_message"];
+      }
       // this.mailListService.totalRecords--;
       // this.mailListService.refreshAndSendTotalMessagesNumber(0, this.pecFolderSelected);
      this.unsubscribeFromMessage(idMessage);
@@ -492,19 +504,28 @@ export class MailListComponent implements OnInit, OnDestroy {
             movedInfo = `al messaggio è appena stata cambiata l'etichetta da ${params.oldRow["tag_description"]} a ${params.newRow["tag_description"]} da ${params.newRow["persona"]}`;
           }
         } else {
-          if (params.oldRow["id_folder"]) { // non dovvrebbe mai capitare
+          if (params.oldRow && params.oldRow["id_folder"]) { // non dovvrebbe mai capitare
             movedInfo = `il messaggio è appena stato rimosso dalla cartella ${params.oldRow["folder_description"]}`;
-          } else if (params.oldRow["id_tag"]) {
+          } else if (params.oldRow && params.oldRow["id_tag"]) {
             movedInfo = `al messaggio è appena stata rimossa l'etichetta ${params.oldRow["tag_description"]}`;
+          } else if (!params.oldRow && !params.newRow && params.entity === RefreshMailsParamsEntities.MESSAGE_TAG && params.operation === RefreshMailsParamsOperations.DELETE && params["id"]) {
+            movedInfo = `al messaggio è appena stata rimossa l'etichetta ${params["tag_description"]} da ${params["persona"]}`;
+          } else if (!params.oldRow && !params.newRow && params.entity === RefreshMailsParamsEntities.MESSAGE_FOLDER && params.operation === RefreshMailsParamsOperations.DELETE && params["id"]) { // non dovvrebbe mai capitare
+            movedInfo = `il messaggio è appena stato rimosso dalla cartella ${params["folder_description"]} da ${params["persona"]}`;
           }
         }
         this.mailListService.messages[messageIndex]["movedInfo"] = movedInfo;
         this.refreshBadges(params);
         // this.mailListService.messages.splice(messageIndex, 1);
       }
-    } else if (params.oldRow["id_utente"] !== this.loggedUser.getUtente().id) {
+    } else if ((params.newRow && params.newRow["id_utente"] !== this.loggedUser.getUtente().id) || (!params.oldRow && !params.newRow && params["id_utente"] !== this.loggedUser.getUtente().id)) {
       // se nei messaggi che sto guardando c'è il messaggio interesatto lo ricarico
-      const idMessage: number = params.oldRow["id_message"];
+      let idMessage: number;
+      if (params.newRow) {
+        idMessage = params.newRow["id_message"];
+      } else if (!params.oldRow && !params.newRow) {
+        idMessage = params["id_message"];
+      }
       setTimeout(() => {
         this.reloadMessage(idMessage, params);
       }, 0);
@@ -631,6 +652,9 @@ export class MailListComponent implements OnInit, OnDestroy {
       if (params.newRow) {
         this.mailFoldersService.doReloadTag(params.newRow["id_tag"]);
       }
+      if (params.entity === RefreshMailsParamsEntities.MESSAGE_TAG && params["id"]) {
+        this.mailFoldersService.doReloadTag(params["id"]);
+      }
     } else { // per tutti gli altri cambiamenti ricarico i badge delle cartelle interessati nel comando
       if (params.newRow) {
         /* nel caso di nuovo messaggio, capita che la transazione non sia conclusa quando arriva il comando, quindi il numero dei messaggi non letti
@@ -661,22 +685,34 @@ export class MailListComponent implements OnInit, OnDestroy {
           case "archived":
           case "registered":
           case "in_registration":
-            console.log(`newrow refreshOtherBadge: ${params.entity} with ${params.newRow["tag_name"]}`);
+            console.log(`insert refreshOtherBadge: ${params.entity} with ${params.newRow["tag_name"]}`);
             setTimeout(() => {
               this.reloadMessage(params.newRow["id_message"], params);
             }, 0);
             this.mailFoldersService.doReloadTag(params.newRow["id_tag"]);
         }
-      } else if (!params.newRow && params.oldRow && params.oldRow["id_utente"] === this.loggedUser.getUtente().id) {
-        switch (params.oldRow["tag_name"]) {
+      } else if ((!params.newRow && params.oldRow) || (!params.newRow && !params.oldRow && params["id_utente"] === this.loggedUser.getUtente().id)) {
+        let tagName: string;
+        let idMessage: number;
+        let idTag: number;
+        if (params.oldRow) {
+          tagName = params.oldRow["tag_name"];
+          idMessage = params.oldRow["id_message"];
+          idTag = params.oldRow["idTag"];
+        } else {
+          tagName = params["tag_name"];
+          idMessage = params["id_message"];
+          idTag = params["idTag"];
+        }
+        switch (tagName) {
           case "archived":
           case "registered":
           case "in_registration":
-            console.log(`oldrow refreshOtherBadge: ${params.entity} with ${params.oldRow["tag_name"]}`);
+            console.log(`deletetag refreshOtherBadge: ${params.entity} with ${tagName}`);
             setTimeout(() => {
-              this.reloadMessage(params.oldRow["id_message"], params);
+              this.reloadMessage(idMessage, params);
             }, 0);
-            this.mailFoldersService.doReloadTag(params.oldRow["id_tag"]);
+            this.mailFoldersService.doReloadTag(idTag);
         }
       }
     } else if (params.entity === RefreshMailsParamsEntities.MESSAGE_FOLDER && params.newRow && params.newRow["id_utente"] === this.loggedUser.getUtente().id && params.newRow["folder_name"] === "registered") {
