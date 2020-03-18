@@ -398,9 +398,6 @@ export class MailListComponent implements OnInit, OnDestroy {
           return;
         }
         console.log("message ready, proceed...");
-        this.mailListService.totalRecords++;
-        // mando l'evento con il numero di messaggi (serve a mailbox-component perché lo deve scrivere nella barra superiore)
-        this.mailListService.refreshAndSendTotalMessagesNumber(0, this.pecFolderSelected);
 
         const newMessage = data.results[0];
         // cerco il messaggio perché potrebbe essere già nella cartella disabilitato (ad esempio se qualcuno l'ha spostato e poi rispostato in questa cartella mentre io la guardo)
@@ -412,7 +409,17 @@ export class MailListComponent implements OnInit, OnDestroy {
         } else { // se non lo trovo lo inserisco in testa
           console.log("message not found in list, pushing on top...");
           this.mailListService.messages.unshift(newMessage);
+
+          this.mailListService.totalRecords++;
+        // mando l'evento con il numero di messaggi (serve a mailbox-component perché lo deve scrivere nella barra superiore)
+          this.mailListService.refreshAndSendTotalMessagesNumber(0, this.pecFolderSelected);
         }
+
+        const smIndex = this.mailListService.selectedMessages.findIndex(sm => sm.id === newMessage.id);
+        if (smIndex >= 0) {
+          this.mailListService.selectedMessages[smIndex] = newMessage;
+        }
+
         // this.mailFoldersService.doReloadTag(this.mailListService.tags.find(t => t.name === "in_error").id);
         console.log("setMailTagVisibility...");
         this.mailListService.setMailTagVisibility([newMessage]);
@@ -632,6 +639,10 @@ export class MailListComponent implements OnInit, OnDestroy {
         const newMessage = data.results[0];
         this.mailListService.setMailTagVisibility([newMessage]);
         this.mailListService.messages[messageIndex] = newMessage;
+        const smIndex = this.mailListService.selectedMessages.findIndex(sm => sm.id === newMessage.id);
+        if (smIndex >= 0) {
+          this.mailListService.selectedMessages[smIndex] = newMessage;
+        }
       })});
     }
   }
@@ -698,11 +709,11 @@ export class MailListComponent implements OnInit, OnDestroy {
         if (params.oldRow) {
           tagName = params.oldRow["tag_name"];
           idMessage = params.oldRow["id_message"];
-          idTag = params.oldRow["idTag"];
+          idTag = params.oldRow["id_tag"];
         } else {
           tagName = params["tag_name"];
           idMessage = params["id_message"];
-          idTag = params["idTag"];
+          idTag = params["id"];
         }
         switch (tagName) {
           case "archived":

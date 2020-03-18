@@ -754,8 +754,8 @@ export class MailListService {
       const idMessageTagToDelete: number[] = [];
       for (const message of this.selectedMessages) {
         const mTag: MessageTag = message.messageTagList.find(messageTag => messageTag.idTag.name === "in_error");
-        idTag = mTag.idTag.id;
         if (mTag) {
+          idTag = mTag.idTag.id;
           idMessageTagToDelete.push(mTag.id);
           mtp.push({ message: message, operation: "DELETE", messageTag: mTag });
         }
@@ -792,6 +792,9 @@ export class MailListService {
 
         if (this.selectedTag && this.selectedTag.id === item.messageTag.fk_idTag.id) {
           this.messages.splice(this.messages.indexOf(this.messages.find(m => m.id === item.messageTag.fk_idMessage.id)), 1);
+          this.totalRecords--;
+        // mando l'evento con il numero di messaggi (serve a mailbox-component perché lo deve scrivere nella barra superiore)
+          this.refreshAndSendTotalMessagesNumber(0, this.pecFolderSelected);
         }
       }
     });
@@ -1110,6 +1113,7 @@ export class MailListService {
     return this.selectedMessages.some(mess => {
       if (mess.messageStatus === MessageStatus.ERROR) {
         if (mess.messageTagList) {
+          const aaa = this.messages;
           return mess.messageTagList.find(messageTag => messageTag.idTag.name === "in_error") !== undefined;
         } else {
           return false;
