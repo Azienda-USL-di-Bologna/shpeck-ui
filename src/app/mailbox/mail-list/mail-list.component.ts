@@ -359,7 +359,7 @@ export class MailListComponent implements OnInit, OnDestroy {
             this.manageIntimusDeleteCommand(command);
             break;
         }
-        this.refreshOtherBadge(command);
+        this.refreshOtherBadgeAndDoOtherOperation(command);
         break;
     }
   }
@@ -367,24 +367,34 @@ export class MailListComponent implements OnInit, OnDestroy {
   /**
    * gestisce l'inserimento di un messaggio nella lista dei messaggi che sto guardando
    * @param command il comando intimus arrivato
+   * @param ignoreSameUserCheck indica se eseguire l'inserimento anche all'utente che ha eseguito l'azione
+   * @param times uso interno, serve per dare un limite alle chiamate ricorsive del metodo nel caso il messaggio da inserire non c'è ancora sul database
    */
   private manageIntimusInsertCommand(command: IntimusCommand, ignoreSameUserCheck: boolean = false, times: number = 1) {
     console.log("manageIntimusInsertCommand");
     const params: RefreshMailsParams = command.params as RefreshMailsParams;
-    /* non sono io ad aver fatto l'azione e
+    /* se non sono io ad aver fatto l'azione o devo iggnorare il controllo e
      * sul messaggio è cambiato il tag e io sto guardando quel tag, oppure
      * sul messaggio è cambiata la cartella e sto guardando quella cartella
     */
     if (  (ignoreSameUserCheck || (params.newRow && params.newRow["id_utente"] !== this.loggedUser.getUtente().id)) &&
-          ((params.entity === RefreshMailsParamsEntities.MESSAGE_TAG && params.newRow["id_tag"] === this.pecFolderSelected.data.id) ||
-          (params.entity === RefreshMailsParamsEntities.MESSAGE_FOLDER && params.newRow["id_folder"] === this.pecFolderSelected.data.id))
+          (
+            (params.entity === RefreshMailsParamsEntities.MESSAGE_TAG && this.pecFolderSelected.type === PecFolderType.TAG &&
+              params.newRow && params.newRow["id_tag"] && params.newRow["id_tag"] === this.pecFolderSelected.data.id) ||
+            (params.entity === RefreshMailsParamsEntities.MESSAGE_FOLDER && this.pecFolderSelected.type === PecFolderType.FOLDER &&
+              params.newRow && params.newRow["id_folder"] && params.newRow["id_folder"] === this.pecFolderSelected.data.id)
+          )
       ) {
+      // chiedo il messaggio al backend
       const idMessage: number = params.newRow["id_message"];
       const filterDefinition = new FilterDefinition("id", FILTER_TYPES.not_string.equals, idMessage);
       const filter: FiltersAndSorts = new FiltersAndSorts();
       filter.addFilter(filterDefinition);
       this.subscriptions.push({id: idMessage, type: "AutoRefresh", subscription: this.messageService.getData(this.mailListService.selectedProjection, filter, null, null).subscribe((data: any) => {
-        // può capitare che il comando arrivi prima che la transazione sia conclusa, per cui non troverei il messaggio sul database. Se capita, riproco dopo 30ms
+        /*
+         * può capitare che il comando arrivi prima che la transazione sia conclusa, per cui non troverei il messaggio sul database.
+         * Se capita, riprovo dopo 30ms per un massimo di 10 volte
+        */
         if (!data || !data.results || data.results.length === 0) {
           console.log("message not ready");
           if (times <= 10) {
@@ -410,17 +420,17 @@ export class MailListComponent implements OnInit, OnDestroy {
           console.log("message not found in list, pushing on top...");
           this.mailListService.messages.unshift(newMessage);
 
-          this.mailListService.totalRecords++;
-        // mando l'evento con il numero di messaggi (serve a mailbox-component perché lo deve scrivere nella barra superiore)
+          this.mailListService.totalRecords++; // ho aggiunto un messaggio per cui aumento di uno il numero dei messaggi visualizzati
+          // mando l'evento con il numero di messaggi (serve a mailbox-component perché lo deve scrivere nella barra superiore)
           this.mailListService.refreshAndSendTotalMessagesNumber(0, this.pecFolderSelected);
         }
 
+        // se nuovo il messaggio ricaricato/inserito è tra i messaggi selezionati lo sostituisco
         const smIndex = this.mailListService.selectedMessages.findIndex(sm => sm.id === newMessage.id);
         if (smIndex >= 0) {
           this.mailListService.selectedMessages[smIndex] = newMessage;
         }
 
-        // this.mailFoldersService.doReloadTag(this.mailListService.tags.find(t => t.name === "in_error").id);
         console.log("setMailTagVisibility...");
         this.mailListService.setMailTagVisibility([newMessage]);
         if (params.entity === RefreshMailsParamsEntities.MESSAGE_FOLDER) {
@@ -432,23 +442,22 @@ export class MailListComponent implements OnInit, OnDestroy {
         }
       })
     });
-    } else if (params.newRow["id_utente"] !== this.loggedUser.getUtente().id) {
-      // se nei messaggi che sto guardando c'è il messaggio interessato lo ricarico
+    } else if (params.newRow["id_utente"] !== this.loggedUser.getUtente().id) { // se non sono l'utente che ha eseguito l'azione
+      // e se non lo devo inserire o riabilitare, ci sono casi in cui devo ricaricare il messaggio
       const idMessage: number = params.newRow["id_message"];
       if (
+          // se il comando ricevuto è su una cartella, ma sto guardando un tag, oppure
           (params.entity === RefreshMailsParamsEntities.MESSAGE_FOLDER && this.pecFolderSelected.type === PecFolderType.TAG) ||
+          // se il comando ricevuto è su un tag, ma sto guardando un cartella, oppure
           (params.entity === RefreshMailsParamsEntities.MESSAGE_TAG && this.pecFolderSelected.type === PecFolderType.FOLDER) ||
-          (params.entity === RefreshMailsParamsEntities.MESSAGE_FOLDER && this.pecFolderSelected.type === PecFolderType.FOLDER && 
-           params.newRow && params.newRow["id_folder"] && params.newRow["id_folder"] === this.pecFolderSelected.data.id) ||
-          (params.entity === RefreshMailsParamsEntities.MESSAGE_TAG && this.pecFolderSelected.type === PecFolderType.TAG && 
-           params.newRow && params.newRow["id_tag"] && params.newRow["id_tag"] === this.pecFolderSelected.data.id) || 
+          // se il comando ricevuto è su un messaggio (per ora solo il cambio da "letto" a "da leggere" e viceversa)
           (params.entity === RefreshMailsParamsEntities.MESSAGE)
          ) {
-           setTimeout(() => {
+           setTimeout(() => { // il setTimeout forse non serve, ma ho paura che se lo tolgo si rompa qualcosa
              this.reloadMessage(idMessage, params);
            }, 0);
       }
-      this.refreshBadges(params);
+      this.refreshBadges(params); // poi ricarico anche i badge da ricaricare
     }
   }
 
@@ -456,25 +465,33 @@ export class MailListComponent implements OnInit, OnDestroy {
    * gestisce un comando di cancellazione, cioè quando un messaggio deve essere disabilitato dalla lista dei messaggi che sto guardando
    * @param command il comando intimus arrivato
    * @param permanentDelete se il comando è un'eliminazione dal cestino
+   * @param ignoreSameUserCheck indica se eseguire la cancellazione (disabilitando il messaggio) anche all'utente che ha eseguito l'azione
    */
   private manageIntimusDeleteCommand(command: IntimusCommand, permanentDelete: boolean = false, ignoreSameUserCheck: boolean = false) {
     console.log("manageIntimusDeleteCommand");
     const params: RefreshMailsParams = command.params as RefreshMailsParams;
-    // se l'utente che ha eseguito il comando sono io non devo fare nulla
+    // entro in questo if se voglio disabilitare il messaggio a cui il comando ricevuto fa riferimento
+    /* ci entro:
+     * se non sono l'utente autore dell'azione (a meno che non passo ignoreSameUserCheck = true) e
+     * ho ricevuto un comando di rimozione di un tag (o di update di un tag) e il tag è stato tolto è quello che sto guardando oppure
+     * ho ricevuto un comando di update di una cartella e la cartella da cui è stato spostato il messaggio è quella che sto guardando oppure
+     * ho ricevuto un comando di eliminazione di un messaggio dal cestino e sto guardando un tag (poi controllerò che il messaggio sia tra quelli che sto guardando)
+    */
     if (
-          ( (ignoreSameUserCheck ||
-              (params.newRow && params.newRow["id_utente"] !== this.loggedUser.getUtente().id) ||
-              (params.oldRow && params.oldRow["id_utente"] !== this.loggedUser.getUtente().id) ||
-              (params["id_utente"] !== this.loggedUser.getUtente().id)
+          ( (ignoreSameUserCheck || // se l'utente che ha eseguito il comando sono io non devo fare nulla a menoche non passo ignoreSameUserCheck = true
+              (params.newRow && params.newRow["id_utente"] !== this.loggedUser.getUtente().id) || // se c'è newRow considero quella per verificare l'utente che esegue l'azione
+              (params.oldRow && params.oldRow["id_utente"] !== this.loggedUser.getUtente().id) || // se non c'è newRow, ma c'è oldRow considero quella per verificare l'utente che esegue l'azione
+              (params["id_utente"] !== this.loggedUser.getUtente().id) // se non ci sono nè newRow, nè oldRow allora è un caso custom di elimazione tag, in quel caso l'utente che esegue l'azione è in params
             ) &&
             ( (params.entity === RefreshMailsParamsEntities.MESSAGE_TAG && params.newRow && params.oldRow && params.oldRow["id_tag"] === this.pecFolderSelected.data.id) ||
               (params.entity === RefreshMailsParamsEntities.MESSAGE_TAG && !params.oldRow && !params.newRow && params["id"] === this.pecFolderSelected.data.id) ||
               (params.entity === RefreshMailsParamsEntities.MESSAGE_FOLDER && params.oldRow["id_folder"] === this.pecFolderSelected.data.id) ||
-              (permanentDelete && this.pecFolderSelected.data.id === params.newRow["id_error_tag"])
+              (permanentDelete && this.pecFolderSelected.type === PecFolderType.TAG)
             )
           )
       ) {
       let idMessage: number ;
+      // a seconda del tipo di comando che ricevo l'id del messaggio lo posso trovare in posti diversi. Lo prendo dal posto giusto
       if (params.newRow) {
         idMessage = params.newRow["id_message"];
       } else if (params.oldRow) {
@@ -484,6 +501,9 @@ export class MailListComponent implements OnInit, OnDestroy {
       }
       // this.mailListService.totalRecords--;
       // this.mailListService.refreshAndSendTotalMessagesNumber(0, this.pecFolderSelected);
+      /* se ho una sottoscrizione relativa al messaggio che voglio diisabilitare la disabilito.
+       * questo perché può essere che arrivi una callback relativa ad un'operazione precedente, che ora non sarebbe più valida455
+      */
      this.unsubscribeFromMessage(idMessage);
       const messageIndex = this.mailListService.messages.findIndex(message => message.id === idMessage);
       if (messageIndex >= 0  && !!!this.mailListService.messages[messageIndex]["moved"]) {
@@ -526,17 +546,17 @@ export class MailListComponent implements OnInit, OnDestroy {
         // this.mailListService.messages.splice(messageIndex, 1);
       }
     } else if ((params.newRow && params.newRow["id_utente"] !== this.loggedUser.getUtente().id) || (!params.oldRow && !params.newRow && params["id_utente"] !== this.loggedUser.getUtente().id)) {
-      // se nei messaggi che sto guardando c'è il messaggio interesatto lo ricarico
+      // se nei messaggi che sto guardando c'è il messaggio interessato lo ricarico
       let idMessage: number;
       if (params.newRow) {
         idMessage = params.newRow["id_message"];
       } else if (!params.oldRow && !params.newRow) {
         idMessage = params["id_message"];
       }
-      setTimeout(() => {
+      setTimeout(() => { // il setTimeout forse non serve, ma ho paura che se lo tolgo si rompa qualcosa
         this.reloadMessage(idMessage, params);
       }, 0);
-      this.refreshBadges(params);
+      this.refreshBadges(params); // ricarico i badge da ricaricare
     }
   }
 
@@ -585,14 +605,18 @@ export class MailListComponent implements OnInit, OnDestroy {
         } else if (params.newRow["id_utente"] !== this.loggedUser.getUtente().id) {
         // cerco il messaggio nei messaggi che sto vedendo e se lo trovo lo aggiorno, ma solo se non sono io che sto facendo l'azione
         const idMessage: number = params.newRow["id_message"];
-        setTimeout(() => {
+        setTimeout(() => { // il setTimeout forse non serve, ma ho paura che se lo tolgo si rompa qualcosa
           this.reloadMessage(idMessage, params);
         }, 0);
       }
-      this.refreshBadges(params);
+      this.refreshBadges(params); // ricarico i badge da ricaricare
     }
   }
 
+  /**
+   * disattiva le sottoscrizioni relative al messaggio passato
+   * @param idMessage l'id del messaggio del quale disattivare le sottoscrizioni
+   */
   private unsubscribeFromMessage(idMessage: number) {
     const subscriptionIndex: number = this.subscriptions.findIndex(s => s.id === idMessage);
     if (subscriptionIndex >= 0) {
@@ -602,43 +626,57 @@ export class MailListComponent implements OnInit, OnDestroy {
   }
 
   /**
-   * se il messaggio è presente nella lista dei messaggi lo richiede il backend e lo sostituisce nella lista
+   * ricarica il messagio: se il messaggio è presente nella lista dei messaggi lo richiede al backend e lo sostituisce nella lista
    * @param idMessage il messaggio da ricaricare
    */
   private reloadMessage(idMessage: number, params: RefreshMailsParams) {
     const messageIndex = this.mailListService.messages.findIndex(m => m.id === idMessage);
-    let reload: boolean = false;
-    if (messageIndex >= 0) {
+    let reload: boolean = false; // indica se il messaggio anrà ricaricato
+    if (messageIndex >= 0) { // se il messaggio è presente della lista
       reload = true;
+
+      // se si tratta di un'operazione di update
       if (params.operation === RefreshMailsParamsOperations.UPDATE) {
+        // se ho fatto un update di un tag e sto guardando un tag
         if (params.entity === RefreshMailsParamsEntities.MESSAGE_TAG && this.pecFolderSelected.type === PecFolderType.TAG) {
+          // e il tag nuovo non è quello che sto guardando
           if (params.newRow["id_tag"] !== this.pecFolderSelected.data.id) {
+            // devo ricaricare il messaggio solo se il messaggio non è disabilitato
             reload = !!!this.mailListService.messages[messageIndex]["moved"];
-          }
+          } // se ho fatto un update di una folder e sto guardando una folder
         } else if (params.entity === RefreshMailsParamsEntities.MESSAGE_FOLDER && this.pecFolderSelected.type === PecFolderType.FOLDER) {
+          // e sto guardando la folder in cui il messaggio e stato spostato
           if (params.newRow["id_folder"] === this.pecFolderSelected.data.id) {
+            // e se il messaggio è stato eliminato dal cestino
             if (!!!params.oldRow["deleted"] && !!params.newRow["deleted"]) {
+              // non lo deco ricaricare
               reload = false;
             }
           }
-        } else {
+        } else { // sempre se è un update, ma non è un caso dei precedenti, lo devo ricaricare se il messaggio non è disabilitato
           reload = !!!this.mailListService.messages[messageIndex]["moved"];
         }
-      } else {
+      } else { // se non è un operazione di update, lo devo ricaricare se il messaggio non è disabilitato
         reload = !!!this.mailListService.messages[messageIndex]["moved"];
       }
     }
 
-    if (reload) {
-      this.unsubscribeFromMessage(idMessage);
+    if (reload) { // se devo ricaricare il messaggio
+      this.unsubscribeFromMessage(idMessage); // disabilito le sottoscrizioni relative al messaggio da ricaricare
       console.log("message found, refreshing...");
+      // ricarico il messaggio tramite una chiamata al backend
       const filterDefinition = new FilterDefinition("id", FILTER_TYPES.not_string.equals, idMessage);
       const filter: FiltersAndSorts = new FiltersAndSorts();
       filter.addFilter(filterDefinition);
       this.subscriptions.push({id: idMessage, type: "AutoRefresh", subscription: this.messageService.getData(this.mailListService.selectedProjection, filter, null, null).subscribe((data: any) => {
         const newMessage = data.results[0];
+        // ricarico le icome relative ai tag
         this.mailListService.setMailTagVisibility([newMessage]);
+
+        // aggiorno il messaggio nella lista inserendo quello ricaricato
         this.mailListService.messages[messageIndex] = newMessage;
+
+        // se il messaggio è anche presente nei messaggi selezioni, lo sostituisco anche lì
         const smIndex = this.mailListService.selectedMessages.findIndex(sm => sm.id === newMessage.id);
         if (smIndex >= 0) {
           this.mailListService.selectedMessages[smIndex] = newMessage;
@@ -659,12 +697,13 @@ export class MailListComponent implements OnInit, OnDestroy {
       if (params.oldRow) {
         this.mailFoldersService.doReloadTag(params.oldRow["id_tag"]);
       }
+      // caso di rimozione di tag tramite servlet custom
+      if (params.entity === RefreshMailsParamsEntities.MESSAGE_TAG && params["id"]) {
+        this.mailFoldersService.doReloadTag(params["id"]);
+      }
       // se ho inserito un tag ricarico il badge del tag inserito
       if (params.newRow) {
         this.mailFoldersService.doReloadTag(params.newRow["id_tag"]);
-      }
-      if (params.entity === RefreshMailsParamsEntities.MESSAGE_TAG && params["id"]) {
-        this.mailFoldersService.doReloadTag(params["id"]);
       }
     } else { // per tutti gli altri cambiamenti ricarico i badge delle cartelle interessati nel comando
       if (params.newRow) {
@@ -673,6 +712,7 @@ export class MailListComponent implements OnInit, OnDestroy {
          * è visibile sul DB, cioè, dopo che la chiamata al backend lo ritnorna
         */
         if (!params.newRow["id_utente"] && params.operation === RefreshMailsParamsOperations.INSERT) { // è un nuovo messaggio in arrivo
+          // questa funzione ricarica il messaggio, riprovando fino a che il messaggio non è visibile su DB
           this.reloadBadgesAfterMessageReady(params);
         } else { // in tutti gli altri casi mi comporto normalmente e ricarico subito il badge della cartella
           this.mailFoldersService.doReloadFolder(params.newRow["id_folder"], true);
@@ -684,14 +724,31 @@ export class MailListComponent implements OnInit, OnDestroy {
     }
   }
 
-  private refreshOtherBadge(command: IntimusCommand) {
+  /**
+   * esegue tutte le altre operazioni non contemplate nelle altre funzioni:
+   * fa il refresh del tag degli errori nel caso sia eliminato dal cestino un messaggio in errore
+   * - ricarica il messaggio per aggiornare i tag di fascicolazione, protocollazione e in_protocollazione
+   *  per l'utente che esegue l'operazione (per gli altri utenti viene fatta nel giro standard dell'autoaggiornamento)
+   * - sposta il messaggio nella cartella dei protocollati
+   *  per l'utente che esegue l'operazione (per gli altri utenti viene fatta nel giro standard dell'autoaggiornamento)
+   * @param command il comando ricevuto
+   */
+  private refreshOtherBadgeAndDoOtherOperation(command: IntimusCommand) {
     const params: RefreshMailsParams = command.params as RefreshMailsParams;
+    // se è un caso di eliminazione di messaggio da cestino e il messaggio ha l'error-tag ricarico il badge degli errori
     if (params.entity === RefreshMailsParamsEntities.MESSAGE_FOLDER && params.oldRow && params.newRow && !!!params.oldRow["deleted"] && !!params.newRow["deleted"] && params.newRow["id_error_tag"] && params.newRow["id_error_tag"] !== "") {
       console.log("refreshing error tag...");
       this.mailFoldersService.doReloadTag(params.newRow["id_error_tag"]);
     }
-    if (params.entity === RefreshMailsParamsEntities.MESSAGE_TAG) {
+
+    /*
+     * caso in cui devo ricaricare i tag anche nel caso sono io stesso ad aver eseguito l'azione.
+     * Questo caso serve per ricaricare i tag sopo la protocollazione o la fascicolazione. In generale nei casi in cui l'azione non è controllata dal frontend
+    */
+    if (params.entity === RefreshMailsParamsEntities.MESSAGE_TAG) { // se ho ricevuto un comando su un tag
+      // se sono l'utente che ha eseguito l'azione (questo è il caso di inserimento o di update di un tag)
       if (params.newRow && params.newRow["id_utente"] === this.loggedUser.getUtente().id) {
+        // e il tag è uno di quelli nello switch devo ricaricare il messaggio per aggiornare i suoi tag e ricarico i badge relativi al tag interessato
         switch (params.newRow["tag_name"]) {
           case "archived":
           case "registered":
@@ -701,16 +758,17 @@ export class MailListComponent implements OnInit, OnDestroy {
               this.reloadMessage(params.newRow["id_message"], params);
             }, 0);
             this.mailFoldersService.doReloadTag(params.newRow["id_tag"]);
-        }
+        } // questo è un caso simile a quello sopra, ma riguarda l'eliminazione di un tag
       } else if ((!params.newRow && params.oldRow) || (!params.newRow && !params.oldRow && params["id_utente"] === this.loggedUser.getUtente().id)) {
         let tagName: string;
         let idMessage: number;
         let idTag: number;
-        if (params.oldRow) {
+        // l'azione può derivare dal trigger della normale eliminazione di un tag tramite framework oppure da un'eliminazione custom
+        if (params.oldRow) { // eliminazione tramite framework
           tagName = params.oldRow["tag_name"];
           idMessage = params.oldRow["id_message"];
           idTag = params.oldRow["id_tag"];
-        } else {
+        } else { // eliminazione custom
           tagName = params["tag_name"];
           idMessage = params["id_message"];
           idTag = params["id"];
@@ -725,16 +783,17 @@ export class MailListComponent implements OnInit, OnDestroy {
             }, 0);
             this.mailFoldersService.doReloadTag(idTag);
         }
-      }
+      } // caso di spostamento del messaggio nella cartella dei messaggi protocollati per l'utente che ha eseguito l'azione
     } else if (params.entity === RefreshMailsParamsEntities.MESSAGE_FOLDER && params.newRow && params.newRow["id_utente"] === this.loggedUser.getUtente().id && params.newRow["folder_name"] === "registered") {
       console.log(`refreshOtherBadge: ${params.entity}, manageIntimusUpdateCommand...`);
+      // lancio un update riconducendomi al caso in cui l'utente non è l'utente che esegue l'azione, passando ignoreSameUserCheck = true
       this.manageIntimusUpdateCommand(command, true);
     }
   }
 
   /**
    * Aspetta che il messaggio sia pronto prima di ricaricare il badge
-   * @param params
+   * @param params i parametri estratti dal comando ricevuto
    * @param times usato in automatico per la ricorsione, non passare
    */
   private reloadBadgesAfterMessageReady(params: RefreshMailsParams, times: number = 1) {
@@ -743,7 +802,7 @@ export class MailListComponent implements OnInit, OnDestroy {
       const filter: FiltersAndSorts = new FiltersAndSorts();
       filter.addFilter(filterDefinition);
       this.messageService.getData(this.mailListService.selectedProjection, filter, null, null).subscribe((data: any) => {
-        // può capitare che il comando arrivi prima che la transazione sia conclusa, per cui non troverei il messaggio sul database. Se capita, riproco dopo 30ms
+        // può capitare che il comando arrivi prima che la transazione sia conclusa, per cui non troverei il messaggio sul database. Se capita, riprovo dopo 30ms per un massimo di 10 volte
         if (!data || !data.results || data.results.length === 0) {
           console.log("message not ready");
           if (times <= 10) {
@@ -757,6 +816,7 @@ export class MailListComponent implements OnInit, OnDestroy {
           return;
         }
         console.log("message ready, proceed...");
+        // ricarico il badge interessato
         this.mailFoldersService.doReloadFolder(params.newRow["id_folder"], true);
     });
   }
