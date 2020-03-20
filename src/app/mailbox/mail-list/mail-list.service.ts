@@ -1,6 +1,6 @@
 import { Injectable } from "@angular/core";
 import { Tag, Folder, Message, FolderType, InOut, ENTITIES_STRUCTURE, FluxPermission, PecPermission, Note, MessageTag,
-  Utente, Azienda, MessageType, MessageStatus, TagType, Pec, MessageFolder, AddresRoleType, MessageAddress } from "@bds/ng-internauta-model";
+  Utente, Azienda, MessageType, MessageStatus, TagType, Pec, MessageFolder, AddresRoleType, MessageAddress, getInternautaUrl, BaseUrlType, BaseUrls } from "@bds/ng-internauta-model";
 import { MenuItem, MessageService } from "primeng-lts/api";
 import { Utils } from "src/app/utils/utils";
 import { MessageFolderService } from "src/app/services/message-folder.service";
@@ -8,12 +8,13 @@ import { Subscription, Observable, BehaviorSubject, Subject } from "rxjs";
 import { MailFoldersService, FoldersAndTags, PecFolderType, PecFolder } from "../mail-folders/mail-folders.service";
 import { NtJwtLoginService, UtenteUtilities } from "@bds/nt-jwt-login";
 import { BatchOperation, BatchOperationTypes, FILTER_TYPES, FiltersAndSorts, FilterDefinition, SORT_MODES } from "@nfa/next-sdr";
-import { BaseUrls, BaseUrlType } from "src/environments/app-constants";
+import { CUSTOM_SERVER_METHODS } from "src/environments/app-constants";
 import { MessageEvent, ShpeckMessageService } from "src/app/services/shpeck-message.service";
 import { DialogService } from "primeng-lts/api";
 import { ReaddressComponent } from "../readdress/readdress.component";
 import { TagService } from "src/app/services/tag.service";
 import { MailboxService, TotalMessageNumberDescriptor, Sorting } from "../mailbox.service";
+import { HttpClient } from "@angular/common/http";
 
 @Injectable({
   providedIn: "root"
@@ -55,7 +56,8 @@ export class MailListService {
     private loginService: NtJwtLoginService,
     private messageService: ShpeckMessageService,
     private mailboxService: MailboxService,
-    private tagService: TagService) {
+    private tagService: TagService,
+    private httpClient: HttpClient) {
     this.subscriptions.push(this.loginService.loggedUser$.subscribe((utente: UtenteUtilities) => {
       if (utente) {
         if (!this.loggedUser || utente.getUtente().id !== this.loggedUser.getUtente().id) {
@@ -536,7 +538,6 @@ export class MailListService {
   public toggleTag(tag: Tag, showMessage?: boolean) {
     const messageTagOperations: BatchOperation[] = [];
     let messagesWithTag = [];
-    let idTag;  // Conterrà l'id del tag nella TagList della PEC per fare la reload nella callback
     messagesWithTag = this.filterMessagesWithTag(tag);
     const tagIconAndAction: TagIconAction = this.getTagIconAction(messagesWithTag);
     const mtp: MessageTagOp[] = [];
@@ -546,28 +547,40 @@ export class MailListService {
       messaggioOperazione = "associata";
       for (const message of messagesToInsert) {
         const mTagCall = this.buildMessageTagOperationInsert(message, tag.name);
-        idTag = mTagCall.idTag;
         messageTagOperations.push(mTagCall.batchOp);
         mtp.push({ message: message, operation: "INSERT" });
       }
+      if (messageTagOperations.length > 0) {
+        this.messageService.batchHttpCall(messageTagOperations).subscribe((res: BatchOperation[]) => {
+          this.updateMessageTagList(mtp, res);
+          if (showMessage) {
+            this.messagePrimeService.add(
+              { severity: "success", summary: "Successo", detail: `Etichetta ${messaggioOperazione} con successo.` });
+          }
+        },
+          err => console.log("error during the operation -> ", err));
+      }
     } else {
       messaggioOperazione = "rimossa";
+      const idMessageTagToDelete: number[] = [];
       for (const message of messagesWithTag) {
-        const mTagCall = this.buildMessageTagOperationDelete(message, tag.name);
-        idTag = mTagCall.idTag;
-        messageTagOperations.push(mTagCall.batchOp);
-        mtp.push({ message: message, operation: "DELETE", messageTag: mTagCall.mTag });
-      }
-    }
-    if (messageTagOperations.length > 0) {
-      this.messageService.batchHttpCall(messageTagOperations).subscribe((res: BatchOperation[]) => {
-        this.updateMessageTagList(mtp, res);
-        if (showMessage) {
-          this.messagePrimeService.add(
-            { severity: "success", summary: "Successo", detail: `Etichetta ${messaggioOperazione} con successo.` });
+        const mTag: MessageTag = message.messageTagList.find(messageTag => messageTag.idTag.name === tag.name);
+        // const mTagCall = this.buildMessageTagOperationDelete(message, tag.name);
+        if (mTag) {
+          idMessageTagToDelete.push(mTag.id);
+          mtp.push({ message: message, operation: "DELETE", messageTag: mTag });
         }
-      },
-        err => console.log("error during the operation -> ", err));
+      }
+      const url = getInternautaUrl(BaseUrlType.Shpeck) + "/" + CUSTOM_SERVER_METHODS.deleteMessageTagCustom;
+      if (idMessageTagToDelete.length > 0) {
+        this.httpClient.post(url, idMessageTagToDelete).subscribe(() => {
+          this.updateMessageTagList(mtp, []);
+          if (showMessage) {
+            this.messagePrimeService.add(
+              { severity: "success", summary: "Successo", detail: `Etichetta ${messaggioOperazione} con successo.` });
+          }
+        });
+      }
     }
   }
 
@@ -617,24 +630,16 @@ export class MailListService {
     }};
   }
 
-  private buildMessageTagOperationDelete(message: Message, tagName: string) {
-    const mTag: MessageTag = message.messageTagList.find(messageTag => messageTag.idTag.name === tagName);
-    if (mTag) {
-      return {
-        idTag: mTag.idTag.id,
-        batchOp: {
-          id: mTag.id,
-          operation: BatchOperationTypes.DELETE,
-          entityPath:
-            BaseUrls.get(BaseUrlType.Shpeck) + "/" + ENTITIES_STRUCTURE.shpeck.messagetag.path,
-          entityBody: null,
-          additionalData: null,
-          returnProjection: null
-        },
-        mTag: mTag
-      };
-    }
-  }
+  // private buildMessageTagOperationDelete(message: Message, tagName: string): any {
+  //   const mTag: MessageTag = message.messageTagList.find(messageTag => messageTag.idTag.name === tagName);
+  //   if (mTag) {
+  //     return {
+  //       idTag: mTag.idTag.id,
+  //       batchOps: null,
+  //       mTag: mTag
+  //     };
+  //   }
+  // }
 
   private buildMessageFolderOperations(message: Message, typeFolder: string, batchOp: BatchOperationTypes, setDeleted: boolean) {
     const mFolder: MessageFolder = message.messageFolderList.find(messageFolder => messageFolder.idFolder.type === typeFolder);
@@ -730,26 +735,38 @@ export class MailListService {
   public toggleError(toInsert: boolean): void {
     const messageTagOperations: BatchOperation[] = [];
     const mtp: MessageTagOp[] = [];
-    let idTag;  // Conterrà l'id del tag nella TagList della PEC per fare la reload nella callback
-    for (const message of this.selectedMessages) {
-      if (toInsert) {
+    let idTag: number;
+    if (toInsert) {
+      for (const message of this.selectedMessages) {
         const mTagCall = this.buildMessageTagOperationInsert(message, "in_error");
         idTag = mTagCall.idTag;
         messageTagOperations.push(mTagCall.batchOp);
         mtp.push({ message: message, operation: "INSERT" });
-      } else if (message.messageTagList && message.messageTagList.length > 0) {
-        const mTagCall = this.buildMessageTagOperationDelete(message, "in_error");
-        idTag = mTagCall.idTag;
-        messageTagOperations.push(mTagCall.batchOp);
-        mtp.push({ message: message, operation: "DELETE", messageTag: mTagCall.mTag });
       }
-    }
-    if (messageTagOperations.length > 0) {
-      this.messageService.batchHttpCall(messageTagOperations).subscribe((res: BatchOperation[]) => {
-        this.mailFoldersService.doReloadTag(idTag);
-        this.updateMessageTagList(mtp, res);
-      },
-        err => console.log("error during the operation -> ", err));
+      if (messageTagOperations.length > 0) {
+        this.messageService.batchHttpCall(messageTagOperations).subscribe((res: BatchOperation[]) => {
+          this.mailFoldersService.doReloadTag(idTag);
+          this.updateMessageTagList(mtp, res);
+        },
+          err => console.log("error during the operation -> ", err));
+      }
+    } else {
+      const idMessageTagToDelete: number[] = [];
+      for (const message of this.selectedMessages) {
+        const mTag: MessageTag = message.messageTagList.find(messageTag => messageTag.idTag.name === "in_error");
+        if (mTag) {
+          idTag = mTag.idTag.id;
+          idMessageTagToDelete.push(mTag.id);
+          mtp.push({ message: message, operation: "DELETE", messageTag: mTag });
+        }
+      }
+      if (idMessageTagToDelete.length > 0) {
+        const url = getInternautaUrl(BaseUrlType.Shpeck) + "/" + CUSTOM_SERVER_METHODS.deleteMessageTagCustom;
+        this.httpClient.post(url, idMessageTagToDelete).subscribe(() => {
+          this.mailFoldersService.doReloadTag(idTag);
+          this.updateMessageTagList(mtp, []);
+        });
+      }
     }
   }
 
@@ -775,6 +792,9 @@ export class MailListService {
 
         if (this.selectedTag && this.selectedTag.id === item.messageTag.fk_idTag.id) {
           this.messages.splice(this.messages.indexOf(this.messages.find(m => m.id === item.messageTag.fk_idMessage.id)), 1);
+          this.totalRecords--;
+        // mando l'evento con il numero di messaggi (serve a mailbox-component perché lo deve scrivere nella barra superiore)
+          this.refreshAndSendTotalMessagesNumber(0, this.pecFolderSelected);
         }
       }
     });
@@ -1093,6 +1113,7 @@ export class MailListService {
     return this.selectedMessages.some(mess => {
       if (mess.messageStatus === MessageStatus.ERROR) {
         if (mess.messageTagList) {
+          const aaa = this.messages;
           return mess.messageTagList.find(messageTag => messageTag.idTag.name === "in_error") !== undefined;
         } else {
           return false;
