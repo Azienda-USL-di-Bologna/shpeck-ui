@@ -191,6 +191,7 @@ export class MailFoldersComponent implements OnInit, OnDestroy {
     const children: MyTreeNode[] = [];
     const foldersCustom: Folder[] = [];
     const tagsSecondLevel: MyTreeNode[] = [];
+
     if (pec.folderList) {
       for (const folder of pec.folderList) {
         if (folder.type !== FolderType.CUSTOM) {
@@ -315,7 +316,7 @@ export class MailFoldersComponent implements OnInit, OnDestroy {
         case "DeleteFolder":
           const folderToDelete: Folder = this.selectedNode.data.data as Folder;
           if (folderToDelete.type === FolderType.CUSTOM) {
-            this.mailFoldersService.countMessageInFolder(folderToDelete.id).subscribe(messageNumber => {
+            this.mailFoldersService.countMessageInFolder(folderToDelete.id, false, folderToDelete.type, folderToDelete.idPec.id).subscribe(messageNumber => {
               if (messageNumber === 0) {
                 this.deleteFolder(folderToDelete);
               } else {
@@ -478,7 +479,8 @@ export class MailFoldersComponent implements OnInit, OnDestroy {
     });
     setTimeout(() => {
       // fa scattare la chiamata che fa il calcolo delle mail non lette che a sua volta fa scattare la sottoscrizione sopra
-      this.mailFoldersService.doReloadFolder(folder.id);
+      const unSeen: boolean = !(folder.type === FolderType.OUTBOX || folder.type === FolderType.DRAFT);
+      this.mailFoldersService.doReloadFolder(folder.id, unSeen, folder.type, folder.idPec.id);
     });
 
     return folderNode;

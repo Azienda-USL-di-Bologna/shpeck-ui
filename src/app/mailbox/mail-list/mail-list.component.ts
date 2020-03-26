@@ -1,27 +1,27 @@
-import { Component, OnInit, Output, EventEmitter, ViewChild, ElementRef, OnDestroy } from "@angular/core";
-import { buildLazyEventFiltersAndSorts } from "@bds/primeng-plugin";
-import { Message, ENTITIES_STRUCTURE, MessageAddress, AddresRoleType, Folder, MessageTag, InOut, Tag, Pec, MessageType, FolderType, Note, FluxPermission, Azienda, MessageStatus, TagType, MessageFolder } from "@bds/ng-internauta-model";
-import { ShpeckMessageService, MessageEvent } from "src/app/services/shpeck-message.service";
-import { FiltersAndSorts, FilterDefinition, FILTER_TYPES, SortDefinition, SORT_MODES, PagingConf, BatchOperation, BatchOperationTypes } from "@nfa/next-sdr";
-import { TagService } from "src/app/services/tag.service";
-import { Observable, Subscription } from "rxjs";
-import { DatePipe } from "@angular/common";
-import { Table } from "primeng-lts/table";
-import { TOOLBAR_ACTIONS, EMLSOURCE, BaseUrls, BaseUrlType, FONTSIZE } from "src/environments/app-constants";
-import { MenuItem, LazyLoadEvent, FilterMetadata, ConfirmationService, MessageService } from "primeng-lts/api";
-import { Utils } from "src/app/utils/utils";
-import { MailFoldersService, PecFolderType, PecFolder } from "../mail-folders/mail-folders.service";
-import { ToolBarService } from "../toolbar/toolbar.service";
-import { MailListService } from "./mail-list.service";
-import { NoteService } from "src/app/services/note.service";
-import { NtJwtLoginService, UtenteUtilities } from "@bds/nt-jwt-login";
-import { Menu } from "primeng-lts/menu";
-import { AppCustomization } from "src/environments/app-customization";
-import { SettingsService } from "src/app/services/settings.service";
-import { FormGroup, FormControl, Validators } from "@angular/forms";
-import { MailboxService, Sorting, TotalMessageNumberDescriptor } from "../mailbox.service";
-import { ContextMenu } from "primeng-lts/primeng";
-import { IntimusClientService, IntimusCommand, IntimusCommands, RefreshMailsParams, RefreshMailsParamsOperations, RefreshMailsParamsEntities } from "@bds/nt-communicator";
+import {Component, ElementRef, EventEmitter, OnDestroy, OnInit, Output, ViewChild} from "@angular/core";
+import {buildLazyEventFiltersAndSorts} from "@bds/primeng-plugin";
+import {Azienda, ENTITIES_STRUCTURE, Folder, FolderType, Message, MessageTag, MessageType, Note, Pec, Tag} from "@bds/ng-internauta-model";
+import {MessageEvent, ShpeckMessageService} from "src/app/services/shpeck-message.service";
+import {BatchOperation, BatchOperationTypes, FILTER_TYPES, FilterDefinition, FiltersAndSorts, PagingConf, SortDefinition} from "@nfa/next-sdr";
+import {TagService} from "src/app/services/tag.service";
+import {Observable, Subscription} from "rxjs";
+import {DatePipe} from "@angular/common";
+import {Table} from "primeng-lts/table";
+import {BaseUrls, BaseUrlType, EMLSOURCE, FONTSIZE, TOOLBAR_ACTIONS} from "src/environments/app-constants";
+import {ConfirmationService, FilterMetadata, LazyLoadEvent, MenuItem, MessageService} from "primeng-lts/api";
+import {Utils} from "src/app/utils/utils";
+import {MailFoldersService, PecFolder, PecFolderType} from "../mail-folders/mail-folders.service";
+import {ToolBarService} from "../toolbar/toolbar.service";
+import {MailListService} from "./mail-list.service";
+import {NoteService} from "src/app/services/note.service";
+import {NtJwtLoginService, UtenteUtilities} from "@bds/nt-jwt-login";
+import {Menu} from "primeng-lts/menu";
+import {AppCustomization} from "src/environments/app-customization";
+import {SettingsService} from "src/app/services/settings.service";
+import {FormControl, FormGroup, Validators} from "@angular/forms";
+import {MailboxService, Sorting} from "../mailbox.service";
+import {ContextMenu} from "primeng-lts/primeng";
+import {IntimusClientService, IntimusCommand, IntimusCommands, RefreshMailsParams, RefreshMailsParamsEntities, RefreshMailsParamsOperations} from "@bds/nt-communicator";
 
 @Component({
   selector: "app-mail-list",
@@ -435,7 +435,10 @@ export class MailListComponent implements OnInit, OnDestroy {
         this.mailListService.setMailTagVisibility([newMessage]);
         if (params.entity === RefreshMailsParamsEntities.MESSAGE_FOLDER) {
           console.log("reloading folder badge...");
-          this.mailFoldersService.doReloadFolder(this.pecFolderSelected.data.id, true);
+          if(this.pecFolderSelected.type === PecFolderType.FOLDER) {
+            const folder: Folder = this.pecFolderSelected.data as Folder;
+            this.mailFoldersService.doReloadFolder(folder.id, true, folder.type, folder.idPec.id);
+          }
         } else if (params.entity === RefreshMailsParamsEntities.MESSAGE_TAG) {
           console.log("reloading tag badge...");
           this.mailFoldersService.doReloadTag(this.pecFolderSelected.data.id);
@@ -706,6 +709,22 @@ export class MailListComponent implements OnInit, OnDestroy {
         this.mailFoldersService.doReloadTag(params.newRow["id_tag"]);
       }
     } else { // per tutti gli altri cambiamenti ricarico i badge delle cartelle interessati nel comando
+
+        let folderType: string;
+        switch (params.entity) {
+          case RefreshMailsParamsEntities.OUTBOX:
+            folderType = "OUTBOX";
+            break;
+
+          case RefreshMailsParamsEntities.DRAFT:
+            folderType = "DRAFT";
+            break;
+
+          default:
+            folderType = null;
+            break;
+        }
+
       if (params.newRow) {
         /* nel caso di nuovo messaggio, capita che la transazione non sia conclusa quando arriva il comando, quindi il numero dei messaggi non letti
          * non terrebbe conto del nuovo. Per ovviare a questo caso, chiamo una funzione apposita che chiama la doReloadFolder solo dopo che il messaggio
@@ -715,11 +734,11 @@ export class MailListComponent implements OnInit, OnDestroy {
           // questa funzione ricarica il messaggio, riprovando fino a che il messaggio non è visibile su DB
           this.reloadBadgesAfterMessageReady(params);
         } else { // in tutti gli altri casi mi comporto normalmente e ricarico subito il badge della cartella
-          this.mailFoldersService.doReloadFolder(params.newRow["id_folder"], true);
+          this.mailFoldersService.doReloadFolder(params.newRow["id_folder"], true, folderType, params.newRow["id_pec"] );
         }
       }
       if (params.oldRow) {
-        this.mailFoldersService.doReloadFolder(params.oldRow["id_folder"], true);
+        this.mailFoldersService.doReloadFolder(params.oldRow["id_folder"], true, folderType, params.newRow["id_pec"] );
       }
     }
   }
