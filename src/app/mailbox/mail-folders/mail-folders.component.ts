@@ -10,10 +10,10 @@ import { TagService } from "src/app/services/tag.service";
 import { MailListService } from "../mail-list/mail-list.service";
 import { UtenteUtilities, NtJwtLoginService } from "@bds/nt-jwt-login";
 import { ShpeckMessageService } from "src/app/services/shpeck-message.service";
-import { IntimusClientService, IntimusCommand, IntimusCommands, RefreshMailsParams, RefreshMailsParamsOperations, RefreshMailsParamsEntities } from '@bds/nt-communicator';
-import { FilterDefinition, FiltersAndSorts, FILTER_TYPES } from '@nfa/next-sdr';
-import { OutboxLiteService } from 'src/app/services/outbox-lite.service';
-import { DraftLiteService } from 'src/app/services/draft-lite.service';
+import { IntimusClientService, IntimusCommand, IntimusCommands, RefreshMailsParams, RefreshMailsParamsOperations, RefreshMailsParamsEntities } from "@bds/nt-communicator";
+import { FilterDefinition, FiltersAndSorts, FILTER_TYPES } from "@nfa/next-sdr";
+import { OutboxLiteService } from "src/app/services/outbox-lite.service";
+import { DraftLiteService } from "src/app/services/draft-lite.service";
 
 @Component({
   selector: "app-mail-folders",

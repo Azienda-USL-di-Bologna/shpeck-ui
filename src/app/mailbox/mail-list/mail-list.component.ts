@@ -345,22 +345,25 @@ export class MailListComponent implements OnInit, OnDestroy {
   private manageIntimusCommand(command: IntimusCommand) {
     switch (command.command) {
       case IntimusCommands.RefreshMails: // comando di refresh delle mail
-        switch ((command.params as RefreshMailsParams).operation) {
-          case RefreshMailsParamsOperations.INSERT:
-            console.log("INSERT");
-            this.manageIntimusInsertCommand(command);
-            break;
-          case RefreshMailsParamsOperations.UPDATE:
-            console.log("UPDATE");
-            this.manageIntimusUpdateCommand(command);
-            break;
-          case RefreshMailsParamsOperations.DELETE:
-            console.log("DELETE");
-            this.manageIntimusDeleteCommand(command);
-            break;
+        const params: RefreshMailsParams = command.params as RefreshMailsParams;
+        if (params.entity !== RefreshMailsParamsEntities.DRAFT && params.entity !== RefreshMailsParamsEntities.OUTBOX) {
+          switch ((command.params as RefreshMailsParams).operation) {
+            case RefreshMailsParamsOperations.INSERT:
+              console.log("INSERT");
+              this.manageIntimusInsertCommand(command);
+              break;
+            case RefreshMailsParamsOperations.UPDATE:
+              console.log("UPDATE");
+              this.manageIntimusUpdateCommand(command);
+              break;
+            case RefreshMailsParamsOperations.DELETE:
+              console.log("DELETE");
+              this.manageIntimusDeleteCommand(command);
+              break;
+          }
+          this.refreshOtherBadgeAndDoOtherOperation(command);
+          break;
         }
-        this.refreshOtherBadgeAndDoOtherOperation(command);
-        break;
     }
   }
 
@@ -606,16 +609,18 @@ export class MailListComponent implements OnInit, OnDestroy {
           } else if (params.newRow["id_folder"] === this.pecFolderSelected.data.id) {
             this.manageIntimusInsertCommand(command, ignoreSameUserCheck);
           }
-        } else if (params.entity === RefreshMailsParamsEntities.OUTBOX &&
-          params.oldRow && params.oldRow["ignore"] &&  params.newRow && params.newRow["ignore"] && params.oldRow["ignore"] !==  params.newRow["ignore"] &&
-          this.pecFolderSelected.type === PecFolderType.FOLDER &&
-          (this.pecFolderSelected.data as Folder).idPec.id === params.oldRow["id_pec"]) {
-            if (params.oldRow["ignore"] === false && params.oldRow["ignore"] === true) {
-              this.manageIntimusDeleteCommand(command);
-            } else  if (params.oldRow["ignore"] === true && params.oldRow["ignore"] === false) {
-              this.manageIntimusInsertCommand(command, true);
-            }
-        } else if (params.newRow["id_utente"] !== this.loggedUser.getUtente().id) {
+        }
+        //  else if (params.entity === RefreshMailsParamsEntities.OUTBOX &&
+        //   params.oldRow && params.oldRow["ignore"] &&  params.newRow && params.newRow["ignore"] && params.oldRow["ignore"] !==  params.newRow["ignore"] &&
+        //   this.pecFolderSelected.type === PecFolderType.FOLDER &&
+        //   (this.pecFolderSelected.data as Folder).idPec.id === params.oldRow["id_pec"]) {
+        //     if (params.oldRow["ignore"] === false && params.oldRow["ignore"] === true) {
+        //       this.manageIntimusDeleteCommand(command);
+        //     } else  if (params.oldRow["ignore"] === true && params.oldRow["ignore"] === false) {
+        //       this.manageIntimusInsertCommand(command, true);
+        //     }
+        // }
+        else if (params.newRow["id_utente"] !== this.loggedUser.getUtente().id) {
         // cerco il messaggio nei messaggi che sto vedendo e se lo trovo lo aggiorno, ma solo se non sono io che sto facendo l'azione
         const idMessage: number = params.newRow["id_message"];
         setTimeout(() => { // il setTimeout forse non serve, ma ho paura che se lo tolgo si rompa qualcosa
@@ -719,22 +724,6 @@ export class MailListComponent implements OnInit, OnDestroy {
         this.mailFoldersService.doReloadTag(params.newRow["id_tag"]);
       }
     } else { // per tutti gli altri cambiamenti ricarico i badge delle cartelle interessati nel comando
-
-        let folderType: string;
-        switch (params.entity) {
-          case RefreshMailsParamsEntities.OUTBOX:
-            folderType = "OUTBOX";
-            break;
-
-          case RefreshMailsParamsEntities.DRAFT:
-            folderType = "DRAFT";
-            break;
-
-          default:
-            folderType = null;
-            break;
-        }
-
       if (params.newRow) {
         /* nel caso di nuovo messaggio, capita che la transazione non sia conclusa quando arriva il comando, quindi il numero dei messaggi non letti
          * non terrebbe conto del nuovo. Per ovviare a questo caso, chiamo una funzione apposita che chiama la doReloadFolder solo dopo che il messaggio
@@ -744,11 +733,11 @@ export class MailListComponent implements OnInit, OnDestroy {
           // questa funzione ricarica il messaggio, riprovando fino a che il messaggio non è visibile su DB
           this.reloadBadgesAfterMessageReady(params);
         } else { // in tutti gli altri casi mi comporto normalmente e ricarico subito il badge della cartella
-          this.mailFoldersService.doReloadFolder(params.newRow["id_folder"], true, folderType, params.newRow["id_pec"] );
+          this.mailFoldersService.doReloadFolder(params.newRow["id_folder"], true);
         }
       }
       if (params.oldRow) {
-        this.mailFoldersService.doReloadFolder(params.oldRow["id_folder"], true, folderType, params.newRow["id_pec"] );
+        this.mailFoldersService.doReloadFolder(params.oldRow["id_folder"], true);
       }
     }
   }
@@ -847,8 +836,6 @@ export class MailListComponent implements OnInit, OnDestroy {
         console.log("message ready, proceed...");
         // ricarico il badge interessato
         if (params.newRow["id_folder"]) {
-          this.mailFoldersService.doReloadFolder(params.newRow["id_folder"], true);
-        } else if (params.entity === RefreshMailsParamsEntities.OUTBOX) {
           this.mailFoldersService.doReloadFolder(params.newRow["id_folder"], true);
         }
     });
