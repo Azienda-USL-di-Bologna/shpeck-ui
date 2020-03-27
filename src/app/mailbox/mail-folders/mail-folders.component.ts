@@ -10,6 +10,10 @@ import { TagService } from "src/app/services/tag.service";
 import { MailListService } from "../mail-list/mail-list.service";
 import { UtenteUtilities, NtJwtLoginService } from "@bds/nt-jwt-login";
 import { ShpeckMessageService } from "src/app/services/shpeck-message.service";
+import { IntimusClientService, IntimusCommand, IntimusCommands, RefreshMailsParams, RefreshMailsParamsOperations, RefreshMailsParamsEntities } from "@bds/nt-communicator";
+import { FilterDefinition, FiltersAndSorts, FILTER_TYPES } from "@nfa/next-sdr";
+import { OutboxLiteService } from "src/app/services/outbox-lite.service";
+import { DraftLiteService } from "src/app/services/draft-lite.service";
 
 @Component({
   selector: "app-mail-folders",
@@ -120,9 +124,12 @@ export class MailFoldersComponent implements OnInit, OnDestroy {
       private mailFoldersService: MailFoldersService,
       private primeMessageService: MessageService,
       private shpeckMessageService: ShpeckMessageService,
+      private outboxLiteService: OutboxLiteService,
+      private draftLiteService: DraftLiteService,
       private loginService: NtJwtLoginService,
       private tagService: TagService,
-      private mailListService: MailListService) {
+      private mailListService: MailListService,
+      private intimusClient: IntimusClientService) {
     this.subscriptions.push(this.loginService.loggedUser$.subscribe((utente: UtenteUtilities) => {
       if (utente) {
         if (!this.loggedUser || utente.getUtente().id !== this.loggedUser.getUtente().id) {
@@ -180,11 +187,242 @@ export class MailFoldersComponent implements OnInit, OnDestroy {
         }
       }
     ));
+    this.subscriptions.push(this.intimusClient.command$.subscribe((command: IntimusCommand) => {
+      this.manageIntimusCommand(command);
+    }));
     // this.subscriptions.push(this.toolBarService.getFilterTyped.subscribe((filter: FilterDefinition[]) => {
     //   if (filter) {
     //     this.selectRootNode(this.selectedNode, false);
     //   }
     // }));
+  }
+
+  /**
+   * gestisce un comando intimus
+   * @param command il comando ricevuto
+   */
+  private manageIntimusCommand(command: IntimusCommand) {
+    switch (command.command) {
+      case IntimusCommands.RefreshMails: // comando di refresh delle mail
+        switch ((command.params as RefreshMailsParams).operation) {
+          case RefreshMailsParamsOperations.INSERT:
+          case RefreshMailsParamsOperations.UPDATE:
+          case RefreshMailsParamsOperations.DELETE:
+            const params: RefreshMailsParams = command.params as RefreshMailsParams;
+            this.refreshBadges(params);
+            this.refreshOtherBadgeAndDoOtherOperation(command);
+        }
+    }
+  }
+
+  /**
+   * ricarica i badge dei tag e delle cartelle a seconda del caso
+   * @param params i params estratti dal comando intimus
+   */
+  private refreshBadges(params: RefreshMailsParams) {
+    console.log("refreshing badges...");
+    // se è cambiato un tag ricarico i badge dei tag
+    if (params.entity === RefreshMailsParamsEntities.MESSAGE_TAG) {
+      // se ho rimosso un tag ricarico il badge del tag rimosso
+      if (params.oldRow) {
+        this.mailFoldersService.doReloadTag(params.oldRow["id_tag"]);
+      }
+      // caso di rimozione di tag tramite servlet custom
+      if (params.entity === RefreshMailsParamsEntities.MESSAGE_TAG && params["id"]) {
+        this.mailFoldersService.doReloadTag(params["id"]);
+      }
+      // se ho inserito un tag ricarico il badge del tag inserito
+      if (params.newRow) {
+        this.mailFoldersService.doReloadTag(params.newRow["id_tag"]);
+      }
+    } else { // per tutti gli altri cambiamenti ricarico i badge delle cartelle interessati nel comando
+
+        let folderType: string;
+        switch (params.entity) {
+          case RefreshMailsParamsEntities.OUTBOX:
+            folderType = "OUTBOX";
+            break;
+
+          case RefreshMailsParamsEntities.DRAFT:
+            folderType = "DRAFT";
+            break;
+
+          default:
+            folderType = null;
+            break;
+        }
+
+      if (params.newRow) {
+        /* nel caso di nuovo messaggio, capita che la transazione non sia conclusa quando arriva il comando, quindi il numero dei messaggi non letti
+         * non terrebbe conto del nuovo. Per ovviare a questo caso, chiamo una funzione apposita che chiama la doReloadFolder solo dopo che il messaggio
+         * è visibile sul DB, cioè, dopo che la chiamata al backend lo ritnorna
+        */
+        if (!params.newRow["id_utente"] && params.operation === RefreshMailsParamsOperations.INSERT) { // è un nuovo messaggio in arrivo
+          // questa funzione ricarica il messaggio, riprovando fino a che il messaggio non è visibile su DB
+          this.reloadBadgesAfterMessageReady(params);
+        } else { // in tutti gli altri casi mi comporto normalmente e ricarico subito il badge della cartella
+          this.mailFoldersService.doReloadFolder(params.newRow["id_folder"], true, folderType, params.newRow["id_pec"] );
+        }
+      }
+      if (params.oldRow) {
+        this.mailFoldersService.doReloadFolder(params.oldRow["id_folder"], true, folderType, params.oldRow["id_pec"] );
+      }
+    }
+  }
+
+  /**
+   * esegue tutte le altre operazioni non contemplate nelle altre funzioni:
+   * fa il refresh del tag degli errori nel caso sia eliminato dal cestino un messaggio in errore
+   * - ricarica il messaggio per aggiornare i tag di fascicolazione, protocollazione e in_protocollazione
+   *  per l'utente che esegue l'operazione (per gli altri utenti viene fatta nel giro standard dell'autoaggiornamento)
+   * - sposta il messaggio nella cartella dei protocollati
+   *  per l'utente che esegue l'operazione (per gli altri utenti viene fatta nel giro standard dell'autoaggiornamento)
+   * @param command il comando ricevuto
+   */
+  private refreshOtherBadgeAndDoOtherOperation(command: IntimusCommand) {
+    const params: RefreshMailsParams = command.params as RefreshMailsParams;
+    // se è un caso di eliminazione di messaggio da cestino e il messaggio ha l'error-tag ricarico il badge degli errori
+    if (params.entity === RefreshMailsParamsEntities.MESSAGE_FOLDER && params.oldRow && params.newRow && !!!params.oldRow["deleted"] && !!params.newRow["deleted"] && params.newRow["id_error_tag"] && params.newRow["id_error_tag"] !== "") {
+      console.log("refreshing error tag...");
+      this.mailFoldersService.doReloadTag(params.newRow["id_error_tag"]);
+    }
+
+    /*
+     * caso in cui devo ricaricare i tag anche nel caso sono io stesso ad aver eseguito l'azione.
+     * Questo caso serve per ricaricare i tag sopo la protocollazione o la fascicolazione. In generale nei casi in cui l'azione non è controllata dal frontend
+    */
+    if (params.entity === RefreshMailsParamsEntities.MESSAGE_TAG) { // se ho ricevuto un comando su un tag
+      // se sono l'utente che ha eseguito l'azione (questo è il caso di inserimento o di update di un tag)
+      if (params.newRow && params.newRow["id_utente"] === this.loggedUser.getUtente().id) {
+        // e il tag è uno di quelli nello switch devo ricaricare il messaggio per aggiornare i suoi tag e ricarico i badge relativi al tag interessato
+        switch (params.newRow["tag_name"]) {
+          case "archived":
+          case "registered":
+          case "in_registration":
+            // console.log(`insert refreshOtherBadge: ${params.entity} with ${params.newRow["tag_name"]}`);
+            // setTimeout(() => {
+            //   this.reloadMessage(params.newRow["id_message"], params);
+            // }, 0);
+            this.mailFoldersService.doReloadTag(params.newRow["id_tag"]);
+        } // questo è un caso simile a quello sopra, ma riguarda l'eliminazione di un tag
+      } else if ((!params.newRow && params.oldRow) || (!params.newRow && !params.oldRow && params["id_utente"] === this.loggedUser.getUtente().id)) {
+        let tagName: string;
+        let idMessage: number;
+        let idTag: number;
+        // l'azione può derivare dal trigger della normale eliminazione di un tag tramite framework oppure da un'eliminazione custom
+        if (params.oldRow) { // eliminazione tramite framework
+          tagName = params.oldRow["tag_name"];
+          idMessage = params.oldRow["id_message"];
+          idTag = params.oldRow["id_tag"];
+        } else { // eliminazione custom
+          tagName = params["tag_name"];
+          idMessage = params["id_message"];
+          idTag = params["id"];
+        }
+        switch (tagName) {
+          case "archived":
+          case "registered":
+          case "in_registration":
+            // console.log(`deletetag refreshOtherBadge: ${params.entity} with ${tagName}`);
+            // setTimeout(() => {
+            //   this.reloadMessage(idMessage, params);
+            // }, 0);
+            this.mailFoldersService.doReloadTag(idTag);
+        }
+      } // caso di spostamento del messaggio nella cartella dei messaggi protocollati per l'utente che ha eseguito l'azione
+    } 
+    // else if (params.entity === RefreshMailsParamsEntities.MESSAGE_FOLDER && params.newRow && params.newRow["id_utente"] === this.loggedUser.getUtente().id && params.newRow["folder_name"] === "registered") {
+    //   console.log(`refreshOtherBadge: ${params.entity}, manageIntimusUpdateCommand...`);
+    //   // lancio un update riconducendomi al caso in cui l'utente non è l'utente che esegue l'azione, passando ignoreSameUserCheck = true
+    //   this.manageIntimusUpdateCommand(command, true);
+    // }
+  }
+
+  /**
+   * Aspetta che il messaggio sia pronto prima di ricaricare il badge
+   * @param params i parametri estratti dal comando ricevuto
+   * @param times usato in automatico per la ricorsione, non passare
+   */
+  private reloadBadgesAfterMessageReady(params: RefreshMailsParams, times: number = 1) {
+    let filterDefinition: FilterDefinition;
+    let filter: FiltersAndSorts;
+    switch (params.entity) {
+      case RefreshMailsParamsEntities.DRAFT:
+        const idDraft: number = params.newRow["id"];
+        filterDefinition = new FilterDefinition("id", FILTER_TYPES.not_string.equals, idDraft);
+        filter = new FiltersAndSorts();
+        filter.addFilter(filterDefinition);
+        this.draftLiteService.getData(null, filter, null, null).subscribe((data: any) => {
+          // può capitare che il comando arrivi prima che la transazione sia conclusa, per cui non troverei il messaggio sul database. Se capita, riprovo dopo 30ms per un massimo di 10 volte
+          if (!data || !data.results || data.results.length === 0) {
+            console.log("message not ready");
+            if (times <= 10) {
+              console.log(`rescheduling after ${30 * times}ms for the ${times} time...`);
+              setTimeout(() => {
+                this.reloadBadgesAfterMessageReady(params, times + 1);
+              }, 30 * times);
+            } else {
+              console.log("too many tries, stop!");
+            }
+            return;
+          }
+          console.log("message ready, proceed...");
+          // ricarico il badge interessato
+          this.mailFoldersService.doReloadFolder(params.newRow["id_folder"], true, "DRAFT", params.newRow["id_pec"] );
+        });
+        break;
+      case RefreshMailsParamsEntities.OUTBOX:
+        const idOutbox: number = params.newRow["id"];
+        filterDefinition = new FilterDefinition("id", FILTER_TYPES.not_string.equals, idOutbox);
+        filter = new FiltersAndSorts();
+        filter.addFilter(filterDefinition);
+        this.outboxLiteService.getData(null, filter, null, null).subscribe((data: any) => {
+          // può capitare che il comando arrivi prima che la transazione sia conclusa, per cui non troverei il messaggio sul database. Se capita, riprovo dopo 30ms per un massimo di 10 volte
+          if (!data || !data.results || data.results.length === 0) {
+            console.log("message not ready");
+            if (times <= 10) {
+              console.log(`rescheduling after ${30 * times}ms for the ${times} time...`);
+              setTimeout(() => {
+                this.reloadBadgesAfterMessageReady(params, times + 1);
+              }, 30 * times);
+            } else {
+              console.log("too many tries, stop!");
+            }
+            return;
+          }
+          console.log("message ready, proceed...");
+          // ricarico il badge interessato
+          this.mailFoldersService.doReloadFolder(params.newRow["id_folder"], true, "OUTBOX", params.newRow["id_pec"] );
+        });
+        break;
+      default:
+        const idMessage: number = params.newRow["id_message"];
+        filterDefinition = new FilterDefinition("id", FILTER_TYPES.not_string.equals, idMessage);
+        filter = new FiltersAndSorts();
+        filter.addFilter(filterDefinition);
+        this.shpeckMessageService.getData(this.mailListService.selectedProjection, filter, null, null).subscribe((data: any) => {
+          // può capitare che il comando arrivi prima che la transazione sia conclusa, per cui non troverei il messaggio sul database. Se capita, riprovo dopo 30ms per un massimo di 10 volte
+          if (!data || !data.results || data.results.length === 0) {
+            console.log("message not ready");
+            if (times <= 10) {
+              console.log(`rescheduling after ${30 * times}ms for the ${times} time...`);
+              setTimeout(() => {
+                this.reloadBadgesAfterMessageReady(params, times + 1);
+              }, 30 * times);
+            } else {
+              console.log("too many tries, stop!");
+            }
+            return;
+          }
+          console.log("message ready, proceed...");
+          // ricarico il badge interessato
+          if (params.newRow["id_folder"]) {
+            this.mailFoldersService.doReloadFolder(params.newRow["id_folder"], true);
+          } else if (params.entity === RefreshMailsParamsEntities.OUTBOX) {
+            this.mailFoldersService.doReloadFolder(params.newRow["id_folder"], true);
+          }
+      });
+    }
   }
 
   private buildNode(pec: Pec): any {
