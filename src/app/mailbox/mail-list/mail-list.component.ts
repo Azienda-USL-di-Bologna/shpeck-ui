@@ -1,26 +1,27 @@
 import { Component, OnInit, Output, EventEmitter, ViewChild, ElementRef, OnDestroy } from "@angular/core";
 import { buildLazyEventFiltersAndSorts } from "@bds/primeng-plugin";
-import { Message, ENTITIES_STRUCTURE, MessageAddress, AddresRoleType, Folder, MessageTag, InOut, Tag, Pec, MessageType, FolderType, Note, FluxPermission, Azienda, MessageStatus, TagType } from "@bds/ng-internauta-model";
+import { Message, ENTITIES_STRUCTURE, MessageAddress, AddresRoleType, Folder, MessageTag, InOut, Tag, Pec, MessageType, FolderType, Note, FluxPermission, Azienda, MessageStatus, TagType, MessageFolder } from "@bds/ng-internauta-model";
 import { ShpeckMessageService, MessageEvent } from "src/app/services/shpeck-message.service";
 import { FiltersAndSorts, FilterDefinition, FILTER_TYPES, SortDefinition, SORT_MODES, PagingConf, BatchOperation, BatchOperationTypes } from "@nfa/next-sdr";
 import { TagService } from "src/app/services/tag.service";
 import { Observable, Subscription } from "rxjs";
 import { DatePipe } from "@angular/common";
-import { Table } from "primeng/table";
+import { Table } from "primeng-lts/table";
 import { TOOLBAR_ACTIONS, EMLSOURCE, BaseUrls, BaseUrlType, FONTSIZE } from "src/environments/app-constants";
-import { MenuItem, LazyLoadEvent, FilterMetadata, ConfirmationService, MessageService } from "primeng/api";
+import { MenuItem, LazyLoadEvent, FilterMetadata, ConfirmationService, MessageService } from "primeng-lts/api";
 import { Utils } from "src/app/utils/utils";
 import { MailFoldersService, PecFolderType, PecFolder } from "../mail-folders/mail-folders.service";
 import { ToolBarService } from "../toolbar/toolbar.service";
 import { MailListService } from "./mail-list.service";
 import { NoteService } from "src/app/services/note.service";
 import { NtJwtLoginService, UtenteUtilities } from "@bds/nt-jwt-login";
-import { Menu } from "primeng/menu";
+import { Menu } from "primeng-lts/menu";
 import { AppCustomization } from "src/environments/app-customization";
 import { SettingsService } from "src/app/services/settings.service";
 import { FormGroup, FormControl, Validators } from "@angular/forms";
 import { MailboxService, Sorting, TotalMessageNumberDescriptor } from "../mailbox.service";
-import { ContextMenu } from "primeng/primeng";
+import { ContextMenu } from "primeng-lts/primeng";
+import { IntimusClientService, IntimusCommand, IntimusCommands, RefreshMailsParams, RefreshMailsParamsOperations, RefreshMailsParamsEntities } from "@bds/nt-communicator";
 
 @Component({
   selector: "app-mail-list",
@@ -42,7 +43,8 @@ export class MailListComponent implements OnInit, OnDestroy {
     private noteService: NoteService,
     private settingsService: SettingsService,
     private loginService: NtJwtLoginService,
-    private mailboxService: MailboxService
+    private mailboxService: MailboxService,
+    private intimusClient: IntimusClientService
   ) {
     this.selectedContextMenuItem = this.selectedContextMenuItem.bind(this);
     this.showNewTagPopup = this.showNewTagPopup.bind(this);
@@ -70,10 +72,6 @@ export class MailListComponent implements OnInit, OnDestroy {
 
   // private tempSelectedMessages: Message[] = null;
 
-  private selectedProjection: string =
-    ENTITIES_STRUCTURE.shpeck.message.customProjections
-      .CustomMessageForMailList;
-
   private pageConf: PagingConf = {
     mode: "LIMIT_OFFSET",
     conf: {
@@ -82,17 +80,14 @@ export class MailListComponent implements OnInit, OnDestroy {
     }
   };
 
-  private subscriptions: Subscription[] = [];
+  private subscriptions: {id: number, type: string, subscription: Subscription}[] = [];
   private previousFilter: FilterDefinition[] = [];
   private foldersSubCmItems: MenuItem[] = null;
   private aziendeProtocollabiliSubCmItems: MenuItem[] = null;
   private aziendeFascicolabiliSubCmItems: MenuItem[] = null;
   private registerMessageEvent: any = null;
   private loggedUser: UtenteUtilities;
-  private sorting: Sorting = {
-    field: "receiveTime",
-    sortMode: SORT_MODES.desc
-  };
+
   public tagMenuItems:  MenuItem[] = null;
   public cmItems: MenuItem[] = [
     {
@@ -262,7 +257,7 @@ export class MailListComponent implements OnInit, OnDestroy {
   };
 
   ngOnInit() {
-    this.subscriptions.push(this.mailFoldersService.pecFolderSelected.subscribe((pecFolderSelected: PecFolder) => {
+    this.subscriptions.push({id: null, type: "pecFolderSelected", subscription: this.mailFoldersService.pecFolderSelected.subscribe((pecFolderSelected: PecFolder) => {
       // this.tempSelectedMessages = null;
       this.mailListService.selectedMessages = [];
       this.pecFolderSelected = pecFolderSelected;
@@ -291,20 +286,20 @@ export class MailListComponent implements OnInit, OnDestroy {
           this.setFolder(null);
         }
       }
-    }));
-    this.subscriptions.push(this.toolBarService.getFilterTyped.subscribe((filters: FilterDefinition[]) => {
+    })});
+    this.subscriptions.push({id: null, type: "getFilterTyped", subscription: this.toolBarService.getFilterTyped.subscribe((filters: FilterDefinition[]) => {
       if (filters) {
         this.setFilters(filters);
       }
-    }));
-    this.subscriptions.push(this.loginService.loggedUser$.subscribe((utente: UtenteUtilities) => {
+    })});
+    this.subscriptions.push({id: null, type: "loggedUser", subscription: this.loginService.loggedUser$.subscribe((utente: UtenteUtilities) => {
       if (utente) {
         if (!this.loggedUser || utente.getUtente().id !== this.loggedUser.getUtente().id) {
           this.loggedUser = utente;
         }
       }
-    }));
-    this.subscriptions.push(this.settingsService.settingsChangedNotifier$.subscribe(newSettings => {
+    })});
+    this.subscriptions.push({id: null, type: "settingsChangedNotifier", subscription: this.settingsService.settingsChangedNotifier$.subscribe(newSettings => {
       this.openDetailInPopup = newSettings[AppCustomization.shpeck.hideDetail] === "true";
       const newFontSize = newSettings[AppCustomization.shpeck.fontSize] ? newSettings[AppCustomization.shpeck.fontSize] : FONTSIZE.BIG;
       if (newFontSize !== this.fontSize) {
@@ -312,25 +307,518 @@ export class MailListComponent implements OnInit, OnDestroy {
         this.virtualRowHeight = this.VIRTUAL_ROW_HEIGHTS[this.fontSize];
         this.setFolder(this._selectedFolder);
       }
-    }));
+    })});
     if (this.settingsService.getImpostazioniVisualizzazione()) {
       this.openDetailInPopup = this.settingsService.getHideDetail() === "true";
       this.fontSize = this.settingsService.getFontSize() ? this.settingsService.getFontSize() : FONTSIZE.BIG;
       this.virtualRowHeight = this.VIRTUAL_ROW_HEIGHTS[this.fontSize];
     }
-    this.subscriptions.push(this.messageService.messageEvent.subscribe(
+    this.subscriptions.push({id: null, type: "messageEvent", subscription: this.messageService.messageEvent.subscribe(
       (messageEvent: MessageEvent) => {
-        // console.log("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa ", messageEvent);
-      }));
-    this.subscriptions.push(this.mailboxService.sorting.subscribe((sorting: Sorting) => {
+        console.log("in messageEvent", messageEvent);
+        // if (messageEvent && (!messageEvent.selectedMessages || messageEvent.selectedMessages.length === 0)) {
+        //   console.log("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa ", messageEvent);
+        //   this.mailListService.selectedMessages.push(this.mailListService.messages[1]);
+        //   this.mailListService.selectedMessages.push(this.mailListService.messages[2]);
+        // }
+      })});
+    this.subscriptions.push({id: null, type: "sorting", subscription: this.mailboxService.sorting.subscribe((sorting: Sorting) => {
       if (sorting) {
-        this.sorting = sorting;
+        this.mailListService.sorting = sorting;
         if (this.dt && this.dt.el && this.dt.el.nativeElement) {
           this.dt.el.nativeElement.getElementsByClassName("ui-table-scrollable-body")[0].scrollTop = 0;
         }
         this.lazyLoad(null);
       }
-    }));
+    })});
+    this.subscriptions.push({id: null, type: "intimusClient.command", subscription: this.intimusClient.command$.subscribe((command: IntimusCommand) => {
+      this.manageIntimusCommand(command);
+      // setTimeout(() => {
+      // }, 5000);
+    })});
+  }
+
+  /**
+   * gestisce un comando intimus
+   * @param command il comando ricevuto
+   */
+  private manageIntimusCommand(command: IntimusCommand) {
+    switch (command.command) {
+      case IntimusCommands.RefreshMails: // comando di refresh delle mail
+        switch ((command.params as RefreshMailsParams).operation) {
+          case RefreshMailsParamsOperations.INSERT:
+            console.log("INSERT");
+            this.manageIntimusInsertCommand(command);
+            break;
+          case RefreshMailsParamsOperations.UPDATE:
+            console.log("UPDATE");
+            this.manageIntimusUpdateCommand(command);
+            break;
+          case RefreshMailsParamsOperations.DELETE:
+            console.log("DELETE");
+            this.manageIntimusDeleteCommand(command);
+            break;
+        }
+        this.refreshOtherBadgeAndDoOtherOperation(command);
+        break;
+    }
+  }
+
+  /**
+   * gestisce l'inserimento di un messaggio nella lista dei messaggi che sto guardando
+   * @param command il comando intimus arrivato
+   * @param ignoreSameUserCheck indica se eseguire l'inserimento anche all'utente che ha eseguito l'azione
+   * @param times uso interno, serve per dare un limite alle chiamate ricorsive del metodo nel caso il messaggio da inserire non c'è ancora sul database
+   */
+  private manageIntimusInsertCommand(command: IntimusCommand, ignoreSameUserCheck: boolean = false, times: number = 1) {
+    console.log("manageIntimusInsertCommand");
+    const params: RefreshMailsParams = command.params as RefreshMailsParams;
+    /* se non sono io ad aver fatto l'azione o devo iggnorare il controllo e
+     * sul messaggio è cambiato il tag e io sto guardando quel tag, oppure
+     * sul messaggio è cambiata la cartella e sto guardando quella cartella
+    */
+    if (  (ignoreSameUserCheck || (params.newRow && params.newRow["id_utente"] !== this.loggedUser.getUtente().id)) &&
+          (
+            (params.entity === RefreshMailsParamsEntities.MESSAGE_TAG && this.pecFolderSelected.type === PecFolderType.TAG &&
+              params.newRow && params.newRow["id_tag"] && params.newRow["id_tag"] === this.pecFolderSelected.data.id) ||
+            (params.entity === RefreshMailsParamsEntities.MESSAGE_FOLDER && this.pecFolderSelected.type === PecFolderType.FOLDER &&
+              params.newRow && params.newRow["id_folder"] && params.newRow["id_folder"] === this.pecFolderSelected.data.id)
+          )
+      ) {
+      // chiedo il messaggio al backend
+      const idMessage: number = params.newRow["id_message"];
+      const filterDefinition = new FilterDefinition("id", FILTER_TYPES.not_string.equals, idMessage);
+      const filter: FiltersAndSorts = new FiltersAndSorts();
+      filter.addFilter(filterDefinition);
+      this.subscriptions.push({id: idMessage, type: "AutoRefresh", subscription: this.messageService.getData(this.mailListService.selectedProjection, filter, null, null).subscribe((data: any) => {
+        /*
+         * può capitare che il comando arrivi prima che la transazione sia conclusa, per cui non troverei il messaggio sul database.
+         * Se capita, riprovo dopo 30ms per un massimo di 10 volte
+        */
+        if (!data || !data.results || data.results.length === 0) {
+          console.log("message not ready");
+          if (times <= 10) {
+            console.log(`rescheduling after ${30 * times}ms for the ${times} time...`);
+            setTimeout(() => {
+              this.manageIntimusInsertCommand(command, ignoreSameUserCheck, times + 1);
+            }, 30 * times);
+          } else {
+            console.log("too many tries, stop!");
+          }
+          return;
+        }
+        console.log("message ready, proceed...");
+
+        const newMessage = data.results[0];
+        // cerco il messaggio perché potrebbe essere già nella cartella disabilitato (ad esempio se qualcuno l'ha spostato e poi rispostato in questa cartella mentre io la guardo)
+        console.log("searching message in list...");
+        const messageIndex = this.mailListService.messages.findIndex(m => m.id === idMessage);
+        if (messageIndex >= 0) { // se lo trovo lo riabilito
+          console.log("message found, updating...");
+          this.mailListService.messages.splice(messageIndex, 1, newMessage);
+        } else { // se non lo trovo lo inserisco in testa
+          console.log("message not found in list, pushing on top...");
+          this.mailListService.messages.unshift(newMessage);
+
+          this.mailListService.totalRecords++; // ho aggiunto un messaggio per cui aumento di uno il numero dei messaggi visualizzati
+          // mando l'evento con il numero di messaggi (serve a mailbox-component perché lo deve scrivere nella barra superiore)
+          this.mailListService.refreshAndSendTotalMessagesNumber(0, this.pecFolderSelected);
+        }
+
+        // se nuovo il messaggio ricaricato/inserito è tra i messaggi selezionati lo sostituisco
+        const smIndex = this.mailListService.selectedMessages.findIndex(sm => sm.id === newMessage.id);
+        if (smIndex >= 0) {
+          this.mailListService.selectedMessages[smIndex] = newMessage;
+        }
+
+        console.log("setMailTagVisibility...");
+        this.mailListService.setMailTagVisibility([newMessage]);
+        if (params.entity === RefreshMailsParamsEntities.MESSAGE_FOLDER) {
+          console.log("reloading folder badge...");
+          this.mailFoldersService.doReloadFolder(this.pecFolderSelected.data.id, true);
+        } else if (params.entity === RefreshMailsParamsEntities.MESSAGE_TAG) {
+          console.log("reloading tag badge...");
+          this.mailFoldersService.doReloadTag(this.pecFolderSelected.data.id);
+        }
+      })
+    });
+    } else if (params.newRow["id_utente"] !== this.loggedUser.getUtente().id) { // se non sono l'utente che ha eseguito l'azione
+      // e se non lo devo inserire o riabilitare, ci sono casi in cui devo ricaricare il messaggio
+      const idMessage: number = params.newRow["id_message"];
+      if (
+          // se il comando ricevuto è su una cartella, ma sto guardando un tag, oppure
+          (params.entity === RefreshMailsParamsEntities.MESSAGE_FOLDER && this.pecFolderSelected.type === PecFolderType.TAG) ||
+          // se il comando ricevuto è su un tag, ma sto guardando un cartella, oppure
+          (params.entity === RefreshMailsParamsEntities.MESSAGE_TAG && this.pecFolderSelected.type === PecFolderType.FOLDER) ||
+          // se il comando ricevuto è su un messaggio (per ora solo il cambio da "letto" a "da leggere" e viceversa)
+          (params.entity === RefreshMailsParamsEntities.MESSAGE)
+         ) {
+           setTimeout(() => { // il setTimeout forse non serve, ma ho paura che se lo tolgo si rompa qualcosa
+             this.reloadMessage(idMessage, params);
+           }, 0);
+      }
+      this.refreshBadges(params); // poi ricarico anche i badge da ricaricare
+    }
+  }
+
+  /**
+   * gestisce un comando di cancellazione, cioè quando un messaggio deve essere disabilitato dalla lista dei messaggi che sto guardando
+   * @param command il comando intimus arrivato
+   * @param permanentDelete se il comando è un'eliminazione dal cestino
+   * @param ignoreSameUserCheck indica se eseguire la cancellazione (disabilitando il messaggio) anche all'utente che ha eseguito l'azione
+   */
+  private manageIntimusDeleteCommand(command: IntimusCommand, permanentDelete: boolean = false, ignoreSameUserCheck: boolean = false) {
+    console.log("manageIntimusDeleteCommand");
+    const params: RefreshMailsParams = command.params as RefreshMailsParams;
+    // entro in questo if se voglio disabilitare il messaggio a cui il comando ricevuto fa riferimento
+    /* ci entro:
+     * se non sono l'utente autore dell'azione (a meno che non passo ignoreSameUserCheck = true) e
+     * ho ricevuto un comando di rimozione di un tag (o di update di un tag) e il tag è stato tolto è quello che sto guardando oppure
+     * ho ricevuto un comando di update di una cartella e la cartella da cui è stato spostato il messaggio è quella che sto guardando oppure
+     * ho ricevuto un comando di eliminazione di un messaggio dal cestino e sto guardando un tag (poi controllerò che il messaggio sia tra quelli che sto guardando)
+    */
+    if (
+          ( (ignoreSameUserCheck || // se l'utente che ha eseguito il comando sono io non devo fare nulla a menoche non passo ignoreSameUserCheck = true
+              (params.newRow && params.newRow["id_utente"] !== this.loggedUser.getUtente().id) || // se c'è newRow considero quella per verificare l'utente che esegue l'azione
+              (params.oldRow && params.oldRow["id_utente"] !== this.loggedUser.getUtente().id) || // se non c'è newRow, ma c'è oldRow considero quella per verificare l'utente che esegue l'azione
+              (params["id_utente"] !== this.loggedUser.getUtente().id) // se non ci sono nè newRow, nè oldRow allora è un caso custom di elimazione tag, in quel caso l'utente che esegue l'azione è in params
+            ) &&
+            ( (params.entity === RefreshMailsParamsEntities.MESSAGE_TAG && params.newRow && params.oldRow && params.oldRow["id_tag"] === this.pecFolderSelected.data.id) ||
+              (params.entity === RefreshMailsParamsEntities.MESSAGE_TAG && !params.oldRow && !params.newRow && params["id"] === this.pecFolderSelected.data.id) ||
+              (params.entity === RefreshMailsParamsEntities.MESSAGE_FOLDER && params.oldRow["id_folder"] === this.pecFolderSelected.data.id) ||
+              (permanentDelete && this.pecFolderSelected.type === PecFolderType.TAG)
+            )
+          )
+      ) {
+      let idMessage: number ;
+      // a seconda del tipo di comando che ricevo l'id del messaggio lo posso trovare in posti diversi. Lo prendo dal posto giusto
+      if (params.newRow) {
+        idMessage = params.newRow["id_message"];
+      } else if (params.oldRow) {
+        idMessage = params.oldRow["id_message"];
+      } else {
+        idMessage = params["id_message"];
+      }
+      // this.mailListService.totalRecords--;
+      // this.mailListService.refreshAndSendTotalMessagesNumber(0, this.pecFolderSelected);
+      /* se ho una sottoscrizione relativa al messaggio che voglio diisabilitare la disabilito.
+       * questo perché può essere che arrivi una callback relativa ad un'operazione precedente, che ora non sarebbe più valida455
+      */
+     this.unsubscribeFromMessage(idMessage);
+      const messageIndex = this.mailListService.messages.findIndex(message => message.id === idMessage);
+      if (messageIndex >= 0  && !!!this.mailListService.messages[messageIndex]["moved"]) {
+
+        if (this.mailListService.selectedMessages.length > 0 && this.mailListService.selectedMessages.find(m => m.id === idMessage)) {
+          let messageToShowPreview = null;
+          if (this.mailListService.selectedMessages.length === 1 && this.mailListService.selectedMessages[0].id === idMessage) {
+            messageToShowPreview = this.mailListService.messages[messageIndex];
+          }
+          // filtro i messaggi selezionati togliendo quello che sto disabilitando, devo per forza riassegnare l'array e non fare un semplice splice perché
+          // altrimenti angular non si accorgerebbe che l'array è cambiato e non mi scatterebbero gli eventi di deselezione della tabella
+          this.mailListService.selectedMessages = this.mailListService.selectedMessages.filter(m => m.id !== idMessage);
+          this.messageService.manageMessageEvent(null, messageToShowPreview, this.mailListService.selectedMessages);
+        }
+        // per disabilitare il messaggio gli setto la proprietà "moved" a true
+        this.mailListService.messages[messageIndex]["moved"] = true;
+        // in movedInfo metto una stringa che spiega cosa è successo al messaggio, sarà poi visualizzata in un tooltip
+        let movedInfo: string = null;
+        if (permanentDelete) { // il messaggio è stato cancellato dal cestino
+          movedInfo = `il messaggio è appena stato eliminato definitivamente da ${params.newRow["persona"]}`;
+        } else if (params.newRow) {
+          if (params.newRow["id_folder"]) {
+            movedInfo = `il messaggio è appena stato spostato nella cartella ${params.newRow["folder_description"]} da ${params.newRow["persona"]}`;
+          } else if (params.newRow["id_tag"]) {
+            movedInfo = `al messaggio è appena stata cambiata l'etichetta da ${params.oldRow["tag_description"]} a ${params.newRow["tag_description"]} da ${params.newRow["persona"]}`;
+          }
+        } else {
+          if (params.oldRow && params.oldRow["id_folder"]) { // non dovvrebbe mai capitare
+            movedInfo = `il messaggio è appena stato rimosso dalla cartella ${params.oldRow["folder_description"]}`;
+          } else if (params.oldRow && params.oldRow["id_tag"]) {
+            movedInfo = `al messaggio è appena stata rimossa l'etichetta ${params.oldRow["tag_description"]}`;
+          } else if (!params.oldRow && !params.newRow && params.entity === RefreshMailsParamsEntities.MESSAGE_TAG && params.operation === RefreshMailsParamsOperations.DELETE && params["id"]) {
+            movedInfo = `al messaggio è appena stata rimossa l'etichetta ${params["tag_description"]} da ${params["persona"]}`;
+          } else if (!params.oldRow && !params.newRow && params.entity === RefreshMailsParamsEntities.MESSAGE_FOLDER && params.operation === RefreshMailsParamsOperations.DELETE && params["id"]) { // non dovvrebbe mai capitare
+            movedInfo = `il messaggio è appena stato rimosso dalla cartella ${params["folder_description"]} da ${params["persona"]}`;
+          }
+        }
+        this.mailListService.messages[messageIndex]["movedInfo"] = movedInfo;
+        this.refreshBadges(params);
+        // this.mailListService.messages.splice(messageIndex, 1);
+      }
+    } else if ((params.newRow && params.newRow["id_utente"] !== this.loggedUser.getUtente().id) || (!params.oldRow && !params.newRow && params["id_utente"] !== this.loggedUser.getUtente().id)) {
+      // se nei messaggi che sto guardando c'è il messaggio interessato lo ricarico
+      let idMessage: number;
+      if (params.newRow) {
+        idMessage = params.newRow["id_message"];
+      } else if (!params.oldRow && !params.newRow) {
+        idMessage = params["id_message"];
+      }
+      setTimeout(() => { // il setTimeout forse non serve, ma ho paura che se lo tolgo si rompa qualcosa
+        this.reloadMessage(idMessage, params);
+      }, 0);
+      this.refreshBadges(params); // ricarico i badge da ricaricare
+    }
+  }
+
+  /**
+   * gestisce un comando di update
+   * @param command il comando intimus arrivato
+   */
+  private manageIntimusUpdateCommand(command: IntimusCommand, ignoreSameUserCheck: boolean = false) {
+    console.log("manageIntimusUpdateCommand");
+    const params: RefreshMailsParams = command.params as RefreshMailsParams;
+    if (!ignoreSameUserCheck && params.newRow["id_utente"] === this.loggedUser.getUtente().id) {
+      console.log("same user");
+      return;
+    }
+    // se l'entità interessata dal comando è message_folder e il messaggio è passato da deleted = false a delete = true, allora vuol dire che il messaggio è stato eliminato dal cestino
+    if (params.entity === RefreshMailsParamsEntities.MESSAGE_FOLDER && !!!params.oldRow["deleted"] && !!params.newRow["deleted"]) {
+      console.log("removed from trash");
+      // chiamo la gestione delete passato "true" come permanentDelete, in modo che gestirà il particolare caso di eliminazione dal cestino
+      this.manageIntimusDeleteCommand(command, true, ignoreSameUserCheck);
+    } else {
+        if (params.entity === RefreshMailsParamsEntities.MESSAGE_TAG && params.oldRow["id_tag"] !== params.newRow["id_tag"]) { // se è cambiato il tag
+          console.log("changed tag");
+          // se sto guardando un tag è il tag cambiato è proprio quello che sto guardando vuol dire che devo eliminare il messaggio perché è stato spostato
+          if (this.pecFolderSelected.type === PecFolderType.TAG && params.oldRow["id_tag"] === this.pecFolderSelected.data.id) {
+            this.manageIntimusDeleteCommand(command, false, ignoreSameUserCheck);
+            // se sto guardando un tag è il nuovo tag è proprio quello che sto guardando vuol dire che devo inserire il messaggio nella lista
+          } else if (this.pecFolderSelected.type === PecFolderType.TAG && params.newRow["id_tag"] === this.pecFolderSelected.data.id) {
+            this.manageIntimusInsertCommand(command, ignoreSameUserCheck);
+            // altrimenti devo cercare il messaggio nei messaggi che sto vedendo e se lo trovo aggiornarlo, ma solo se non sono io che sto facendo l'azione
+          } else if (params.newRow["id_utente"] !== this.loggedUser.getUtente().id) {
+            const idMessage: number = params.newRow["id_message"];
+            setTimeout(() => {
+              this.reloadMessage(idMessage, params);
+            }, 0);
+          }
+        // è cambiata la cartella di un messaggio e sto guardando una cartella (non un tag), devo fare qualcosa solo se è cambiata la cartella che sto guardando
+        } else if (params.entity === RefreshMailsParamsEntities.MESSAGE_FOLDER && params.oldRow["id_folder"] !== params.newRow["id_folder"] && this.pecFolderSelected.type === PecFolderType.FOLDER) {
+          console.log("changed folder");
+          // se la cartella che sto guardando è in oldRow vuol dire che devo eliminare il messaggio perché è stato spostato
+          if (params.oldRow["id_folder"] === this.pecFolderSelected.data.id) {
+            this.manageIntimusDeleteCommand(command, false, ignoreSameUserCheck);
+            // se la cartella che sto guardando è in newRow vuol dire che devo inserire il messaggio perché è stato spostato in questa cartella
+          } else if (params.newRow["id_folder"] === this.pecFolderSelected.data.id) {
+            this.manageIntimusInsertCommand(command, ignoreSameUserCheck);
+          }
+        } else if (params.newRow["id_utente"] !== this.loggedUser.getUtente().id) {
+        // cerco il messaggio nei messaggi che sto vedendo e se lo trovo lo aggiorno, ma solo se non sono io che sto facendo l'azione
+        const idMessage: number = params.newRow["id_message"];
+        setTimeout(() => { // il setTimeout forse non serve, ma ho paura che se lo tolgo si rompa qualcosa
+          this.reloadMessage(idMessage, params);
+        }, 0);
+      }
+      this.refreshBadges(params); // ricarico i badge da ricaricare
+    }
+  }
+
+  /**
+   * disattiva le sottoscrizioni relative al messaggio passato
+   * @param idMessage l'id del messaggio del quale disattivare le sottoscrizioni
+   */
+  private unsubscribeFromMessage(idMessage: number) {
+    const subscriptionIndex: number = this.subscriptions.findIndex(s => s.id === idMessage);
+    if (subscriptionIndex >= 0) {
+      this.subscriptions[subscriptionIndex].subscription.unsubscribe();
+      this.subscriptions.splice(subscriptionIndex, 1);
+    }
+  }
+
+  /**
+   * ricarica il messagio: se il messaggio è presente nella lista dei messaggi lo richiede al backend e lo sostituisce nella lista
+   * @param idMessage il messaggio da ricaricare
+   */
+  private reloadMessage(idMessage: number, params: RefreshMailsParams) {
+    const messageIndex = this.mailListService.messages.findIndex(m => m.id === idMessage);
+    let reload: boolean = false; // indica se il messaggio anrà ricaricato
+    if (messageIndex >= 0) { // se il messaggio è presente della lista
+      reload = true;
+
+      // se si tratta di un'operazione di update
+      if (params.operation === RefreshMailsParamsOperations.UPDATE) {
+        // se ho fatto un update di un tag e sto guardando un tag
+        if (params.entity === RefreshMailsParamsEntities.MESSAGE_TAG && this.pecFolderSelected.type === PecFolderType.TAG) {
+          // e il tag nuovo non è quello che sto guardando
+          if (params.newRow["id_tag"] !== this.pecFolderSelected.data.id) {
+            // devo ricaricare il messaggio solo se il messaggio non è disabilitato
+            reload = !!!this.mailListService.messages[messageIndex]["moved"];
+          } // se ho fatto un update di una folder e sto guardando una folder
+        } else if (params.entity === RefreshMailsParamsEntities.MESSAGE_FOLDER && this.pecFolderSelected.type === PecFolderType.FOLDER) {
+          // e sto guardando la folder in cui il messaggio e stato spostato
+          if (params.newRow["id_folder"] === this.pecFolderSelected.data.id) {
+            // e se il messaggio è stato eliminato dal cestino
+            if (!!!params.oldRow["deleted"] && !!params.newRow["deleted"]) {
+              // non lo deco ricaricare
+              reload = false;
+            }
+          }
+        } else { // sempre se è un update, ma non è un caso dei precedenti, lo devo ricaricare se il messaggio non è disabilitato
+          reload = !!!this.mailListService.messages[messageIndex]["moved"];
+        }
+      } else { // se non è un operazione di update, lo devo ricaricare se il messaggio non è disabilitato
+        reload = !!!this.mailListService.messages[messageIndex]["moved"];
+      }
+    }
+
+    if (reload) { // se devo ricaricare il messaggio
+      this.unsubscribeFromMessage(idMessage); // disabilito le sottoscrizioni relative al messaggio da ricaricare
+      console.log("message found, refreshing...");
+      // ricarico il messaggio tramite una chiamata al backend
+      const filterDefinition = new FilterDefinition("id", FILTER_TYPES.not_string.equals, idMessage);
+      const filter: FiltersAndSorts = new FiltersAndSorts();
+      filter.addFilter(filterDefinition);
+      this.subscriptions.push({id: idMessage, type: "AutoRefresh", subscription: this.messageService.getData(this.mailListService.selectedProjection, filter, null, null).subscribe((data: any) => {
+        const newMessage = data.results[0];
+        // ricarico le icome relative ai tag
+        this.mailListService.setMailTagVisibility([newMessage]);
+
+        // aggiorno il messaggio nella lista inserendo quello ricaricato
+        this.mailListService.messages[messageIndex] = newMessage;
+
+        // se il messaggio è anche presente nei messaggi selezioni, lo sostituisco anche lì
+        const smIndex = this.mailListService.selectedMessages.findIndex(sm => sm.id === newMessage.id);
+        if (smIndex >= 0) {
+          this.mailListService.selectedMessages[smIndex] = newMessage;
+        }
+      })});
+    }
+  }
+
+  /**
+   * ricarica i badge dei tag e delle cartelle a seconda del caso
+   * @param params i params estratti dal comando intimus
+   */
+  private refreshBadges(params: RefreshMailsParams) {
+    console.log("refreshing badges...");
+    // se è cambiato un tag ricarico i badge dei tag
+    if (params.entity === RefreshMailsParamsEntities.MESSAGE_TAG) {
+      // se ho rimosso un tag ricarico il badge del tag rimosso
+      if (params.oldRow) {
+        this.mailFoldersService.doReloadTag(params.oldRow["id_tag"]);
+      }
+      // caso di rimozione di tag tramite servlet custom
+      if (params.entity === RefreshMailsParamsEntities.MESSAGE_TAG && params["id"]) {
+        this.mailFoldersService.doReloadTag(params["id"]);
+      }
+      // se ho inserito un tag ricarico il badge del tag inserito
+      if (params.newRow) {
+        this.mailFoldersService.doReloadTag(params.newRow["id_tag"]);
+      }
+    } else { // per tutti gli altri cambiamenti ricarico i badge delle cartelle interessati nel comando
+      if (params.newRow) {
+        /* nel caso di nuovo messaggio, capita che la transazione non sia conclusa quando arriva il comando, quindi il numero dei messaggi non letti
+         * non terrebbe conto del nuovo. Per ovviare a questo caso, chiamo una funzione apposita che chiama la doReloadFolder solo dopo che il messaggio
+         * è visibile sul DB, cioè, dopo che la chiamata al backend lo ritnorna
+        */
+        if (!params.newRow["id_utente"] && params.operation === RefreshMailsParamsOperations.INSERT) { // è un nuovo messaggio in arrivo
+          // questa funzione ricarica il messaggio, riprovando fino a che il messaggio non è visibile su DB
+          this.reloadBadgesAfterMessageReady(params);
+        } else { // in tutti gli altri casi mi comporto normalmente e ricarico subito il badge della cartella
+          this.mailFoldersService.doReloadFolder(params.newRow["id_folder"], true);
+        }
+      }
+      if (params.oldRow) {
+        this.mailFoldersService.doReloadFolder(params.oldRow["id_folder"], true);
+      }
+    }
+  }
+
+  /**
+   * esegue tutte le altre operazioni non contemplate nelle altre funzioni:
+   * fa il refresh del tag degli errori nel caso sia eliminato dal cestino un messaggio in errore
+   * - ricarica il messaggio per aggiornare i tag di fascicolazione, protocollazione e in_protocollazione
+   *  per l'utente che esegue l'operazione (per gli altri utenti viene fatta nel giro standard dell'autoaggiornamento)
+   * - sposta il messaggio nella cartella dei protocollati
+   *  per l'utente che esegue l'operazione (per gli altri utenti viene fatta nel giro standard dell'autoaggiornamento)
+   * @param command il comando ricevuto
+   */
+  private refreshOtherBadgeAndDoOtherOperation(command: IntimusCommand) {
+    const params: RefreshMailsParams = command.params as RefreshMailsParams;
+    // se è un caso di eliminazione di messaggio da cestino e il messaggio ha l'error-tag ricarico il badge degli errori
+    if (params.entity === RefreshMailsParamsEntities.MESSAGE_FOLDER && params.oldRow && params.newRow && !!!params.oldRow["deleted"] && !!params.newRow["deleted"] && params.newRow["id_error_tag"] && params.newRow["id_error_tag"] !== "") {
+      console.log("refreshing error tag...");
+      this.mailFoldersService.doReloadTag(params.newRow["id_error_tag"]);
+    }
+
+    /*
+     * caso in cui devo ricaricare i tag anche nel caso sono io stesso ad aver eseguito l'azione.
+     * Questo caso serve per ricaricare i tag sopo la protocollazione o la fascicolazione. In generale nei casi in cui l'azione non è controllata dal frontend
+    */
+    if (params.entity === RefreshMailsParamsEntities.MESSAGE_TAG) { // se ho ricevuto un comando su un tag
+      // se sono l'utente che ha eseguito l'azione (questo è il caso di inserimento o di update di un tag)
+      if (params.newRow && params.newRow["id_utente"] === this.loggedUser.getUtente().id) {
+        // e il tag è uno di quelli nello switch devo ricaricare il messaggio per aggiornare i suoi tag e ricarico i badge relativi al tag interessato
+        switch (params.newRow["tag_name"]) {
+          case "archived":
+          case "registered":
+          case "in_registration":
+            console.log(`insert refreshOtherBadge: ${params.entity} with ${params.newRow["tag_name"]}`);
+            setTimeout(() => {
+              this.reloadMessage(params.newRow["id_message"], params);
+            }, 0);
+            this.mailFoldersService.doReloadTag(params.newRow["id_tag"]);
+        } // questo è un caso simile a quello sopra, ma riguarda l'eliminazione di un tag
+      } else if ((!params.newRow && params.oldRow) || (!params.newRow && !params.oldRow && params["id_utente"] === this.loggedUser.getUtente().id)) {
+        let tagName: string;
+        let idMessage: number;
+        let idTag: number;
+        // l'azione può derivare dal trigger della normale eliminazione di un tag tramite framework oppure da un'eliminazione custom
+        if (params.oldRow) { // eliminazione tramite framework
+          tagName = params.oldRow["tag_name"];
+          idMessage = params.oldRow["id_message"];
+          idTag = params.oldRow["id_tag"];
+        } else { // eliminazione custom
+          tagName = params["tag_name"];
+          idMessage = params["id_message"];
+          idTag = params["id"];
+        }
+        switch (tagName) {
+          case "archived":
+          case "registered":
+          case "in_registration":
+            console.log(`deletetag refreshOtherBadge: ${params.entity} with ${tagName}`);
+            setTimeout(() => {
+              this.reloadMessage(idMessage, params);
+            }, 0);
+            this.mailFoldersService.doReloadTag(idTag);
+        }
+      } // caso di spostamento del messaggio nella cartella dei messaggi protocollati per l'utente che ha eseguito l'azione
+    } else if (params.entity === RefreshMailsParamsEntities.MESSAGE_FOLDER && params.newRow && params.newRow["id_utente"] === this.loggedUser.getUtente().id && params.newRow["folder_name"] === "registered") {
+      console.log(`refreshOtherBadge: ${params.entity}, manageIntimusUpdateCommand...`);
+      // lancio un update riconducendomi al caso in cui l'utente non è l'utente che esegue l'azione, passando ignoreSameUserCheck = true
+      this.manageIntimusUpdateCommand(command, true);
+    }
+  }
+
+  /**
+   * Aspetta che il messaggio sia pronto prima di ricaricare il badge
+   * @param params i parametri estratti dal comando ricevuto
+   * @param times usato in automatico per la ricorsione, non passare
+   */
+  private reloadBadgesAfterMessageReady(params: RefreshMailsParams, times: number = 1) {
+    const idMessage: number = params.newRow["id_message"];
+      const filterDefinition = new FilterDefinition("id", FILTER_TYPES.not_string.equals, idMessage);
+      const filter: FiltersAndSorts = new FiltersAndSorts();
+      filter.addFilter(filterDefinition);
+      this.messageService.getData(this.mailListService.selectedProjection, filter, null, null).subscribe((data: any) => {
+        // può capitare che il comando arrivi prima che la transazione sia conclusa, per cui non troverei il messaggio sul database. Se capita, riprovo dopo 30ms per un massimo di 10 volte
+        if (!data || !data.results || data.results.length === 0) {
+          console.log("message not ready");
+          if (times <= 10) {
+            console.log(`rescheduling after ${30 * times}ms for the ${times} time...`);
+            setTimeout(() => {
+              this.reloadBadgesAfterMessageReady(params, times + 1);
+            }, 30 * times);
+          } else {
+            console.log("too many tries, stop!");
+          }
+          return;
+        }
+        console.log("message ready, proceed...");
+        // ricarico il badge interessato
+        this.mailFoldersService.doReloadFolder(params.newRow["id_folder"], true);
+    });
   }
 
   public openDetailPopup(event, row, message) {
@@ -413,9 +901,20 @@ export class MailListComponent implements OnInit, OnDestroy {
     // perché nella subscribe quando la invio al mailbox-component per scrivere il numero di messaggi
     // la selezione potrebbe essere cambiata e quindi manderei un dato errato
     const folderSelected = this.pecFolderSelected;
-    this.messageService
+
+    /* mi devo dissottoscrivere dalla precedente sottoscrizione di richiesta dei dati prima di sottoscrivermi alla nuova
+     * per farlo mi metto come tipo della sottocrizione "folder_message" in modo da rintracciarla nell'array delle sottoscrizioni e rimuoverla
+    */
+    const currentSubscription = this.subscriptions.findIndex(s => s.type === "folder_message");
+    if (currentSubscription >= 0) {
+      if (this.subscriptions[currentSubscription].subscription) {
+        this.subscriptions[currentSubscription].subscription.unsubscribe();
+      }
+      this.subscriptions.splice(currentSubscription, 1);
+    }
+    this.subscriptions.push({id: folderSelected.data.id, type: "folder_message", subscription: this.messageService
       .getData(
-        this.selectedProjection,
+        this.mailListService.selectedProjection,
         this.buildInitialFilterAndSort(folder, tag),
         lazyFilterAndSort,
         pageConf
@@ -428,7 +927,7 @@ export class MailListComponent implements OnInit, OnDestroy {
 
           this.mailListService.messages = data.results;
           console.log("this.mailListService.messages", this.mailListService.messages);
-          this.setMailTagVisibility(this.mailListService.messages);
+          this.mailListService.setMailTagVisibility(this.mailListService.messages);
           this.mailFoldersService.doReloadTag(this.mailListService.tags.find(t => t.name === "in_error").id);
         }
         this.loading = false;
@@ -446,7 +945,8 @@ export class MailListComponent implements OnInit, OnDestroy {
             this.mailListService.selectedMessages[i] = this.mailListService.messages[index];
           }
         }
-      });
+      })
+    });
   }
 
   private isMessageinList(id: number, messages: Message[]) {
@@ -541,7 +1041,9 @@ export class MailListComponent implements OnInit, OnDestroy {
   }
 
   trackByFn(index, item) {
-    return item.id;
+    if (item) {
+      return item.id;
+    }
   }
 
   buildInitialFilterAndSort(folder: Folder, tag: Tag): FiltersAndSorts {
@@ -554,15 +1056,6 @@ export class MailListComponent implements OnInit, OnDestroy {
           folder.id
         )
       );
-      if (folder.type === FolderType.TRASH) {
-        filtersAndSorts.addFilter(
-          new FilterDefinition(
-            "messageFolderList.deleted",
-            FILTER_TYPES.not_string.equals,
-            false
-          )
-        );
-      }
     }
     if (tag) {
       filtersAndSorts.addFilter(
@@ -573,6 +1066,15 @@ export class MailListComponent implements OnInit, OnDestroy {
         )
       );
     }
+    // escludo i messaggi cancellati logicamente
+    filtersAndSorts.addFilter(
+      new FilterDefinition(
+        "messageFolderList.deleted",
+        FILTER_TYPES.not_string.equals,
+        false
+      )
+    );
+
     // quando effettuo una ricerca generica (avendo selezionato la casella) non vengano considerate le mail nel cestino
     if (tag === null && folder === null) {
       const folderList = this._selectedPec.folderList;
@@ -601,69 +1103,14 @@ export class MailListComponent implements OnInit, OnDestroy {
     );
     // filtersAndSorts.addSort(new SortDefinition("receiveTime", SORT_MODES.desc));
     // filtersAndSorts.addSort(new SortDefinition("createTime", SORT_MODES.desc));
-    filtersAndSorts.addSort(new SortDefinition(this.sorting.field, this.sorting.sortMode));
+    filtersAndSorts.addSort(new SortDefinition(this.mailListService.sorting.field, this.mailListService.sorting.sortMode));
 
     // filtersAndSorts.addSort(new SortDefinition("messageAddressList.address_role", SORT_MODES.desc));
     return filtersAndSorts;
   }
 
-  private setMailTagVisibility(messages: Message[]) {
-    messages.map((message: Message) => {
-      this.setFromOrTo(message);
-      this.mailListService.setIconsVisibility(message);
-    });
-  }
-
-  // private setIconsVisibility(message: Message) {
-  //   message["iconsVisibility"] = [];
-  //   if (message.messageTagList && message.messageTagList.length > 0) {
-  //     message.messageTagList.forEach((messageTag: MessageTag) => {
-  //       message["iconsVisibility"][messageTag.idTag.name] = true;
-  //       this.tags[messageTag.idTag.name] = messageTag.idTag;
-  //     });
-  //   }
-  // }
-
-  private setFromOrTo(message: Message) {
-    let addresRoleType: string;
-    switch (message.inOut) {
-      case InOut.IN:
-        addresRoleType = AddresRoleType.FROM;
-        break;
-      case InOut.OUT:
-        addresRoleType = AddresRoleType.TO;
-        break;
-      default:
-        addresRoleType = AddresRoleType.FROM;
-    }
-    if (this.sorting.field === "messageExtensionList.addressFrom") {
-      addresRoleType = AddresRoleType.FROM;
-    }
-    message["fromOrTo"] = {
-      description: "",
-      fromOrTo: addresRoleType
-    };
-    if (message.messageAddressList) {
-      const messageAddressList: MessageAddress[] = message.messageAddressList.filter(
-        (messageAddress: MessageAddress) =>
-          messageAddress.addressRole === addresRoleType
-      );
-      messageAddressList.forEach((messageAddress: MessageAddress) => {
-        // message["fromOrTo"].description += ", " + (messageAddress.idAddress.originalAddress ? messageAddress.idAddress.originalAddress : messageAddress.idAddress.mailAddress);
-        message["fromOrTo"].description += ", " + messageAddress.idAddress.mailAddress;
-      });
-      if ((message["fromOrTo"].description as string).startsWith(",")) {
-        message["fromOrTo"].description = (message["fromOrTo"].description as string).substr(
-          1,
-          (message["fromOrTo"].description as string).length - 1
-        );
-      }
-    }
-  }
-
   public handleEvent(name: string, event: any) {
     console.log("handleEvent", name);
-
     // console.log("this.mailListService.selectedMessages  fuori", this.mailListService.selectedMessages);
     switch (name) {
       // non c'è nella documentazione, ma pare che scatti sempre una sola volta anche nelle selezioni multiple.
@@ -696,7 +1143,6 @@ export class MailListComponent implements OnInit, OnDestroy {
               selectedMessage,
               this.mailListService.selectedMessages
             );
-            // this.messageClicked.emit(selectedMessage);
           } else {
             this.messageService.manageMessageEvent(null, null, this.mailListService.selectedMessages);
           }
@@ -720,7 +1166,11 @@ export class MailListComponent implements OnInit, OnDestroy {
         }
         break;
       case "onContextMenuSelect":
+        const s: Message[] = [];
+        Object.assign(s, this.mailListService.selectedMessages);
         this.setContextMenuItemLook();
+        // workaround per evitare il fatto che la selezione dei messaggi si rompe quando si clicca sul messaggi prima con il tasto sinistro e poi quello destro
+        setTimeout(() => {this.mailListService.selectedMessages = s; }, 0);
         break;
       case "saveNote":
         this.saveNote();
@@ -730,7 +1180,7 @@ export class MailListComponent implements OnInit, OnDestroy {
 
   private getEmlSource(message: Message): string {
     let emlSource: string;
-    if (message.messageFolderList && message.messageFolderList[0].idFolder.type === FolderType.OUTBOX) {
+    if (message.messageFolderList && message.messageFolderList[0] && message.messageFolderList[0].idFolder.type === FolderType.OUTBOX) {
       emlSource = EMLSOURCE.OUTBOX;
     } else {
       emlSource = EMLSOURCE.MESSAGE;
@@ -744,93 +1194,97 @@ export class MailListComponent implements OnInit, OnDestroy {
    */
   private setContextMenuItemLook() {
     this.cmItems.map(element => {
-      // element.disabled = false;
-      switch (element.id) {
-        case "MessageSeen":
-          if (
-            this.mailListService.selectedMessages.some((message: Message) => !!!message.seen)
-          ) {
-            element.label = "Letto";
-            element.queryParams = { seen: true };
-          } else {
-            element.label = "Da Leggere";
-            element.queryParams = { seen: false };
-          }
-          break;
-        case "MessageMove":
-          element.disabled = false;
-          element.styleClass = "message-moves";
-          if (!this.mailListService.isMoveActive()) {
-            element.disabled = true;
-            this.cmItems.find(f => f.id === "MessageMove").items = null;
-          } else {
-            this.cmItems.find(f => f.id === "MessageMove").items = this.mailListService.buildMoveMenuItems(this.mailListService.folders, this._selectedFolder, this.selectedContextMenuItem);
-          }
-          break;
-        case "MessageLabels":
-          element.disabled = false;
-          element.styleClass = "message-labels";
-          this.cmItems.find(f => f.id === "MessageLabels").items = this.mailListService.buildTagsMenuItems(this.selectedContextMenuItem, this.showNewTagPopup);
-          break;
-        case "MessageDelete":
-          element.disabled = !this.mailListService.isDeleteActive();
-          break;
-        case "MessageReply":
-        case "MessageReplyAll":
-        case "MessageForward":
-          element.disabled = false;
-          if (this.mailListService.selectedMessages.length > 1 || !this.mailListService.isNewMailActive(this._selectedPec)) {
-            element.disabled = true;
-          }
-          break;
-        case "MessageRegistration":
-          element.disabled = true;
-          if (this.mailListService.selectedMessages.length === 1) {
-            const selectedMessaage = this.mailListService.selectedMessages[0];
-            if (this.mailListService.isRegisterActive(selectedMessaage)) {
-              element.disabled = false;
-              this.cmItems.find(f => f.id === "MessageRegistration").items = this.mailListService.buildRegistrationMenuItems(selectedMessaage, this._selectedPec, this.selectedContextMenuItem);
+      if (this.mailListService.selectedMessages.some((message: Message) => !!message["moved"])) {
+        element.disabled = true;
+      } else {
+        // element.disabled = false;
+        switch (element.id) {
+          case "MessageSeen":
+            if (
+              this.mailListService.selectedMessages.some((message: Message) => !!!message.seen)
+            ) {
+              element.label = "Letto";
+              element.queryParams = { seen: true };
             } else {
-              this.cmItems.find(f => f.id === "MessageRegistration").items = null;
+              element.label = "Da Leggere";
+              element.queryParams = { seen: false };
             }
-          }
-          break;
-        case "MessageNote":
-        case "MessageDownload":
-          element.disabled = false;
-          if (this.mailListService.selectedMessages.length > 1) {
+            break;
+          case "MessageMove":
+            element.disabled = false;
+            element.styleClass = "message-moves";
+            if (!this.mailListService.isMoveActive()) {
+              element.disabled = true;
+              this.cmItems.find(f => f.id === "MessageMove").items = null;
+            } else {
+              this.cmItems.find(f => f.id === "MessageMove").items = this.mailListService.buildMoveMenuItems(this.mailListService.folders, this._selectedFolder, this.selectedContextMenuItem);
+            }
+            break;
+          case "MessageLabels":
+            element.disabled = false;
+            element.styleClass = "message-labels";
+            this.cmItems.find(f => f.id === "MessageLabels").items = this.mailListService.buildTagsMenuItems(this.selectedContextMenuItem, this.showNewTagPopup);
+            break;
+          case "MessageDelete":
+            element.disabled = !this.mailListService.isDeleteActive();
+            break;
+          case "MessageReply":
+          case "MessageReplyAll":
+          case "MessageForward":
+            element.disabled = false;
+            if (this.mailListService.selectedMessages.length > 1 || !this.mailListService.isNewMailActive(this._selectedPec)) {
+              element.disabled = true;
+            }
+            break;
+          case "MessageRegistration":
             element.disabled = true;
-          }
-          break;
-        case "ToggleErrorTrue":
-          element.disabled = false;
-          element.disabled = this.mailListService.isToggleErrorDisabled(true);
-          break;
-        case "ToggleErrorFalse":
-          element.disabled = false;
-          element.disabled = !this.mailListService.isToggleErrorDisabled(false);
-          break;
-        case "MessageReaddress":
-          element.disabled = false;
-          if (!this.mailListService.isReaddressActive()) {
-            element.disabled = true;
-          }
-          break;
-        case "MessageArchive":
-          element.disabled = false;
-          if (!this.mailListService.isArchiveActive()) {
-            element.disabled = true;
-            this.cmItems.find(f => f.id === "MessageArchive").items = null;
-          } else {
-            this.cmItems.find(f => f.id === "MessageArchive").items = this.mailListService.buildAziendeUtenteMenuItems(this._selectedPec, this.selectedContextMenuItem);
-          }
-          break;
-        case "MessageUndelete":
-          element.disabled = false;
-          if (!this.mailListService.isUndeleteActive()) {
-            element.disabled = true;
-          }
-          break;
+            if (this.mailListService.selectedMessages.length === 1) {
+              const selectedMessaage = this.mailListService.selectedMessages[0];
+              if (this.mailListService.isRegisterActive(selectedMessaage)) {
+                element.disabled = false;
+                this.cmItems.find(f => f.id === "MessageRegistration").items = this.mailListService.buildRegistrationMenuItems(selectedMessaage, this._selectedPec, this.selectedContextMenuItem);
+              } else {
+                this.cmItems.find(f => f.id === "MessageRegistration").items = null;
+              }
+            }
+            break;
+          case "MessageNote":
+          case "MessageDownload":
+            element.disabled = false;
+            if (this.mailListService.selectedMessages.length > 1) {
+              element.disabled = true;
+            }
+            break;
+          case "ToggleErrorTrue":
+            element.disabled = false;
+            element.disabled = this.mailListService.isToggleErrorDisabled(true);
+            break;
+          case "ToggleErrorFalse":
+            element.disabled = false;
+            element.disabled = !this.mailListService.isToggleErrorDisabled(false);
+            break;
+          case "MessageReaddress":
+            element.disabled = false;
+            if (!this.mailListService.isReaddressActive()) {
+              element.disabled = true;
+            }
+            break;
+          case "MessageArchive":
+            element.disabled = false;
+            if (!this.mailListService.isArchiveActive()) {
+              element.disabled = true;
+              this.cmItems.find(f => f.id === "MessageArchive").items = null;
+            } else {
+              this.cmItems.find(f => f.id === "MessageArchive").items = this.mailListService.buildAziendeUtenteMenuItems(this._selectedPec, this.selectedContextMenuItem);
+            }
+            break;
+          case "MessageUndelete":
+            element.disabled = false;
+            if (!this.mailListService.isUndeleteActive()) {
+              element.disabled = true;
+            }
+            break;
+        }
       }
     });
   }
@@ -1185,7 +1639,7 @@ export class MailListComponent implements OnInit, OnDestroy {
 
   public ngOnDestroy() {
     for (const s of this.subscriptions) {
-      s.unsubscribe();
+      s.subscription.unsubscribe();
     }
     this.subscriptions = [];
   }
