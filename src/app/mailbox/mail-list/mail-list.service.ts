@@ -1067,14 +1067,29 @@ export class MailListService {
       message.messageFolderList[0].idFolder.type === FolderType.TRASH ||
       (message.messageTagList && message.messageTagList.some(messageTag =>
             messageTag.idTag.name === "readdressed_out" ||
-            messageTag.idTag.name === "registered" ||
-            messageTag.idTag.name === "in_registration"
+            ((messageTag.idTag.name === "registered" ||
+            messageTag.idTag.name === "in_registration") && this.messageTagAdditionalDataContainsAziendaOfPec(messageTag))
         ))
     ) {
       return false;
     } else {
       return true;
     }
+  }
+
+  private messageTagAdditionalDataContainsAziendaOfPec(messageTag: MessageTag) {
+    let contains = false;
+    const additionalData = JSON.parse(messageTag.additionalData);
+    const idAziendePec = this.pecFolderSelected.pec.pecAziendaList.map(pa => {
+      return pa.fk_idAzienda.id;
+    });
+    additionalData.forEach(ad => {
+      if (idAziendePec.indexOf(ad.idAzienda.id) > -1 ) {
+        contains = true;
+      }
+    });
+
+    return contains;
   }
 
   /**
