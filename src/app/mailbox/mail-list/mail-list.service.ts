@@ -1080,7 +1080,8 @@ export class MailListService {
   private messageTagAdditionalDataContainsAziendaOfPec(messageTag: MessageTag) {
     let contains = false;
     const additionalData = JSON.parse(messageTag.additionalData);
-    const idAziendePec = this.pecFolderSelected.pec.pecAziendaList.map(pa => {
+    const pec: Pec = (this.pecFolderSelected.type === PecFolderType.PEC ? this.pecFolderSelected.data : this.pecFolderSelected.pec) as Pec;
+    const idAziendePec = pec.pecAziendaList.map(pa => {
       return pa.fk_idAzienda.id;
     });
     additionalData.forEach(ad => {
