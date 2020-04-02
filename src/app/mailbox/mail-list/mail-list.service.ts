@@ -1084,12 +1084,17 @@ export class MailListService {
     const idAziendePec = pec.pecAziendaList.map(pa => {
       return pa.fk_idAzienda.id;
     });
-    additionalData.forEach(ad => {
-      if (idAziendePec.indexOf(ad.idAzienda.id) > -1 ) {
+    if (additionalData) {
+      if (Array.isArray(additionalData)) {
+        additionalData.forEach(ad => {
+          if (idAziendePec.indexOf(ad.idAzienda.id) > -1 ) {
+            contains = true;
+          }
+        });
+      } else if (additionalData.idAzienda && idAziendePec.indexOf(additionalData.idAzienda.id) > -1 ) {
         contains = true;
       }
-    });
-
+    }
     return contains;
   }
 
