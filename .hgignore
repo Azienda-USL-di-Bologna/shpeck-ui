@@ -7,3 +7,7 @@ package-lock.json
 dist
 yarn.lock
 yarn-error.log
+# Default ignored files
+.idea/workspace.xml
+.idea
+src/.project

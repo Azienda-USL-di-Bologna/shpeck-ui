@@ -11,7 +11,8 @@ import { OutboxService } from "src/app/services/outbox.service";
 import { FilterMetadata, LazyLoadEvent } from "primeng-lts/api";
 import { buildLazyEventFiltersAndSorts } from "@bds/primeng-plugin";
 import { AppCustomization } from "src/environments/app-customization";
-import { PecFolder, MailFoldersService } from "../mail-folders/mail-folders.service";
+import { PecFolder, MailFoldersService, PecFolderType } from "../mail-folders/mail-folders.service";
+import { IntimusClientService, IntimusCommand, IntimusCommands, RefreshMailsParams, RefreshMailsParamsOperations, RefreshMailsParamsEntities } from '@bds/nt-communicator';
 
 @Component({
   selector: "app-mail-outbox",
@@ -39,7 +40,7 @@ export class MailOutboxComponent implements OnInit, OnDestroy {
 
   public _filters: FilterDefinition[];
 
-  private subscriptions: Subscription[] = [];
+  private subscriptions: {id: number, type: string, subscription: Subscription}[] = [];
   public loading = false;
   public virtualRowHeight: number = 70;
   public totalRecords: number;
@@ -74,24 +75,25 @@ export class MailOutboxComponent implements OnInit, OnDestroy {
     private datepipe: DatePipe,
     private mailboxService: MailboxService,
     private outboxService: OutboxService,
-    private mailFoldersService: MailFoldersService
+    private mailFoldersService: MailFoldersService,
+    private intimusClient: IntimusClientService
   ) { }
 
   ngOnInit() {
     this.selectedOutboxMails = [];
 
-    this.subscriptions.push(this.outboxService.reload.subscribe(idOutboxMail => {
+    this.subscriptions.push({id: null, type: "outboxServiceReload", subscription: this.outboxService.reload.subscribe(idOutboxMail => {
       this.selectedOutboxMails = [];
       idOutboxMail ? this.loadData(null, null, idOutboxMail) : this.loadData(null);
-    }));
-    this.subscriptions.push(this.mailFoldersService.pecFolderSelected.subscribe((pecFolderSelected: PecFolder) => {
+    })});
+    this.subscriptions.push({id: null, type: "pecFolderSelected", subscription: this.mailFoldersService.pecFolderSelected.subscribe((pecFolderSelected: PecFolder) => {
       this.pecFolderSelected = pecFolderSelected;
-    }));
-    this.subscriptions.push(this.settingsService.settingsChangedNotifier$.subscribe(newSettings => {
+    })});
+    this.subscriptions.push({id: null, type: "settingsChangedNotifier", subscription: this.settingsService.settingsChangedNotifier$.subscribe(newSettings => {
       this.openDetailInPopup = newSettings[AppCustomization.shpeck.hideDetail] === "true";
-    }));
+    })});
 
-    this.subscriptions.push(this.mailboxService.sorting.subscribe((sorting: Sorting) => {
+    this.subscriptions.push({id: null, type: "sorting", subscription: this.mailboxService.sorting.subscribe((sorting: Sorting) => {
       if (sorting) {
         this.sorting = sorting;
         if (this.ot && this.ot.el && this.ot.el.nativeElement) {
@@ -99,10 +101,140 @@ export class MailOutboxComponent implements OnInit, OnDestroy {
         }
         this.lazyLoad(null);
       }
-    }));
+    })});
+    this.subscriptions.push({id: null, type: "intimusClient.command", subscription: this.intimusClient.command$.subscribe((command: IntimusCommand) => {
+      this.manageIntimusCommand(command);
+    })});
 
     if (this.settingsService.getImpostazioniVisualizzazione()) {
       this.openDetailInPopup = this.settingsService.getHideDetail() === "true";
+    }
+  }
+
+  /**
+   * gestisce un comando intimus
+   * @param command il comando ricevuto
+   */
+  private manageIntimusCommand(command: IntimusCommand) {
+    switch (command.command) {
+      case IntimusCommands.RefreshMails: // comando di refresh delle mail
+        const params: RefreshMailsParams = command.params as RefreshMailsParams;
+        if (params.entity === RefreshMailsParamsEntities.OUTBOX) {
+        switch (params.operation) {
+          case RefreshMailsParamsOperations.INSERT:
+            console.log("INSERT");
+            this.manageIntimusInsertCommand(params);
+            break;
+          case RefreshMailsParamsOperations.UPDATE:
+            console.log("UPDATE");
+            this.manageIntimusUpdateCommand(params);
+            break;
+          case RefreshMailsParamsOperations.DELETE:
+            console.log("DELETE");
+            this.manageIntimusDeleteCommand(params);
+            break;
+        }
+        // this.refreshOtherBadgeAndDoOtherOperation(params);
+        break;
+      }
+    }
+  }
+
+  /**
+   * gestisce l'inserimento di un messaggio nella lista dei messaggi che sto guardando
+   * @param command il comando intimus arrivato
+   * @param times uso interno, serve per dare un limite alle chiamate ricorsive del metodo nel caso il messaggio da inserire non c'è ancora sul database
+   */
+  private manageIntimusInsertCommand(params: RefreshMailsParams, times: number = 1) {
+    console.log("manageIntimusInsertCommand");
+    /*
+     * se non sono io ad aver fatto l'azione o devo ignorare il controllo e
+     * sul messaggio è cambiato il tag e io sto guardando quel tag, oppure
+     * sul messaggio è cambiata la cartella e sto guardando quella cartella
+    */
+    if (params.newRow["id_pec"] && this.pecFolderSelected.type === PecFolderType.FOLDER && params.newRow["id_pec"] === this.pecFolderSelected.pec.id) {
+      // chiedo il messaggio al backend
+      const idOutbox: number = params.newRow["id"];
+      const filterDefinition = new FilterDefinition("id", FILTER_TYPES.not_string.equals, idOutbox);
+      const filter: FiltersAndSorts = new FiltersAndSorts();
+      filter.addFilter(filterDefinition);
+      this.subscriptions.push({id: idOutbox, type: "AutoRefresh", subscription: this.outboxLiteService.getData(this.selectedProjection, filter, null, null).subscribe((data: any) => {
+        /*
+         * può capitare che il comando arrivi prima che la transazione sia conclusa, per cui non troverei il messaggio sul database.
+         * Se capita, riprovo dopo 30ms per un massimo di 10 volte
+        */
+        if (!data || !data.results || data.results.length === 0) {
+          console.log("message not ready");
+          if (times <= 10) {
+            console.log(`rescheduling after ${30 * times}ms for the ${times} time...`);
+            setTimeout(() => {
+              this.manageIntimusInsertCommand(params, times + 1);
+            }, 30 * times);
+          } else {
+            console.log("too many tries, stop!");
+          }
+          return;
+        }
+        console.log("message ready, proceed...");
+
+        const newMessage = data.results[0];
+        // cerco il messaggio perché potrebbe essere già nella cartella disabilitato (ad esempio se qualcuno l'ha spostato e poi rispostato in questa cartella mentre io la guardo)
+        console.log("searching message in list...");
+        const messageIndex = this.outboxMails.findIndex(m => m.id === idOutbox);
+        if (messageIndex >= 0) { // se lo trovo lo riabilito
+          console.log("message found, updating...");
+          this.outboxMails.splice(messageIndex, 1, newMessage);
+        } else { // se non lo trovo lo inserisco in testa
+          console.log("message not found in list, pushing on top...");
+          this.outboxMails.unshift(newMessage);
+
+          this.totalRecords++; // ho aggiunto un messaggio per cui aumento di uno il numero dei messaggi visualizzati
+          // mando l'evento con il numero di messaggi (serve a mailbox-component perché lo deve scrivere nella barra superiore)
+          // mando l'evento con il numero di messaggi (serve a mailbox-component perché lo deve scrivere nella barra superiore)
+          this.mailboxService.setTotalMessageNumberDescriptor({
+            messageNumber: this.totalRecords,
+            pecFolder: this.pecFolderSelected // folder/tag che era selezionato quando lo scaricamento dei messaggi è iniziato
+          } as TotalMessageNumberDescriptor);
+        }
+
+        // se nuovo il messaggio ricaricato/inserito è tra i messaggi selezionati lo sostituisco
+        const smIndex = this.selectedOutboxMails.findIndex(sm => sm.id === newMessage.id);
+        if (smIndex >= 0) {
+          this.selectedOutboxMails[smIndex] = newMessage;
+        }
+      })});
+    }
+  }
+
+  /**
+   * gestisce un comando di cancellazione, cioè quando un messaggio deve essere disabilitato dalla lista dei messaggi che sto guardando
+   * @param command il comando intimus arrivato
+   * @param permanentDelete se il comando è un'eliminazione dal cestino
+   * @param ignoreSameUserCheck indica se eseguire la cancellazione (disabilitando il messaggio) anche all'utente che ha eseguito l'azione
+   */
+  private manageIntimusDeleteCommand(params: RefreshMailsParams) {
+    if (params.oldRow["id_pec"] && this.pecFolderSelected.type === PecFolderType.FOLDER && params.oldRow["id_pec"] === this.pecFolderSelected.pec.id) {
+      const idOutbox: number = params.oldRow["id"];
+      const messageIndex: number = this.outboxMails.findIndex(m => m.id === idOutbox);
+      if (messageIndex >= 0) {
+        this.outboxMails.splice(messageIndex, 1);
+        this.totalRecords--;
+          // mando l'evento con il numero di messaggi (serve a mailbox-component perché lo deve scrivere nella barra superiore)
+          this.mailboxService.setTotalMessageNumberDescriptor({
+            messageNumber: this.totalRecords,
+            pecFolder: this.pecFolderSelected // folder/tag che era selezionato quando lo scaricamento dei messaggi è iniziato
+          } as TotalMessageNumberDescriptor);
+      }
+    }
+  }
+
+  private manageIntimusUpdateCommand(params: RefreshMailsParams) {
+    if (params.oldRow && params.newRow && params.oldRow["ignore"] !== params.newRow["ignore"]) {
+      if (params.oldRow["ignore"] === true && params.newRow["ignore"] === false) {
+        this.manageIntimusInsertCommand(params);
+      } else if (params.oldRow["ignore"] === false && params.newRow["ignore"] === true) {
+        this.manageIntimusDeleteCommand(params);
+      }
     }
   }
 
@@ -144,35 +276,36 @@ export class MailOutboxComponent implements OnInit, OnDestroy {
       // perché nella subscribe quando la invio al mailbox-component per scrivere il numero di messaggi
       // la selezione potrebbe essere cambiata e quindi manderei un dato errato
       const folderSelected = this.pecFolderSelected;
-      this.outboxLiteService.getData(this.selectedProjection,
-        this.buildOutboxtInitialFilterAndSort(),
-        lazyFilterAndSort,
-        pageCong).subscribe(data => {
-          if (data && data.results) {
-            this.totalRecords = data.page.totalElements;
-            // mando l'evento con il numero di messaggi (serve a mailbox-component perché lo deve scrivere nella barra superiore)
-            this.mailboxService.setTotalMessageNumberDescriptor({
-              messageNumber: this.totalRecords,
-              pecFolder: folderSelected // folder/tag che era selezionato quando lo scaricamento dei messaggi è iniziato
-            } as TotalMessageNumberDescriptor);
-            this.outboxMails = data.results;
-            if (idOutboxMail) {
-              const selectedOutboxMail: Outbox = this.selectedOutboxMails.find(value => value.id === idOutboxMail);
-              if (selectedOutboxMail !== undefined) {
-                this.outboxService.manageOutboxEvent(selectedOutboxMail);
+      this.subscriptions.push({id: folderSelected.data.id, type: "folder_message", subscription:
+        this.outboxLiteService.getData(this.selectedProjection,
+          this.buildOutboxtInitialFilterAndSort(),
+          lazyFilterAndSort,
+          pageCong).subscribe(data => {
+            if (data && data.results) {
+              this.totalRecords = data.page.totalElements;
+              // mando l'evento con il numero di messaggi (serve a mailbox-component perché lo deve scrivere nella barra superiore)
+              this.mailboxService.setTotalMessageNumberDescriptor({
+                messageNumber: this.totalRecords,
+                pecFolder: folderSelected // folder/tag che era selezionato quando lo scaricamento dei messaggi è iniziato
+              } as TotalMessageNumberDescriptor);
+              this.outboxMails = data.results;
+              if (idOutboxMail) {
+                const selectedOutboxMail: Outbox = this.selectedOutboxMails.find(value => value.id === idOutboxMail);
+                if (selectedOutboxMail !== undefined) {
+                  this.outboxService.manageOutboxEvent(selectedOutboxMail);
+                }
               }
             }
-          }
-          this.loading = false;
+            this.loading = false;
 
-          let index;
-          for (let i = 0; i < this.selectedOutboxMails.length; i++) {
-            index = this.isOutboxMailInList(this.selectedOutboxMails[i].id, this.outboxMails);
-            if (index !== -1) {
-              this.selectedOutboxMails[i] = this.outboxMails[index];
+            let index;
+            for (let i = 0; i < this.selectedOutboxMails.length; i++) {
+              index = this.isOutboxMailInList(this.selectedOutboxMails[i].id, this.outboxMails);
+              if (index !== -1) {
+                this.selectedOutboxMails[i] = this.outboxMails[index];
+              }
             }
-          }
-        });
+      })});
     }
   }
 
@@ -272,7 +405,7 @@ export class MailOutboxComponent implements OnInit, OnDestroy {
 
   ngOnDestroy() {
     for (const s of this.subscriptions) {
-      s.unsubscribe();
+      s.subscription.unsubscribe();
     }
     this.subscriptions = [];
   }
