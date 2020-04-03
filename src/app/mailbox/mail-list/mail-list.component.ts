@@ -22,6 +22,7 @@ import {FormControl, FormGroup, Validators} from "@angular/forms";
 import {MailboxService, Sorting} from "../mailbox.service";
 import {ContextMenu} from "primeng-lts/primeng";
 import {IntimusClientService, IntimusCommand, IntimusCommands, RefreshMailsParams, RefreshMailsParamsEntities, RefreshMailsParamsOperations} from "@bds/nt-communicator";
+import { isArray } from 'util';
 
 @Component({
   selector: "app-mail-list",
@@ -1678,6 +1679,15 @@ export class MailListComponent implements OnInit, OnDestroy {
     return message.messageTagList.find(mt => mt.idTag.name === "registered") ? "REGISTERED" :
       message.messageTagList.find(mt => mt.idTag.name === "in_registration") ? "IN_REGISTRATION" :
         this.mailListService.isRegisterActive(message) ? "REGISTRABLE" : "NOT_REGISTRABLE";
+  }
+
+  private getIdAziendeFromAddtitionalData(additionalData: any, tagName: string, res: number[] = []) {
+    if (Array.isArray(additionalData)) {
+      additionalData.forEach(a => this.getIdAziendeFromAddtitionalData(a, tagName, res));
+    } else {
+      res.push(additionalData.idAzienda.id);
+    }
+    return res;
   }
 
   /**
