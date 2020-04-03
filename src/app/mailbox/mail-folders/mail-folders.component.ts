@@ -190,11 +190,6 @@ export class MailFoldersComponent implements OnInit, OnDestroy {
     this.subscriptions.push(this.intimusClient.command$.subscribe((command: IntimusCommand) => {
       this.manageIntimusCommand(command);
     }));
-    // this.subscriptions.push(this.toolBarService.getFilterTyped.subscribe((filter: FilterDefinition[]) => {
-    //   if (filter) {
-    //     this.selectRootNode(this.selectedNode, false);
-    //   }
-    // }));
   }
 
   /**
@@ -273,10 +268,7 @@ export class MailFoldersComponent implements OnInit, OnDestroy {
   /**
    * esegue tutte le altre operazioni non contemplate nelle altre funzioni:
    * fa il refresh del tag degli errori nel caso sia eliminato dal cestino un messaggio in errore
-   * - ricarica il messaggio per aggiornare i tag di fascicolazione, protocollazione e in_protocollazione
-   *  per l'utente che esegue l'operazione (per gli altri utenti viene fatta nel giro standard dell'autoaggiornamento)
-   * - sposta il messaggio nella cartella dei protocollati
-   *  per l'utente che esegue l'operazione (per gli altri utenti viene fatta nel giro standard dell'autoaggiornamento)
+   * fa il refresh dei tag di fascicolazione, protocollazione e in_protocollazione per l'utente che esegue l'operazione (per gli altri utenti viene fatta nel giro standard dell'autoaggiornamento
    * @param command il comando ricevuto
    */
   private refreshOtherBadgeAndDoOtherOperation(command: IntimusCommand) {
@@ -323,19 +315,10 @@ export class MailFoldersComponent implements OnInit, OnDestroy {
           case "archived":
           case "registered":
           case "in_registration":
-            // console.log(`deletetag refreshOtherBadge: ${params.entity} with ${tagName}`);
-            // setTimeout(() => {
-            //   this.reloadMessage(idMessage, params);
-            // }, 0);
             this.mailFoldersService.doReloadTag(idTag);
         }
       } // caso di spostamento del messaggio nella cartella dei messaggi protocollati per l'utente che ha eseguito l'azione
-    } 
-    // else if (params.entity === RefreshMailsParamsEntities.MESSAGE_FOLDER && params.newRow && params.newRow["id_utente"] === this.loggedUser.getUtente().id && params.newRow["folder_name"] === "registered") {
-    //   console.log(`refreshOtherBadge: ${params.entity}, manageIntimusUpdateCommand...`);
-    //   // lancio un update riconducendomi al caso in cui l'utente non è l'utente che esegue l'azione, passando ignoreSameUserCheck = true
-    //   this.manageIntimusUpdateCommand(command, true);
-    // }
+    }
   }
 
   /**
