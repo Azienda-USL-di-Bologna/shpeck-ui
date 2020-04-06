@@ -142,15 +142,13 @@ export class MailOutboxComponent implements OnInit, OnDestroy {
 
   /**
    * gestisce l'inserimento di un messaggio nella lista dei messaggi che sto guardando
-   * @param command il comando intimus arrivato
+   * @param command i parametri del comando intimus arrivato
    * @param times uso interno, serve per dare un limite alle chiamate ricorsive del metodo nel caso il messaggio da inserire non c'è ancora sul database
    */
   private manageIntimusInsertCommand(params: RefreshMailsParams, times: number = 1) {
     console.log("manageIntimusInsertCommand");
     /*
-     * se non sono io ad aver fatto l'azione o devo ignorare il controllo e
-     * sul messaggio è cambiato il tag e io sto guardando quel tag, oppure
-     * sul messaggio è cambiata la cartella e sto guardando quella cartella
+     * se sto guardando l'outbox della pec interessata dal comando
     */
     if (params.newRow["id_pec"] && this.pecFolderSelected.type === PecFolderType.FOLDER && params.newRow["id_pec"] === this.pecFolderSelected.pec.id) {
       // chiedo il messaggio al backend
@@ -178,6 +176,7 @@ export class MailOutboxComponent implements OnInit, OnDestroy {
         console.log("message ready, proceed...");
 
         const newMessage = data.results[0];
+        // TODO: probabilmente è da togliere questo caso, perché deriva dal copia-incolla della gestione in mail-list-component
         // cerco il messaggio perché potrebbe essere già nella cartella disabilitato (ad esempio se qualcuno l'ha spostato e poi rispostato in questa cartella mentre io la guardo)
         console.log("searching message in list...");
         const messageIndex = this.outboxMails.findIndex(m => m.id === idOutbox);
@@ -189,7 +188,6 @@ export class MailOutboxComponent implements OnInit, OnDestroy {
           this.outboxMails.unshift(newMessage);
 
           this.totalRecords++; // ho aggiunto un messaggio per cui aumento di uno il numero dei messaggi visualizzati
-          // mando l'evento con il numero di messaggi (serve a mailbox-component perché lo deve scrivere nella barra superiore)
           // mando l'evento con il numero di messaggi (serve a mailbox-component perché lo deve scrivere nella barra superiore)
           this.mailboxService.setTotalMessageNumberDescriptor({
             messageNumber: this.totalRecords,
@@ -207,12 +205,11 @@ export class MailOutboxComponent implements OnInit, OnDestroy {
   }
 
   /**
-   * gestisce un comando di cancellazione, cioè quando un messaggio deve essere disabilitato dalla lista dei messaggi che sto guardando
-   * @param command il comando intimus arrivato
-   * @param permanentDelete se il comando è un'eliminazione dal cestino
-   * @param ignoreSameUserCheck indica se eseguire la cancellazione (disabilitando il messaggio) anche all'utente che ha eseguito l'azione
+   * gestisce un comando di cancellazione, cioè quando un messaggio deve essere eliminato dalla lista dei messaggi che sto guardando
+   * @param params i params del comando intimus arrivato
    */
   private manageIntimusDeleteCommand(params: RefreshMailsParams) {
+    // se sto guardando la outbox della pec interessata dal comando
     if (params.oldRow["id_pec"] && this.pecFolderSelected.type === PecFolderType.FOLDER && params.oldRow["id_pec"] === this.pecFolderSelected.pec.id) {
       const idOutbox: number = params.oldRow["id"];
       const messageIndex: number = this.outboxMails.findIndex(m => m.id === idOutbox);
@@ -228,10 +225,16 @@ export class MailOutboxComponent implements OnInit, OnDestroy {
     }
   }
 
+  /**
+   * Gestisce il comando di update (quando il flag ignore passa da true a false e viceversa)
+   * @param params i parametri del comando intimus arrivato
+   */
   private manageIntimusUpdateCommand(params: RefreshMailsParams) {
+    // se ignore è passato da true a false, allora è come se fosse stato inserito un messaggio e quindi faccio la insert (non dovrebbe capitare mail)
     if (params.oldRow && params.newRow && params.oldRow["ignore"] !== params.newRow["ignore"]) {
       if (params.oldRow["ignore"] === true && params.newRow["ignore"] === false) {
         this.manageIntimusInsertCommand(params);
+        // se ignore è passato da false a true, allora è come se fosse stato cancellato un messaggio e quindi faccio la delete
       } else if (params.oldRow["ignore"] === false && params.newRow["ignore"] === true) {
         this.manageIntimusDeleteCommand(params);
       }
