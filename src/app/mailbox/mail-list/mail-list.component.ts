@@ -1676,14 +1676,36 @@ export class MailListComponent implements OnInit, OnDestroy {
       return this.mailListService.isRegisterActive(message) ? "REGISTRABLE" : "NOT_REGISTRABLE";
     }
     // ha dei tag. restituisco REGISTERED se ha il tag registered, IN_REGISTRATION se ha il tag in_registration, altrimenti guardo se è protocollabile
-    return message.messageTagList.find(mt => mt.idTag.name === "registered") ? "REGISTERED" :
-      message.messageTagList.find(mt => mt.idTag.name === "in_registration") ? "IN_REGISTRATION" :
-        this.mailListService.isRegisterActive(message) ? "REGISTRABLE" : "NOT_REGISTRABLE";
+
+    const registeredMessageTag: MessageTag = message.messageTagList.find(mt => mt.idTag.name === "registered");
+    if (registeredMessageTag) {
+      const idAziende: number[] = this.getIdAziendeFromAddtitionalData(registeredMessageTag.additionalData);
+      if (Utils.arrayOverlap(idAziende, this.loggedUser.getUtente().aziendeAttive.map(azienda => azienda.id)).length > 0) {
+        return "REGISTERED";
+      }
+    }
+    const inRegistrationMessageTag: MessageTag = message.messageTagList.find(mt => mt.idTag.name === "in_registration");
+    if (inRegistrationMessageTag) {
+      const idAziende: number[] = this.getIdAziendeFromAddtitionalData(inRegistrationMessageTag.additionalData);
+      if (Utils.arrayOverlap(idAziende, this.loggedUser.getUtente().aziendeAttive.map(azienda => azienda.id)).length > 0) {
+        return "IN_REGISTRATION";
+      }
+    }
+    if (this.mailListService.isRegisterActive(message)) {
+      return "REGISTRABLE";
+    }
+    return "NOT_REGISTRABLE";
+    // return message.messageTagList.find(mt => mt.idTag.name === "registered") ? "REGISTERED" :
+    //   message.messageTagList.find(mt => mt.idTag.name === "in_registration") ? "IN_REGISTRATION" :
+    //     this.mailListService.isRegisterActive(message) ? "REGISTRABLE" : "NOT_REGISTRABLE";
   }
 
-  private getIdAziendeFromAddtitionalData(additionalData: any, tagName: string, res: number[] = []) {
+  private getIdAziendeFromAddtitionalData(additionalData: any, res: number[] = []): number[] {
+    if ((typeof additionalData) === "string") {
+      additionalData = JSON.parse(additionalData);
+    }
     if (Array.isArray(additionalData)) {
-      additionalData.forEach(a => this.getIdAziendeFromAddtitionalData(a, tagName, res));
+      additionalData.forEach(a => this.getIdAziendeFromAddtitionalData(a, res));
     } else {
       res.push(additionalData.idAzienda.id);
     }
@@ -1733,6 +1755,10 @@ export class MailListComponent implements OnInit, OnDestroy {
     }
   }
 
+  /**
+   * crea il menù con i dettagli di protocollazione, sia per i messaggi protocollati, che per quelli in protocollazione
+   * @param message il messaggio interessato
+   */
   public prepareAndOpenDialogRegistrationDetail(message: Message) {
     this.registrationDetail = {
       message: undefined,
@@ -1754,14 +1780,18 @@ export class MailListComponent implements OnInit, OnDestroy {
       }
 
       messageTagsRegInReg.forEach(mt => {
-        const additionalData = JSON.parse(mt.additionalData);
+        const additionalData: any = JSON.parse(mt.additionalData);
         if (additionalData) {
           if (additionalData instanceof Array) {
             additionalData.forEach(element => {
-              registrationDetailsAdditionalData.push(this.buildSingleRegistrationAdditionaData(element, mt));
+              if (this.loggedUser.getUtente().aziendeAttive.find(a => a.id === element.idAzienda.id) ) {
+                registrationDetailsAdditionalData.push(this.buildSingleRegistrationAdditionaData(element, mt));
+              }
             });
           } else {
-            registrationDetailsAdditionalData.push(this.buildSingleRegistrationAdditionaData(additionalData, mt));
+            if (this.loggedUser.getUtente().aziendeAttive.find(a => a.id === additionalData.idAzienda.id) ) {
+              registrationDetailsAdditionalData.push(this.buildSingleRegistrationAdditionaData(additionalData, mt));
+            }
           }
         }
       });

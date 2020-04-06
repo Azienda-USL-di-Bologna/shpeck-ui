@@ -43,6 +43,12 @@ export class Utils {
     return a.filter(i => b.indexOf(i) < 0);
   }
 
+  public static arrayOverlap(array1: any[], array2: any[]): any[] {
+    return array1.filter(function(n) {
+      return array2.indexOf(n) !== -1;
+    });
+  }
+
   public static genereateGuid() {
     function s4() {
       return Math.floor((1 + Math.random()) * 0x10000)
