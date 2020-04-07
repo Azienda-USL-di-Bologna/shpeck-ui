@@ -1,27 +1,28 @@
-import { Component, OnInit, Output, EventEmitter, ViewChild, ElementRef, OnDestroy } from "@angular/core";
-import { buildLazyEventFiltersAndSorts } from "@bds/primeng-plugin";
-import { Message, ENTITIES_STRUCTURE, MessageAddress, AddresRoleType, Folder, MessageTag, InOut, Tag, Pec, MessageType, FolderType, Note, FluxPermission, Azienda, MessageStatus, TagType, MessageFolder } from "@bds/ng-internauta-model";
-import { ShpeckMessageService, MessageEvent } from "src/app/services/shpeck-message.service";
-import { FiltersAndSorts, FilterDefinition, FILTER_TYPES, SortDefinition, SORT_MODES, PagingConf, BatchOperation, BatchOperationTypes } from "@nfa/next-sdr";
-import { TagService } from "src/app/services/tag.service";
-import { Observable, Subscription } from "rxjs";
-import { DatePipe } from "@angular/common";
-import { Table } from "primeng-lts/table";
-import { TOOLBAR_ACTIONS, EMLSOURCE, BaseUrls, BaseUrlType, FONTSIZE } from "src/environments/app-constants";
-import { MenuItem, LazyLoadEvent, FilterMetadata, ConfirmationService, MessageService } from "primeng-lts/api";
-import { Utils } from "src/app/utils/utils";
-import { MailFoldersService, PecFolderType, PecFolder } from "../mail-folders/mail-folders.service";
-import { ToolBarService } from "../toolbar/toolbar.service";
-import { MailListService } from "./mail-list.service";
-import { NoteService } from "src/app/services/note.service";
-import { NtJwtLoginService, UtenteUtilities } from "@bds/nt-jwt-login";
-import { Menu } from "primeng-lts/menu";
-import { AppCustomization } from "src/environments/app-customization";
-import { SettingsService } from "src/app/services/settings.service";
-import { FormGroup, FormControl, Validators } from "@angular/forms";
-import { MailboxService, Sorting, TotalMessageNumberDescriptor } from "../mailbox.service";
-import { ContextMenu } from "primeng-lts/primeng";
-import { IntimusClientService, IntimusCommand, IntimusCommands, RefreshMailsParams, RefreshMailsParamsOperations, RefreshMailsParamsEntities } from "@bds/nt-communicator";
+import {Component, ElementRef, EventEmitter, OnDestroy, OnInit, Output, ViewChild} from "@angular/core";
+import {buildLazyEventFiltersAndSorts} from "@bds/primeng-plugin";
+import {Azienda, ENTITIES_STRUCTURE, Folder, FolderType, Message, MessageTag, MessageType, Note, Pec, Tag} from "@bds/ng-internauta-model";
+import {MessageEvent, ShpeckMessageService} from "src/app/services/shpeck-message.service";
+import {BatchOperation, BatchOperationTypes, FILTER_TYPES, FilterDefinition, FiltersAndSorts, PagingConf, SortDefinition} from "@nfa/next-sdr";
+import {TagService} from "src/app/services/tag.service";
+import {Observable, Subscription} from "rxjs";
+import {DatePipe} from "@angular/common";
+import {Table} from "primeng-lts/table";
+import {BaseUrls, BaseUrlType, EMLSOURCE, FONTSIZE, TOOLBAR_ACTIONS} from "src/environments/app-constants";
+import {ConfirmationService, FilterMetadata, LazyLoadEvent, MenuItem, MessageService} from "primeng-lts/api";
+import {Utils} from "src/app/utils/utils";
+import {MailFoldersService, PecFolder, PecFolderType} from "../mail-folders/mail-folders.service";
+import {ToolBarService} from "../toolbar/toolbar.service";
+import {MailListService} from "./mail-list.service";
+import {NoteService} from "src/app/services/note.service";
+import {NtJwtLoginService, UtenteUtilities} from "@bds/nt-jwt-login";
+import {Menu} from "primeng-lts/menu";
+import {AppCustomization} from "src/environments/app-customization";
+import {SettingsService} from "src/app/services/settings.service";
+import {FormControl, FormGroup, Validators} from "@angular/forms";
+import {MailboxService, Sorting} from "../mailbox.service";
+import {ContextMenu} from "primeng-lts/primeng";
+import {IntimusClientService, IntimusCommand, IntimusCommands, RefreshMailsParams, RefreshMailsParamsEntities, RefreshMailsParamsOperations} from "@bds/nt-communicator";
+import { isArray } from 'util';
 
 @Component({
   selector: "app-mail-list",
@@ -345,22 +346,25 @@ export class MailListComponent implements OnInit, OnDestroy {
   private manageIntimusCommand(command: IntimusCommand) {
     switch (command.command) {
       case IntimusCommands.RefreshMails: // comando di refresh delle mail
-        switch ((command.params as RefreshMailsParams).operation) {
-          case RefreshMailsParamsOperations.INSERT:
-            console.log("INSERT");
-            this.manageIntimusInsertCommand(command);
-            break;
-          case RefreshMailsParamsOperations.UPDATE:
-            console.log("UPDATE");
-            this.manageIntimusUpdateCommand(command);
-            break;
-          case RefreshMailsParamsOperations.DELETE:
-            console.log("DELETE");
-            this.manageIntimusDeleteCommand(command);
-            break;
+        const params: RefreshMailsParams = command.params as RefreshMailsParams;
+        if (params.entity !== RefreshMailsParamsEntities.DRAFT && params.entity !== RefreshMailsParamsEntities.OUTBOX) {
+          switch ((command.params as RefreshMailsParams).operation) {
+            case RefreshMailsParamsOperations.INSERT:
+              console.log("INSERT");
+              this.manageIntimusInsertCommand(command);
+              break;
+            case RefreshMailsParamsOperations.UPDATE:
+              console.log("UPDATE");
+              this.manageIntimusUpdateCommand(command);
+              break;
+            case RefreshMailsParamsOperations.DELETE:
+              console.log("DELETE");
+              this.manageIntimusDeleteCommand(command);
+              break;
+          }
+          this.refreshOtherBadgeAndDoOtherOperation(command);
+          break;
         }
-        this.refreshOtherBadgeAndDoOtherOperation(command);
-        break;
     }
   }
 
@@ -373,7 +377,8 @@ export class MailListComponent implements OnInit, OnDestroy {
   private manageIntimusInsertCommand(command: IntimusCommand, ignoreSameUserCheck: boolean = false, times: number = 1) {
     console.log("manageIntimusInsertCommand");
     const params: RefreshMailsParams = command.params as RefreshMailsParams;
-    /* se non sono io ad aver fatto l'azione o devo iggnorare il controllo e
+    /*
+     * se non sono io ad aver fatto l'azione o devo ignorare il controllo e
      * sul messaggio è cambiato il tag e io sto guardando quel tag, oppure
      * sul messaggio è cambiata la cartella e sto guardando quella cartella
     */
@@ -435,7 +440,10 @@ export class MailListComponent implements OnInit, OnDestroy {
         this.mailListService.setMailTagVisibility([newMessage]);
         if (params.entity === RefreshMailsParamsEntities.MESSAGE_FOLDER) {
           console.log("reloading folder badge...");
-          this.mailFoldersService.doReloadFolder(this.pecFolderSelected.data.id, true);
+          if (this.pecFolderSelected.type === PecFolderType.FOLDER) {
+            const folder: Folder = this.pecFolderSelected.data as Folder;
+            this.mailFoldersService.doReloadFolder(folder.id, true, folder.type, folder.idPec.id);
+          }
         } else if (params.entity === RefreshMailsParamsEntities.MESSAGE_TAG) {
           console.log("reloading tag badge...");
           this.mailFoldersService.doReloadTag(this.pecFolderSelected.data.id);
@@ -457,7 +465,7 @@ export class MailListComponent implements OnInit, OnDestroy {
              this.reloadMessage(idMessage, params);
            }, 0);
       }
-      this.refreshBadges(params); // poi ricarico anche i badge da ricaricare
+      // this.refreshBadges(params); // poi ricarico anche i badge da ricaricare
     }
   }
 
@@ -542,7 +550,7 @@ export class MailListComponent implements OnInit, OnDestroy {
           }
         }
         this.mailListService.messages[messageIndex]["movedInfo"] = movedInfo;
-        this.refreshBadges(params);
+        // this.refreshBadges(params);
         // this.mailListService.messages.splice(messageIndex, 1);
       }
     } else if ((params.newRow && params.newRow["id_utente"] !== this.loggedUser.getUtente().id) || (!params.oldRow && !params.newRow && params["id_utente"] !== this.loggedUser.getUtente().id)) {
@@ -556,7 +564,7 @@ export class MailListComponent implements OnInit, OnDestroy {
       setTimeout(() => { // il setTimeout forse non serve, ma ho paura che se lo tolgo si rompa qualcosa
         this.reloadMessage(idMessage, params);
       }, 0);
-      this.refreshBadges(params); // ricarico i badge da ricaricare
+      // this.refreshBadges(params); // ricarico i badge da ricaricare
     }
   }
 
@@ -602,14 +610,25 @@ export class MailListComponent implements OnInit, OnDestroy {
           } else if (params.newRow["id_folder"] === this.pecFolderSelected.data.id) {
             this.manageIntimusInsertCommand(command, ignoreSameUserCheck);
           }
-        } else if (params.newRow["id_utente"] !== this.loggedUser.getUtente().id) {
+        }
+        //  else if (params.entity === RefreshMailsParamsEntities.OUTBOX &&
+        //   params.oldRow && params.oldRow["ignore"] &&  params.newRow && params.newRow["ignore"] && params.oldRow["ignore"] !==  params.newRow["ignore"] &&
+        //   this.pecFolderSelected.type === PecFolderType.FOLDER &&
+        //   (this.pecFolderSelected.data as Folder).idPec.id === params.oldRow["id_pec"]) {
+        //     if (params.oldRow["ignore"] === false && params.oldRow["ignore"] === true) {
+        //       this.manageIntimusDeleteCommand(command);
+        //     } else  if (params.oldRow["ignore"] === true && params.oldRow["ignore"] === false) {
+        //       this.manageIntimusInsertCommand(command, true);
+        //     }
+        // }
+        else if (params.newRow["id_utente"] !== this.loggedUser.getUtente().id) {
         // cerco il messaggio nei messaggi che sto vedendo e se lo trovo lo aggiorno, ma solo se non sono io che sto facendo l'azione
         const idMessage: number = params.newRow["id_message"];
         setTimeout(() => { // il setTimeout forse non serve, ma ho paura che se lo tolgo si rompa qualcosa
           this.reloadMessage(idMessage, params);
         }, 0);
       }
-      this.refreshBadges(params); // ricarico i badge da ricaricare
+      // this.refreshBadges(params); // ricarico i badge da ricaricare
     }
   }
 
@@ -817,7 +836,9 @@ export class MailListComponent implements OnInit, OnDestroy {
         }
         console.log("message ready, proceed...");
         // ricarico il badge interessato
-        this.mailFoldersService.doReloadFolder(params.newRow["id_folder"], true);
+        if (params.newRow["id_folder"]) {
+          this.mailFoldersService.doReloadFolder(params.newRow["id_folder"], true);
+        }
     });
   }
 
@@ -1655,9 +1676,40 @@ export class MailListComponent implements OnInit, OnDestroy {
       return this.mailListService.isRegisterActive(message) ? "REGISTRABLE" : "NOT_REGISTRABLE";
     }
     // ha dei tag. restituisco REGISTERED se ha il tag registered, IN_REGISTRATION se ha il tag in_registration, altrimenti guardo se è protocollabile
-    return message.messageTagList.find(mt => mt.idTag.name === "registered") ? "REGISTERED" :
-      message.messageTagList.find(mt => mt.idTag.name === "in_registration") ? "IN_REGISTRATION" :
-        this.mailListService.isRegisterActive(message) ? "REGISTRABLE" : "NOT_REGISTRABLE";
+
+    const registeredMessageTag: MessageTag = message.messageTagList.find(mt => mt.idTag.name === "registered");
+    if (registeredMessageTag) {
+      const idAziende: number[] = this.getIdAziendeFromAddtitionalData(registeredMessageTag.additionalData);
+      if (Utils.arrayOverlap(idAziende, this.loggedUser.getUtente().aziendeAttive.map(azienda => azienda.id)).length > 0) {
+        return "REGISTERED";
+      }
+    }
+    const inRegistrationMessageTag: MessageTag = message.messageTagList.find(mt => mt.idTag.name === "in_registration");
+    if (inRegistrationMessageTag) {
+      const idAziende: number[] = this.getIdAziendeFromAddtitionalData(inRegistrationMessageTag.additionalData);
+      if (Utils.arrayOverlap(idAziende, this.loggedUser.getUtente().aziendeAttive.map(azienda => azienda.id)).length > 0) {
+        return "IN_REGISTRATION";
+      }
+    }
+    if (this.mailListService.isRegisterActive(message)) {
+      return "REGISTRABLE";
+    }
+    return "NOT_REGISTRABLE";
+    // return message.messageTagList.find(mt => mt.idTag.name === "registered") ? "REGISTERED" :
+    //   message.messageTagList.find(mt => mt.idTag.name === "in_registration") ? "IN_REGISTRATION" :
+    //     this.mailListService.isRegisterActive(message) ? "REGISTRABLE" : "NOT_REGISTRABLE";
+  }
+
+  private getIdAziendeFromAddtitionalData(additionalData: any, res: number[] = []): number[] {
+    if ((typeof additionalData) === "string") {
+      additionalData = JSON.parse(additionalData);
+    }
+    if (Array.isArray(additionalData)) {
+      additionalData.forEach(a => this.getIdAziendeFromAddtitionalData(a, res));
+    } else {
+      res.push(additionalData.idAzienda.id);
+    }
+    return res;
   }
 
   /**
@@ -1703,6 +1755,10 @@ export class MailListComponent implements OnInit, OnDestroy {
     }
   }
 
+  /**
+   * crea il menù con i dettagli di protocollazione, sia per i messaggi protocollati, che per quelli in protocollazione
+   * @param message il messaggio interessato
+   */
   public prepareAndOpenDialogRegistrationDetail(message: Message) {
     this.registrationDetail = {
       message: undefined,
@@ -1724,14 +1780,18 @@ export class MailListComponent implements OnInit, OnDestroy {
       }
 
       messageTagsRegInReg.forEach(mt => {
-        const additionalData = JSON.parse(mt.additionalData);
+        const additionalData: any = JSON.parse(mt.additionalData);
         if (additionalData) {
           if (additionalData instanceof Array) {
             additionalData.forEach(element => {
-              registrationDetailsAdditionalData.push(this.buildSingleRegistrationAdditionaData(element, mt));
+              if (this.loggedUser.getUtente().aziendeAttive.find(a => a.id === element.idAzienda.id) ) {
+                registrationDetailsAdditionalData.push(this.buildSingleRegistrationAdditionaData(element, mt));
+              }
             });
           } else {
-            registrationDetailsAdditionalData.push(this.buildSingleRegistrationAdditionaData(additionalData, mt));
+            if (this.loggedUser.getUtente().aziendeAttive.find(a => a.id === additionalData.idAzienda.id) ) {
+              registrationDetailsAdditionalData.push(this.buildSingleRegistrationAdditionaData(additionalData, mt));
+            }
           }
         }
       });

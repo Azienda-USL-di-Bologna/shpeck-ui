@@ -974,7 +974,10 @@ export class MailListService {
     return aziendeMenuItems;
   }
 
-  // restituisce array d'interi con gli id delle aziende su cui il messaggio è stato protocollato
+  /**
+   *  restituisce array d'interi con gli id delle aziende su cui il messaggio è stato protocollato
+   * @param message il messaggio
+   */
   private getIdAziendeDoveMessaggioGiaProtocollato(message: Message): number[] {
     let additionalDataAziende: number[] = [];
     if (message && message.messageTagList) {
@@ -1014,14 +1017,18 @@ export class MailListService {
     return additionalDataAziende;
   }
 
+  /**
+   * torna i codici delle aziende su cui il messaggio è protocollabile (quelle su cui ho un permesso e non è già protocollato)
+   * @param message il messaggio
+   */
   private getCodiciMieAziendeProtocollabili(message: Message): string[] {
     let mieAziendeProtocollabili: string[] = [];
     if (message) {
       const aziendeWithFluxPermission = this.loggedUser.getAziendeWithPermission(FluxPermission.REDIGE);
       if (aziendeWithFluxPermission && aziendeWithFluxPermission.length > 0) {
-        const mieAziendeGiaProtocoll: string[] = this.loggedUser.getUtente()["aziende"].filter(x => this.getIdAziendeDoveMessaggioGiaProtocollato(message).indexOf(x.id) > -1)
+        const mieAziendeGiaProtocoll: string[] = this.loggedUser.getUtente()["aziende"].filter(x => this.getIdAziendeDoveMessaggioGiaProtocollato(message).indexOf(x.id) >= 0)
           .map(a => a.codice);
-        mieAziendeProtocollabili = aziendeWithFluxPermission.filter(x => mieAziendeGiaProtocoll.indexOf(x) === -1);
+        mieAziendeProtocollabili = aziendeWithFluxPermission.filter(x => mieAziendeGiaProtocoll.indexOf(x) < 0);
       }
     }
     return mieAziendeProtocollabili;

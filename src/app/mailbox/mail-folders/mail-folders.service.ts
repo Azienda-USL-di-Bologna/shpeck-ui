@@ -1,7 +1,7 @@
 import { Injectable } from "@angular/core";
 import { TreeNode } from "primeng-lts/api";
 import { BehaviorSubject, Observable, Subject } from "rxjs";
-import { Pec, Folder, Tag } from "@bds/ng-internauta-model";
+import { Pec, Folder, Tag, FolderType } from "@bds/ng-internauta-model";
 import { HttpClient } from "@angular/common/http";
 import { getInternautaUrl, BaseUrlType, CUSTOM_SERVER_METHODS } from "src/environments/app-constants";
 
@@ -11,14 +11,13 @@ import { getInternautaUrl, BaseUrlType, CUSTOM_SERVER_METHODS } from "src/enviro
 export class MailFoldersService {
 
 
-
   private _pecFolderSelected: BehaviorSubject<PecFolder> = new BehaviorSubject<PecFolder>(null);
   private _pecFoldersAndTags: BehaviorSubject<FoldersAndTags> = new BehaviorSubject<FoldersAndTags>(null);
   private _reloadTag: Subject<number>[] = [];
   private _reloadFolder: Subject<number>[] = [];
 
   constructor(
-    private http: HttpClient
+      private http: HttpClient
   ) {
   }
 
@@ -48,11 +47,11 @@ export class MailFoldersService {
   public doReloadTag(idTag: number): void {
     const url = getInternautaUrl(BaseUrlType.Shpeck) + "/" + CUSTOM_SERVER_METHODS.countMessageInTag + "/" + idTag;
     this.http.get(url).subscribe(
-      (res: number) => {
-        if (this._reloadTag[idTag]) {
-          this._reloadTag[idTag].next(res);
+        (res: number) => {
+          if (this._reloadTag[idTag]) {
+            this._reloadTag[idTag].next(res);
+          }
         }
-      }
     );
   }
 
@@ -63,8 +62,8 @@ export class MailFoldersService {
     return this._reloadFolder[idFolder].asObservable();
   }
 
-  public doReloadFolder(idFolder: number, unSeen = true): void {
-    const result = this.countMessageInFolder(idFolder, unSeen);
+  public doReloadFolder(idFolder: number, unSeen = true, folderType: string = null, idPec: number = null): void {
+    const result = this.countMessageInFolder(idFolder, unSeen, folderType, idPec);
     // console.log("doReloadFolder", result);
     result.subscribe((res: number) => {
       if (this._reloadFolder[idFolder]) {
@@ -77,15 +76,28 @@ export class MailFoldersService {
     return this._pecFoldersAndTags.asObservable();
   }
 
-  public countMessageInFolder(folderId: number, unSeen = false): Observable<number> {
+  public countMessageInFolder(folderId: number, unSeen = false, folderType: string = null, idPec: number = null): Observable<number> {
     let url = getInternautaUrl(BaseUrlType.Shpeck) + "/" + CUSTOM_SERVER_METHODS.countMessageInFolder + "/" + folderId;
-    if (unSeen === true) {
-      url += "?unSeen=true";
+    let carattereUrl = "?";
+    if (folderType) {
+      url += carattereUrl + "folderType=" + folderType;
+      carattereUrl = "&";
+    }
+    if (idPec) {
+      if (url.indexOf("?") >= 0) {
+        carattereUrl = "&";
+      }
+      url += carattereUrl + "idPec=" + idPec;
+    }
+    if (!!unSeen) {
+      if (url.indexOf("?") >= 0) {
+        carattereUrl = "&";
+      }
+      url += carattereUrl + "unSeen=" + true;
     }
     return this.http.get(url) as Observable<number>;
   }
 }
-
 export enum PecFolderType {
   PEC = "pec",
   FOLDER = "folder",

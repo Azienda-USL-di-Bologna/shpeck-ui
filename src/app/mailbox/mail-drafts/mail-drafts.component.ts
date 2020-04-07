@@ -11,7 +11,8 @@ import { DraftLiteService } from "src/app/services/draft-lite.service";
 import { AppCustomization } from "src/environments/app-customization";
 import { MailboxService, Sorting, TotalMessageNumberDescriptor } from "../mailbox.service";
 import { Table } from "primeng-lts/table";
-import { PecFolder, MailFoldersService } from "../mail-folders/mail-folders.service";
+import { PecFolder, MailFoldersService, PecFolderType } from "../mail-folders/mail-folders.service";
+import { IntimusClientService, IntimusCommand, IntimusCommands, RefreshMailsParams, RefreshMailsParamsEntities, RefreshMailsParamsOperations } from '@bds/nt-communicator';
 
 @Component({
   selector: "app-mail-drafts",
@@ -75,7 +76,9 @@ export class MailDraftsComponent implements OnInit, OnDestroy {
     private datepipe: DatePipe,
     private mailboxService: MailboxService,
     private mailFoldersService: MailFoldersService,
-    private confirmationService: ConfirmationService) { }
+    private confirmationService: ConfirmationService,
+    private intimusClient: IntimusClientService
+    ) { }
 
   ngOnInit() {
     this.selectedDrafts = [];
@@ -102,10 +105,41 @@ export class MailDraftsComponent implements OnInit, OnDestroy {
         this.lazyLoad(null);
       }
     }));
+    // this.subscriptions.push(this.intimusClient.command$.subscribe((command: IntimusCommand) => {
+    //   this.manageIntimusCommand(command);
+    // }));
     if (this.settingsService.getImpostazioniVisualizzazione()) {
       this.openDetailInPopup = this.settingsService.getHideDetail() === "true";
     }
   }
+
+  /**
+   * gestisce un comando intimus
+   * @param command il comando ricevuto
+   */
+  // private manageIntimusCommand(command: IntimusCommand) {
+  //   switch (command.command) {
+  //     case IntimusCommands.RefreshMails: // comando di refresh delle mail
+  //       const params: RefreshMailsParams = command.params as RefreshMailsParams;
+  //       if (params.entity === RefreshMailsParamsEntities.DRAFT) {
+  //       switch (params.operation) {
+  //         case RefreshMailsParamsOperations.INSERT:
+  //           console.log("INSERT");
+  //           this.manageIntimusInsertCommand(params);
+  //           break;
+  //         case RefreshMailsParamsOperations.UPDATE:
+  //           console.log("UPDATE");
+  //           this.manageIntimusUpdateCommand(params);
+  //           break;
+  //         case RefreshMailsParamsOperations.DELETE:
+  //           console.log("DELETE");
+  //           this.manageIntimusDeleteCommand(params);
+  //           break;
+  //       }
+  //       break;
+  //     }
+  //   }
+  // }
 
   public openDetailPopup(event, row, message) {
     if (this.openDetailInPopup) {
