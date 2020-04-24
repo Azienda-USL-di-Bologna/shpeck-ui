@@ -11,3 +11,11 @@ yarn-error.log
 .idea/workspace.xml
 .idea
 src/.project
+
+
+
+.vscode/*
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/extensions.json
