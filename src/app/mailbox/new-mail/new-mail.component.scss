@@ -169,3 +169,11 @@ p-editor {
 ::ng-deep .popup-rubrica > div {
   width: inherit !important;
 }
+
+
+// alert if email is sbagliato :)
+.alert-message {
+  justify-content: center;
+  color: #721c24;
+  background-color: #f8d7da;
+}

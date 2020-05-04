@@ -23,6 +23,9 @@
             <button pButton type="button" icon="fa fa-address-book" class="ui-button-raised custom-primary-button" (click)="displayRubricaPopup = true; lastAddressBookUsed = 'to'"></button>
           </span>
         </li>
+        <li *ngIf="addressesTO.dirty && addressesTO.invalid" class="alert-message">
+          Hai inserito un indirizzo mail sbagliato!
+        </li>
         <!-- CC Addresses -->
         <li>
           <label for="cc">CC: </label>
@@ -39,6 +42,9 @@
           <span>
             <button pButton type="button" icon="fa fa-address-book" class="ui-button-raised custom-primary-button" (click)="displayRubricaPopup = true; lastAddressBookUsed = 'cc'"></button>
           </span>
+        </li>
+        <li *ngIf="addressesTO.dirty && addressesCC.invalid" class="alert-message">
+          Hai inserito un indirizzo mail sbagliato!
         </li>
         <!-- Destinatari Privati -->
         <li>
