@@ -29,6 +29,14 @@ export class SearchContactComponent implements OnInit {
     setTimeout(() => {
       this.searchField.focusInput();
     }, 0);
+
+    /* Alla selezione di un contatto con Enter, questo metodo non scatta in automatico come avviene con il click
+     * ma avviene con il focus out. Quando il metodo scatta, fa un controllo di validazione per via della proprietà
+     * forceSelection. Il controllo consiste nel verificate che la voce nell'inputField è presente nell'array dei
+     * suggestions. L'array dei suggestions in questo scenario è null o undefined. Per risolvere questo problema
+     * l'unica soluzione che ho trovato è bindare il metodo al componente così che l'array venisse visto correttamente.
+     */
+    this.searchField.onInputChange = this.searchField.onInputChange.bind(this);
   }
 
   /* Brutto quanto vuoi. Ma funziona. Se trovi altro modo dimmelo grassie(gus) */
