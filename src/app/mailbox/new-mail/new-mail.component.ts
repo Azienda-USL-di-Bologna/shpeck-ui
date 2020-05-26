@@ -29,6 +29,7 @@ export class NewMailComponent implements OnInit, AfterViewInit {
   public mailForm: FormGroup;
   public selectedPec: Pec;
   public display = false;
+  emailRegex = new RegExp(/^(([^<>()\[\]\.,;:\s@\"]+(\.[^<>()\[\]\.,;:\s@\"]+)*)|(\".+\"))@(([^<>()[\]\.,;:\s@\"]+\.)+[^<>()[\]\.,;:\s@\"]{2,})$/);
   /* Questi andranno rinominati */
   public filteredAddressSingle: any[];
   public filteredAddressMultiple: any[];
@@ -64,6 +65,15 @@ export class NewMailComponent implements OnInit, AfterViewInit {
   ];
   public ccTooltip = "Non puoi inserire destinatari CC se è attiva la funzione Destinatari privati";
   public hideRecipientsTooltip = "Non puoi utilizzare la funzione Destinatari privati con destinatari CC: cancellali o rendili destinatari A";
+
+  get addressesTO() {
+    return this.mailForm.get("to");
+  }
+
+  get addressesCC() {
+    return this.mailForm.get("cc");
+  }
+
   constructor(
     public config: DynamicDialogConfig,
     public dialogService: DialogService,
@@ -116,12 +126,12 @@ export class NewMailComponent implements OnInit, AfterViewInit {
      * che saranno inviati al server */
     const toFormControl: FormControl[] = [];
     if (this.toAddresses && this.toAddresses.length > 0) {
-      this.toAddresses.forEach(el => toFormControl.push(new FormControl(el, Validators.email)));
+      this.toAddresses.forEach(el => toFormControl.push(new FormControl(el, Validators.pattern(this.emailRegex))));
       this.toAutoComplete.writeValue(this.toAddresses);
     }
     const ccFormControl: FormControl[] = [];
     if (this.ccAddresses && this.ccAddresses.length > 0) {
-      this.ccAddresses.forEach(el => ccFormControl.push(new FormControl(el, Validators.email)));
+      this.ccAddresses.forEach(el => ccFormControl.push(new FormControl(el, Validators.pattern(this.emailRegex))));
       this.ccAutoComplete.writeValue(this.ccAddresses);
     }
     this.mailForm = new FormGroup({
@@ -137,6 +147,15 @@ export class NewMailComponent implements OnInit, AfterViewInit {
       messageRelatedType: new FormControl(messageRelatedType),
       // idMessageRelatedAttachments: new FormControl(this.attachments)
     });
+    // if it is a draft update input state
+    if (this.toAddresses && this.toAddresses.length > 0) {
+      this.addressesTO.markAsDirty();
+      this.addressesTO.updateValueAndValidity();
+    }
+    if (this.ccAddresses && this.ccAddresses.length > 0) {
+      this.addressesCC.markAsDirty();
+      this.addressesCC.updateValueAndValidity();
+    }
   }
 
   ngAfterViewInit() {
@@ -221,23 +240,25 @@ export class NewMailComponent implements OnInit, AfterViewInit {
           if (formField === "to") {
             const toForm = this.mailForm.get("to") as FormArray;
             if (!toForm.value.find((element) => element === tokenInput.value)) {
-              toForm.push(new FormControl(tokenInput.value, Validators.email));
+              toForm.push(new FormControl(tokenInput.value, Validators.pattern(this.emailRegex)));
               this.toAutoComplete.writeValue(toForm.value);
-              if (this.mailForm.pristine) {
+              if (this.mailForm.pristine || this.addressesTO.pristine) {
                 this.mailForm.markAsDirty();
+                this.addressesTO.markAsDirty();
               }
             }
           } else if (formField === "cc") {
             const ccForm = this.mailForm.get("cc") as FormArray;
             if (!ccForm.value.find((element) => element === tokenInput.value)) {
-              ccForm.push(new FormControl(tokenInput.value, Validators.email));
+              ccForm.push(new FormControl(tokenInput.value, Validators.pattern(this.emailRegex)));
               this.ccAutoComplete.writeValue(ccForm.value);
               if (ccForm.value && ccForm.value.length > 0) {
                 const hideRecipients = this.mailForm.get("hideRecipients");
                 hideRecipients.disable();
               }
-              if (this.mailForm.pristine) {
+              if (this.mailForm.pristine || this.addressesCC.pristine) {
                 this.mailForm.markAsDirty();
+                this.addressesCC.markAsDirty();
               }
             }
           }
@@ -259,7 +280,7 @@ export class NewMailComponent implements OnInit, AfterViewInit {
       if (formField === "to") {
         const toForm = this.mailForm.get("to") as FormArray;
         if (toForm.value.indexOf(item) === -1) {
-          toForm.push(new FormControl(item, Validators.email));
+          toForm.push(new FormControl(item, Validators.pattern(this.emailRegex)));
           this.toAutoComplete.writeValue(toForm.value);
           if (this.mailForm.pristine) {
             this.mailForm.markAsDirty();
@@ -268,7 +289,7 @@ export class NewMailComponent implements OnInit, AfterViewInit {
       } else if (formField === "cc") {
         const ccForm = this.mailForm.get("cc") as FormArray;
         if (ccForm.value.indexOf(item) === -1) {
-          ccForm.push(new FormControl(item, Validators.email));
+          ccForm.push(new FormControl(item, Validators.pattern(this.emailRegex)));
           this.ccAutoComplete.writeValue(ccForm.value);
           if (ccForm.value && ccForm.value.length > 0) {
             const hideRecipients = this.mailForm.get("hideRecipients");

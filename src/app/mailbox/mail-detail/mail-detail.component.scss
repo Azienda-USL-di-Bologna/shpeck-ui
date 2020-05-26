@@ -27,6 +27,8 @@
   max-height: 10vh;
   word-wrap: break-word;
   word-break: break-all;
+  white-space: pre-wrap;
+  flex-shrink: 0;
 }
 .recepit-detail {
   display: flex;
