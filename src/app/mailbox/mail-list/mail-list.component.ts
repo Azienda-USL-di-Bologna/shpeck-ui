@@ -256,6 +256,7 @@ export class MailListComponent implements OnInit, OnDestroy {
     archiveMenuOpened : false,
     tagMenuOpened : false
   };
+  public loggedUserIsSuperD: boolean = false;
 
   ngOnInit() {
     this.subscriptions.push({id: null, type: "pecFolderSelected", subscription: this.mailFoldersService.pecFolderSelected.subscribe((pecFolderSelected: PecFolder) => {
@@ -297,6 +298,7 @@ export class MailListComponent implements OnInit, OnDestroy {
       if (utente) {
         if (!this.loggedUser || utente.getUtente().id !== this.loggedUser.getUtente().id) {
           this.loggedUser = utente;
+          this.loggedUserIsSuperD = this.loggedUser.isSD();
         }
       }
     })});
@@ -316,7 +318,7 @@ export class MailListComponent implements OnInit, OnDestroy {
     }
     this.subscriptions.push({id: null, type: "messageEvent", subscription: this.messageService.messageEvent.subscribe(
       (messageEvent: MessageEvent) => {
-        console.log("in messageEvent", messageEvent);
+        // console.log("in messageEvent", messageEvent);
         // if (messageEvent && (!messageEvent.selectedMessages || messageEvent.selectedMessages.length === 0)) {
         //   console.log("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa ", messageEvent);
         //   this.mailListService.selectedMessages.push(this.mailListService.messages[1]);
@@ -2020,4 +2022,62 @@ export class MailListComponent implements OnInit, OnDestroy {
         break;
     }
   }
+
+  onFixMessageTagInRegistration(event: any, message: Message) {
+    console.log("clicked fix in registration: ", event);
+    const params: RefreshMailsParams = {
+      operation: RefreshMailsParamsOperations.UPDATE,
+      entity: RefreshMailsParamsEntities.MESSAGE_TAG,
+      oldRow: message.id,
+      newRow: message.id
+    };
+    this.messagePrimeService.add(
+      { severity: "warn", summary: "Attenzione", detail: "Sei un coglione ^_^"});
+    this.subscriptions.push({
+                      id: message.id,
+                      type: "null",
+                      subscription: this.mailListService.fixMessageTagInRegistration(message.id).subscribe(res => {
+        if (res && res.Response === "Tutto ok") {
+          // console.log("onFixMessageTagInRegistration response: ", res);
+          this.messagePrimeService.add(
+            { severity: "success", summary: "Successo", detail: "Fix fatto correttamente" });
+        }
+        // fai reload message
+        const messageIndex = this.mailListService.messages.findIndex(m => m.id === message.id);
+
+        this.unsubscribeFromMessage(message.id); // disabilito le sottoscrizioni relative al messaggio da ricaricare
+        // console.log("message found, refreshing...");
+        // ricarico il messaggio tramite una chiamata al backend
+        const filterDefinition = new FilterDefinition("id", FILTER_TYPES.not_string.equals, message.id);
+        const filter: FiltersAndSorts = new FiltersAndSorts();
+        filter.addFilter(filterDefinition);
+        this.subscriptions.push({
+                          id: message.id,
+                          type: "AutoRefresh",
+                          subscription: this.messageService.getData(this.mailListService.selectedProjection,
+                                                            filter,
+                                                            null,
+                                                            null).subscribe((data: any) => {
+          const newMessage = data.results[0];
+          // ricarico le icome relative ai tag
+          this.mailListService.setMailTagVisibility([newMessage]);
+
+          // aggiorno il messaggio nella lista inserendo quello ricaricato
+          this.mailListService.messages[messageIndex] = newMessage;
+
+          // se il messaggio è anche presente nei messaggi selezioni, lo sostituisco anche lì
+          const smIndex = this.mailListService.selectedMessages.findIndex(sm => sm.id === newMessage.id);
+          if (smIndex >= 0) {
+            this.mailListService.selectedMessages[smIndex] = newMessage;
+          }
+        })});
+      },
+        err => {
+          // show error message
+          this.messagePrimeService.add(
+            { severity: "error", summary: "Errore", detail: "Errore durante il fix, contattare Saruman", life: 3500 });
+        })
+    });
+  }
+
 }
