@@ -2075,7 +2075,7 @@ export class MailListComponent implements OnInit, OnDestroy {
         err => {
           // show error message
           this.messagePrimeService.add(
-            { severity: "error", summary: "Errore", detail: "Errore durante il fix", life: 3500 });
+            { severity: "error", summary: "Errore", detail: "Errore durante il fix del tag", life: 3500 });
         })
     });
   }
