@@ -2024,15 +2024,7 @@ export class MailListComponent implements OnInit, OnDestroy {
   }
 
   onFixMessageTagInRegistration(event: any, message: Message) {
-    console.log("clicked fix in registration: ", event);
-    const params: RefreshMailsParams = {
-      operation: RefreshMailsParamsOperations.UPDATE,
-      entity: RefreshMailsParamsEntities.MESSAGE_TAG,
-      oldRow: message.id,
-      newRow: message.id
-    };
-    this.messagePrimeService.add(
-      { severity: "warn", summary: "Attenzione", detail: "Sei un coglione ^_^"});
+
     this.subscriptions.push({
                       id: message.id,
                       type: "null",
@@ -2058,24 +2050,32 @@ export class MailListComponent implements OnInit, OnDestroy {
                                                             filter,
                                                             null,
                                                             null).subscribe((data: any) => {
-          const newMessage = data.results[0];
-          // ricarico le icome relative ai tag
-          this.mailListService.setMailTagVisibility([newMessage]);
+          if (data && data.results) {
+            const newMessage = data.results[0];
+            // ricarico le icome relative ai tag
+            this.mailListService.setMailTagVisibility([newMessage]);
 
-          // aggiorno il messaggio nella lista inserendo quello ricaricato
-          this.mailListService.messages[messageIndex] = newMessage;
+            // aggiorno il messaggio nella lista inserendo quello ricaricato
+            this.mailListService.messages[messageIndex] = newMessage;
 
-          // se il messaggio è anche presente nei messaggi selezioni, lo sostituisco anche lì
-          const smIndex = this.mailListService.selectedMessages.findIndex(sm => sm.id === newMessage.id);
-          if (smIndex >= 0) {
-            this.mailListService.selectedMessages[smIndex] = newMessage;
+            // se il messaggio è anche presente nei messaggi selezioni, lo sostituisco anche lì
+            const smIndex = this.mailListService.selectedMessages.findIndex(sm => sm.id === newMessage.id);
+            if (smIndex >= 0) {
+              this.mailListService.selectedMessages[smIndex] = newMessage;
+            }
           }
-        })});
+        },
+        err => {
+          // show error message
+          this.messagePrimeService.add(
+            { severity: "error", summary: "Errore", detail: "Errore durante il ricaricamento della mail"});
+        }
+        )});
       },
         err => {
           // show error message
           this.messagePrimeService.add(
-            { severity: "error", summary: "Errore", detail: "Errore durante il fix, contattare Saruman", life: 3500 });
+            { severity: "error", summary: "Errore", detail: "Errore durante il fix del tag", life: 3500 });
         })
     });
   }
