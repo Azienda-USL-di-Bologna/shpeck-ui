@@ -318,7 +318,7 @@ export class MailListComponent implements OnInit, OnDestroy {
     }
     this.subscriptions.push({id: null, type: "messageEvent", subscription: this.messageService.messageEvent.subscribe(
       (messageEvent: MessageEvent) => {
-        console.log("in messageEvent", messageEvent);
+        // console.log("in messageEvent", messageEvent);
         // if (messageEvent && (!messageEvent.selectedMessages || messageEvent.selectedMessages.length === 0)) {
         //   console.log("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa ", messageEvent);
         //   this.mailListService.selectedMessages.push(this.mailListService.messages[1]);
@@ -2038,7 +2038,7 @@ export class MailListComponent implements OnInit, OnDestroy {
                       type: "null",
                       subscription: this.mailListService.fixMessageTagInRegistration(message.id).subscribe(res => {
         if (res && res.Response === "Tutto ok") {
-          console.log("onFixMessageTagInRegistration response: ", res);
+          // console.log("onFixMessageTagInRegistration response: ", res);
           this.messagePrimeService.add(
             { severity: "success", summary: "Successo", detail: "Fix fatto correttamente" });
         }
@@ -2046,7 +2046,7 @@ export class MailListComponent implements OnInit, OnDestroy {
         const messageIndex = this.mailListService.messages.findIndex(m => m.id === message.id);
 
         this.unsubscribeFromMessage(message.id); // disabilito le sottoscrizioni relative al messaggio da ricaricare
-        console.log("message found, refreshing...");
+        // console.log("message found, refreshing...");
         // ricarico il messaggio tramite una chiamata al backend
         const filterDefinition = new FilterDefinition("id", FILTER_TYPES.not_string.equals, message.id);
         const filter: FiltersAndSorts = new FiltersAndSorts();
