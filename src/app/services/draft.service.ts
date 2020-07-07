@@ -15,6 +15,7 @@ import { FullMessage } from "./shpeck-message.service";
 export class DraftService extends NextSDREntityProvider {
   private _draftEvent = new BehaviorSubject<DraftEvent>(null);
   public reload: BehaviorSubject<number> = new BehaviorSubject<number>(null);
+  private _isMailFormSubmitted: boolean = false;
 
   constructor(protected http: HttpClient, protected datepipe: DatePipe, public messagePrimeService: MessageService) {
     super(http, datepipe, ENTITIES_STRUCTURE.shpeck.draft, getInternautaUrl(BaseUrlType.Shpeck));
@@ -22,6 +23,14 @@ export class DraftService extends NextSDREntityProvider {
 
   public get draftEvent(): Observable<DraftEvent> {
     return this._draftEvent.asObservable();
+  }
+
+  public get isMailFormSubmitted() {
+    return this._isMailFormSubmitted;
+  }
+
+  public set setIsMailFormSubmitted(state: boolean) {
+    this._isMailFormSubmitted = state;
   }
 
   /**
@@ -138,6 +147,7 @@ export class DraftService extends NextSDREntityProvider {
           this.messagePrimeService.add(
           { severity: "error", summary: "Errore", detail: "Errore durante l'invio della mail, contattare BabelCare", life: 3500 });
         }
+        this._isMailFormSubmitted = false;
       }
     );
   }

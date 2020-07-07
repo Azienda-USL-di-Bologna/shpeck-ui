@@ -107,7 +107,7 @@
         <button
           type="button" pButton icon="fa fa-paper-plane"
           class="ui-button-raised ui-button-secondary button-styles custom-secondary-button"
-          label="Invia" (click)="onSubmit()" [disabled]="mailForm.invalid">
+          label="Invia" (click)="onSubmit()" [disabled]="mailForm.invalid || this.draftService.isMailFormSubmitted">
         </button>
       </p-footer>
     </form>
