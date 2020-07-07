@@ -217,12 +217,12 @@
                         </span>
                     </span>
                 </div>
-                <div class="seconda-riga">
+                <div class="seconda-riga" [pTooltip]="message['id']" showDelay="500" tooltipPosition="left">
                     <!-- <span class="pi pi-user icon-default-color second-line-icon"></span> -->
                     <!-- <span *ngIf="message.fromOrTo.fromOrTo === 'FROM'" title="Mittente" class="pi pi-angle-left icon-default-color second-line-icon"></span>
                     <span *ngIf="message.fromOrTo.fromOrTo === 'TO'" title="Destinatari" class="pi pi-angle-right icon-default-color second-line-icon"></span> -->
 
-                    <div>
+                    <div >
                         <span *ngIf="message.fromOrTo.fromOrTo === 'FROM'" title="Mittente" class="fa fa-user-edit icon-default-color second-line-icon second-line-icon-fa"></span>
                         <span *ngIf="message.fromOrTo.fromOrTo === 'TO'" title="Destinatari" class="fa fa-user-friends icon-default-color second-line-icon second-line-icon-fa"></span>
                         <div class="display-text text-from-or-to" [ngClass]="{'display-bold':!message.seen}">{{message.fromOrTo.description}}</div>
