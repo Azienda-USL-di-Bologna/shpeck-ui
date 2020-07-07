@@ -133,6 +133,11 @@ p-table,
   // align-items:
 }
 
+.prima-riga-sinistra {
+  align-self: center;
+  display: flex;
+}
+
 .prima-riga-destra {
   display: flex;
   flex-direction: row;
@@ -171,6 +176,7 @@ p-table,
   //width: 20px;
 }
 .first-icon-left {
+  display: flex;
   padding-left: 0;
 }
 .fa-icon {

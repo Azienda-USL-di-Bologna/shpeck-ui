@@ -1163,6 +1163,11 @@ export class MailListService {
     }
   }
 
+  public fixMessageTagInRegistration(messageId: number): Observable<any> {
+    const url = getInternautaUrl(BaseUrlType.Shpeck) + "/" + CUSTOM_SERVER_METHODS.fixMessageTagInRegistration + "/" + messageId;
+      return this.httpClient.get(url);
+  }
+
 }
 
 interface MessageTagOp {
