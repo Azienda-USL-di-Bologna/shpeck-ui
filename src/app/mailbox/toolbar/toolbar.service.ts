@@ -208,7 +208,8 @@ export class ToolBarService {
           return;
         }
       }
-      this.draftService.postHttpCall(draftMessage).subscribe((draft: Draft) => {
+        this.draftService.postHttpCall(draftMessage).subscribe((draft: Draft) => {
+          this.draftService.setIsMailFormSubmitted = false;
         const ref = this.dialogService.open(NewMailComponent, {
           data: {
             fullMessage: this.messageEvent ? this.messageEvent.downloadedMessage : undefined,

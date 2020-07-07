@@ -23,7 +23,7 @@
             <button pButton type="button" icon="fa fa-address-book" class="ui-button-raised custom-primary-button" (click)="displayRubricaPopup = true; lastAddressBookUsed = 'to'"></button>
           </span>
         </li>
-        <li *ngIf="addressesTO.dirty && addressesTO.invalid" class="alert-message">
+        <li *ngIf="addressesTO.dirty && addressesTO.invalid && !addressesTO.errors?.required" class="alert-message">
           Hai inserito un indirizzo mail sbagliato!
         </li>
         <!-- CC Addresses -->
@@ -107,7 +107,7 @@
         <button
           type="button" pButton icon="fa fa-paper-plane"
           class="ui-button-raised ui-button-secondary button-styles custom-secondary-button"
-          label="Invia" (click)="onSubmit()" [disabled]="mailForm.invalid">
+          label="Invia" (click)="onSubmit()" [disabled]="mailForm.invalid || this.draftService.isMailFormSubmitted">
         </button>
       </p-footer>
     </form>
