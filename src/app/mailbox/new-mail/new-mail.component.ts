@@ -465,6 +465,7 @@ export class NewMailComponent implements OnInit, AfterViewInit {
   onSubmit() {
     console.log("FORM = ", this.mailForm.value);
     const formToSend: FormData = this.buildFormToSend();
+    this.draftService.setIsMailFormSubmitted = true;
     this.draftService.submitMessage(formToSend);
     this.onClose();
   }
