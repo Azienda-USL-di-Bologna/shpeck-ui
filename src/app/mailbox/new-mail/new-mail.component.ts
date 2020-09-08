@@ -1,6 +1,6 @@
 import { Component, OnInit, ViewChild, AfterViewInit } from "@angular/core";
 import { FormGroup, FormControl, Validators, FormArray } from "@angular/forms";
-import { DynamicDialogConfig, DialogService, ConfirmationService } from "primeng-lts/api";
+import { DynamicDialogRef, DynamicDialogConfig, DialogService, ConfirmationService } from "primeng-lts/api";
 import { Message, Pec, Draft, MessageRelatedType, InOut } from "@bds/ng-internauta-model";
 import { Editor } from "primeng-lts/editor";
 import { TOOLBAR_ACTIONS, MAX_FILE_SIZE_UPLOAD } from "src/environments/app-constants";
@@ -78,7 +78,8 @@ export class NewMailComponent implements OnInit, AfterViewInit {
     public config: DynamicDialogConfig,
     public dialogService: DialogService,
     public draftService: DraftService,
-    private confirmationService: ConfirmationService) { }
+    private confirmationService: ConfirmationService,
+    private dynamicDialogRef: DynamicDialogRef) { }
 
   ngOnInit() {
     console.log("DATA PASSED = ", this.config.data);
@@ -491,7 +492,7 @@ export class NewMailComponent implements OnInit, AfterViewInit {
   }
 
   onClose() {
-    this.dialogService.dialogComponentRef.instance.close();
+    this.dynamicDialogRef.close();
   }
 
   formatSize(bytes, originalBytes?) {
