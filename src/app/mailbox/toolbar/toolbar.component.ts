@@ -50,27 +50,20 @@ export class ToolbarComponent implements OnDestroy {
    * @param event
    * @param action
    */
-  handleEvent($event: MouseEvent, action) {
-
-    console.log("$event", event.target);
+  handleEvent(event , action) {
     
-
     console.log("EVENTO = ", action);
     switch (action) {
       case TOOLBAR_ACTIONS.NEW:
           this.toolBarService.newMail(action);
         break;
       case TOOLBAR_ACTIONS.EDIT:
-        if(!this.toolBarService.isDialogOpen){
           this.toolBarService.editMail();
-        }
         break;
       case TOOLBAR_ACTIONS.REPLY:
       case TOOLBAR_ACTIONS.REPLY_ALL:
       case TOOLBAR_ACTIONS.FORWARD:
-        if(!this.toolBarService.isDialogOpen){
           this.toolBarService.newMail(action);
-        }
         break;
       case TOOLBAR_ACTIONS.DELETE:
         this.deletingConfirmation();
