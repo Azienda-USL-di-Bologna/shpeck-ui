@@ -273,8 +273,8 @@ export class ToolBarService {
       ref.onClose.subscribe((el) => {
         if (el) {
           console.log("Ref: ", el);
-          this.isDialogOpen = false;
         }
+        this.isDialogOpen = false;
       });
     }
   }
