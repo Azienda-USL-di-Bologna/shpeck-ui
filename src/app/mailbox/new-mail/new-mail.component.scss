@@ -82,8 +82,9 @@ li {
   background-color: rgb(206, 206, 206);
 }
 ::ng-deep body .ui-autocomplete-panel .ui-autocomplete-items .ui-autocomplete-list-item.ui-state-highlight {
-  background-color: #546069;
+  background-color: #969da1;
   color: #ffffff;
+  border: 1px solid #2e4a65;
 }
 ::ng-deep .ui-autocomplete-input-token input {
   width: 26em;
