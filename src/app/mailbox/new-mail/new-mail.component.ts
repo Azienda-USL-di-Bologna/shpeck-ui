@@ -1,12 +1,13 @@
 import { Component, OnInit, ViewChild, AfterViewInit } from "@angular/core";
 import { FormGroup, FormControl, Validators, FormArray } from "@angular/forms";
-import { DynamicDialogRef, DynamicDialogConfig, DialogService, ConfirmationService } from "primeng-lts/api";
-import { Message, Pec, Draft, MessageRelatedType, InOut, ContattoService } from "@bds/ng-internauta-model";
+import { DynamicDialogRef, DynamicDialogConfig, DialogService, ConfirmationService, MessageService } from "primeng-lts/api";
+import { Message, Pec, Draft, MessageRelatedType, InOut, ENTITIES_STRUCTURE, DettaglioContattoService } from "@bds/ng-internauta-model";
 import { Editor } from "primeng-lts/editor";
 import { TOOLBAR_ACTIONS, MAX_FILE_SIZE_UPLOAD } from "src/environments/app-constants";
 import { DraftService } from "src/app/services/draft.service";
 import { Chips } from "primeng-lts/chips";
 import { AutoComplete } from "primeng-lts/primeng";
+import { FiltersAndSorts, FilterDefinition, FILTER_TYPES } from '@nfa/next-sdr';
 
 @Component({
   selector: "app-new-mail",
@@ -80,7 +81,8 @@ export class NewMailComponent implements OnInit, AfterViewInit {
     public draftService: DraftService,
     private confirmationService: ConfirmationService,
     private dynamicDialogRef: DynamicDialogRef,
-    private contattoService: ContattoService) { }
+    private dettaglioContattoService: DettaglioContattoService,
+    private messageService: MessageService) { }
 
   ngOnInit() {
     console.log("DATA PASSED = ", this.config.data);
@@ -234,6 +236,7 @@ export class NewMailComponent implements OnInit, AfterViewInit {
    * @param formField Il campo del form dove è stato inserito l'indirizzo, addresses o ccAddresses
   */
   onKeyUp(event: KeyboardEvent, formField: string) {
+    console.log("messageService onKeyUp");
     if (event.key === "Enter" || event.type === "blur") {
       const tokenInput = event.target as any;
       tokenInput.value = tokenInput.value.trim();
@@ -276,9 +279,10 @@ export class NewMailComponent implements OnInit, AfterViewInit {
    * @param item L'oggetto selezionato nell'autocomplete
    * @param formField Il campo del form dove è stato selezionato l'indirizzo, addresses o ccAddresses
   */
-  onSelect(item: string, formField: string) {
-    if (item) {
-      item = item.trim();
+  onSelect(item: any, formField: string) {
+    if (item.descrizione) {
+      console.log("item: ", item);
+      item = item.descrizione.trim();
       if (formField === "to") {
         const toForm = this.mailForm.get("to") as FormArray;
         if (toForm.value.indexOf(item) === -1) {
@@ -524,11 +528,34 @@ export class NewMailComponent implements OnInit, AfterViewInit {
   }
 
   filterAddressMultiple(event) {
-    // contatto?projection=CustomContattoWithEmailList&protocontatto=false&tscol=p.olivieri@yahoo.it&eliminato=false&sort=descrizione,asc
-
-    this.contattoService.getData()
+    // dettagliocontatto?projection=DettaglioContattoWithIdContatto&idContatto.protocontatto=false&tscol=olivieri&idContatto.eliminato=false&eliminato=false&sort=descrizione,asc
+    // const projection = "DettaglioContattoWithIdContatto";
     const query = event.query;
-    this.filteredAddressMultiple = this.filterAddress(query, this.indirizziTest);
+    const projection = ENTITIES_STRUCTURE.rubrica.dettagliocontatto.standardProjections.DettaglioContattoWithIdContatto;
+    const filtersAndSorts: FiltersAndSorts = new FiltersAndSorts();
+
+    filtersAndSorts.addFilter(new FilterDefinition("idContatto.eliminato", FILTER_TYPES.not_string.equals, false));
+    filtersAndSorts.addFilter(new FilterDefinition("idContatto.daVerificare", FILTER_TYPES.not_string.equals, false));
+    filtersAndSorts.addFilter(new FilterDefinition("eliminato", FILTER_TYPES.not_string.equals, false));
+    filtersAndSorts.addFilter(new FilterDefinition("tscol", FILTER_TYPES.not_string.equals, query));
+
+    this.dettaglioContattoService.getData(projection, filtersAndSorts).subscribe(res => { 
+
+      res.results.forEach(dettaglioContatto => {
+        dettaglioContatto["descrizioneCustom"] = dettaglioContatto.descrizione + " [ " + dettaglioContatto.idContatto.descrizione + " ]";
+      });
+      this.filteredAddressMultiple = res.results;
+      console.log("filteredAddressMultiple: ", this.filteredAddressMultiple);
+
+    }, err => {
+        console.log("error");
+        this.messageService.add({
+          severity: "warn",
+          summary: "Errore nel backend",
+          detail: "Non è stato possibile fare la ricerca."
+        });
+    });
+    // this.filteredAddressMultiple = this.filterAddress(query, this.indirizziTest);
   }
 
   filterAddress(query, addresses: any[]): any[] {
