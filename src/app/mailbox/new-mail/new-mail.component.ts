@@ -1,7 +1,7 @@
 import { Component, OnInit, ViewChild, AfterViewInit } from "@angular/core";
 import { FormGroup, FormControl, Validators, FormArray } from "@angular/forms";
 import { DynamicDialogRef, DynamicDialogConfig, DialogService, ConfirmationService } from "primeng-lts/api";
-import { Message, Pec, Draft, MessageRelatedType, InOut } from "@bds/ng-internauta-model";
+import { Message, Pec, Draft, MessageRelatedType, InOut, ContattoService } from "@bds/ng-internauta-model";
 import { Editor } from "primeng-lts/editor";
 import { TOOLBAR_ACTIONS, MAX_FILE_SIZE_UPLOAD } from "src/environments/app-constants";
 import { DraftService } from "src/app/services/draft.service";
@@ -79,7 +79,8 @@ export class NewMailComponent implements OnInit, AfterViewInit {
     public dialogService: DialogService,
     public draftService: DraftService,
     private confirmationService: ConfirmationService,
-    private dynamicDialogRef: DynamicDialogRef) { }
+    private dynamicDialogRef: DynamicDialogRef,
+    private contattoService: ContattoService) { }
 
   ngOnInit() {
     console.log("DATA PASSED = ", this.config.data);
@@ -523,8 +524,11 @@ export class NewMailComponent implements OnInit, AfterViewInit {
   }
 
   filterAddressMultiple(event) {
-      const query = event.query;
-      this.filteredAddressMultiple = this.filterAddress(query, this.indirizziTest);
+    // contatto?projection=CustomContattoWithEmailList&protocontatto=false&tscol=p.olivieri@yahoo.it&eliminato=false&sort=descrizione,asc
+
+    this.contattoService.getData()
+    const query = event.query;
+    this.filteredAddressMultiple = this.filterAddress(query, this.indirizziTest);
   }
 
   filterAddress(query, addresses: any[]): any[] {
