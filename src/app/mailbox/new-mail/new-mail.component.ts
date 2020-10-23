@@ -1,14 +1,17 @@
-import { Component, OnInit, ViewChild, AfterViewInit } from "@angular/core";
+import { Component, OnInit, ViewChild, AfterViewInit, OnDestroy } from "@angular/core";
 import { FormGroup, FormControl, Validators, FormArray } from "@angular/forms";
 import { DynamicDialogRef, DynamicDialogConfig, DialogService, ConfirmationService, MessageService } from "primeng-lts/api";
-import { Message, Pec, Draft, MessageRelatedType, InOut, ENTITIES_STRUCTURE, DettaglioContattoService } from "@bds/ng-internauta-model";
+import { Message, Pec, Draft, MessageRelatedType, InOut, ENTITIES_STRUCTURE, DettaglioContattoService, Utente } from "@bds/ng-internauta-model";
 import { Editor } from "primeng-lts/editor";
 import { TOOLBAR_ACTIONS, MAX_FILE_SIZE_UPLOAD } from "src/environments/app-constants";
 import { DraftService } from "src/app/services/draft.service";
 import { Chips } from "primeng-lts/chips";
 import { AutoComplete } from "primeng-lts/primeng";
-import { FiltersAndSorts, FilterDefinition, FILTER_TYPES } from '@nfa/next-sdr';
-import { Router } from '@angular/router';
+import { FiltersAndSorts, FilterDefinition, FILTER_TYPES } from "@nfa/next-sdr";
+import { Router } from "@angular/router";
+import { UtenteUtilities, NtJwtLoginService } from "@bds/nt-jwt-login";
+import { Subscription } from "rxjs";
+import { CustomContactService, SelectedContact } from "@bds/common-components";
 
 @Component({
   selector: "app-new-mail",
@@ -16,7 +19,7 @@ import { Router } from '@angular/router';
   styleUrls: ["./new-mail.component.scss"],
   providers: [ConfirmationService]
 })
-export class NewMailComponent implements OnInit, AfterViewInit {
+export class NewMailComponent implements OnInit, AfterViewInit, OnDestroy {
 
   @ViewChild("toAutoComplete", null) toAutoComplete: AutoComplete;
   @ViewChild("ccAutoComplete", null) ccAutoComplete: AutoComplete;
@@ -38,33 +41,35 @@ export class NewMailComponent implements OnInit, AfterViewInit {
   public lastAddressBookUsed = "";
 
   public displayRubricaPopup = false;
+  public utenteConnesso: Utente;
+  private subscriptions: Subscription[] = [];
 
-  public indirizziTest = [
-    "g.russo@nsi.it",
-    "l.salomone@nsi.it",
-    "f.gusella@nsi.it",
-    "a.marcomini@nextsw.it",
-    "opsouperen@cryptontrade.ga",
-    "heckerman@att.net",
-    "jespley@sbcglobal.net",
-    "kannan@msn.com",
-    "boftx@outlook.com",
-    "sacraver@optonline.net",
-    "north@yahoo.ca",
-    "dhwon@yahoo.ca",
-    "jamuir@att.net",
-    "kobayasi@msn.com",
-    "syrinx@optonline.net",
-    "bcevc@live.com",
-    "syrinx@outlook.com",
-    "lpalmer@aol.com",
-    "crimsane@aol.com",
-    "geoffr@sbcglobal.net",
-    "dcoppit@live.com",
-    "schumer@outlook.com",
-    "francesco.gusella@ausl.bologna.it",
-    "g.russo.nsi@gmail.com"
-  ];
+  // public indirizziTest = [
+  //   "g.russo@nsi.it",
+  //   "l.salomone@nsi.it",
+  //   "f.gusella@nsi.it",
+  //   "a.marcomini@nextsw.it",
+  //   "opsouperen@cryptontrade.ga",
+  //   "heckerman@att.net",
+  //   "jespley@sbcglobal.net",
+  //   "kannan@msn.com",
+  //   "boftx@outlook.com",
+  //   "sacraver@optonline.net",
+  //   "north@yahoo.ca",
+  //   "dhwon@yahoo.ca",
+  //   "jamuir@att.net",
+  //   "kobayasi@msn.com",
+  //   "syrinx@optonline.net",
+  //   "bcevc@live.com",
+  //   "syrinx@outlook.com",
+  //   "lpalmer@aol.com",
+  //   "crimsane@aol.com",
+  //   "geoffr@sbcglobal.net",
+  //   "dcoppit@live.com",
+  //   "schumer@outlook.com",
+  //   "francesco.gusella@ausl.bologna.it",
+  //   "g.russo.nsi@gmail.com"
+  // ];
   public ccTooltip = "Non puoi inserire destinatari CC se è attiva la funzione Destinatari privati";
   public hideRecipientsTooltip = "Non puoi utilizzare la funzione Destinatari privati con destinatari CC: cancellali o rendili destinatari A";
 
@@ -84,9 +89,20 @@ export class NewMailComponent implements OnInit, AfterViewInit {
     private dynamicDialogRef: DynamicDialogRef,
     private dettaglioContattoService: DettaglioContattoService,
     private messageService: MessageService,
-    private router: Router) { }
+    private router: Router,
+    private loginService: NtJwtLoginService,
+    private customContactService: CustomContactService) { }
 
   ngOnInit() {
+    this.subscriptions.push(
+      this.loginService.loggedUser$.subscribe((utente: UtenteUtilities) => {
+        if (utente) {
+          this.utenteConnesso = utente.getUtente();
+          console.log("loggedUser", this.utenteConnesso);
+        }
+      })
+    );
+
     console.log("DATA PASSED = ", this.config.data);
     let subject: string = ""; // L'Oggetto della mail
     let messageRelatedType = "";
@@ -282,9 +298,13 @@ export class NewMailComponent implements OnInit, AfterViewInit {
    * @param formField Il campo del form dove è stato selezionato l'indirizzo, addresses o ccAddresses
   */
   onSelect(item: any, formField: string) {
-    if (item.descrizione) {
+    if (item) {
       console.log("item: ", item);
-      item = item.descrizione.trim();
+      if (item.decrizione && this.utenteConnesso.aziendaLogin["parametriAzienda"] && this.utenteConnesso.aziendaLogin["parametriAzienda"].rubricaInternauta) {
+        item = item.descrizione.trim();
+      } else {
+        item = item.trim();
+      }
       if (formField === "to") {
         const toForm = this.mailForm.get("to") as FormArray;
         if (toForm.value.indexOf(item) === -1) {
@@ -524,40 +544,40 @@ export class NewMailComponent implements OnInit, AfterViewInit {
   }
 
   /* Metodi per la ricerca nei campi indirizzi, saranno rivisti con l'introduzione della rubrica */
-  filterAddressSingle(event) {
-    const query = event.query;
-    this.filteredAddressSingle = this.filterAddress(query, this.indirizziTest);
-  }
+  // filterAddressSingle(event) {
+  //   const query = event.query;
+  //   this.filteredAddressSingle = this.filterAddress(query, this.indirizziTest);
+  // }
 
   filterAddressMultiple(event) {
-    // dettagliocontatto?projection=DettaglioContattoWithIdContatto&idContatto.protocontatto=false&tscol=olivieri&idContatto.eliminato=false&eliminato=false&sort=descrizione,asc
-    // const projection = "DettaglioContattoWithIdContatto";
     const query = event.query;
-    const projection = ENTITIES_STRUCTURE.rubrica.dettagliocontatto.standardProjections.DettaglioContattoWithIdContatto;
-    const filtersAndSorts: FiltersAndSorts = new FiltersAndSorts();
+    if (this.utenteConnesso.aziendaLogin["parametriAzienda"] && this.utenteConnesso.aziendaLogin["parametriAzienda"].rubricaInternauta) {
+      const projection = ENTITIES_STRUCTURE.rubrica.dettagliocontatto.standardProjections.DettaglioContattoWithIdContatto;
+      const filtersAndSorts: FiltersAndSorts = new FiltersAndSorts();
 
-    filtersAndSorts.addFilter(new FilterDefinition("idContatto.eliminato", FILTER_TYPES.not_string.equals, false));
-    filtersAndSorts.addFilter(new FilterDefinition("idContatto.daVerificare", FILTER_TYPES.not_string.equals, false));
-    filtersAndSorts.addFilter(new FilterDefinition("eliminato", FILTER_TYPES.not_string.equals, false));
-    filtersAndSorts.addFilter(new FilterDefinition("tipo", FILTER_TYPES.not_string.equals, "EMAIL"));
-    filtersAndSorts.addFilter(new FilterDefinition("tscol", FILTER_TYPES.not_string.equals, query));
+      filtersAndSorts.addFilter(new FilterDefinition("idContatto.eliminato", FILTER_TYPES.not_string.equals, false));
+      filtersAndSorts.addFilter(new FilterDefinition("idContatto.daVerificare", FILTER_TYPES.not_string.equals, false));
+      filtersAndSorts.addFilter(new FilterDefinition("eliminato", FILTER_TYPES.not_string.equals, false));
+      filtersAndSorts.addFilter(new FilterDefinition("tipo", FILTER_TYPES.not_string.equals, "EMAIL"));
+      filtersAndSorts.addFilter(new FilterDefinition("tscol", FILTER_TYPES.not_string.equals, query));
 
-    this.dettaglioContattoService.getData(projection, filtersAndSorts).subscribe(res => { 
+      this.dettaglioContattoService.getData(projection, filtersAndSorts).subscribe(res => { 
 
-      res.results.forEach(dettaglioContatto => {
-        dettaglioContatto["descrizioneCustom"] = dettaglioContatto.descrizione + " [ " + dettaglioContatto.idContatto.descrizione + " ]";
-      });
-      this.filteredAddressMultiple = res.results;
-      console.log("filteredAddressMultiple: ", this.filteredAddressMultiple);
-
-    }, err => {
-        console.log("error");
-        this.messageService.add({
-          severity: "warn",
-          summary: "Errore nel backend",
-          detail: "Non è stato possibile fare la ricerca."
+        res.results.forEach(dettaglioContatto => {
+          dettaglioContatto["descrizioneCustom"] = dettaglioContatto.descrizione + " [ " + dettaglioContatto.idContatto.descrizione + " ]";
         });
-    });
+        this.filteredAddressMultiple = res.results;
+        console.log("filteredAddressMultiple: ", this.filteredAddressMultiple);
+
+      }, err => {
+          console.log("error");
+          this.messageService.add({
+            severity: "warn",
+            summary: "Errore nel backend",
+            detail: "Non è stato possibile fare la ricerca."
+          });
+      });
+    }
     // this.filteredAddressMultiple = this.filterAddress(query, this.indirizziTest);
   }
 
@@ -687,24 +707,64 @@ export class NewMailComponent implements OnInit, AfterViewInit {
 
   handleOnHideRubricaPopup(event) {
     console.log("handleOnHideRubricaPopup", event);
-    this.router.navigate(["", { outlets: { rubricaPopup: null } }]);
-    this.displayRubricaPopup = false;
+    this.onCloseRubricaPopup();
   }
 
   onCloseRubricaPopup() {
     console.log("onCloseRubricaPopup");
-    this.handleOnHideRubricaPopup("onCloseRubricaPopup");
+    this.router.navigate(["", { outlets: { rubricaPopup: null } }]);
+    this.displayRubricaPopup = false;
+
+    this.customContactService._callerData.selectedContactsLists.A = [];
+    this.customContactService._callerData.selectedContactsLists.CC = [];
   }
 
   onOpenRubricaPopup() {
     console.log("onOpenRubricaPopup");
     this.displayRubricaPopup = true;
-    this.router.navigate(["", { outlets: { rubricaPopup: "rubrica" }}], {
-      queryParams: {
-        mode: "selection",
-        from: "pec"
+    if (this.utenteConnesso.aziendaLogin['parametriAzienda'] && this.utenteConnesso.aziendaLogin['parametriAzienda'].rubricaInternauta) {
+      this.router.navigate(["", { outlets: { rubricaPopup: "rubrica" }}], {
+        queryParams: {
+          mode: "selection",
+          from: "pec"
+        }
+      });
+    }
+  }
+
+  handleOnShowRubricaPopup(event) {
+    console.log("handleOnShowRubricaPopup", event);
+  }
+
+  onConfermaDestinatari() {
+    console.log("onConfermaDestinatari");
+    const url = this.router.url;
+    if (url.includes("editing") && url.includes("selection")) {
+      console.log("Can not send selected contacts");
+      this.messageService.add({severity: "warn", summary: "Attenzione", detail: "Stai ancora facendo delle modifiche. Annulla o Salva/Conferma per poter proseguire."});
+    } else {
+      if (this.customContactService._callerData.selectedContactsLists.A && this.customContactService._callerData.selectedContactsLists.A.length > 0) {
+        this.customContactService._callerData.selectedContactsLists.A.forEach((selectedContact: SelectedContact) => {
+          console.log("selectedContact: ", selectedContact);
+          this.onSelect(selectedContact.address.descrizione, "to");
+        });
       }
-    });
+
+      if (this.customContactService._callerData.selectedContactsLists.CC && this.customContactService._callerData.selectedContactsLists.CC.length > 0) {
+        this.customContactService._callerData.selectedContactsLists.CC.forEach((selectedContact: SelectedContact) => {
+          console.log("selectedContact: ", selectedContact);
+          this.onSelect(selectedContact.address.descrizione, "cc");
+        });
+      }
+
+      this.onCloseRubricaPopup();
+    }
+
+  }
+
+  public ngOnDestroy(): void {
+    this.subscriptions.forEach(s => s.unsubscribe());
+    this.subscriptions = [];
   }
 
 }

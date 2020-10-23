@@ -65,7 +65,7 @@
             </p-autoComplete>
           </span>
           <span>
-            <button pButton type="button" icon="fa fa-address-book" class="ui-button-raised custom-primary-button" (click)="displayRubricaPopup = true; lastAddressBookUsed = 'cc'"></button>
+            <button pButton type="button" icon="fa fa-address-book" class="ui-button-raised custom-primary-button" (click)="onOpenRubricaPopup(); lastAddressBookUsed = 'cc'"></button>
           </span>
         </li>
         <li *ngIf="addressesTO.dirty && addressesCC.invalid" class="alert-message">
@@ -177,19 +177,26 @@
   [(visible)]="displayRubricaPopup"
   modal="true"
   (onHide)="handleOnHideRubricaPopup($event)"
+  (onShow)="handleOnShowRubricaPopup($event)"
   class="popup-rubrica"
-  [contentStyle]="{'height':'70vh','max-height':'70vh', 'width':'92vw'}">
+  [contentStyle]="utenteConnesso.aziendaLogin.parametriAzienda?.rubricaInternauta ? {'height':'70vh','max-height':'70vh', 'width':'92vw'} : null">
   <p-header>
     Aggiungi destinatario
   </p-header>
-  <!-- <app-search-contact
+
+  <app-search-contact *ngIf="!utenteConnesso.aziendaLogin.parametriAzienda?.rubricaInternauta"
     (addressChosedByBook)="onAddressChosedByBook($event)"
     (closeRubricaPopup)="displayRubricaPopup = false">
-  </app-search-contact> -->
-  <!-- <rubrica></rubrica> -->
-  <app-rubrica-container (closeRubricaPopup)="displayRubricaPopup = false"></app-rubrica-container>
-  <p-footer>
-    <button type="button" pButton icon="pi pi-times " label="Chiudi" (click)="onCloseRubricaPopup()"
+  </app-search-contact>
+
+  <app-rubrica-container *ngIf="utenteConnesso.aziendaLogin.parametriAzienda?.rubricaInternauta"
+    (closeRubricaPopup)="displayRubricaPopup = false"></app-rubrica-container>
+
+  <p-footer  *ngIf="utenteConnesso.aziendaLogin.parametriAzienda?.rubricaInternauta">
+    <button type="button" pButton icon="pi pi-check" label="Conferma Destinatari Selezionati" (click)="onConfermaDestinatari()"
+      class="ui-button-raised ui-button-secondary custom-secondary-button">
+    </button>
+    <button type="button" pButton icon="pi pi-times" label="Anulla" (click)="onCloseRubricaPopup()"
       class="confirm-buttons ui-button-raised ui-button-secondary custom-secondary-button">
     </button>
   </p-footer>
