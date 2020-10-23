@@ -33,7 +33,7 @@
               </p-autoComplete>
           </span>
           <span>
-            <button pButton type="button" icon="fa fa-address-book" class="ui-button-raised custom-primary-button" (click)="displayRubricaPopup = true; lastAddressBookUsed = 'to'"></button>
+            <button pButton type="button" icon="fa fa-address-book" class="ui-button-raised custom-primary-button" (click)="onOpenRubricaPopup(); lastAddressBookUsed = 'to'"></button>
           </span>
         </li>
         <li *ngIf="addressesTO.dirty && addressesTO.invalid && !addressesTO.errors?.required" class="alert-message">
@@ -175,15 +175,22 @@
 <p-dialog
   appendTo="body"
   [(visible)]="displayRubricaPopup"
-  *ngIf="displayRubricaPopup"
   modal="true"
+  (onHide)="handleOnHideRubricaPopup($event)"
   class="popup-rubrica"
-  [style]="{width: '700px'}">
+  [contentStyle]="{'height':'70vh','max-height':'70vh', 'width':'92vw'}">
   <p-header>
     Aggiungi destinatario
   </p-header>
-  <app-search-contact
+  <!-- <app-search-contact
     (addressChosedByBook)="onAddressChosedByBook($event)"
     (closeRubricaPopup)="displayRubricaPopup = false">
-  </app-search-contact>
+  </app-search-contact> -->
+  <!-- <rubrica></rubrica> -->
+  <app-rubrica-container (closeRubricaPopup)="displayRubricaPopup = false"></app-rubrica-container>
+  <p-footer>
+    <button type="button" pButton icon="pi pi-times " label="Chiudi" (click)="onCloseRubricaPopup()"
+      class="confirm-buttons ui-button-raised ui-button-secondary custom-secondary-button">
+    </button>
+  </p-footer>
 </p-dialog>

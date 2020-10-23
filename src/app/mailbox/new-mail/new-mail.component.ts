@@ -8,6 +8,7 @@ import { DraftService } from "src/app/services/draft.service";
 import { Chips } from "primeng-lts/chips";
 import { AutoComplete } from "primeng-lts/primeng";
 import { FiltersAndSorts, FilterDefinition, FILTER_TYPES } from '@nfa/next-sdr';
+import { Router } from '@angular/router';
 
 @Component({
   selector: "app-new-mail",
@@ -82,7 +83,8 @@ export class NewMailComponent implements OnInit, AfterViewInit {
     private confirmationService: ConfirmationService,
     private dynamicDialogRef: DynamicDialogRef,
     private dettaglioContattoService: DettaglioContattoService,
-    private messageService: MessageService) { }
+    private messageService: MessageService,
+    private router: Router) { }
 
   ngOnInit() {
     console.log("DATA PASSED = ", this.config.data);
@@ -682,4 +684,27 @@ export class NewMailComponent implements OnInit, AfterViewInit {
       }
     }
   }
+
+  handleOnHideRubricaPopup(event) {
+    console.log("handleOnHideRubricaPopup", event);
+    this.router.navigate(["", { outlets: { rubricaPopup: null } }]);
+    this.displayRubricaPopup = false;
+  }
+
+  onCloseRubricaPopup() {
+    console.log("onCloseRubricaPopup");
+    this.handleOnHideRubricaPopup("onCloseRubricaPopup");
+  }
+
+  onOpenRubricaPopup() {
+    console.log("onOpenRubricaPopup");
+    this.displayRubricaPopup = true;
+    this.router.navigate(["", { outlets: { rubricaPopup: "rubrica" }}], {
+      queryParams: {
+        mode: "selection",
+        from: "pec"
+      }
+    });
+  }
+
 }
