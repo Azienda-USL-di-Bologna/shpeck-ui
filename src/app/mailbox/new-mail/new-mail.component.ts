@@ -300,7 +300,7 @@ export class NewMailComponent implements OnInit, AfterViewInit, OnDestroy {
   onSelect(item: any, formField: string) {
     if (item) {
       console.log("item: ", item);
-      if (item.decrizione && this.utenteConnesso.aziendaLogin["parametriAzienda"] && this.utenteConnesso.aziendaLogin["parametriAzienda"].rubricaInternauta) {
+      if (item.decrizione && this.utenteConnesso.aziendaLogin.parametriAzienda && this.utenteConnesso.aziendaLogin.parametriAzienda.rubricaInternauta) {
         item = item.descrizione.trim();
       } else {
         item = item.trim();
@@ -551,7 +551,7 @@ export class NewMailComponent implements OnInit, AfterViewInit, OnDestroy {
 
   filterAddressMultiple(event) {
     const query = event.query;
-    if (this.utenteConnesso.aziendaLogin["parametriAzienda"] && this.utenteConnesso.aziendaLogin["parametriAzienda"].rubricaInternauta) {
+    if (this.utenteConnesso.aziendaLogin.parametriAzienda && this.utenteConnesso.aziendaLogin.parametriAzienda.rubricaInternauta) {
       const projection = ENTITIES_STRUCTURE.rubrica.dettagliocontatto.standardProjections.DettaglioContattoWithIdContatto;
       const filtersAndSorts: FiltersAndSorts = new FiltersAndSorts();
 
@@ -722,7 +722,7 @@ export class NewMailComponent implements OnInit, AfterViewInit, OnDestroy {
   onOpenRubricaPopup() {
     console.log("onOpenRubricaPopup");
     this.displayRubricaPopup = true;
-    if (this.utenteConnesso.aziendaLogin['parametriAzienda'] && this.utenteConnesso.aziendaLogin['parametriAzienda'].rubricaInternauta) {
+    if (this.utenteConnesso.aziendaLogin.parametriAzienda && this.utenteConnesso.aziendaLogin.parametriAzienda.rubricaInternauta) {
       this.router.navigate(["", { outlets: { rubricaPopup: "rubrica" }}], {
         queryParams: {
           mode: "selection",
