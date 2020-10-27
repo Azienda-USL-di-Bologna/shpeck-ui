@@ -92,17 +92,17 @@ p-table,
 
 //body .ui-table .ui-table-tbody > tr > td
 
-::ng-deep .ui-table-tbody > tr > td {
+::ng-deep #pec-mail-list .ui-table-tbody > tr > td {
   border: none !important;
 }
 
-::ng-deep .ui-table-scrollable-body {
+::ng-deep #pec-mail-list .ui-table-scrollable-body {
   // width: 100%;
   // min-height: 900px;
   //position: unset;
 }
 
-::ng-deep .ui-table-virtual-scroller {
+::ng-deep #pec-mail-list .ui-table-virtual-scroller {
   // height: 100% !important;
 }
 
