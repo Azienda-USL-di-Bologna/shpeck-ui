@@ -1,13 +1,13 @@
 import { Component, OnInit, ViewChild, AfterViewInit, OnDestroy } from "@angular/core";
 import { FormGroup, FormControl, Validators, FormArray } from "@angular/forms";
 import { DynamicDialogRef, DynamicDialogConfig, DialogService, ConfirmationService, MessageService } from "primeng-lts/api";
-import { Message, Pec, Draft, MessageRelatedType, InOut, ENTITIES_STRUCTURE, DettaglioContattoService, Utente } from "@bds/ng-internauta-model";
+import { Message, Pec, Draft, MessageRelatedType, InOut, ENTITIES_STRUCTURE, DettaglioContattoService, Utente, BaseUrls, BaseUrlType, Contatto } from "@bds/ng-internauta-model";
 import { Editor } from "primeng-lts/editor";
 import { TOOLBAR_ACTIONS, MAX_FILE_SIZE_UPLOAD } from "src/environments/app-constants";
 import { DraftService } from "src/app/services/draft.service";
 import { Chips } from "primeng-lts/chips";
 import { AutoComplete } from "primeng-lts/primeng";
-import { FiltersAndSorts, FilterDefinition, FILTER_TYPES } from "@nfa/next-sdr";
+import { FiltersAndSorts, FilterDefinition, FILTER_TYPES, BatchOperation, BatchOperationTypes, NextSdrEntity } from "@nfa/next-sdr";
 import { Router } from "@angular/router";
 import { UtenteUtilities, NtJwtLoginService } from "@bds/nt-jwt-login";
 import { Subscription } from "rxjs";
@@ -43,6 +43,7 @@ export class NewMailComponent implements OnInit, AfterViewInit, OnDestroy {
   public displayRubricaPopup = false;
   public utenteConnesso: Utente;
   private subscriptions: Subscription[] = [];
+  public disableConfermaDestinatariSelezionati: boolean = false;
 
   // public indirizziTest = [
   //   "g.russo@nsi.it",
@@ -300,7 +301,7 @@ export class NewMailComponent implements OnInit, AfterViewInit, OnDestroy {
   onSelect(item: any, formField: string) {
     if (item) {
       console.log("item: ", item);
-      if (item.decrizione && this.utenteConnesso.aziendaLogin.parametriAzienda && this.utenteConnesso.aziendaLogin.parametriAzienda.rubricaInternauta) {
+      if (item.descrizione && this.utenteConnesso.aziendaLogin.parametriAzienda && this.utenteConnesso.aziendaLogin.parametriAzienda.rubricaInternauta) {
         item = item.descrizione.trim();
       } else {
         item = item.trim();
@@ -572,7 +573,7 @@ export class NewMailComponent implements OnInit, AfterViewInit, OnDestroy {
       }, err => {
           console.log("error");
           this.messageService.add({
-            severity: "warn",
+            severity: "error",
             summary: "Errore nel backend",
             detail: "Non è stato possibile fare la ricerca."
           });
@@ -710,15 +711,24 @@ export class NewMailComponent implements OnInit, AfterViewInit, OnDestroy {
     this.onCloseRubricaPopup();
   }
 
+  /**
+   * 
+   */
   onCloseRubricaPopup() {
     console.log("onCloseRubricaPopup");
-    this.router.navigate(["", { outlets: { rubricaPopup: null } }]);
     this.displayRubricaPopup = false;
+    if (this.utenteConnesso.aziendaLogin.parametriAzienda && this.utenteConnesso.aziendaLogin.parametriAzienda.rubricaInternauta) {
+      this.router.navigate(["", { outlets: { rubricaPopup: null } }]);
 
-    this.customContactService._callerData.selectedContactsLists.A = [];
-    this.customContactService._callerData.selectedContactsLists.CC = [];
+      this.customContactService._callerData.selectedContactsLists.A = [];
+      this.customContactService._callerData.selectedContactsLists.CC = [];
+      this.customContactService.allSelectedContact = [];
+    }
   }
 
+  /**
+   * 
+   */
   onOpenRubricaPopup() {
     console.log("onOpenRubricaPopup");
     this.displayRubricaPopup = true;
@@ -732,34 +742,78 @@ export class NewMailComponent implements OnInit, AfterViewInit, OnDestroy {
     }
   }
 
+  /**
+   * non usato
+   * @param event 
+   */
   handleOnShowRubricaPopup(event) {
     console.log("handleOnShowRubricaPopup", event);
   }
 
+  /**
+   *  on click Conferma Destinatari Selezionati
+   */
   onConfermaDestinatari() {
     console.log("onConfermaDestinatari");
+    this.disableConfermaDestinatariSelezionati = true;
     const url = this.router.url;
     if (url.includes("editing") && url.includes("selection")) {
       console.log("Can not send selected contacts");
       this.messageService.add({severity: "warn", summary: "Attenzione", detail: "Stai ancora facendo delle modifiche. Annulla o Salva/Conferma per poter proseguire."});
     } else {
-      if (this.customContactService._callerData.selectedContactsLists.A && this.customContactService._callerData.selectedContactsLists.A.length > 0) {
-        this.customContactService._callerData.selectedContactsLists.A.forEach((selectedContact: SelectedContact) => {
-          console.log("selectedContact: ", selectedContact);
-          this.onSelect(selectedContact.address.descrizione, "to");
+
+      // save estemporanei as Protocontatti sul DB.
+      const batchOperation: BatchOperation[] = [];
+      const estemporaneiToAddToRubrica: Contatto[] = this.customContactService.createEstemporaneiContactsList(this.customContactService.allSelectedContact);
+
+      if (estemporaneiToAddToRubrica.length > 0) {
+        estemporaneiToAddToRubrica.forEach((contact: Contatto) => {
+          batchOperation.push({
+            operation: BatchOperationTypes.INSERT,
+            entityPath: BaseUrls.get(BaseUrlType.Rubrica) + "/" + ENTITIES_STRUCTURE.rubrica.contatto.path,
+            entityBody: contact as NextSdrEntity
+          } as BatchOperation);
         });
+
+        this.subscriptions.push(this.customContactService.batchHttpCall(batchOperation).subscribe((res: BatchOperation[]) => {
+          this.messageService.add({ severity: "success", summary: "Successo", detail: `Salvataggio avvenuto con successo.` });
+
+          this.handleConfermaAddToAddressTO();
+
+          this.handleConfermaAddToAddressCC();
+          this.onCloseRubricaPopup();
+          this.disableConfermaDestinatariSelezionati = false;
+        }, err => {
+            this.messageService.add({ severity: "error", summary: "Errore nel backend", detail: `Non è stato possibile fare il salvataggio dei protocontatti.` });
+            this.disableConfermaDestinatariSelezionati = false;
+        }));
+      } else {
+        this.handleConfermaAddToAddressTO();
+        this.handleConfermaAddToAddressCC();
+        this.onCloseRubricaPopup();
+        this.disableConfermaDestinatariSelezionati = false;
       }
 
-      if (this.customContactService._callerData.selectedContactsLists.CC && this.customContactService._callerData.selectedContactsLists.CC.length > 0) {
-        this.customContactService._callerData.selectedContactsLists.CC.forEach((selectedContact: SelectedContact) => {
-          console.log("selectedContact: ", selectedContact);
-          this.onSelect(selectedContact.address.descrizione, "cc");
-        });
-      }
-
-      this.onCloseRubricaPopup();
     }
 
+  }
+
+  private handleConfermaAddToAddressTO() {
+    if (this.customContactService._callerData.selectedContactsLists.A && this.customContactService._callerData.selectedContactsLists.A.length > 0) {
+      this.customContactService._callerData.selectedContactsLists.A.forEach((selectedContact: SelectedContact) => {
+        console.log("selectedContact: ", selectedContact);
+        this.onSelect(selectedContact.address.descrizione, "to");
+      });
+    }
+  }
+
+  private handleConfermaAddToAddressCC() {
+    if (this.customContactService._callerData.selectedContactsLists.CC && this.customContactService._callerData.selectedContactsLists.CC.length > 0) {
+      this.customContactService._callerData.selectedContactsLists.CC.forEach((selectedContact: SelectedContact) => {
+        console.log("selectedContact: ", selectedContact);
+        this.onSelect(selectedContact.address.descrizione, "cc");
+      });
+    }
   }
 
   public ngOnDestroy(): void {

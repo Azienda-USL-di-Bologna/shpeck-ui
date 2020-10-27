@@ -193,10 +193,19 @@
     (closeRubricaPopup)="displayRubricaPopup = false"></app-rubrica-container>
 
   <p-footer  *ngIf="utenteConnesso.aziendaLogin.parametriAzienda?.rubricaInternauta">
-    <button type="button" pButton icon="pi pi-check" label="Conferma Destinatari Selezionati" (click)="onConfermaDestinatari()"
+    <button type="button" 
+      pButton 
+      icon="pi pi-check" 
+      label="Conferma Destinatari Selezionati" (click)="onConfermaDestinatari()"
+      [disabled]="disableConfermaDestinatariSelezionati"
       class="ui-button-raised ui-button-secondary custom-secondary-button">
     </button>
-    <button type="button" pButton icon="pi pi-times" label="Anulla" (click)="onCloseRubricaPopup()"
+    <button type="button" 
+      pButton 
+      icon="pi pi-times" 
+      label="Anulla" 
+      (click)="onCloseRubricaPopup()"
+      [disabled]="disableConfermaDestinatariSelezionati"
       class="confirm-buttons ui-button-raised ui-button-secondary custom-secondary-button">
     </button>
   </p-footer>
