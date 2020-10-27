@@ -29,7 +29,8 @@ const routes: Routes = [
       { path: "detail", component: ContactReadonlyComponent }
       ]
   },
-  {path: "**", component: PageNotFoundComponent },
+  {path: "pagina-non-trovata", component: PageNotFoundComponent },
+  {path: "**", redirectTo: "pagina-non-trovata", pathMatch: "full" },
 ];
 
 @NgModule({
