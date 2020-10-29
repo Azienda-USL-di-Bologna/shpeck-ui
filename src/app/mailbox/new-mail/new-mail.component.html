@@ -28,7 +28,7 @@
                 [minLength]="1" placeholder="Seleziona contatti..." 
                 [multiple]="true">
                 <ng-template let-value pTemplate="selectedItem">
-                  <span class="token-label" [ngClass]="emailRegex.test(value) ? null : 'alert-message'">{{value}}</span>
+                  <span class="token-label" [ngClass]="emailRegex.test(value) ? null : 'alert-message-warn'">{{value}}</span>
                 </ng-template>
               </p-autoComplete>
           </span>
@@ -36,7 +36,7 @@
             <button pButton type="button" icon="fa fa-address-book" class="ui-button-raised custom-primary-button" (click)="onOpenRubricaPopup(); lastAddressBookUsed = 'to'"></button>
           </span>
         </li>
-        <li *ngIf="addressesTO.dirty && addressesTO.invalid && !addressesTO.errors?.required" class="alert-message">
+        <li *ngIf="addressesTO.dirty && addressesTO.invalid && !addressesTO.errors?.required" class="alert-message-warn">
           Hai inserito un indirizzo mail sbagliato!
         </li>
         <!-- CC Addresses -->
@@ -60,7 +60,7 @@
               [minLength]="1" 
               [multiple]="true">
               <ng-template let-value pTemplate="selectedItem">
-                <span class="token-label" [ngClass]="emailRegex.test(value) ? null : 'alert-message'">{{value}}</span>
+                <span class="token-label" [ngClass]="emailRegex.test(value) ? null : 'alert-message-warn'">{{value}}</span>
               </ng-template>
             </p-autoComplete>
           </span>
@@ -68,7 +68,7 @@
             <button pButton type="button" icon="fa fa-address-book" class="ui-button-raised custom-primary-button" (click)="onOpenRubricaPopup(); lastAddressBookUsed = 'cc'"></button>
           </span>
         </li>
-        <li *ngIf="addressesTO.dirty && addressesCC.invalid" class="alert-message">
+        <li *ngIf="addressesTO.dirty && addressesCC.invalid" class="alert-message-warn">
           Hai inserito un indirizzo mail sbagliato!
         </li>
         <!-- Destinatari Privati -->

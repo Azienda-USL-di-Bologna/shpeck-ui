@@ -178,9 +178,15 @@ p-editor {
 // }
 
 
-// alert if email is sbagliato :)
-.alert-message {
+//type of alert 
+.alert-message-error {
   justify-content: center;
   color: #721c24;
   background-color: #f8d7da;
+}
+
+.alert-message-warn {
+  justify-content: center;
+  color: #212121;
+  background-color: #ffe399;
 }
