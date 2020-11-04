@@ -7,7 +7,7 @@ import { TOOLBAR_ACTIONS, MAX_FILE_SIZE_UPLOAD } from "src/environments/app-cons
 import { DraftService } from "src/app/services/draft.service";
 import { Chips } from "primeng-lts/chips";
 import { AutoComplete } from "primeng-lts/primeng";
-import { FiltersAndSorts, FilterDefinition, FILTER_TYPES, BatchOperation, BatchOperationTypes, NextSdrEntity } from "@nfa/next-sdr";
+import { FiltersAndSorts, FilterDefinition, FILTER_TYPES, BatchOperation, BatchOperationTypes, NextSdrEntity, AdditionalDataDefinition } from "@nfa/next-sdr";
 import { Router } from "@angular/router";
 import { UtenteUtilities, NtJwtLoginService } from "@bds/nt-jwt-login";
 import { Subscription } from "rxjs";
@@ -555,14 +555,15 @@ export class NewMailComponent implements OnInit, AfterViewInit, OnDestroy {
     if (this.utenteConnesso.aziendaLogin.parametriAzienda && this.utenteConnesso.aziendaLogin.parametriAzienda.rubricaInternauta) {
       const projection = ENTITIES_STRUCTURE.rubrica.dettagliocontatto.standardProjections.DettaglioContattoWithIdContatto;
       const filtersAndSorts: FiltersAndSorts = new FiltersAndSorts();
-
+      filtersAndSorts.addAdditionalData(new AdditionalDataDefinition("CercaAncheInContatto", query));
+      filtersAndSorts.addAdditionalData(new AdditionalDataDefinition("OperationRequested", "CercaAncheInContatto"));
       filtersAndSorts.addFilter(new FilterDefinition("idContatto.eliminato", FILTER_TYPES.not_string.equals, false));
       filtersAndSorts.addFilter(new FilterDefinition("idContatto.daVerificare", FILTER_TYPES.not_string.equals, false));
       filtersAndSorts.addFilter(new FilterDefinition("eliminato", FILTER_TYPES.not_string.equals, false));
       filtersAndSorts.addFilter(new FilterDefinition("tipo", FILTER_TYPES.not_string.equals, "EMAIL"));
-      filtersAndSorts.addFilter(new FilterDefinition("tscol", FILTER_TYPES.not_string.equals, query));
+      //filtersAndSorts.addFilter(new FilterDefinition("tscol", FILTER_TYPES.not_string.equals, query));
 
-      this.dettaglioContattoService.getData(projection, filtersAndSorts).subscribe(res => { 
+      this.dettaglioContattoService.getData(projection, filtersAndSorts).subscribe(res => {
 
         res.results.forEach(dettaglioContatto => {
           dettaglioContatto["descrizioneCustom"] = dettaglioContatto.descrizione + " [ " + dettaglioContatto.idContatto.descrizione + " ]";
