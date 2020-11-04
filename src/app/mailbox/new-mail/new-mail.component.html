@@ -177,7 +177,6 @@
   [(visible)]="displayRubricaPopup"
   modal="true"
   (onHide)="handleOnHideRubricaPopup($event)"
-  (onShow)="handleOnShowRubricaPopup($event)"
   class="popup-rubrica"
   [contentStyle]="utenteConnesso.aziendaLogin.parametriAzienda?.rubricaInternauta ? {'height':'70vh','max-height':'70vh', 'width':'92vw'} : null">
   <p-header>
@@ -197,7 +196,7 @@
       pButton 
       icon="pi pi-check" 
       label="Conferma Destinatari Selezionati" (click)="onConfermaDestinatari()"
-      [disabled]="disableConfermaDestinatariSelezionati"
+      [disabled]="disableButtonsConfermaDestinatariSelezionati"
       class="ui-button-raised ui-button-secondary custom-secondary-button">
     </button>
     <button type="button" 
@@ -205,7 +204,7 @@
       icon="pi pi-times" 
       label="Anulla" 
       (click)="onCloseRubricaPopup()"
-      [disabled]="disableConfermaDestinatariSelezionati"
+      [disabled]="disableButtonsConfermaDestinatariSelezionati"
       class="confirm-buttons ui-button-raised ui-button-secondary custom-secondary-button">
     </button>
   </p-footer>
