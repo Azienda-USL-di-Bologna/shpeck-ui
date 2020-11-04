@@ -275,6 +275,8 @@ export class NewMailComponent implements OnInit, AfterViewInit, OnDestroy {
                 this.mailForm.markAsDirty();
                 this.addressesTO.markAsDirty();
               }
+            } else {
+              this.messageService.add({severity: "warn", summary: "Attenzione", detail: "La mail è stata già inserita."});
             }
           } else if (formField === "cc") {
             const ccForm = this.mailForm.get("cc") as FormArray;
@@ -289,6 +291,8 @@ export class NewMailComponent implements OnInit, AfterViewInit, OnDestroy {
                 this.mailForm.markAsDirty();
                 this.addressesCC.markAsDirty();
               }
+            } else {
+              this.messageService.add({severity: "warn", summary: "Attenzione", detail: "La mail è stata già inserita."});
             }
           }
         }
@@ -315,16 +319,17 @@ export class NewMailComponent implements OnInit, AfterViewInit, OnDestroy {
         const toForm = this.mailForm.get("to") as FormArray;
         if (toForm.value.indexOf(item) === -1) {
           toForm.push(new FormControl(item, Validators.pattern(this.emailRegex)));
-          this.toAutoComplete.writeValue(toForm.value);
           if (this.mailForm.pristine) {
             this.mailForm.markAsDirty();
           }
+        } else {
+          this.messageService.add({severity: "warn", summary: "Attenzione", detail: "La mail è stata già inserita."});
         }
+        this.toAutoComplete.writeValue(toForm.value);
       } else if (formField === "cc") {
         const ccForm = this.mailForm.get("cc") as FormArray;
         if (ccForm.value.indexOf(item) === -1) {
           ccForm.push(new FormControl(item, Validators.pattern(this.emailRegex)));
-          this.ccAutoComplete.writeValue(ccForm.value);
           if (ccForm.value && ccForm.value.length > 0) {
             const hideRecipients = this.mailForm.get("hideRecipients");
             hideRecipients.disable();
@@ -332,7 +337,10 @@ export class NewMailComponent implements OnInit, AfterViewInit, OnDestroy {
           if (this.mailForm.pristine) {
             this.mailForm.markAsDirty();
           }
+        } else {
+          this.messageService.add({severity: "warn", summary: "Attenzione", detail: "La mail è stata già inserita."});
         }
+        this.ccAutoComplete.writeValue(ccForm.value);
       }
     }
   }
