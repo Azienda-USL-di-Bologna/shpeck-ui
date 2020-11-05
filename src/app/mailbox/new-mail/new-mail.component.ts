@@ -812,7 +812,7 @@ export class NewMailComponent implements OnInit, AfterViewInit, OnDestroy {
           } as BatchOperation);
         });
 
-        this.protocontattiBatchSave(batchOperation);
+        this.protocontattiBatchSaveAndHandleConferma(batchOperation);
       } else {
         this.handleConfermaAddToAddressTO();
         this.handleConfermaAddToAddressCC();
@@ -824,7 +824,7 @@ export class NewMailComponent implements OnInit, AfterViewInit, OnDestroy {
 
   }
 
-  private protocontattiBatchSave(batchOperation: BatchOperation[]) {
+  private protocontattiBatchSaveAndHandleConferma(batchOperation: BatchOperation[]) {
     this.subscriptions.push(this.customContactService.batchHttpCall(batchOperation).subscribe((res: BatchOperation[]) => {
       this.messageService.add({ severity: "success", summary: "Successo", detail: `Salvataggio avvenuto con successo.` });
       this.handleConfermaAddToAddressTO();
@@ -841,6 +841,7 @@ export class NewMailComponent implements OnInit, AfterViewInit, OnDestroy {
     if (this.toAutoComplete.value && this.toAutoComplete.value.length > 0) {
       this.toAutoComplete.value.forEach(email => this.onUnselect(email, "to"));
     }
+    this.toAutoComplete.value = [];
     if (this.customContactService._callerData.selectedContactsLists.A && this.customContactService._callerData.selectedContactsLists.A.length > 0) {
       this.customContactService._callerData.selectedContactsLists.A.forEach((selectedContact: SelectedContact) => {
         // console.log("selectedContact: ", selectedContact);
@@ -853,6 +854,7 @@ export class NewMailComponent implements OnInit, AfterViewInit, OnDestroy {
     if (this.ccAutoComplete.value && this.ccAutoComplete.value.length > 0) {
       this.ccAutoComplete.value.forEach(email => this.onUnselect(email, "cc"));
     }
+    this.ccAutoComplete.value = [];
     if (this.customContactService._callerData.selectedContactsLists.CC && this.customContactService._callerData.selectedContactsLists.CC.length > 0) {
       this.customContactService._callerData.selectedContactsLists.CC.forEach((selectedContact: SelectedContact) => {
         // console.log("selectedContact: ", selectedContact);

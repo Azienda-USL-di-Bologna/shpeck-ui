@@ -68,7 +68,7 @@
             <button pButton type="button" icon="fa fa-address-book" class="ui-button-raised custom-primary-button" (click)="onOpenRubricaPopup(); lastAddressBookUsed = 'cc'"></button>
           </span>
         </li>
-        <li *ngIf="addressesCC.dirty && addressesCC.invalid" class="alert-message-warn">
+        <li *ngIf="addressesCC.invalid" class="alert-message-warn">
           Hai inserito un indirizzo mail sbagliato!
         </li>
         <!-- Destinatari Privati -->
