@@ -14,7 +14,7 @@ const routes: Routes = [
     canActivate: [RefreshLoggedUserGuard, LoginGuard]
   },
   { path: LOGGED_OUT_ROUTE, component: LoggedOutPageComponent },
-  {path: "", redirectTo: "mailbox", pathMatch: "full"},
+  {path: "", redirectTo:  MAILBOX_ROUTE, pathMatch: "full"},
   {
     path: "rubrica",
     component: RubricaComponent,

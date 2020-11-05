@@ -18,7 +18,8 @@ export class DoNotShowRubricaPopupOnRefreshGuard implements CanActivate  {
     // we don't want to render this view on page-refresh
     if (this.isPageRefresh()) {
       console.warn("RubricaPopup not allowd on refresh");
-
+      // console.log("activatedRouteSnapshot", activatedRouteSnapshot);
+      // console.log("routerStateSnapshot", routerStateSnapshot);
       this.router.navigateByUrl(this.getUrlWithoutRubricaPopup(routerStateSnapshot));
       return (false);
     }
@@ -31,9 +32,10 @@ export class DoNotShowRubricaPopupOnRefreshGuard implements CanActivate  {
    */
   private getUrlWithoutRubricaPopup(routerStateSnapshot: RouterStateSnapshot): UrlTree {
     const urlTree = this.router.parseUrl(routerStateSnapshot.url);
+    // console.log("url :", routerStateSnapshot.toString());
     let segment = urlTree.root;
-
-    while (segment && segment.children) {
+    urlTree.queryParams = {};
+    while (!!segment && segment.numberOfChildren > 0) {
       delete (segment.children.rubricaPopup);
       segment = segment.children[PRIMARY_OUTLET];
     }
