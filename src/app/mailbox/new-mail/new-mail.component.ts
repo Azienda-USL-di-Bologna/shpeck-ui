@@ -585,7 +585,7 @@ export class NewMailComponent implements OnInit, AfterViewInit, OnDestroy {
     filtersAndSorts.addFilter(new FilterDefinition("idContatto.daVerificare", FILTER_TYPES.not_string.equals, false));
     filtersAndSorts.addFilter(new FilterDefinition("eliminato", FILTER_TYPES.not_string.equals, false));
     filtersAndSorts.addFilter(new FilterDefinition("tipo", FILTER_TYPES.not_string.equals, "EMAIL"));
-    filtersAndSorts.addFilter(new FilterDefinition("tscol", FILTER_TYPES.not_string.equals, query));
+    //filtersAndSorts.addFilter(new FilterDefinition("tscol", FILTER_TYPES.not_string.equals, query));
     this.subscriptions.push(
       this.dettaglioContattoService.getData(projection, filtersAndSorts).subscribe(res => {
         res.results.forEach(dettaglioContatto => {
