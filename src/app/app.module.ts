@@ -48,6 +48,7 @@ import { MailListService } from "./mailbox/mail-list/mail-list.service";
 
 // incon - font - styles
 import { MatIconModule } from "@angular/material/icon";
+import { RubricaContainerComponent } from "./rubrica/rubrica-container/rubrica-container.component";
 
 registerLocaleData(localeIt, "it-IT", localeItExtra);
 
@@ -68,7 +69,8 @@ registerLocaleData(localeIt, "it-IT", localeItExtra);
     StripeHtmlPipe,
     ReaddressComponent,
     SearchContactComponent,
-    MailOutboxComponent
+    MailOutboxComponent,
+    RubricaContainerComponent
   ],
   imports: [
     NtJwtLoginModule.forRoot(loginModuleConfig),

@@ -10,7 +10,7 @@
     </div>
     (selectionChange)="handleEvent('selectionChange', $event)"
 </div> -->
-<p-table #dt *ngIf="mailListService.totalRecords > 0 && (_selectedTag || _selectedFolder || _filters)" [lazy]="true" (onLazyLoad)="lazyLoad($event)" scrollHeight="100%"
+<p-table #dt id="pec-mail-list" *ngIf="mailListService.totalRecords > 0 && (_selectedTag || _selectedFolder || _filters)" [lazy]="true" (onLazyLoad)="lazyLoad($event)" scrollHeight="100%"
     [value]="mailListService.messages" [columns]="cols" [paginator]="false" [loading]="loading" [autoLayout]="true"
     [responsive]="true" [totalRecords]="mailListService.totalRecords" [(selection)]="mailListService.selectedMessages"
     contextMenuSelectionMode="joint" selectionMode="multiple" [metaKeySelection]="true" [lazyLoadOnInit]="false"

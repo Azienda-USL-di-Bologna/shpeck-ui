@@ -82,10 +82,17 @@ li {
   background-color: rgb(206, 206, 206);
 }
 ::ng-deep body .ui-autocomplete-panel .ui-autocomplete-items .ui-autocomplete-list-item.ui-state-highlight {
-  background-color: #546069;
+  background-color: #969da1;
+  color: #ffffff;
+  border: 1px solid #2e4a65;
 }
 ::ng-deep .ui-autocomplete-input-token input {
   width: 26em;
+}
+
+.token-label {
+  display: block;
+  margin-right: 2em;
 }
 
 /******* General rules *******/
@@ -162,18 +169,24 @@ p-editor {
   margin: 0 .5em 0 .5em;
 }
 
-/******** rubrica ************/
-::ng-deep .popup-rubrica {
-  width: 800px !important;
-}
-::ng-deep .popup-rubrica > div {
-  width: inherit !important;
-}
+// /******** rubrica ************/
+// ::ng-deep .popup-rubrica {
+//   width: 1200px !important;
+// }
+// ::ng-deep .popup-rubrica > div {
+//   width: inherit !important;
+// }
 
 
-// alert if email is sbagliato :)
-.alert-message {
+//type of alert 
+.alert-message-error {
   justify-content: center;
   color: #721c24;
   background-color: #f8d7da;
+}
+
+.alert-message-warn {
+  justify-content: center;
+  color: #212121;
+  background-color: #ffe399;
 }
