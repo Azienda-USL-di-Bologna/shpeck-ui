@@ -28,7 +28,7 @@
     "@bds/nt-jwt-login": "0.0.66",
     "@bds/nt-communicator": "0.0.54",
     "@bds/primeng-plugin": "0.0.50",
-    "@bds/common-components": "0.0.153",
+    "@bds/common-components": "0.0.154",
     "@nfa/core": "2.0.1",
     "@nfa/next-sdr": "1.1.7-bds",
     "@nfa/ref": "2.1.2",
