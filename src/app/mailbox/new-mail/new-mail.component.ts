@@ -773,7 +773,7 @@ export class NewMailComponent implements OnInit, AfterViewInit, OnDestroy {
   createSelectedContactEstemporaneo(emails: string[]): SelectedContact[] {
     let selectedContacts: SelectedContact[] = [];
     if (!!emails && emails.length > 0) {
-      selectedContacts = emails.map(emailAsString => this.customContactService.createSelectedContactFromEmail(emailAsString));
+      selectedContacts = emails.filter(emailAsString => this.emailRegex.test(emailAsString)).map(emailAsString => this.customContactService.createSelectedContactFromEmail(emailAsString));
     }
     return selectedContacts;
   }
