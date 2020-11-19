@@ -16,8 +16,7 @@ import { CustomContactService, SelectedContact } from "@bds/common-components";
 @Component({
   selector: "app-new-mail",
   templateUrl: "./new-mail.component.html",
-  styleUrls: ["./new-mail.component.scss"],
-  providers: [ConfirmationService]
+  styleUrls: ["./new-mail.component.scss"]
 })
 export class NewMailComponent implements OnInit, AfterViewInit, OnDestroy {
 
