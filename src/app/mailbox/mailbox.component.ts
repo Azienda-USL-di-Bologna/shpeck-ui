@@ -88,6 +88,8 @@ export class MailboxComponent implements OnInit, AfterViewInit, AfterViewChecked
   private MAX_X_RIGHTSIDE: number = 70;
   private subscriptions: Subscription[] = [];
 
+  private regexFindP = new RegExp(/[)()]+/, "gm"); // find  symbols ) or ( 
+
   constructor(private settingsService: SettingsService,
     private mailFoldersService: MailFoldersService,
     private mailboxService: MailboxService) {
@@ -113,6 +115,7 @@ export class MailboxComponent implements OnInit, AfterViewInit, AfterViewChecked
         if (pecFolderSelected.type === PecFolderType.FOLDER) {
           const selectedFolder: Folder = pecFolderSelected.data as Folder;
           this._selectedFolder = pecFolderSelected.data as Folder;
+          this._selectedFolder.description  = this._selectedFolder.description.replace(this.regexFindP, "_");
           this._selectedPecId = selectedFolder.fk_idPec.id;
           if (selectedFolder.type === FolderType.DRAFT) {
             this.componentToLoad = "mail-draft";
@@ -126,6 +129,7 @@ export class MailboxComponent implements OnInit, AfterViewInit, AfterViewChecked
           this.componentToLoad = "mail-list";
           this._selectedFolder = null;
           this._selectedTag = pecFolderSelected.data as Tag;
+          this._selectedTag.description = this._selectedTag.description.replace(this.regexFindP, "_");
           this._selectedPecId = this._selectedTag.fk_idPec.id;
           this._selectedPec = pecFolderSelected.pec;
         } else {
@@ -149,7 +153,7 @@ export class MailboxComponent implements OnInit, AfterViewInit, AfterViewChecked
               }
             break;
             case PecFolderType.TAG:
-              const tagSelected: Tag = totalMessageNumberDescriptor.pecFolder.data as Tag;
+              const tagSelected: Tag = this.pecFolderSelected.data as Tag;
               const receivedSelectedTag: Tag = totalMessageNumberDescriptor.pecFolder.data as Tag;
               if (receivedSelectedTag.id === tagSelected.id) {
                 this.totalMessageNumberDescriptor = totalMessageNumberDescriptor;
