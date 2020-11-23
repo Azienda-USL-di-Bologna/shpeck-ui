@@ -1,7 +1,7 @@
 <div class="p-col container p-nogutter" 
   [ngClass]="fontSize === 'small' ? 'general-font-size-small' : fontSize === 'medium' ? 'general-font-size-medium' : 'general-font-size-big'">
 
-  <div class="buttons-bar" style="background-color: sandybrown">
+  <div class="buttons-bar">
     <app-toolbar (filtersEmitter)="onFilterSelection($event)"></app-toolbar>
   </div>
   <div #mailContainer class="mail-container p-col">

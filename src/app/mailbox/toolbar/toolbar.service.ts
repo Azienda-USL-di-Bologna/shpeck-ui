@@ -29,6 +29,7 @@ export class ToolBarService {
   public buttonObs: Map<string, Observable<boolean>>;
   public moveMenuItems: MenuItem[];
   private loggedUser: UtenteUtilities;
+  public isDialogOpen: boolean = false;
 
   public deleteLabel = new BehaviorSubject<string>("Elimina");
 
@@ -229,6 +230,7 @@ export class ToolBarService {
           if (el) {
             console.log("Ref: ", el);
           }
+          this.isDialogOpen = false;
         });
       },
         (error: any) => {
@@ -252,6 +254,7 @@ export class ToolBarService {
 
   public editMail() {
     if (this.draftEvent) {
+      this.isDialogOpen = true;
       const ref = this.dialogService.open(NewMailComponent, {
         data: {
           fullMessage: this.draftEvent.fullDraft,
@@ -271,6 +274,7 @@ export class ToolBarService {
         if (el) {
           console.log("Ref: ", el);
         }
+        this.isDialogOpen = false;
       });
     }
   }
