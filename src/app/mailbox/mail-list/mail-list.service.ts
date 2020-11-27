@@ -997,7 +997,9 @@ export class MailListService {
             additionalDataAziende.push(element.idAzienda.id);
           });
         } else {
-          additionalDataAziende.push(additionaDataRegistered.idAzienda.id);
+          if (additionaDataRegistered && additionaDataRegistered.idAzienda && additionaDataRegistered.idAzienda.id) {
+            additionalDataAziende.push(additionaDataRegistered.idAzienda.id);
+          }
         }
       }
       if (additionaDataInRegistration) {
@@ -1006,7 +1008,9 @@ export class MailListService {
             additionalDataAziende.push(element.idAzienda.id);
           });
         } else {
-          additionalDataAziende.push(additionaDataInRegistration.idAzienda.id);
+          if (additionaDataInRegistration && additionaDataInRegistration.idAzienda && additionaDataInRegistration.idAzienda.id) {
+            additionalDataAziende.push(additionaDataInRegistration.idAzienda.id);
+          }
         }
       }
       // tolgo i duplicati
