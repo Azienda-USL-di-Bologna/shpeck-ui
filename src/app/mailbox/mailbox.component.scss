@@ -81,6 +81,9 @@
   overflow-y: auto;
   // padding: 5px
   //flex-direction: column;
+  &:focus {
+    border: 1px solid black;
+  }
 }
 .content-right{
   //padding-left: 23px;
@@ -93,6 +96,9 @@
 
   flex: 1;
   //flex-direction: row;
+  &:focus {
+    border: 1px solid black;
+  }
 }
 
 .d-flex{
@@ -175,6 +181,9 @@ app-mail-list, app-mail-drafts {
     right: 3px;
     top: 11px;
   }
+  &:focus {
+    border: 1px solid black;
+  }
 }
 .general-font-size-small .filter-box {
   font-size: 12px;
@@ -193,6 +202,9 @@ app-mail-list, app-mail-drafts {
   padding-left: 4px;
   position: relative;
   overflow: hidden;
+  &:focus {
+    border: 1px solid black;
+  }
 }
 .mail-detail:hover {
   overflow: overlay;

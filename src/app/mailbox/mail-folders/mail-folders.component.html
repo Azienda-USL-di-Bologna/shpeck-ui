@@ -7,17 +7,22 @@
   (onNodeUnselect)="handleNodeSelect('onNodeUnselect', $event)"
   (onNodeContextMenuSelect)="handleNodeSelect('onContextMenuSelect', $event)"
   (selectionChange)="handleNodeSelect('selectionChange', $event)"
+  (keyup.Control)="onKeyUpMoveFocus($event)"
   [contextMenu]="cm">
   <ng-template let-node pTemplate="default">
-    <input #folderInput [hidden] ="!!!node.editable" [(ngModel)]="node.label"
-    [id]="node.key"
-    type="text" style="width:100%"
-    class="ui-inputtext"
-    (focusout)= "onLostFocus($event, folderInput.value)"
-    (keyup.enter)="onEnterPressed($event, folderInput.value)"
-    (keydown.esc)="onEscPressed($event)"
-    [attr.disabled]="node.editable ? null : ''">
+    <!-- <label hidden=true [for]="node.key">Rinomina</label>  -->
+    <input #folderInput [hidden] ="!!!node.editable" [attr.aria-hidden]="!!!node.editable" [(ngModel)]="node.label"
+      [id]="node.key"
+      type="text" 
+      style="width:100%"
+      class="ui-inputtext"
+      aria-label="rinomina"
+      (focusout)= "onLostFocus($event, folderInput.value)"
+      (keyup.enter)="onEnterPressed($event, folderInput.value)"
+      (keydown.esc)="onEscPressed($event)"
+      [attr.disabled]="node.editable ? null : ''">
     <div #actualTarget
+      aria-label="cartella"
       *ngIf="!!!node.editable" 
       [ngStyle]="{'font-style': (node.data.type ==='pec' && !node.data.data.attiva) ? 'italic' : 'normal'}"
       pTooltip="{{buildTooltipForNode(node)}}"

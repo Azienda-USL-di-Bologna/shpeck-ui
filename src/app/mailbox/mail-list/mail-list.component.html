@@ -18,7 +18,11 @@
     [virtualRowHeight]="virtualRowHeight" [virtualScroll]="true" [virtualScrollDelay]="150"
     (onRowSelect)="handleEvent('onRowSelect', $event)" (onRowUnselect)="handleEvent('onRowUnselect', $event)"
     dataKey="id" (mouseenter)="handleEvent('onMouseEnter', $event)"
-    (onContextMenuSelect)="handleEvent('onContextMenuSelect', $event)">
+    (onContextMenuSelect)="handleEvent('onContextMenuSelect', $event)"
+    (keyup.Control)="onKeyUpMoveFocus($event)">
+    <ng-template pTemplate="header">
+        <th hidden=true>Lista messaggi</th>
+    </ng-template>
     <ng-template pTemplate="body" let-rowData let-message let-rowIndex="rowIndex">
         <tr #selRow 
         [pTooltip]="message['moved'] ? message['movedInfo']: null"
