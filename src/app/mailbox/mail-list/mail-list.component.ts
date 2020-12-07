@@ -2086,16 +2086,18 @@ export class MailListComponent implements OnInit, OnDestroy {
     this.stopPropagation(event);
     // console.log("mail-list onKeyUpMoveFocus", event);
     // to do: if detail is hidden
-    // const mailDetailContainer: HTMLElement = document.querySelector(".mail-detail");
     // console.log("mailDetailContainer", mailDetailContainer);
     // if (!!mailDetailContainer) mailDetailContainer.focus();
     // if (this.mailListService.selectedMessages.length === 1) {
-    //   const mailDetailContainer: HTMLElement = document.querySelector(".mail-detail");
-    //   if (!!mailDetailContainer) mailDetailContainer.focus();
+      //   const mailDetailContainer: HTMLElement = document.querySelector(".mail-detail");
+      //   if (!!mailDetailContainer) mailDetailContainer.focus();
     // } else {
-      const pecContainer: HTMLElement = document.querySelector(".content-left");
-      if (!!pecContainer) pecContainer.focus();
+      // const pecContainer: HTMLElement = document.querySelector(".content-left");
+      // if (!!pecContainer) pecContainer.focus();
     // }
+    // do not confuse the user
+    const mailDetailContainer: HTMLElement = document.querySelector(".mail-detail");
+    if (!!mailDetailContainer) mailDetailContainer.focus();
   }
 
   

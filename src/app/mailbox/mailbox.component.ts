@@ -295,13 +295,16 @@ export class MailboxComponent implements OnInit, AfterViewInit, AfterViewChecked
   onKeyUpMoveFocus(event) {
     // console.log("mailbox onKeyUpMoveFocus", event);
     this.stopPropagation(event);
-    const listContainer: HTMLElement = document.querySelector(".mail-list");
+
     const pecContainer: HTMLElement = document.querySelector(".content-left");
+    const listContainer: HTMLElement = document.querySelector(".mail-list");
     const mailDetailContainer: HTMLElement = document.querySelector(".mail-detail");
+    
     if (pecContainer && document.activeElement === pecContainer) {
       if (!!listContainer) listContainer.focus();
     } else if (!!listContainer && document.activeElement === listContainer) {
-      if (!!pecContainer) pecContainer.focus();
+      // if (!!pecContainer) pecContainer.focus();
+        if (!!mailDetailContainer) mailDetailContainer.focus();
     } else if (document.activeElement !== pecContainer && document.activeElement !== listContainer) {
       if (!!pecContainer) pecContainer.focus();
     }

@@ -152,7 +152,15 @@ export class ToolbarComponent implements OnDestroy {
       });
     }
 
+  }
+
+  onKeyUpMoveFocus(event) {
+    // console.log("mailbox onKeyUpMoveFocus", event);
+    const pecContainer: HTMLElement = document.querySelector(".content-left");
     
+    if (document.activeElement !== pecContainer) {
+      if (!!pecContainer) pecContainer.focus();
+    }
   }
 
 

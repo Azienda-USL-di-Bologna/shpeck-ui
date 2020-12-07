@@ -63,8 +63,9 @@ p-table,
   cursor: pointer !important;
 }
 .icon-disabled {
-  color: #f1f1f1;
-  background-color: #2e4a65;
+  // color: #f1f1f1;
+  // background-color: #2e4a65;
+  color: grey;
   cursor: not-allowed !important;
 }
 .icon-used {
@@ -177,7 +178,7 @@ p-table,
   //width: 20px;
 }
 .first-icon-left {
-  // display: flex;
+  display: flex;
   padding-left: 0;
 }
 .fa-icon {
