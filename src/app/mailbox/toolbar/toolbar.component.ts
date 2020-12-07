@@ -157,9 +157,11 @@ export class ToolbarComponent implements OnDestroy {
   onKeyUpMoveFocus(event) {
     // console.log("mailbox onKeyUpMoveFocus", event);
     const pecContainer: HTMLElement = document.querySelector(".content-left");
-    
-    if (document.activeElement !== pecContainer) {
+    const searchBar: HTMLElement = document.querySelector(".input-find");
+    if (!!searchBar && document.activeElement === searchBar) {
       if (!!pecContainer) pecContainer.focus();
+    } else if (document.activeElement !== pecContainer) {
+      if (!!searchBar) searchBar.focus();
     }
   }
 
