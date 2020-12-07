@@ -304,7 +304,11 @@ export class MailboxComponent implements OnInit, AfterViewInit, AfterViewChecked
       if (!!listContainer) listContainer.focus();
     } else if (!!listContainer && document.activeElement === listContainer) {
       // if (!!pecContainer) pecContainer.focus();
-        if (!!mailDetailContainer) mailDetailContainer.focus();
+      if (!!mailDetailContainer) {
+        mailDetailContainer.focus();
+      } else {
+        if (!!pecContainer) pecContainer.focus();
+      }
     } else if (document.activeElement !== pecContainer && document.activeElement !== listContainer) {
       if (!!pecContainer) pecContainer.focus();
     }
