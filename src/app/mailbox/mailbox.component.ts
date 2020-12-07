@@ -300,6 +300,7 @@ export class MailboxComponent implements OnInit, AfterViewInit, AfterViewChecked
     const listContainer: HTMLElement = document.querySelector(".mail-list");
     const mailDetailContainer: HTMLElement = document.querySelector(".mail-detail");
     const searchBar: HTMLElement = document.querySelector(".input-find");
+    const divWithTotalNumber: HTMLElement = document.querySelector(".filter-box-left");
     
     if (pecContainer && document.activeElement === pecContainer) {
       if (!!listContainer) listContainer.focus();
@@ -312,6 +313,8 @@ export class MailboxComponent implements OnInit, AfterViewInit, AfterViewChecked
       }
     } else if (!!mailDetailContainer && document.activeElement === mailDetailContainer) {
       if (!!searchBar) searchBar.focus();
+    } else if (!!divWithTotalNumber && document.activeElement === divWithTotalNumber) {
+      if (!!mailDetailContainer) mailDetailContainer.focus();
     } else if (document.activeElement !== pecContainer && document.activeElement !== listContainer && document.activeElement !== searchBar) {
       if (!!searchBar) searchBar.focus();
     }
