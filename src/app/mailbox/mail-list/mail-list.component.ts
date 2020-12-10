@@ -1709,7 +1709,7 @@ export class MailListComponent implements OnInit, OnDestroy {
     if (Array.isArray(additionalData)) {
       additionalData.forEach(a => this.getIdAziendeFromAddtitionalData(a, res));
     } else {
-      if (additionalData && additionalData.idAzienda && additionalData.id) {
+      if (additionalData && additionalData.idAzienda && additionalData.idAzienda.id) {
         res.push(additionalData.idAzienda.id);
       }
     }
