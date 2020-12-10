@@ -118,6 +118,9 @@ export class MailFoldersComponent implements OnInit, OnDestroy {
     },
   ];
 
+  private regexFindNumberBetweenP = new RegExp(/(\s*\(.*\))/, "gm"); // find next sequence (1...20)
+  private regexFindP = new RegExp(/[)()]+/, "gm"); // find  symbols ) or ( 
+
   constructor(
       private pecService: PecService,
       private folderService: FolderService,
@@ -672,7 +675,7 @@ export class MailFoldersComponent implements OnInit, OnDestroy {
     }
 
     const folderNode: MyTreeNode = {
-      label: folder.description,
+      label: folder.description.replace(this.regexFindP, "_"),
       data: {
         type: PecFolderType.FOLDER,
         data: folder
@@ -693,9 +696,10 @@ export class MailFoldersComponent implements OnInit, OnDestroy {
     // sottoscrizione all'observable che scatta quando devo ricaricare il numero dei messaggi non letti
     this.mailFoldersService.getReloadFolder(folder.id).subscribe(res => {
       // prima rimuovo la parte "(numero messaggi)" dal label, poi se il numero dei messaggi non letti è > 0 lo reinserisco con il numero aggiornato
-      folderNode.label = folderNode.label.replace(/(\s*\(.*\))/gm, "");
+      folderNode.label = folderNode.label.replace(this.regexFindNumberBetweenP, "");
       if (res > 0) {
         folderNode.label = folderNode.label + ` (${res})`;
+        folderNode.numberOfMessages = res;
       }
     });
     setTimeout(() => {
@@ -914,6 +918,7 @@ export class MailFoldersComponent implements OnInit, OnDestroy {
       }
       if (newLabel) {
         newLabel = newLabel.trim();
+        newLabel = newLabel.replace(this.regexFindP, "_");
         const name = newLabel.replace(/\s+/gm, "_").toLowerCase();
         this.selectedNode.label = newLabel;
         this.selectedNode.editable = false;
@@ -1227,4 +1232,5 @@ export interface MyTreeNode extends TreeNode {
   editable?: boolean;
   children?: MyTreeNode[];
   inColoring?: boolean;
+  numberOfMessages?: number;
 }

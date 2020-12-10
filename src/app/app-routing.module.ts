@@ -3,7 +3,7 @@ import { Routes, RouterModule } from "@angular/router";
 import { NtJwtLoginComponent, LoggedOutPageComponent, NoLoginGuard, RefreshLoggedUserGuard, LoginGuard } from "@bds/nt-jwt-login";
 import { MailboxComponent } from "./mailbox/mailbox.component";
 import { LOGGED_OUT_ROUTE, MAILBOX_ROUTE, LOGIN_ROUTE } from "src/environments/app-constants";
-import { RubricaComponent, ContactDetailStart, ContactEditingComponent, GroupEditingComponent, ContactReadonlyComponent, PageNotFoundComponent } from "@bds/common-components";
+import { RubricaComponent, ContactDetailStart, ContactEditingComponent, GroupEditingComponent, ContactReadonlyComponent, PageNotFoundComponent, CanDeactivateContactEditingGuard, CanDeactivateGroupEditingGuard } from "@bds/common-components";
 import { DoNotShowRubricaPopupOnRefreshGuard} from "./rubrica/do-not-show-rubrica-popup-on-refresh.guard";
 
 const routes: Routes = [
@@ -24,8 +24,8 @@ const routes: Routes = [
     children: [
       { path: "", redirectTo: "list-start", pathMatch: "full" },
       { path: "list-start", component: ContactDetailStart },
-      { path: "contact-editing", component: ContactEditingComponent },
-      { path: "group-editing", component: GroupEditingComponent },
+      { path: "contact-editing", component: ContactEditingComponent , canDeactivate: [CanDeactivateContactEditingGuard]},
+      { path: "group-editing", component: GroupEditingComponent, canDeactivate: [CanDeactivateGroupEditingGuard] },
       { path: "detail", component: ContactReadonlyComponent }
       ]
   },

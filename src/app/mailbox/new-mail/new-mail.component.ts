@@ -16,8 +16,7 @@ import { CustomContactService, SelectedContact } from "@bds/common-components";
 @Component({
   selector: "app-new-mail",
   templateUrl: "./new-mail.component.html",
-  styleUrls: ["./new-mail.component.scss"],
-  providers: [ConfirmationService]
+  styleUrls: ["./new-mail.component.scss"]
 })
 export class NewMailComponent implements OnInit, AfterViewInit, OnDestroy {
 
@@ -773,7 +772,7 @@ export class NewMailComponent implements OnInit, AfterViewInit, OnDestroy {
   createSelectedContactEstemporaneo(emails: string[]): SelectedContact[] {
     let selectedContacts: SelectedContact[] = [];
     if (!!emails && emails.length > 0) {
-      selectedContacts = emails.map(emailAsString => this.customContactService.createSelectedContactFromEmail(emailAsString));
+      selectedContacts = emails.filter(emailAsString => this.emailRegex.test(emailAsString)).map(emailAsString => this.customContactService.createSelectedContactFromEmail(emailAsString));
     }
     return selectedContacts;
   }
