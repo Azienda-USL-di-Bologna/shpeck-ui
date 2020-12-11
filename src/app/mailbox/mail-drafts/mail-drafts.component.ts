@@ -336,6 +336,18 @@ export class MailDraftsComponent implements OnInit, OnDestroy {
     });
   }
 
+  onKeyUpMoveFocus(event) {
+    this.stopPropagation(event);
+  
+    const mailDetailContainer: HTMLElement = document.querySelector(".mail-detail");
+    if (!!mailDetailContainer) mailDetailContainer.focus();
+  }
+
+  private stopPropagation(event) {
+    event.preventDefault();
+    event.stopPropagation();
+  }
+
   public ngOnDestroy() {
     for (const s of this.subscriptions) {
       s.unsubscribe();

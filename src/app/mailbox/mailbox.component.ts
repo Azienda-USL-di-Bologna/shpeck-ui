@@ -291,4 +291,37 @@ export class MailboxComponent implements OnInit, AfterViewInit, AfterViewChecked
       };
     };
   }
+
+  onKeyUpMoveFocus(event) {
+    // console.log("mailbox onKeyUpMoveFocus", event);
+    this.stopPropagation(event);
+
+    const pecContainer: HTMLElement = document.querySelector(".content-left");
+    const listContainer: HTMLElement = document.querySelector(".mail-list");
+    const mailDetailContainer: HTMLElement = document.querySelector(".mail-detail");
+    const searchBar: HTMLElement = document.querySelector(".input-find");
+    const divWithTotalNumber: HTMLElement = document.querySelector(".filter-box-left");
+    
+    if (pecContainer && document.activeElement === pecContainer) {
+      if (!!listContainer) listContainer.focus();
+    } else if (!!listContainer && document.activeElement === listContainer) {
+      // if (!!pecContainer) pecContainer.focus();
+      if (!!mailDetailContainer) {
+        mailDetailContainer.focus();
+      } else {
+        if (!!searchBar) searchBar.focus();
+      }
+    } else if (!!mailDetailContainer && document.activeElement === mailDetailContainer) {
+      if (!!searchBar) searchBar.focus();
+    } else if (!!divWithTotalNumber && document.activeElement === divWithTotalNumber) {
+      if (!!mailDetailContainer) mailDetailContainer.focus();
+    } else if (document.activeElement !== pecContainer && document.activeElement !== listContainer && document.activeElement !== searchBar) {
+      if (!!searchBar) searchBar.focus();
+    }
+  }
+
+  private stopPropagation(event) {
+    event.preventDefault();
+    event.stopPropagation();
+  }
 }

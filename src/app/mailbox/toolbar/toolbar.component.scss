@@ -24,6 +24,11 @@
         width: auto;
         white-space: nowrap;
         // flex-grow: 0.1;
+        &:focus{
+            ::ng-deep .ui-button-text {
+                border: 1px solid black !important;
+            }
+        }
     }
     
     .images-pos {

@@ -7,7 +7,7 @@
   <div #mailContainer class="mail-container p-col">
 
     <!-- Left side -->
-    <div #mailFolder class="content-left">
+    <div #mailFolder class="content-left" tabindex="0" aria-label="Albero delle Pec" (keyup.Control)="onKeyUpMoveFocus($event)">
         <app-mail-folders></app-mail-folders>
     </div>
 
@@ -18,14 +18,18 @@
     <!-- Right side -->
     <div #rightSide class="content-right d-flex">
 
-      <div #mailList class="mail-list">
+      <div #mailList 
+        class="mail-list"
+        tabindex="0" 
+        (keyup.Control)="onKeyUpMoveFocus($event)" 
+        [attr.aria-label]="_selectedFolder ? 'La lista dei messagi nella cartella' : _selectedTag ? 'La lista dei messagi nell etichetta' : 'Lista messaggi vuota'">
         <!-- <app-mail-list
           [folder] = "folderSelected"
           [filters] = "filtersSelected"
           (messageClicked)="messageClicked($event)">
         </app-mail-list> -->
         <div class="filter-box">
-          <div class="filter-box-left">
+          <div class="filter-box-left" tabindex="0" (keyup.Control)="onKeyUpMoveFocus($event)">
               {{_selectedFolder ? _selectedFolder.description : _selectedTag ? _selectedTag.description : _selectedPec?.indirizzo}}
               {{totalMessageNumberDescriptor? '(' + totalMessageNumberDescriptor.messageNumber + ')': ''}}
           </div>
@@ -43,10 +47,13 @@
           <div></div>
       </div>
 
-      <div [ngClass]="hideDetail ? 'hidden' : 'mail-detail'" #mailDetail>
+      <div [ngClass]="hideDetail ? 'hidden' : 'mail-detail'" 
+        #mailDetail 
+        (keyup.Control)="onKeyUpMoveFocus($event)" 
+        tabindex="0" 
+        aria-label="Dettaglio del messaggio selezionato">
         <div [ngClass]="{'overlap-div' : sliding}"></div>
-        <app-mail-detail
-          [message]="message">
+          <app-mail-detail [message]="message">
         </app-mail-detail>
       </div>
     </div>
