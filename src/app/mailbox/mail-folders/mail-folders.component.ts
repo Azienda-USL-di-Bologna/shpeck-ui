@@ -188,12 +188,16 @@ export class MailFoldersComponent implements OnInit, OnDestroy {
               this.mailfolders[0].children.map((c: MyTreeNode) => c.data.data) as Folder[],
               (this.mailfolders[0].data.data as Pec).tagList);
           }
+          setTimeout( ()=> {
+            this.fixTreeHtmlRole();
+          });
         }
       }
     ));
     this.subscriptions.push(this.intimusClient.command$.subscribe((command: IntimusCommand) => {
       this.manageIntimusCommand(command);
     }));
+
   }
 
   /**
@@ -1245,6 +1249,18 @@ export class MailFoldersComponent implements OnInit, OnDestroy {
     nodeStyle.innerHTML = `body .nodeStyle${node.key} .general-style-icon { color: ${color} !important; }`;
     document.getElementsByTagName("head")[0].appendChild(nodeStyle);
     node.styleClass =  node.styleClass + ` nodeStyle${node.key}`;
+  }
+
+  fixTreeHtmlRole() { 
+    const liElements = this.tree.el.nativeElement.getElementsByClassName('ui-treenode'); 
+    for (const liEl of liElements) { 
+      liEl.setAttribute('role', 'none'); 
+    } 
+    const divElements = this.tree.el.nativeElement.getElementsByClassName('ui-treenode-content'); 
+    for (const divEl of divElements) { 
+      divEl.setAttribute('role', 'treeitem'); 
+    } 
+    console.log("tutto ok!")
   }
 
   public ngOnDestroy() {
