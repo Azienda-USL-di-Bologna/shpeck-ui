@@ -1,4 +1,4 @@
-import {Component, ElementRef, EventEmitter, OnDestroy, OnInit, Output, ViewChild} from "@angular/core";
+import {AfterViewInit, Component, ElementRef, EventEmitter, OnDestroy, OnInit, Output, ViewChild} from "@angular/core";
 import {buildLazyEventFiltersAndSorts} from "@bds/primeng-plugin";
 import {Azienda, ENTITIES_STRUCTURE, Folder, FolderType, Message, MessageTag, MessageType, Note, Pec, Tag} from "@bds/ng-internauta-model";
 import {MessageEvent, ShpeckMessageService} from "src/app/services/shpeck-message.service";
@@ -22,7 +22,7 @@ import {FormControl, FormGroup, Validators} from "@angular/forms";
 import {MailboxService, Sorting} from "../mailbox.service";
 import {ContextMenu} from "primeng-lts/primeng";
 import {IntimusClientService, IntimusCommand, IntimusCommands, RefreshMailsParams, RefreshMailsParamsEntities, RefreshMailsParamsOperations} from "@bds/nt-communicator";
-import { isArray } from 'util';
+import { isArray } from "util";
 
 @Component({
   selector: "app-mail-list",
@@ -30,7 +30,7 @@ import { isArray } from 'util';
   styleUrls: ["./mail-list.component.scss"],
   providers: [ConfirmationService]
 })
-export class MailListComponent implements OnInit, OnDestroy {
+export class MailListComponent implements OnInit, OnDestroy, AfterViewInit {
 
   constructor(
     public mailListService: MailListService,
@@ -88,6 +88,7 @@ export class MailListComponent implements OnInit, OnDestroy {
   private aziendeFascicolabiliSubCmItems: MenuItem[] = null;
   private registerMessageEvent: any = null;
   private loggedUser: UtenteUtilities;
+  private timeoutOnFocusEvent = null;
 
   public tagMenuItems:  MenuItem[] = null;
   public cmItems: MenuItem[] = [
@@ -341,6 +342,12 @@ export class MailListComponent implements OnInit, OnDestroy {
     })});
   }
 
+  ngAfterViewInit() {
+    setTimeout(() => {
+      this.setAccessibilityProperties(false);
+    }, 0);
+  }
+
   /**
    * gestisce un comando intimus
    * @param command il comando ricevuto
@@ -369,6 +376,7 @@ export class MailListComponent implements OnInit, OnDestroy {
         }
     }
   }
+  
 
   /**
    * gestisce l'inserimento di un messaggio nella lista dei messaggi che sto guardando
@@ -612,18 +620,7 @@ export class MailListComponent implements OnInit, OnDestroy {
           } else if (params.newRow["id_folder"] === this.pecFolderSelected.data.id) {
             this.manageIntimusInsertCommand(command, ignoreSameUserCheck);
           }
-        }
-        //  else if (params.entity === RefreshMailsParamsEntities.OUTBOX &&
-        //   params.oldRow && params.oldRow["ignore"] &&  params.newRow && params.newRow["ignore"] && params.oldRow["ignore"] !==  params.newRow["ignore"] &&
-        //   this.pecFolderSelected.type === PecFolderType.FOLDER &&
-        //   (this.pecFolderSelected.data as Folder).idPec.id === params.oldRow["id_pec"]) {
-        //     if (params.oldRow["ignore"] === false && params.oldRow["ignore"] === true) {
-        //       this.manageIntimusDeleteCommand(command);
-        //     } else  if (params.oldRow["ignore"] === true && params.oldRow["ignore"] === false) {
-        //       this.manageIntimusInsertCommand(command, true);
-        //     }
-        // }
-        else if (params.newRow["id_utente"] !== this.loggedUser.getUtente().id) {
+        } else if (params.newRow["id_utente"] !== this.loggedUser.getUtente().id) {
         // cerco il messaggio nei messaggi che sto vedendo e se lo trovo lo aggiorno, ma solo se non sono io che sto facendo l'azione
         const idMessage: number = params.newRow["id_message"];
         setTimeout(() => { // il setTimeout forse non serve, ma ho paura che se lo tolgo si rompa qualcosa
@@ -951,7 +948,7 @@ export class MailListComponent implements OnInit, OnDestroy {
           this.mailListService.messages = data.results;
           console.log("this.mailListService.messages", this.mailListService.messages);
           this.mailListService.setMailTagVisibility(this.mailListService.messages);
-          this.mailFoldersService.doReloadTag(this.mailListService.tags.find(t => t.name === "in_error").id);
+          this.mailFoldersService.doReloadTag(this.mailListService.tags.find(t => t.name === "in_error").id);          
         }
         this.loading = false;
         // setTimeout(() => {
@@ -968,6 +965,7 @@ export class MailListComponent implements OnInit, OnDestroy {
             this.mailListService.selectedMessages[i] = this.mailListService.messages[index];
           }
         }
+        this.setAccessibilityProperties(false);
       })
     });
   }
@@ -2097,13 +2095,82 @@ export class MailListComponent implements OnInit, OnDestroy {
     // }
     // do not confuse the user
     const mailDetailContainer: HTMLElement = document.querySelector(".mail-detail");
-    if (!!mailDetailContainer) mailDetailContainer.focus();
+    if (!!mailDetailContainer) { mailDetailContainer.focus(); }
   }
 
-  
+  public onRowFocus(event, rowData: Message) {
+    setTimeout(() => {
+      this.setAccessibilityProperties(false);
+      event.srcElement.setAttribute('tabindex', 0);
+      event.srcElement.setAttribute("aria-selected", true)
+
+      if (!this.mailListService.selectedMessages.some(m => m.id === rowData.id)) {
+        this.mailListService.selectedMessages = [rowData];
+        clearTimeout(this.timeoutOnFocusEvent);
+        this.contextMenu.hide();
+        const emlSource: string = this.getEmlSource(rowData);
+        this.messageService.manageMessageEvent(
+          emlSource,
+          rowData,
+          this.mailListService.selectedMessages
+        );
+        if (!rowData.seen) {
+          this.timeoutOnFocusEvent = setTimeout(() => {
+            this.mailListService.setSeen(true, true);
+          }, 350);
+        }
+      }
+    }, 0);
+  }
+
+  /**
+   * Questa funzione si occupa di settare le proprietà che servono
+   * all'accessibilità della pagina.
+   * @param firstTime 
+   */
+  private setAccessibilityProperties(firstTime: boolean): void {
+
+    // Uso questo if per assicurarmi che la tabella sia caricata nel DOM
+    if ((document.getElementsByClassName('ui-table-scrollable-body-table') as any)[0]) {
+
+      // NB Il ruolo della tabella è listbox perché quello table non funziona bene per il nostro caso.
+
+      // Setto il numero totale di record ed il ruolo rowgrup al contenitore delle righe
+      //(document.getElementsByClassName('ui-table-scrollable-body-table') as any)[0].setAttribute("aria-rowcount", this.mailListService.totalRecords);
+      (document.getElementsByClassName('ui-table-scrollable-body-table') as any)[0].setAttribute("aria-label", "Lista email");
+      //(document.getElementsByClassName('ui-table-scrollable-body-table') as any)[0].setAttribute("role", "treegrid");
+      //(document.getElementsByClassName('ui-table-tbody') as any)[1].setAttribute("role", "rowgroup");
+      (document.getElementsByClassName('ui-table-tbody') as any)[1].setAttribute("role", "listbox");
+
+      // Setto le righe non raggiungibili col tab
+      let rows = document.getElementsByClassName('riga-tabella') as any;
+      for (const row of rows) {
+        row.setAttribute('tabindex', -1);
+        row.setAttribute("aria-selected", false)
+        //row.setAttribute('aria-rowindex', +row.getAttribute("ng-reflect-index") + 1); 
+        row.setAttribute('role', "option");
+        row.setAttribute('aria-posinset', +row.getAttribute("ng-reflect-index") + 1);
+        row.setAttribute('aria-level', null);
+        row.setAttribute('aria-setsize', this.mailListService.totalRecords);
+      }
+
+      // Se il parametro firstTime è true setto la prima riga come tabbabile
+      console.log("rowssss", rows);
+      if (firstTime && rows && rows[0]) {
+        rows[0].setAttribute('tabindex', 0);
+      }
+
+      // Ora mi occupo dei checkbox, non li voglio trovare col tab
+      rows = document.getElementsByClassName('ui-helper-hidden-accessible') as any;
+      for (const row of rows) {
+        row.getElementsByTagName("input")[0].setAttribute('tabindex', -1); 
+      }
+    }
+
+  }
+
   private stopPropagation(event) {
     event.preventDefault();
     event.stopPropagation();
   }
-
 }
