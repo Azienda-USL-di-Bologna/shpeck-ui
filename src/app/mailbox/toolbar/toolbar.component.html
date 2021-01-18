@@ -1,4 +1,4 @@
-<p-toolbar>
+<p-toolbar (keyup.Control)="onKeyUpMoveFocus($event)">
   <div class="d-flex toolbar-pec">
       <!-- Nuova Pec -->
       <button
@@ -61,8 +61,12 @@
       </button>
       <p-menu #archiveMenu (mouseleave)="handleEvent($event, 'mouseout')" [popup]="true" [model]="archiveMenuItems"></p-menu>
       <!-- Ricerca -->
-      <input #search matInput type="text" pInputText size="30" placeholder="Cerca..." (keydown.enter)="onEnter(search.value)"
-        class="input-find" [pTooltip]="(toolBarService.buttonObs.get('searchActive') | async) ? 'Inserire almeno 3 caratteri e premere invio': null" minlength="3" title="barra di ricerca" autofocus
+      <input #search 
+        matInput type="text" pInputText size="30" placeholder="Cerca..."
+        (keyup.Control)="onKeyUpMoveFocus($event)" 
+        (keydown.enter)="onEnter(search.value)" aria-label="Ricerca"
+        class="input-find" 
+        [pTooltip]="(toolBarService.buttonObs.get('searchActive') | async) ? 'Inserire almeno 3 caratteri e premere invio': null" minlength="3" title="barra di ricerca" autofocus
         [disabled]="!(toolBarService.buttonObs.get('searchActive') | async)">
       <!-- <i class="pi pi-bars a-items-center d-flex"></i> -->
   </div>

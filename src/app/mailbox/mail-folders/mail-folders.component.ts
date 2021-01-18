@@ -14,6 +14,7 @@ import { IntimusClientService, IntimusCommand, IntimusCommands, RefreshMailsPara
 import { FilterDefinition, FiltersAndSorts, FILTER_TYPES } from "@nfa/next-sdr";
 import { OutboxLiteService } from "src/app/services/outbox-lite.service";
 import { DraftLiteService } from "src/app/services/draft-lite.service";
+import { filter } from 'rxjs/operators';
 
 @Component({
   selector: "app-mail-folders",
@@ -187,12 +188,16 @@ export class MailFoldersComponent implements OnInit, OnDestroy {
               this.mailfolders[0].children.map((c: MyTreeNode) => c.data.data) as Folder[],
               (this.mailfolders[0].data.data as Pec).tagList);
           }
+          setTimeout( ()=> {
+            this.fixTreeHtmlRole();
+          });
         }
       }
     ));
     this.subscriptions.push(this.intimusClient.command$.subscribe((command: IntimusCommand) => {
       this.manageIntimusCommand(command);
     }));
+
   }
 
   /**
@@ -907,6 +912,34 @@ export class MailFoldersComponent implements OnInit, OnDestroy {
     this.abortSaveFolder(nodeType, inserting);
   }
 
+  onKeyUpMoveFocus(event) {
+    const messagesListContainer: HTMLElement = document.querySelector(".mail-list");
+    // console.log("mail-folders onKeyUpMoveFocus event: ", event);
+    // console.log("messagesListContainer", messagesListContainer);
+    // messagesListContainer.focus();
+    // if (messagesListContainer) {
+    //   const uiTableScrollableBodyTable: HTMLElement = messagesListContainer.querySelector(".ui-table-scrollable-body-table");
+    //   if (uiTableScrollableBodyTable) {
+    //     const uiTableBody: HTMLElement = uiTableScrollableBodyTable.querySelector(".ui-table-tbody");
+    //     if (uiTableBody) {
+    //       console.log("son", uiTableBody);
+    //       const firstTableRow = uiTableBody.firstElementChild as HTMLElement;
+    //       console.log("first", firstTableRow);
+    //         if(!!firstTableRow) firstTableRow.focus();
+    //     }
+    //   }
+    // }
+    this.stopPropagation(event);
+
+    const mailListContainer: HTMLElement = document.querySelector(".mail-list");
+    if (mailListContainer) mailListContainer.focus();
+  }
+
+  private stopPropagation(event) {
+    event.preventDefault();
+    event.stopPropagation();
+  }
+
   public saveNode(newLabel?: string) {
     console.log("SAVE event", newLabel);
     if (!this._abortSaveFolder) {
@@ -1216,6 +1249,18 @@ export class MailFoldersComponent implements OnInit, OnDestroy {
     nodeStyle.innerHTML = `body .nodeStyle${node.key} .general-style-icon { color: ${color} !important; }`;
     document.getElementsByTagName("head")[0].appendChild(nodeStyle);
     node.styleClass =  node.styleClass + ` nodeStyle${node.key}`;
+  }
+
+  fixTreeHtmlRole() { 
+    const liElements = this.tree.el.nativeElement.getElementsByClassName('ui-treenode'); 
+    for (const liEl of liElements) { 
+      liEl.setAttribute('role', 'none'); 
+    } 
+    const divElements = this.tree.el.nativeElement.getElementsByClassName('ui-treenode-content'); 
+    for (const divEl of divElements) { 
+      divEl.setAttribute('role', 'treeitem'); 
+    } 
+    console.log("tutto ok!")
   }
 
   public ngOnDestroy() {
