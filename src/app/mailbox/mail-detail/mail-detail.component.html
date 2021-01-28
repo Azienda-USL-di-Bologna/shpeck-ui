@@ -27,7 +27,7 @@
       pTooltip="Apri dettaglio ricevute">
     </button>
   </div>
-  <div *ngIf="fullMessage && message?.inOut === inOut?.IN" class="recepit-detail">
+  <div *ngIf="fullMessage && message?.inOut === inOut?.IN" class="recepit-detail" aria-hidden="true">
     <div class="recepit-dates">
       <li class="recepit-date">
         <span class="recepit-date-label">Ricevuto il:</span>
@@ -74,7 +74,7 @@
         [disabled]="fullMessage?.emlData?.realAttachmentNumber == 0"
         class="accordion-allegati">
         <div class="box-allegati">
-          <div *ngFor="let attachment of fullMessage?.emlData?.attachments">
+          <div *ngFor="let attachment of fullMessage?.emlData?.attachments" tabindex="0">
             <span *ngIf="!attachment.forHtmlAttribute" class="allegato">
               <i class="far icona" [ngClass]="getFaClass(attachment)"></i>
               <span
