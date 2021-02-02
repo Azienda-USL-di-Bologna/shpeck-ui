@@ -2,7 +2,7 @@
   {{numberOfMessageSelected}} {{messageTrueDraftFalse ? 'email' : 'bozze'}} selezionate
 </div>
 <div class="detail-container" *ngIf="numberOfMessageSelected === null || numberOfMessageSelected <= 1">
-  <h3 class="mail-object" *ngIf="fullMessage?.emlData?.subject">{{fullMessage?.emlData?.subject}}</h3>
+  <h3 class="mail-object" *ngIf="fullMessage?.emlData?.subject" tabindex="0">{{fullMessage?.emlData?.subject}}</h3>
   <div *ngIf="message?.inOut === inOut?.OUT && fullMessage?.emlData?.displayBody" class="recepit-detail">
     <div class="recepit-dates">
       <li class="recepit-date">
@@ -44,26 +44,32 @@
         selected = true;
         [disabled]="fullMessage?.emlData == null">
         <div *ngIf="fullMessage?.emlData" class="id-date">
-          <div>
-            <span class="idPec">Id Pec: {{message?.id}}</span>
-            <span class="idPec" *ngIf="message?.idMessagePecgw !== null">Id Pecg: {{message.idMessagePecgw}}</span>
+          <div >
+            <span class="idPec" tabindex="0">Id Pec: {{message?.id}}</span>
+            <span class="idPec" *ngIf="message?.idMessagePecgw !== null" tabindex="0">Id Pecg: {{message.idMessagePecgw}}</span>
           </div>
-          <span *ngIf="fullMessage?.emlData?.sendDate">{{fullMessage?.emlData.sendDate | date:"EEEE d MMMM y, HH:mm" | titlecase}}</span>
+          <span *ngIf="fullMessage?.emlData?.sendDate" tabindex="0">{{fullMessage?.emlData.sendDate | date:"EEEE d MMMM y, HH:mm" | titlecase}}</span>
         </div>
 
         <ul class="elenco-dettagli">
             <!-- <li *ngIf="fullMessage?.emlData?.sendDate"><span class="li-description">Inviato:</span><span class="li-content">{{getDateDisplay(fullMessage?.emlData.sendDate)}}</span></li> -->
             <li *ngIf="fullMessage?.emlData?.from">
-              <span class="li-description">Da:</span>
-              <span class="li-content indirizzo">{{fullMessage?.emlData?.from}}</span>
+              <div tabindex="0">
+                <span class="li-description">Da:</span>
+                <span class="li-content indirizzo">{{fullMessage?.emlData?.from}}</span>  
+              </div>
             </li>
             <li *ngIf="fullMessage?.emlData?.to && fullMessage?.emlData?.to.length > 0">
-              <span class="li-description">A:</span>
-              <span *ngFor="let t of fullMessage?.emlData?.to" class="li-content indirizzo">{{t}}</span>
+              <div tabindex="0">
+                <span class="li-description">A:</span>
+                <span *ngFor="let t of fullMessage?.emlData?.to" class="li-content indirizzo">{{t}}</span>  
+              </div>
             </li>
             <li *ngIf="fullMessage?.emlData?.cc && fullMessage?.emlData?.cc.length > 0">
-              <span class="li-description">CC:</span>
-              <span *ngFor="let c of fullMessage?.emlData?.cc" class="li-content indirizzo">{{c}}</span>
+              <div tabindex="0">
+                <span class="li-description">CC:</span>
+                <span *ngFor="let c of fullMessage?.emlData?.cc" class="li-content indirizzo">{{c}}</span>
+              </div>
             </li>
         </ul>
       </p-accordionTab>
