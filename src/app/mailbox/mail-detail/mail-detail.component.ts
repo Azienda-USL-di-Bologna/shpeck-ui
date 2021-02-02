@@ -143,6 +143,8 @@ export class MailDetailComponent implements OnInit, OnDestroy {
       data.displayBody = data.htmlTextImgEmbedded != null ? data.htmlTextImgEmbedded : (
         data.htmlText != null ? data.htmlText : data.plainText != null ? data.plainText.replace(/\n/g, "<br/>") : null
       );
+
+      data.displayBody = "<div tabindex='0'>" + data.displayBody + "</div>";
     }
 
     /* Per la posta inviata carico le ricevute */
