@@ -46,6 +46,8 @@ export class MailDetailComponent implements OnInit, OnDestroy {
   get inOut() { return InOut; }
 
   @ViewChild("emliframe", null) private emliframe: ElementRef;
+  @ViewChild("dettagli", null) private dettagli;
+  @ViewChild("allegati", null) private allegati;
 
   constructor(private messageService: ShpeckMessageService,
     private draftService: DraftService,
@@ -235,6 +237,18 @@ export class MailDetailComponent implements OnInit, OnDestroy {
           style.appendChild(document.createTextNode(data));
         }
       });
+    }
+  }
+
+  /**
+   * Controllo se l'accordion passato come paramentro sia aperto per restituire 0 in caso contrario ritorno -1
+   * @param accordion 
+   */
+  public getTabindexForAccordion(accordion: any){
+    if(accordion.selected != false){
+      return 0;
+    }else{
+      return -1;
     }
   }
 
