@@ -25,7 +25,7 @@
     ><!-- (keyup.Control)="onKeyUpMoveFocus($event)" -->
     <ng-template pTemplate="body" let-rowData let-draft let-rowIndex="rowIndex">
         <tr #selRow class="message-row" [pSelectableRow]="rowData" [pSelectableRowIndex]="rowIndex" [pContextMenuRow]="rowData"
-            (dblclick)="openDetailPopup($event, rowData, message)">
+            (dblclick)="openDetailPopup()">
             <td class="column-checkbox">
                 <p-tableCheckbox [value]="rowData"></p-tableCheckbox>
             </td>

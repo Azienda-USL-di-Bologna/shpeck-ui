@@ -1,10 +1,7 @@
 import { NgModule } from "@angular/core";
-import { DynamicDialogModule } from "primeng-lts/components/dynamicdialog/dynamicdialog";
 import { ButtonModule } from "primeng-lts/button";
 import { TreeModule } from "primeng-lts/tree";
-import { DataScrollerModule } from "primeng-lts/datascroller";
 import { VirtualScrollerModule } from "primeng-lts/virtualscroller";
-import { DropdownModule, CalendarModule, TooltipModule, OverlayPanelModule } from "primeng-lts/primeng";
 import { TableModule } from "primeng-lts/table";
 import { AccordionModule } from "primeng-lts/accordion";
 import { ToolbarModule } from "primeng-lts/toolbar";
@@ -29,6 +26,11 @@ import { CommonComponentsModule } from "@bds/common-components";
 import { SliderModule } from "primeng-lts/slider";
 import { ColorPickerModule } from "primeng-lts/colorpicker";
 import { InplaceModule } from "primeng-lts/inplace";
+import { DynamicDialogModule } from "primeng-lts/dynamicdialog";
+import { CalendarModule } from "primeng-lts/calendar";
+import { TooltipModule } from "primeng-lts/tooltip";
+import { DropdownModule } from "primeng-lts/dropdown";
+import { OverlayPanelModule } from "primeng-lts/overlaypanel";
 
 
 @NgModule({
@@ -37,7 +39,6 @@ import { InplaceModule } from "primeng-lts/inplace";
         DynamicDialogModule,
         ButtonModule,
         TreeModule,
-        DataScrollerModule,
         VirtualScrollerModule,
         AccordionModule,
         TableModule,
@@ -72,7 +73,6 @@ import { InplaceModule } from "primeng-lts/inplace";
         DynamicDialogModule,
         ButtonModule,
         TreeModule,
-        DataScrollerModule,
         VirtualScrollerModule,
         AccordionModule,
         TableModule,

@@ -12,10 +12,10 @@
           <label for="to" style="padding-right: 9px">A: </label>
           <span class="ui-fluid flex-1 margin-lr-5">
               <p-autoComplete #toAutoComplete
-                required="true" 
+                [required]="true" 
                 type="email"
                 field="descrizioneCustom"
-                delay=1000 
+                [delay]=1000 
                 inputId="toInputId"
                 id="to" 
                 formControlArray="to" 
@@ -46,7 +46,7 @@
             <p-autoComplete #ccAutoComplete
               type="email"
               field="descrizioneCustom"
-              delay=1000 
+              [delay]=1000 
               inputId="ccInputId"
               id="cc" 
               formControlArray="cc" 
@@ -75,7 +75,7 @@
         <li>
           <label for="hideRecipients">Destinatari privati: </label>
           <span class="ui-fluid margin-lr-5">
-            <p-checkbox id="hideRecipients" formControlName="hideRecipients" binary="true"
+            <p-checkbox id="hideRecipients" formControlName="hideRecipients" [binary]="true"
               [pTooltip]="mailForm.get('cc').value.length > 0 ? hideRecipientsTooltip : ''" >
             </p-checkbox>
           </span>
@@ -175,7 +175,7 @@
 <p-dialog
   appendTo="body"
   [(visible)]="displayRubricaPopup"
-  modal="true"
+  [modal]="true"
   (onHide)="handleOnHideRubricaPopup($event)"
   class="popup-rubrica"
   [contentStyle]="utenteConnesso.aziendaLogin.parametriAzienda?.rubricaInternauta ? {'height':'70vh','max-height':'70vh', 'width':'92vw'} : null">

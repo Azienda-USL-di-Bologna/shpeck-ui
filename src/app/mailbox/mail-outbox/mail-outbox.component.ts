@@ -33,7 +33,7 @@ export class MailOutboxComponent implements OnInit, OnDestroy {
 
   public pecFolderSelected: PecFolder;
 
-  @ViewChild("ot", null) private ot: Table;
+  @ViewChild("ot", {}) private ot: Table;
   private previousFilter: FilterDefinition[] = [];
   private selectedProjection: string =
     ENTITIES_STRUCTURE.shpeck.outboxLite.standardProjections.OutboxLiteWithIdPec;
@@ -396,7 +396,7 @@ export class MailOutboxComponent implements OnInit, OnDestroy {
     }
   }
 
-  public openDetailPopup(event, row, message) {
+  public openDetailPopup() {
     if (this.openDetailInPopup) {
       this.displayDetailPopup = true;
     }

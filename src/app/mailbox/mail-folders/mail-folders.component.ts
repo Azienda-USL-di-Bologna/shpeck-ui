@@ -4,7 +4,6 @@ import { PecService } from "src/app/services/pec.service";
 import { TreeNode, MenuItem, MessageService } from "primeng-lts/api";
 import { MailFoldersService, PecFolder, PecFolderType } from "./mail-folders.service";
 import { Subscription } from "rxjs";
-import { ContextMenu, Tree, OverlayPanel } from "primeng-lts/primeng";
 import { FolderService } from "src/app/services/folder.service";
 import { TagService } from "src/app/services/tag.service";
 import { MailListService } from "../mail-list/mail-list.service";
@@ -15,6 +14,9 @@ import { FilterDefinition, FiltersAndSorts, FILTER_TYPES } from "@nfa/next-sdr";
 import { OutboxLiteService } from "src/app/services/outbox-lite.service";
 import { DraftLiteService } from "src/app/services/draft-lite.service";
 import { filter } from 'rxjs/operators';
+import { ContextMenu } from "primeng-lts/contextmenu";
+import { Tree } from "primeng-lts/tree";
+import { OverlayPanel } from "primeng-lts/overlaypanel";
 
 @Component({
   selector: "app-mail-folders",
@@ -31,11 +33,11 @@ export class MailFoldersComponent implements OnInit, OnDestroy {
   private subscriptions: Subscription[] = [];
   private loggedUser: UtenteUtilities;
 
-  @ViewChild("cm", null) public cm: ContextMenu;
-  @ViewChild("tree", null) public tree: Tree;
-  @ViewChild("op", null) public op: OverlayPanel;
+  @ViewChild("cm", {}) public cm: ContextMenu;
+  @ViewChild("tree", {}) public tree: Tree;
+  @ViewChild("op", {}) public op: OverlayPanel;
   // @ViewChildren("actualTarget", null) public actualTarget: ElementRef[];
-  @ViewChildren("folderInput", null) public folderInput: ElementRef[];
+  @ViewChildren("folderInput", {}) public folderInput: ElementRef[];
 
   // @ViewChild("manageFolderPanel") public manageFolderPanel: OverlayPanel;
 
@@ -1262,17 +1264,19 @@ export class MailFoldersComponent implements OnInit, OnDestroy {
    * avrà tabindex="0"
    */
   private fixTreeHtmlRole(): void {
-    const liElements = this.tree.el.nativeElement.getElementsByClassName('ui-treenode');
+    const liElements = this.tree.el.nativeElement.getElementsByClassName('p-treenode');
     for (const liEl of liElements) { 
       liEl.setAttribute('role', 'none'); 
     }
 
-    const divElements = this.tree.el.nativeElement.getElementsByClassName('ui-treenode-content');
+    const divElements = this.tree.el.nativeElement.getElementsByClassName('p-treenode-content');
     for (const divEl of divElements) {
       divEl.setAttribute('role', 'treeitem'); 
       divEl.setAttribute('tabindex', -1); 
     }
-    divElements[1].setAttribute('tabindex', 0); 
+    if (divElements && divElements[1]) {
+      divElements[1].setAttribute('tabindex', 0); 
+    }
   }
 
   /**
@@ -1280,7 +1284,7 @@ export class MailFoldersComponent implements OnInit, OnDestroy {
    * tabindex = -1 
    */
   private setTabindexMinusOne() {
-    const divElements = this.tree.el.nativeElement.getElementsByClassName('ui-treenode-content');
+    const divElements = this.tree.el.nativeElement.getElementsByClassName('p-treenode-content');
     for (const divEl of divElements) {
       divEl.setAttribute('tabindex', -1); 
     }

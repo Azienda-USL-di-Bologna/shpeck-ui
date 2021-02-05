@@ -14,9 +14,13 @@
 ::ng-deep .toolbar-pec .button-new-mail .ui-button-icon-left {
     color: white !important;
 }
+::ng-deep .p-toolbar {
+    padding: 0.571em 1em;
+}
 .toolbar-container {
     display: flex;
     justify-content: space-between;
+    width: 100%;
 }
 .d-flex {
     display: flex;

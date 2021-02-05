@@ -1,17 +1,17 @@
 import { Component, OnInit, ViewChild, AfterViewInit, OnDestroy } from "@angular/core";
 import { FormGroup, FormControl, Validators, FormArray } from "@angular/forms";
-import { DynamicDialogRef, DynamicDialogConfig, DialogService, ConfirmationService, MessageService } from "primeng-lts/api";
+import { ConfirmationService, MessageService } from "primeng-lts/api";
 import { Message, Pec, Draft, MessageRelatedType, InOut, ENTITIES_STRUCTURE, DettaglioContattoService, Utente, BaseUrls, BaseUrlType, Contatto } from "@bds/ng-internauta-model";
 import { Editor } from "primeng-lts/editor";
 import { TOOLBAR_ACTIONS, MAX_FILE_SIZE_UPLOAD } from "src/environments/app-constants";
 import { DraftService } from "src/app/services/draft.service";
-import { Chips } from "primeng-lts/chips";
-import { AutoComplete } from "primeng-lts/primeng";
 import { FiltersAndSorts, FilterDefinition, FILTER_TYPES, BatchOperation, BatchOperationTypes, NextSdrEntity, AdditionalDataDefinition } from "@nfa/next-sdr";
 import { Router } from "@angular/router";
 import { UtenteUtilities, NtJwtLoginService } from "@bds/nt-jwt-login";
 import { Subscription } from "rxjs";
 import { CustomContactService, SelectedContact } from "@bds/common-components";
+import { AutoComplete } from "primeng-lts/autocomplete";
+import { DialogService, DynamicDialogConfig, DynamicDialogRef } from "primeng-lts/dynamicdialog";
 
 @Component({
   selector: "app-new-mail",
@@ -20,9 +20,9 @@ import { CustomContactService, SelectedContact } from "@bds/common-components";
 })
 export class NewMailComponent implements OnInit, AfterViewInit, OnDestroy {
 
-  @ViewChild("toAutoComplete", null) toAutoComplete: AutoComplete;
-  @ViewChild("ccAutoComplete", null) ccAutoComplete: AutoComplete;
-  @ViewChild("editor", null) editor: Editor;
+  @ViewChild("toAutoComplete", {}) toAutoComplete: AutoComplete;
+  @ViewChild("ccAutoComplete", {}) ccAutoComplete: AutoComplete;
+  @ViewChild("editor", {}) editor: Editor;
   private fromAddress: string = ""; // Indirizzo che ha inviato la mail in caso di Rispondi e Rispondi a tutti
   private toAddressesForLabel: string[] = [];
   private ccAddressesForLabel: string[] = [];
@@ -258,7 +258,8 @@ export class NewMailComponent implements OnInit, AfterViewInit, OnDestroy {
    * @param event L'evento del dom, contiene sia l'informazione sul tasto che il valore inserito
    * @param formField Il campo del form dove è stato inserito l'indirizzo, addresses o ccAddresses
   */
-  onKeyUp(event: KeyboardEvent, formField: string) {
+  onKeyUp(e: Event, formField: string) {
+    const event = e as KeyboardEvent;
     console.log("messageService onKeyUp");
     if (event.key === "Enter" || event.type === "blur") {
       const tokenInput = event.target as any;

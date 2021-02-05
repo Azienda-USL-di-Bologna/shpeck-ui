@@ -42,7 +42,7 @@
         <i pButton type="button"  class="button-restore" (click)="ripristinaColor()" tooltipPosition="top" pTooltip="Ripristina il colore di default"></i>
       </div>
       <div>
-        <p-colorPicker [(ngModel)]="color" *ngIf="pickershow" inline="true" appendTo="body" (onChange)="nodeColorIsActuallyChanging()"></p-colorPicker>
+        <p-colorPicker [(ngModel)]="color" *ngIf="pickershow" [inline]="true" appendTo="body" (onChange)="nodeColorIsActuallyChanging()"></p-colorPicker>
       </div>
       <div class="buttons-color-picker">
         <button pButton type="button" 

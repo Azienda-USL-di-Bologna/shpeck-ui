@@ -2,7 +2,8 @@ import { Component, OnInit, ViewChild, ElementRef, Output, EventEmitter } from "
 import { HttpClient } from "@angular/common/http";
 import { RubricaService } from "../services/rubrica.service";
 import { FormGroup, Validators, FormControl } from "@angular/forms";
-import { AutoComplete, MessageService } from "primeng-lts/primeng";
+import { AutoComplete } from "primeng-lts/autocomplete";
+import { MessageService } from "primeng-lts/api";
 
 @Component({
   selector: "app-search-contact",
@@ -14,7 +15,7 @@ export class SearchContactComponent implements OnInit {
   public contactForm: FormGroup;
   // public contact: any;
 
-  @ViewChild("search", null) searchField: AutoComplete;
+  @ViewChild("search", {}) searchField: AutoComplete;
 
   @Output() addressChosedByBook = new EventEmitter<any>();
   @Output() closeRubricaPopup = new EventEmitter<any>();

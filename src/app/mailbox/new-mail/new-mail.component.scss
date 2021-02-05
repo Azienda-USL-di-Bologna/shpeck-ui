@@ -30,20 +30,20 @@ li {
   flex-direction: column;
 }
 
-::ng-deep body .ui-chkbox .ui-chkbox-box.ui-state-active {
+::ng-deep body .p-checkbox .p-checkbox-box.p-highlight {
   border-color: #2e4a65 !important;
   background-color: #406284 !important;
   color: #ffffff;
 }
 /******* Chips *******/
-::ng-deep #attachments .ui-chips {
-  > ul.ui-inputtext,
-  > ul.ui-inputtext:focus {
+::ng-deep #attachments .p-chips {
+  > ul.p-inputtext,
+  > ul.p-inputtext:focus {
     min-height: 33px;
     max-height: 100px;
     overflow-y: auto;
   }
-  .ui-chips-input-token {
+  .p-chips-input-token {
     display: none;  // Makes chips readonly
   }
 }
@@ -54,7 +54,7 @@ li {
   width: 135px;
 }
 
-.ui-fileupload-choose:not(.ui-state-disabled):hover {
+.p-fileupload-choose:not(.p-state-disabled):hover {
   background-color: #c8c8c8 !important;
 }
 
@@ -65,28 +65,29 @@ li {
   margin-bottom: -7px;
 }
 
+::ng-deep body .p-autocomplete {
+  width: 100%;
+}
+
 /******* Attachments and Address chips *******/
-::ng-deep body .ui-chips > ul.ui-inputtext .ui-chips-token,
-::ng-deep body .ui-autocomplete.ui-autocomplete-multiple .ui-autocomplete-multiple-container .ui-autocomplete-token {
+::ng-deep body .p-chips > ul.p-inputtext .p-chips-token,
+::ng-deep body .p-autocomplete.p-autocomplete-multiple .p-autocomplete-multiple-container .p-autocomplete-token {
   background-color: rgb(235, 235, 235);
   border-radius: 5px;
   padding: 2px 5px;
   margin: 1px;
   color: black;
 }
-::ng-deep body .ui-autocomplete.ui-autocomplete-multiple .ui-autocomplete-multiple-container {
+::ng-deep body .p-autocomplete.p-autocomplete-multiple .p-autocomplete-multiple-container {
   max-height: 81px;
   overflow: auto;
+  width: 100%;
 }
 .attachment:hover {
   background-color: rgb(206, 206, 206);
 }
-::ng-deep body .ui-autocomplete-panel .ui-autocomplete-items .ui-autocomplete-list-item.ui-state-highlight {
-  background-color: #969da1;
-  color: #ffffff;
-  border: 1px solid #2e4a65;
-}
-::ng-deep .ui-autocomplete-input-token input {
+
+::ng-deep .p-autocomplete-input-token input {
   width: 26em;
 }
 
@@ -121,17 +122,18 @@ li {
   justify-content: center;
 }
 
-::ng-deep body .ui-autocomplete.ui-autocomplete-multiple .ui-autocomplete-multiple-container:not(.ui-state-disabled).ui-state-focus,
+::ng-deep body .p-autocomplete.p-autocomplete-multiple .p-autocomplete-multiple-container:not(.p-state-disabled).p-state-focus,
 input:focus {
   border-color: #2e4a65 !important;
+  
 }
 
-::ng-deep .ui-tooltip {
+::ng-deep .p-tooltip {
   max-width: 18.5em;
 }
 
 /******* Editor *******/
-::ng-deep .ui-editor-content.ql-container.ql-snow {
+::ng-deep .p-editor-content.ql-container.ql-snow {
   // overflow: auto;
   // word-break: break-word !important;
   // word-break: break-all;

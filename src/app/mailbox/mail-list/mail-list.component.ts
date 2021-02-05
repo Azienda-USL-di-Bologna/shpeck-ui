@@ -20,9 +20,9 @@ import {AppCustomization} from "src/environments/app-customization";
 import {SettingsService} from "src/app/services/settings.service";
 import {FormControl, FormGroup, Validators} from "@angular/forms";
 import {MailboxService, Sorting} from "../mailbox.service";
-import {ContextMenu} from "primeng-lts/primeng";
 import {IntimusClientService, IntimusCommand, IntimusCommands, RefreshMailsParams, RefreshMailsParamsEntities, RefreshMailsParamsOperations} from "@bds/nt-communicator";
 import { isArray } from "util";
+import { ContextMenu } from "primeng-lts/contextmenu";
 
 @Component({
   selector: "app-mail-list",
@@ -53,13 +53,13 @@ export class MailListComponent implements OnInit, OnDestroy, AfterViewInit {
 
   @Output() public messageClicked = new EventEmitter<Message>();
 
-  @ViewChild("selRow", null) private selRow: ElementRef;
-  @ViewChild("dt", null) private dt: Table;
-  @ViewChild("noteArea", null) private noteArea;
-  @ViewChild("idtag", null) private inputTextTag;
-  @ViewChild("registrationMenu", null) private registrationMenu: Menu;
-  @ViewChild("archiviationMenu", null) private archiviationMenu: Menu;
-  @ViewChild("tagMenu", null) private tagMenu: Menu;
+  @ViewChild("selRow", {}) private selRow: ElementRef;
+  @ViewChild("dt", {}) private dt: Table;
+  @ViewChild("noteArea", {}) private noteArea;
+  @ViewChild("idtag", {}) private inputTextTag;
+  @ViewChild("registrationMenu", {}) private registrationMenu: Menu;
+  @ViewChild("archiviationMenu", {}) private archiviationMenu: Menu;
+  @ViewChild("tagMenu", {}) private tagMenu: Menu;
   // @ViewChild("ordermenu") private ordermenu: Menu;
 
   // serve per mandarlo al mailbox-component
@@ -84,8 +84,8 @@ export class MailListComponent implements OnInit, OnDestroy, AfterViewInit {
   private subscriptions: {id: number, type: string, subscription: Subscription}[] = [];
   private previousFilter: FilterDefinition[] = [];
   private foldersSubCmItems: MenuItem[] = null;
-  private aziendeProtocollabiliSubCmItems: MenuItem[] = null;
-  private aziendeFascicolabiliSubCmItems: MenuItem[] = null;
+  public aziendeProtocollabiliSubCmItems: MenuItem[] = null;
+  public aziendeFascicolabiliSubCmItems: MenuItem[] = null;
   private registerMessageEvent: any = null;
   private loggedUser: UtenteUtilities;
   private timeoutOnFocusEvent = null;
@@ -251,7 +251,7 @@ export class MailListComponent implements OnInit, OnDestroy, AfterViewInit {
       minWidth: "85px"
     }
   ];
-  @ViewChild("cm", null) private contextMenu: ContextMenu;
+  @ViewChild("cm", {}) private contextMenu: ContextMenu;
   private tagsMenuOpened = {
     registerMenuOpened : false,
     archiveMenuOpened : false,
@@ -270,6 +270,7 @@ export class MailListComponent implements OnInit, OnDestroy, AfterViewInit {
           if ((selectedFolder.type !== FolderType.DRAFT) && (selectedFolder.type !== FolderType.OUTBOX)) {
             this._selectedPecId = selectedFolder.fk_idPec.id;
             this._selectedPec = pecFolderSelected.pec;
+            console.log("selezionata ", selectedFolder);
             this.setFolder(selectedFolder);
             this.cmItems.map(element => {
               if (element.id === "MessageDelete" && selectedFolder.type === FolderType.TRASH) {
@@ -330,7 +331,7 @@ export class MailListComponent implements OnInit, OnDestroy, AfterViewInit {
       if (sorting) {
         this.mailListService.sorting = sorting;
         if (this.dt && this.dt.el && this.dt.el.nativeElement) {
-          this.dt.el.nativeElement.getElementsByClassName("ui-table-scrollable-body")[0].scrollTop = 0;
+          this.dt.el.nativeElement.getElementsByClassName("p-datatable-virtual-scrollable-body")[0].scrollTop = 0;
         }
         this.lazyLoad(null);
       }
@@ -896,7 +897,7 @@ export class MailListComponent implements OnInit, OnDestroy, AfterViewInit {
     this.ordermenu.toggle(event);
   } */
 
-  public getTagDescription(tagName: string) {
+  public getTagDescription(tagName: string): string {
     if (this.mailListService.tags) {
       const tag = this.mailListService.tags.find(t => t.name === tagName);
       if (tag) {
@@ -905,6 +906,7 @@ export class MailListComponent implements OnInit, OnDestroy, AfterViewInit {
         return null;
       }
     }
+    return null;
   }
 
   private loadTag(pec: Pec): Observable<Tag[]> {
@@ -1524,7 +1526,7 @@ export class MailListComponent implements OnInit, OnDestroy, AfterViewInit {
     field.setAttribute(attribute, value);
   }
 
-  private noteHandler(specificMessage?: Message) {
+  public noteHandler(specificMessage?: Message) {
     if (specificMessage) {
       this.mailListService.selectedMessages[0] = specificMessage;
     }
@@ -2131,16 +2133,16 @@ export class MailListComponent implements OnInit, OnDestroy, AfterViewInit {
   private setAccessibilityProperties(firstTime: boolean): void {
 
     // Uso questo if per assicurarmi che la tabella sia caricata nel DOM
-    if ((document.getElementsByClassName('ui-table-scrollable-body-table') as any)[0]) {
+    if ((document.getElementsByClassName('cdk-virtual-scroll-content-wrapper') as any)[0]) {
 
       // NB Il ruolo della tabella è listbox perché quello table non funziona bene per il nostro caso.
 
       // Setto il numero totale di record ed il ruolo rowgrup al contenitore delle righe
       //(document.getElementsByClassName('ui-table-scrollable-body-table') as any)[0].setAttribute("aria-rowcount", this.mailListService.totalRecords);
-      (document.getElementsByClassName('ui-table-scrollable-body-table') as any)[0].setAttribute("aria-label", "Lista email");
+      (document.getElementsByClassName('cdk-virtual-scroll-content-wrapper') as any)[0].setAttribute("aria-label", "Lista email");
       //(document.getElementsByClassName('ui-table-scrollable-body-table') as any)[0].setAttribute("role", "treegrid");
       //(document.getElementsByClassName('ui-table-tbody') as any)[1].setAttribute("role", "rowgroup");
-      (document.getElementsByClassName('ui-table-tbody') as any)[1].setAttribute("role", "listbox");
+      (document.getElementsByClassName('p-datatable-tbody') as any)[1].setAttribute("role", "listbox");
 
       // Setto le righe non raggiungibili col tab
       let rows = document.getElementsByClassName('riga-tabella') as any;
@@ -2155,13 +2157,12 @@ export class MailListComponent implements OnInit, OnDestroy, AfterViewInit {
       }
 
       // Se il parametro firstTime è true setto la prima riga come tabbabile
-      console.log("rowssss", rows);
       if (firstTime && rows && rows[0]) {
         rows[0].setAttribute('tabindex', 0);
       }
 
       // Ora mi occupo dei checkbox, non li voglio trovare col tab
-      rows = document.getElementsByClassName('ui-helper-hidden-accessible') as any;
+      rows = document.getElementsByClassName('p-hidden-accessible') as any;
       for (const row of rows) {
         row.getElementsByTagName("input")[0].setAttribute('tabindex', -1); 
       }

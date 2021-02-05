@@ -10,11 +10,11 @@ import { NtJwtLoginService, UtenteUtilities } from "@bds/nt-jwt-login";
 import { BatchOperation, BatchOperationTypes, FILTER_TYPES, FiltersAndSorts, FilterDefinition, SORT_MODES } from "@nfa/next-sdr";
 import { CUSTOM_SERVER_METHODS } from "src/environments/app-constants";
 import { MessageEvent, ShpeckMessageService } from "src/app/services/shpeck-message.service";
-import { DialogService } from "primeng-lts/api";
 import { ReaddressComponent } from "../readdress/readdress.component";
 import { TagService } from "src/app/services/tag.service";
 import { MailboxService, TotalMessageNumberDescriptor, Sorting } from "../mailbox.service";
 import { HttpClient } from "@angular/common/http";
+import { DialogService } from "primeng-lts/dynamicdialog";
 
 @Injectable({
   providedIn: "root"
@@ -217,11 +217,12 @@ export class MailListService {
    * @returns L'array dei messaggi filtrati
    */
   private filterMessagesWithTag(tag: Tag): Message[] {
-    return this.selectedMessages.filter(m => {
+    return this.selectedMessages.filter((m: Message) => {
       if (m.messageTagList) {
         return m.messageTagList.find(mt =>
           mt.idTag.id === tag.id) !== undefined;
       }
+      return false;
     });
   }
 
@@ -641,7 +642,7 @@ export class MailListService {
   //   }
   // }
 
-  private buildMessageFolderOperations(message: Message, typeFolder: string, batchOp: BatchOperationTypes, setDeleted: boolean) {
+  private buildMessageFolderOperations(message: Message, typeFolder: string, batchOp: BatchOperationTypes, setDeleted: boolean): any {
     const mFolder: MessageFolder = message.messageFolderList.find(messageFolder => messageFolder.idFolder.type === typeFolder);
     if (mFolder) {
       // mFolder.deleted = setDeleted !== null ? setDeleted : mFolder.deleted;

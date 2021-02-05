@@ -45,7 +45,7 @@ export class MailDetailComponent implements OnInit, OnDestroy {
   public getAllEmlAttachmentInProgress: boolean = false;
   get inOut() { return InOut; }
 
-  @ViewChild("emliframe", null) private emliframe: ElementRef;
+  @ViewChild("emliframe", {}) private emliframe: ElementRef;
 
   constructor(private messageService: ShpeckMessageService,
     private draftService: DraftService,
@@ -306,6 +306,7 @@ export class MailDetailComponent implements OnInit, OnDestroy {
       });
       return date.charAt(0).toUpperCase() + date.slice(1);
     }
+    return null;
   }
 
   /**
