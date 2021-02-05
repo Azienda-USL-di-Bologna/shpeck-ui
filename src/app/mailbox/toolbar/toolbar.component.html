@@ -1,74 +1,91 @@
-<p-toolbar (keyup.Control)="onKeyUpMoveFocus($event)">
-  <div class="d-flex toolbar-pec">
-      <!-- Nuova Pec -->
-      <button
-        pButton type="button" label="Nuova PEC"
-        icon="pi pi-plus" class="button-new-mail ui-button-raised ui-button-primary custom-primary-button"
-        (click)="handleEvent($event, 'new'); this.toolBarService.isDialogOpen = true" onclick="this.blur()"
-        [disabled]="!(toolBarService.buttonObs.get('newMailActive') | async) || this.toolBarService.isDialogOpen">
-      </button>
-      <!-- Modifica -->
-      <button
-        *ngIf="toolBarService.buttonObs.get('editVisible') | async"
-        pButton type="button" label="Modifica"
-        icon="fa fa-pen" class="button-styles ui-button-raised ui-button-secondary custom-border"
-        (click)="handleEvent($event, 'edit'); this.toolBarService.isDialogOpen = true"
-        [disabled]="!((toolBarService.buttonObs.get('editActive') | async) && (toolBarService.buttonObs.get('newMailActive') | async)) || this.toolBarService.isDialogOpen">
-      </button>
-      <!-- Rispondi -->
-      <button
-        pButton type="button" label="Rispondi"
-        icon="fa fa-reply" class="button-styles ui-button-raised ui-button-secondary custom-border"
-        (click)="handleEvent($event, 'reply'); this.toolBarService.isDialogOpen = true"
-        [disabled]="!((toolBarService.buttonObs.get('buttonsActive') | async) && (toolBarService.buttonObs.get('newMailActive') | async)) || this.toolBarService.isDialogOpen">
-      </button>
-      <!-- Rispondi a tutti -->
-      <button
-        pButton type="button" label="Rispondi a tutti"
-        icon="fa fa-reply-all" class="button-styles ui-button-raised ui-button-secondary custom-border"
-        (click)="handleEvent($event, 'reply_all'); this.toolBarService.isDialogOpen = true"
-        [disabled]="!((toolBarService.buttonObs.get('buttonsActive') | async) && (toolBarService.buttonObs.get('newMailActive') | async)) || this.toolBarService.isDialogOpen">
-      </button>
-      <!-- Inoltra -->
-      <button
-        pButton type="button" label="Inoltra"
-        icon="fa fa-share" class="button-styles ui-button-raised ui-button-secondary custom-border"
-        (click)="handleEvent($event, 'forward'); this.toolBarService.isDialogOpen = true"
-        [disabled]="!((toolBarService.buttonObs.get('buttonsActive') | async) && (toolBarService.buttonObs.get('newMailActive') | async)) || this.toolBarService.isDialogOpen">
-      </button>
-      <!-- Elimina -->
-      <button
-        pButton type="button" [label]="toolBarService.deleteLabel | async"
-        icon="fa fa-trash" class="button-styles ui-button-raised ui-button-secondary custom-border"
-        (click)="handleEvent($event, 'delete')"
-        [disabled]="!(toolBarService.buttonObs.get('deleteActive') | async)">
-      </button>
-      <!-- Sposta -->
-      <button
-        pButton type="button" label="Sposta"
-        icon="fa fa-folder" class="button-styles ui-button-raised ui-button-secondary custom-border"
-        (click)="handleEvent($event, 'move')"
-        [disabled]="!(toolBarService.buttonObs.get('moveActive') | async)">
-        <!-- <img class="images-pos" src="assets/images/icons/folder_export.png" width="24px" alt="Sposta in">     margin-l-15-->
-      </button>
-      <p-menu #moveMenu (mouseleave)="handleEvent($event, 'mouseout')" class="move-menu" [popup]="true" [model]="moveMenuItems"></p-menu>
-      <!-- Fascicola -->
-      <button
-        pButton type="button" label="Fascicola"
-        icon="fa fa-server" class="button-styles ui-button-raised ui-button-secondary custom-border rotate"
-        (click)="handleEvent($event, 'archive')"
-        [disabled]="!(toolBarService.buttonObs.get('archiveActive') | async)">
-      </button>
-      <p-menu #archiveMenu (mouseleave)="handleEvent($event, 'mouseout')" [popup]="true" [model]="archiveMenuItems"></p-menu>
-      <!-- Ricerca -->
+<p-toolbar > <!-- (keyup.Control)="onKeyUpMoveFocus($event)" -->
+  <div class="toolbar-container">
+    <div class="d-flex toolbar-pec" aria-hidden="true">
+      
+        <!-- Nuova Pec -->
+        <button
+          pButton type="button" label="Nuova PEC"
+          icon="pi pi-plus" class="button-new-mail ui-button-raised ui-button-primary custom-primary-button"
+          (click)="handleEvent($event, 'new'); this.toolBarService.isDialogOpen = true" onclick="this.blur()"
+          [disabled]="!(toolBarService.buttonObs.get('newMailActive') | async) || this.toolBarService.isDialogOpen">
+        </button>
+        <!-- Modifica -->
+        <button
+          *ngIf="toolBarService.buttonObs.get('editVisible') | async"
+          pButton type="button" label="Modifica"
+          icon="fa fa-pen" class="button-styles ui-button-raised ui-button-secondary custom-border"
+          (click)="handleEvent($event, 'edit'); this.toolBarService.isDialogOpen = true"
+          [disabled]="!((toolBarService.buttonObs.get('editActive') | async) && (toolBarService.buttonObs.get('newMailActive') | async)) || this.toolBarService.isDialogOpen">
+        </button>
+        <!-- Rispondi -->
+        <button
+          pButton type="button" label="Rispondi"
+          icon="fa fa-reply" class="button-styles ui-button-raised ui-button-secondary custom-border"
+          (click)="handleEvent($event, 'reply'); this.toolBarService.isDialogOpen = true"
+          [disabled]="!((toolBarService.buttonObs.get('buttonsActive') | async) && (toolBarService.buttonObs.get('newMailActive') | async)) || this.toolBarService.isDialogOpen">
+        </button>
+        <!-- Rispondi a tutti -->
+        <button
+          pButton type="button" label="Rispondi a tutti"
+          icon="fa fa-reply-all" class="button-styles ui-button-raised ui-button-secondary custom-border"
+          (click)="handleEvent($event, 'reply_all'); this.toolBarService.isDialogOpen = true"
+          [disabled]="!((toolBarService.buttonObs.get('buttonsActive') | async) && (toolBarService.buttonObs.get('newMailActive') | async)) || this.toolBarService.isDialogOpen">
+        </button>
+        <!-- Inoltra -->
+        <button
+          pButton type="button" label="Inoltra"
+          icon="fa fa-share" class="button-styles ui-button-raised ui-button-secondary custom-border"
+          (click)="handleEvent($event, 'forward'); this.toolBarService.isDialogOpen = true"
+          [disabled]="!((toolBarService.buttonObs.get('buttonsActive') | async) && (toolBarService.buttonObs.get('newMailActive') | async)) || this.toolBarService.isDialogOpen">
+        </button>
+        <!-- Elimina -->
+        <button
+          pButton type="button" [label]="toolBarService.deleteLabel | async"
+          icon="fa fa-trash" class="button-styles ui-button-raised ui-button-secondary custom-border"
+          (click)="handleEvent($event, 'delete')"
+          [disabled]="!(toolBarService.buttonObs.get('deleteActive') | async)">
+        </button>
+        <!-- Sposta -->
+        <button
+          pButton type="button" label="Sposta"
+          icon="fa fa-folder" class="button-styles ui-button-raised ui-button-secondary custom-border"
+          (click)="handleEvent($event, 'move')"
+          [disabled]="!(toolBarService.buttonObs.get('moveActive') | async)">
+          <!-- <img class="images-pos" src="assets/images/icons/folder_export.png" width="24px" alt="Sposta in">     margin-l-15-->
+        </button>
+        <p-menu #moveMenu (mouseleave)="handleEvent($event, 'mouseout')" class="move-menu" [popup]="true" [model]="moveMenuItems"></p-menu>
+        <!-- Fascicola -->
+        <button
+          pButton type="button" label="Fascicola"
+          icon="fa fa-server" class="button-styles ui-button-raised ui-button-secondary custom-border rotate"
+          (click)="handleEvent($event, 'archive')"
+          [disabled]="!(toolBarService.buttonObs.get('archiveActive') | async)">
+        </button>
+        <p-menu #archiveMenu (mouseleave)="handleEvent($event, 'mouseout')" [popup]="true" [model]="archiveMenuItems"></p-menu>
+        
+        <!-- <i class="pi pi-bars a-items-center d-flex"></i> -->
+    </div>
+    <div class="d-flex toolbar-pec">
+      <!-- Ricerca --> <!-- (keyup.Control)="onKeyUpMoveFocus($event)"  --> <!-- title="barra di ricerca" -->
+      <!-- Non metto aria-label="Ricerca messaggi" perché viene letto il placeholder -->
+      <!-- Non metto role="search" perché altrimenti legge "Punto di riferimento" .. e invece l'ho messo.. mah -->
+      <!--  -->
       <input #search 
-        matInput type="text" pInputText size="30" placeholder="Cerca..."
-        (keyup.Control)="onKeyUpMoveFocus($event)" 
-        (keydown.enter)="onEnter(search.value)" aria-label="Ricerca"
+        [attr.aria-label]="getDescrizioneCerca()"
+       
+        aria-selected="true" 
+        type="search" 
+        autofocus
+        matInput 
+        pInputText 
+        size="30"
+        placeholder="Cerca..."
+        (keydown.enter)="onEnter(search.value)"
         class="input-find" 
-        [pTooltip]="(toolBarService.buttonObs.get('searchActive') | async) ? 'Inserire almeno 3 caratteri e premere invio': null" minlength="3" title="barra di ricerca" autofocus
+        [pTooltip]="(toolBarService.buttonObs.get('searchActive') | async) ? 'Inserire almeno 3 caratteri e premere invio': null" 
+        minlength="3" 
         [disabled]="!(toolBarService.buttonObs.get('searchActive') | async)">
-      <!-- <i class="pi pi-bars a-items-center d-flex"></i> -->
+    </div>
   </div>
 </p-toolbar>
 <p-confirmDialog #cd [style]="{width: '22.5vw', top: '40%'}">

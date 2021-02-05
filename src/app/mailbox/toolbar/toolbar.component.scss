@@ -14,7 +14,10 @@
 ::ng-deep .toolbar-pec .button-new-mail .ui-button-icon-left {
     color: white !important;
 }
-
+.toolbar-container {
+    display: flex;
+    justify-content: space-between;
+}
 .d-flex {
     display: flex;
 }

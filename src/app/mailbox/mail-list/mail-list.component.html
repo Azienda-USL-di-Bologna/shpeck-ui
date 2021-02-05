@@ -1,15 +1,3 @@
-<!-- <div class="filter-box">
-    <div
-        class="filter-box-left" >
-        {{_selectedFolder ? _selectedFolder.description : _selectedTag ? _selectedTag.description : _selectedPec?.indirizzo}}
-    </div>
-    
-    <div class="filter-box-right"  (click)="toggleOrderMenu($event)">
-        Ordina
-        <p-menu #ordermenu appendTo="body" [showTransitionOptions]="'0ms'" [hideTransitionOptions]="'0ms'" [popup]="true" [model]="orderMenu"></p-menu>
-    </div>
-    (selectionChange)="handleEvent('selectionChange', $event)"
-</div> -->
 <p-table #dt id="pec-mail-list" *ngIf="mailListService.totalRecords > 0 && (_selectedTag || _selectedFolder || _filters)" [lazy]="true" (onLazyLoad)="lazyLoad($event)" scrollHeight="100%"
     [value]="mailListService.messages" [columns]="cols" [paginator]="false" [loading]="loading" [autoLayout]="true"
     [responsive]="true" [totalRecords]="mailListService.totalRecords" [(selection)]="mailListService.selectedMessages"
@@ -19,30 +7,37 @@
     (onRowSelect)="handleEvent('onRowSelect', $event)" (onRowUnselect)="handleEvent('onRowUnselect', $event)"
     dataKey="id" (mouseenter)="handleEvent('onMouseEnter', $event)"
     (onContextMenuSelect)="handleEvent('onContextMenuSelect', $event)"
-    (keyup.Control)="onKeyUpMoveFocus($event)">
-    <ng-template pTemplate="header">
+    ><!-- (keyup.Control)="onKeyUpMoveFocus($event)" -->
+ <!--    <ng-template pTemplate="header">
         <th hidden=true>Lista messaggi</th>
-    </ng-template>
+    </ng-template> -->
     <ng-template pTemplate="body" let-rowData let-message let-rowIndex="rowIndex">
         <tr #selRow 
-        [pTooltip]="message['moved'] ? message['movedInfo']: null"
-        tooltipPosition="top"
-        [ngClass]="{
-        'message-row-font-size-small': fontSize === 'small',
-        'message-row-font-size-medium': fontSize === 'medium',
-        'message-row-font-size-big': fontSize === 'big',
-        'message-disabled': message['moved'] 
-        }"
-        [pSelectableRow]="rowData" [pSelectableRowIndex]="rowIndex" [pSelectableRowDisabled]="message['moved']"
-            [pContextMenuRow]="rowData" [pContextMenuRowDisabled]="message['moved']" (dblclick)="openDetailPopup($event, rowData, message)"  >
-            <td *ngIf="!message['moved']" class="column-checkbox">
-                <p-tableCheckbox [value]="rowData"></p-tableCheckbox>
+            (focus)="onRowFocus($event, rowData)"
+            [pTooltip]="message['moved'] ? message['movedInfo']: null"
+            tooltipPosition="top"
+            class="riga-tabella"
+            [ngClass]="{
+                'message-row-font-size-small': fontSize === 'small',
+                'message-row-font-size-medium': fontSize === 'medium',
+                'message-row-font-size-big': fontSize === 'big',
+                'message-disabled': message['moved'] 
+            }"
+            [pSelectableRow]="rowData" 
+            [pSelectableRowIndex]="rowIndex" 
+            [pSelectableRowDisabled]="message['moved']"
+            [pContextMenuRow]="rowData" 
+            [pContextMenuRowDisabled]="message['moved']" 
+            (dblclick)="openDetailPopup($event, rowData, message)"
+            tabindex="-1">
+            <td *ngIf="!message['moved']" class="column-checkbox" aria-hidden="true">
+                <p-tableCheckbox [value]="rowData" aria-hidden="true"></p-tableCheckbox>
             </td>
-            <td *ngIf="message['moved']" class="column-checkbox">
+            <td *ngIf="message['moved']" class="column-checkbox" aria-hidden="true">
             </td>
-            <td>
+            <td role="cell">
                 <div class="mail-icons-container">
-                    <span class="prima-riga-sinistra">
+                    <span class="prima-riga-sinistra" aria-hidden="true">
                         <!-- ICONE AZIONE -->
                         <!-- protocollato-->
                         <span class="mail-icon first-icon-left">
@@ -206,7 +201,8 @@
                             </i>
                         </span>
                         <!-- data della mail -->
-                        <span class="mail-date">
+                        <span class="mail-date"
+                            [attr.aria-label]="message.receiveTime | date: 'fullDate'">
                             {{message.receiveTime | date: 'EE d MMM y, H:mm' | titlecase}}
                         </span>
                         <!-- iconcina degli errori -->
@@ -229,18 +225,21 @@
                     <div >
                         <span *ngIf="message.fromOrTo.fromOrTo === 'FROM'" title="Mittente" class="fa fa-user-edit icon-default-color second-line-icon second-line-icon-fa"></span>
                         <span *ngIf="message.fromOrTo.fromOrTo === 'TO'" title="Destinatari" class="fa fa-user-friends icon-default-color second-line-icon second-line-icon-fa"></span>
-                        <div class="display-text text-from-or-to" [ngClass]="{'display-bold':!message.seen}">{{message.fromOrTo.description}}</div>
+                        <div
+                            class="display-text text-from-or-to" 
+                            [ngClass]="{'display-bold':!message.seen}">
+                            {{message.fromOrTo.description}}
+                        </div>
                     </div>
                     
-                    
-                    <i *ngIf="_selectedFolder?.type !== 'TRASH' && mailListService?.loggedUserCanDelete === true"
+                    <i aria-hidden="true"
+                        *ngIf="_selectedFolder?.type !== 'TRASH' && mailListService?.loggedUserCanDelete === true"
                         class="material-icons-outlined delete-icon" 
                         (click)="!message['moved'] ? deletingConfirmation('Sei sicuro di voler eliminare il messaggio?'): null"
                         [pTooltip]="message['moved'] ? null :
                                     'Elimina il messaggio'">
                         delete
                     </i>
-                    
                     
                 </div>
                 <div class="display-block extra-margin" style="overflow-x: hidden">
@@ -253,7 +252,15 @@
                         class="display-text text-background little-margin-left">{{message?.messageFolderList[0]?.idFolder.description}}</span>
 
                     <!-- oggetto della mail -->
-                    <span class="display-text little-margin-left" [ngClass]="{'display-bold':!message.seen}" positionStyle="absolute" [pTooltip]="message['moved'] ? null : message.subject" tooltipPosition="top" tooltipStyleClass="tooltip-oggetto-mail">{{message.subject}}</span>
+                    <span [attr.aria-label]="'Oggetto:' + message.subject"
+                        class="display-text little-margin-left" 
+                        [ngClass]="{'display-bold':!message.seen}" 
+                        positionStyle="absolute" 
+                        [pTooltip]="message['moved'] ? null : message.subject" 
+                        tooltipPosition="top" 
+                        tooltipStyleClass="tooltip-oggetto-mail">
+                        {{message.subject}}
+                    </span>
                     <!-- <div class="display-text" [ngClass]="{'display-bold':!message.seen}">{{message.id + " -- " + message.subject}}</div>  -->
                 </div>
             </td>

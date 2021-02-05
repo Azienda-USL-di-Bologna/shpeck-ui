@@ -7,10 +7,12 @@
   (onNodeUnselect)="handleNodeSelect('onNodeUnselect', $event)"
   (onNodeContextMenuSelect)="handleNodeSelect('onContextMenuSelect', $event)"
   (selectionChange)="handleNodeSelect('selectionChange', $event)"
-  (keyup.Control)="onKeyUpMoveFocus($event)"
   [contextMenu]="cm">
+
+  <!-- temaplate del singolo nodo -->
   <ng-template let-node pTemplate="default">
-    <!-- <label hidden=true [for]="node.key">Rinomina</label>  -->
+
+    <!-- Versione nodo in modalità editing -->
     <input #folderInput [hidden] ="!!!node.editable" [attr.aria-hidden]="!!!node.editable" [(ngModel)]="node.label"
       [id]="node.key"
       type="text" 
@@ -21,6 +23,8 @@
       (keyup.enter)="onEnterPressed($event, folderInput.value)"
       (keydown.esc)="onEscPressed($event)"
       [attr.disabled]="node.editable ? null : ''">
+
+    <!-- Versione nodo in modalità sola lettura -->  
     <div #actualTarget
       aria-label="cartella"
       *ngIf="!!!node.editable" 
@@ -29,7 +33,8 @@
       tooltipPosition="top">
       {{node.label}} {{(node.data.type ==='pec' && !node.data.data.attiva) ?'- disattivata':''}}
     </div>
-    <!-- <span *ngIf="node.data.type ==='pec' && !node.data.data.attiva">disattiva</span> -->
+
+    <!-- Pannello del cambia colore a icona -->
     <p-overlayPanel #op appendTo="body" (onHide)="pickerOverlayHiding()">
       <div class="restore-color">
         Ripristina
@@ -54,27 +59,5 @@
     </p-overlayPanel>
   </ng-template>
 </p-tree>
-<!-- 
 
-  style="position: absolute;"
- -->
-
-
-<!-- *ngIf="!!node.editable" -->
 <p-contextMenu #cm [hidden]="!(cmItems?.length > 0)" [model]="cmItems" styleClass = "context-menu-mail-folders"></p-contextMenu>
-<!--
-<p-dialog [header]="folderDialogProperties.title"
-          [(visible)]="folderDialogProperties.visible"
-          modal="true"
-          styleClass="folder-dialog"
-          positionTop="20"
-          positionLeft="20"
-          >
-  Contentaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
-</p-dialog> -->
-
-<!-- <p-overlayPanel #manageFolderPanel [dismissable]="true" [showCloseIcon]="true">
-  Contentaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
-</p-overlayPanel> -->
-
-<!-- [style] = "{'background-color': blue}" -->

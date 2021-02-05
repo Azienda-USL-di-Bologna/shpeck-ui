@@ -46,6 +46,8 @@ export class MailDetailComponent implements OnInit, OnDestroy {
   get inOut() { return InOut; }
 
   @ViewChild("emliframe", null) private emliframe: ElementRef;
+  @ViewChild("dettagli", null) private dettagli;
+  @ViewChild("allegati", null) private allegati;
 
   constructor(private messageService: ShpeckMessageService,
     private draftService: DraftService,
@@ -143,6 +145,8 @@ export class MailDetailComponent implements OnInit, OnDestroy {
       data.displayBody = data.htmlTextImgEmbedded != null ? data.htmlTextImgEmbedded : (
         data.htmlText != null ? data.htmlText : data.plainText != null ? data.plainText.replace(/\n/g, "<br/>") : null
       );
+
+      data.displayBody = "<div tabindex='0'>" + data.displayBody + "</div>";
     }
 
     /* Per la posta inviata carico le ricevute */
@@ -233,6 +237,18 @@ export class MailDetailComponent implements OnInit, OnDestroy {
           style.appendChild(document.createTextNode(data));
         }
       });
+    }
+  }
+
+  /**
+   * Controllo se l'accordion passato come paramentro sia aperto per restituire 0 in caso contrario ritorno -1
+   * @param accordion 
+   */
+  public getTabindexForAccordion(accordion: any){
+    if(accordion.selected != false){
+      return 0;
+    }else{
+      return -1;
     }
   }
 
