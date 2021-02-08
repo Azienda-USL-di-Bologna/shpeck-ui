@@ -1,17 +1,21 @@
 <p-table #dt id="pec-mail-list" 
-    *ngIf="mailListService.totalRecords > 0 && (_selectedTag || _selectedFolder || _filters)" 
+*ngIf="mostratable && (_selectedTag || _selectedFolder || _filters)"
     [lazy]="true" 
     (onLazyLoad)="lazyLoad($event)" 
-    [lazyLoadOnInit]="false"
-    scrollHeight="100%"
     [value]="mailListService.messages" 
+    [(selection)]="mailListService.selectedMessages"
+    dataKey="id" 
+
+
+    [lazyLoadOnInit]="true"
+    scrollHeight="100%"
     [columns]="cols" 
     [paginator]="false" 
     [loading]="loading" 
     [autoLayout]="true"
-    [responsive]="true" 
+    [responsive]="true"
     [totalRecords]="mailListService.totalRecords" 
-    [(selection)]="mailListService.selectedMessages"
+    
     contextMenuSelectionMode="joint" 
     selectionMode="multiple" 
     [metaKeySelection]="true" 
@@ -24,14 +28,28 @@
     [virtualScrollDelay]="150"
     (onRowSelect)="handleEvent('onRowSelect', $event)" 
     (onRowUnselect)="handleEvent('onRowUnselect', $event)"
-    dataKey="id" 
+    
     (mouseenter)="handleEvent('onMouseEnter', $event)"
     (onContextMenuSelect)="handleEvent('onContextMenuSelect', $event)"
-    ><!-- (keyup.Control)="onKeyUpMoveFocus($event)" -->
- <!--    <ng-template pTemplate="header">
-        <th hidden=true>Lista messaggi</th>
-    </ng-template> -->
-    <ng-template pTemplate="body" let-rowData let-message let-rowIndex="rowIndex">
+    >
+    <!--    
+        [value]="virtualCars" 
+ (onLazyLoad)="lazyLoadProva($event)" 
+ [(selection)]="carselected"
+ dataKey="vin" 
+
+
+    *ngIf="mailListService.totalRecords > 0 && (_selectedTag || _selectedFolder || _filters)"  -->
+
+    <ng-template pTemplate="body" let-rowData let-message let-rowIndex="rowIndex" let-columns="columns">
+        <!-- <tr style="height:34px"
+        [pSelectableRow]="rowData" 
+        [pSelectableRowIndex]="rowIndex" 
+        [pContextMenuRow]="rowData"  >
+            <td *ngFor="let col of columns">
+                {{rowData[col.field]}}
+            </td>
+        </tr> --><!-- *ngIf="rowData.id != null"  -->
         <tr #selRow 
             (focus)="onRowFocus($event, rowData)"
             [pTooltip]="message['moved'] ? message['movedInfo']: null"
@@ -299,20 +317,32 @@
             </td>
         </tr>
     </ng-template> -->
+    <ng-template pTemplate="emptymessage" let-columns>
+        <tr>
+            <td *ngIf="_filters" [attr.colspan]="columns.length"> 
+                Nessun elemento trovato
+            </td>
+            <td *ngIf="!_filters && _selectedFolder" [attr.colspan]="columns.length"> 
+                La cartella selezionata non contiene elementi
+            </td>
+        </tr>
+    </ng-template>
 
 </p-table>
-<div *ngIf="!(_selectedTag || _selectedFolder || _filters)" class="flex-1 message-align flex-direction-col">
+<!-- <div *ngIf="!(_selectedTag || _selectedFolder || _filters)" class="flex-1 message-align flex-direction-col">
     <p style="margin: 0">Non ci sono elementi da visualizzare.</p>
     <p style="margin: 0.5em">Selezionare una cartella o effettuare una ricerca.</p>
 </div>
+
 <div *ngIf=" (_selectedTag || _selectedFolder || _filters) && (mailListService.totalRecords === 0 && !!!loading)" class="flex-1 message-align flex-direction-col">
     <p *ngIf="_filters" style="margin: 0">Nessun elemento trovato</p>
     <p *ngIf="!_filters && _selectedFolder" style="margin: 0">La cartella selezionata non contiene elementi</p>
-</div>
+</div> -->
 
 <p-contextMenu #cm [model]="cmItems" styleClass="context-menu-mail-list"></p-contextMenu>
 
-<p-confirmDialog #cd acceptLabel="Sì" rejectLabel="No" [style]="{width: '20vw', top: '40%'}">
+<!-- Questa serve per chiedere conferma all'utente sul dove vuole protocollare -->
+<p-confirmDialog #cd acceptLabel="Sì" rejectLabel="No" [style]="{width: '20vw'}">
     <p-footer>
         <button type="button" pButton icon="pi pi-check" label="Sì" (click)="cd.accept()"
             class="confirm-buttons ui-button-raised ui-button-secondary custom-secondary-button">

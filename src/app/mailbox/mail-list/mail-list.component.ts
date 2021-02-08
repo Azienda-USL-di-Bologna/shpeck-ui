@@ -23,6 +23,8 @@ import {MailboxService, Sorting} from "../mailbox.service";
 import {IntimusClientService, IntimusCommand, IntimusCommands, RefreshMailsParams, RefreshMailsParamsEntities, RefreshMailsParamsOperations} from "@bds/nt-communicator";
 import { isArray } from "util";
 import { ContextMenu } from "primeng-lts/contextmenu";
+import { Car } from "src/app/car";
+import { CarService } from "src/app/carservice";
 
 @Component({
   selector: "app-mail-list",
@@ -32,7 +34,10 @@ import { ContextMenu } from "primeng-lts/contextmenu";
 })
 export class MailListComponent implements OnInit, OnDestroy, AfterViewInit {
 
+  public lazy: boolean = false;
+
   constructor(
+    private carService: CarService,
     public mailListService: MailListService,
     private messageService: ShpeckMessageService,
     private tagService: TagService,
@@ -233,7 +238,7 @@ export class MailListComponent implements OnInit, OnDestroy, AfterViewInit {
   public loading = false;
   public fontSize = FONTSIZE.BIG;
   private VIRTUAL_ROW_HEIGHTS = {
-    small: 78,
+    small: 79,
     medium: 84,
     big: 89
   };
@@ -241,8 +246,13 @@ export class MailListComponent implements OnInit, OnDestroy, AfterViewInit {
   // private MEDIUM_SIZE_VIRTUAL_ROW_HEIGHT = 83;
   // private LARGE_SIZE_VIRTUAL_ROW_HEIGHT = 89;
   public virtualRowHeight: number = this.VIRTUAL_ROW_HEIGHTS[FONTSIZE.BIG];
-  public rowsNmber = 50;
-  public cols = [
+  public rowsNmber = 25;
+  public cols = /* [
+    { field: "vin", header: "Vin" },
+    { field: "year", header: "Year" },
+    { field: "brand", header: "Brand" },
+    { field: "color", header: "Color" }
+  ]; */[
     {
       field: "subject",
       header: "Oggetto",
@@ -251,6 +261,40 @@ export class MailListComponent implements OnInit, OnDestroy, AfterViewInit {
       minWidth: "85px"
     }
   ];
+  cars: Car[];
+
+  virtualCars: Car[] = [];
+  public carselected: Car[] = [];
+  numerocaricamenti = 0;
+  
+  totale: number;
+  evento = ["vuoto"];
+  evento2 = "vuoro";
+  
+  lazyLoadProva(event: LazyLoadEvent) {
+    this.evento.push(JSON.stringify(event));
+    this.evento2 = JSON.stringify(event);
+    //simulate remote connection with a timeout
+    this.loading = true;
+    setTimeout(() => {
+      this.numerocaricamenti++;
+      this.mailListService.totalRecords = 510;
+      //load data of required page
+      let loadedCars = this.cars.slice(event.first, event.first + event.rows);
+
+      //populate page of virtual cars
+      Array.prototype.splice.apply(this.virtualCars, [
+        ...[event.first, event.rows],
+        ...loadedCars
+      ]);
+
+      //trigger change detection
+      this.virtualCars = [...this.virtualCars];
+      this.loading = false;
+    }, Math.random() * 10000 + 250);
+  }
+
+
   @ViewChild("cm", {}) private contextMenu: ContextMenu;
   private tagsMenuOpened = {
     registerMenuOpened : false,
@@ -341,6 +385,9 @@ export class MailListComponent implements OnInit, OnDestroy, AfterViewInit {
       // setTimeout(() => {
       // }, 5000);
     })});
+    this.cars = Array.from({ length: 510 }).map(() =>
+      this.carService.generateCar()
+    );
   }
 
   ngAfterViewInit() {
@@ -864,6 +911,9 @@ export class MailListComponent implements OnInit, OnDestroy, AfterViewInit {
     }, 0);
   }
 
+  private primavolta = true;
+  public mostratable = false;
+
   private setFolder(folder: Folder) {
     this._selectedFolder = null;
     this._selectedTag = null;
@@ -874,7 +924,14 @@ export class MailListComponent implements OnInit, OnDestroy, AfterViewInit {
     setTimeout(() => {
       this._selectedFolder = folder;
       if (folder) {
-        this.lazyLoad(null);
+        //this.lazy = true;
+        //this.lazyLoad(null);
+        if (this.primavolta) {
+          this.primavolta = false;
+          this.mostratable = true;
+        } else {
+          this.lazyLoad(null);
+        }
       }
     }, 0);
   }
@@ -934,6 +991,7 @@ export class MailListComponent implements OnInit, OnDestroy, AfterViewInit {
       }
       this.subscriptions.splice(currentSubscription, 1);
     }
+    
     this.subscriptions.push({id: folderSelected.data.id, type: "folder_message", subscription: this.messageService
       .getData(
         this.mailListService.selectedProjection,
@@ -950,7 +1008,8 @@ export class MailListComponent implements OnInit, OnDestroy, AfterViewInit {
           this.mailListService.messages = data.results;
           console.log("this.mailListService.messages", this.mailListService.messages);
           this.mailListService.setMailTagVisibility(this.mailListService.messages);
-          this.mailFoldersService.doReloadTag(this.mailListService.tags.find(t => t.name === "in_error").id);          
+          this.mailFoldersService.doReloadTag(this.mailListService.tags.find(t => t.name === "in_error").id);
+          
         }
         this.loading = false;
         // setTimeout(() => {
@@ -968,6 +1027,7 @@ export class MailListComponent implements OnInit, OnDestroy, AfterViewInit {
           }
         }
         this.setAccessibilityProperties(false);
+        
       })
     });
   }
@@ -1029,6 +1089,7 @@ export class MailListComponent implements OnInit, OnDestroy, AfterViewInit {
         event.first = 0;
       }
       if (this.needLoading(event)) {
+        //event.rows = event.rows - 50;
         this.pageConf.conf = {
           limit: event.rows,
           offset: event.first

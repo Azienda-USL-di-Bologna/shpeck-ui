@@ -63,6 +63,15 @@ p-table,
 .icon-used {
   cursor: help !important;
 }
+::ng-deep .cdk-virtual-scroll-content-wrapper {
+  height: 100%;
+  table {
+    height: 100%;
+    .p-datatable-tbody {
+      height: 100%;
+    }
+  }
+}
 ::ng-deep #pec-mail-list .p-datatable .p-datatable-tbody > tr > td {//.ui-table-tbody > tr > td {
   border: none !important;
 }
@@ -85,6 +94,9 @@ p-table,
   flex-direction: row;
   flex-wrap: nowrap;
   justify-content: space-between;
+}
+.riga-tabella {
+  height: 79px !important;
 }
 .prima-riga-sinistra {
   align-self: center;
@@ -302,7 +314,7 @@ p-table,
 .warn-color {
   color: #993366 !important;
 }
-/******* Close button *******/
+// ****** Close button ******* /
 .close-button {
   position: absolute;
   top: -36px;
@@ -316,7 +328,7 @@ p-table,
 }
 
 .confirm-buttons {
-  width: 110px !important;
+  // width: 110px !important;
   margin: 0 0 0 0.5em !important;
 }
 
@@ -325,7 +337,7 @@ p-table,
   resize: none;
 }
 
-/* MENU ETICHETTE */
+// MENU ETICHETTE * /
 ::ng-deep .message-labels-icon-action,
 ::ng-deep .message-labels + p-contextmenusub {
   width: auto;
@@ -346,7 +358,6 @@ p-table,
   margin-left: 2em;
   overflow: hidden;
   visibility: hidden;
-  /* width: min-content; */
 }
 ::ng-deep .message-moves + p-contextmenusub ul {
   max-height: 330px;
@@ -382,7 +393,7 @@ p-table,
   display: inline-flex !important;
 }
 
-/* POPUP DETAIL */
+//POPUP DETAIL * /
 ::ng-deep .popup-mail-detail {
   width: 900px !important;
   height: 80%;

@@ -227,7 +227,7 @@ export class ToolBarService {
           width: "80%",
           styleClass: "new-draft",
           contentStyle: { "overflow": "visible", "height": "85vh" },
-          closable: false,
+          closable: false, // la x di chiusura la mettiamo noi custom.
           closeOnEscape: false
         });
         ref.onClose.subscribe((el) => {

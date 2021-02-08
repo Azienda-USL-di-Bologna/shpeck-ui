@@ -21,6 +21,11 @@ ul {
 li {
   margin: 0 0 10px;
 }
+.oggetto {
+  input {
+    width: 100%;
+  }
+}
 
 .d-flex, ul, li {
   display: flex;
@@ -30,11 +35,7 @@ li {
   flex-direction: column;
 }
 
-::ng-deep body .p-checkbox .p-checkbox-box.p-highlight {
-  border-color: #2e4a65 !important;
-  background-color: #406284 !important;
-  color: #ffffff;
-}
+
 /******* Chips *******/
 ::ng-deep #attachments .p-chips {
   > ul.p-inputtext,
@@ -51,11 +52,26 @@ li {
 /******* Buttons *******/
 .button-styles {
   margin: 8px 0 5px 5px;
-  width: 135px;
+  min-width: 135px;
 }
 
-.p-fileupload-choose:not(.p-state-disabled):hover {
+
+.ui-fileupload-choose:not(.p-state-disabled):hover {
   background-color: #c8c8c8 !important;
+}
+.inputfile {
+  position: absolute;
+  top: 0;
+  right: 0;
+  margin: 0;
+  opacity: 0;
+  min-height: 100%;
+  font-size: 100px;
+  text-align: right;
+  filter: alpha(opacity=0);
+  direction: ltr;
+  cursor: pointer;
+  z-index: 1;
 }
 
 /******* Footer *******/
@@ -157,13 +173,13 @@ p-editor {
 /******* Close button *******/
 .close-button {
   position: absolute;
-  top: -36px;
-  right: 11px;
-  color: slategray;
+  top: 16px;
+  right: 24px;
+  color: white;
 }
 /******* Dialog classes ******/
 .confirm-buttons {
-  width: 110px !important;
+  // width: 110px !important;
   margin: 0 0.25em 0 0.25em !important;
 }
 

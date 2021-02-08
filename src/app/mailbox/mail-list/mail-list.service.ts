@@ -44,7 +44,7 @@ export class MailListService {
   private _newTagInserted$: BehaviorSubject<Tag> = new BehaviorSubject<Tag>(null);
   private messageEvent: MessageEvent;
   private idPec: number;
-  public totalRecords: number;
+  public totalRecords: number = 0;
   private pecFolderSelected: PecFolder;
 
 
