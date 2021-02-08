@@ -965,7 +965,7 @@ export class MailListComponent implements OnInit, OnDestroy, AfterViewInit {
             this.mailListService.selectedMessages[i] = this.mailListService.messages[index];
           }
         }
-        this.setAccessibilityProperties(false);
+        this.setAccessibilityProperties(true);
       })
     });
   }
