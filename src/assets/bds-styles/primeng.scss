@@ -1,0 +1,130 @@
+// BUTTON =====================================================================
+.p-button:enabled:focus {
+  box-shadow: none !important;
+}
+body .p-button:enabled:hover {
+  background-color: #c8c8c8;
+  color: #333333;
+  border-color: #c8c8c8;
+}
+
+// CHECKBOX =====================================================================
+body .p-checkbox .p-checkbox-box.p-highlight {
+  border-color: #2e4a65 !important;
+  background-color: #406284 !important;
+  color: #ffffff;
+}
+
+
+// AUTOCOMPLETE =====================================================================
+body .p-autocomplete-panel .p-autocomplete-items .p-autocomplete-item {
+  background-color: #203142 !important;
+  color: #f4f4f4 !important;
+}
+body .p-autocomplete-panel .p-autocomplete-items .p-autocomplete-item.p-highlight,
+body .p-autocomplete-panel .p-autocomplete-items .p-autocomplete-item:hover{
+  /* background-color: #969da1 !important;
+  color: #ffffff !important; */
+  border: 1px solid #2e4a65 !important;
+  color: #333333 !important;
+  /* font-weight: bold !important; */  // TODO: per mettere il bold bisogna implementare il trucco tale per cui non si allarga..
+  background-color: #eaeaea !important;
+}
+
+
+// CHIPS =====================================================================
+.p-chips.p-component {
+  width: 100%;
+  .p-inputtext.p-chips-multiple-container {
+    width: 100%;
+  }
+}
+
+
+// ACCORDION & DROPDOWN =====================================================================
+body .p-accordion .p-accordion-header:not(.p-disabled).p-state-active a,
+body .p-accordion .p-accordion-header:not(.p-disabled).p-state-active:hover a,
+body .p-paginator .p-paginator-pages .p-paginator-page.p-state-active,
+body .p-dropdown-panel .p-dropdown-items .p-dropdown-item.p-highlight,
+body .p-dropdown-panel .p-dropdown-items .p-dropdown-item-group.p-highlight,
+body .p-accordion .p-accordion-header:not(.p-disabled).p-highlight .p-accordion-header-link {
+  background-color: #545454;
+  border: 1px solid #545454;
+  color: #ffffff;
+
+  &:hover {
+    background-color: #545454;
+    border: 1px solid #545454;
+    color: #ffffff;
+  }
+}
+
+
+// MENU & CONTEXT MENU =====================================================================
+body {
+  p-menu {
+    .p-menu {
+      background-color: #203142 !important;
+      .p-menuitem-link {
+        .p-menuitem-text {
+          color: #F4F4F4;
+        }
+      }
+    }
+  }
+  p-contextmenu {
+    .p-contextmenu {
+      background-color: #203142 !important;
+      .p-menuitem {
+        .p-menuitem-link {
+          padding: 6px 12px;
+          color: #F4F4F4;
+          .p-menuitem-text {
+            color: #F4F4F4;
+          }
+        }
+      }
+    }
+  }
+  .p-menuitem {
+    .p-menuitem-link {
+      padding: 6px 12px;
+    }
+  }
+  .p-contextmenu .p-submenu-list {
+    background-color: #203142 !important;
+  }
+  .p-contextmenu .p-menuitem.p-menuitem-active > .p-menuitem-link .p-menuitem-text {
+    font-weight: bold;
+  }
+  .p-menu:hover { color:black !important}
+  .p-menu {
+    background-color: #203142 !important;
+    .p-menuitem {
+      color: black !important;
+    }
+    .p-menuitem {
+      .p-menuitem-link:hover {
+        color: black !important;
+        font-weight: bold;
+      }
+      .p-menuitem-link {
+        color: #F4F4F4;
+        .p-menuitem-text {
+          color: inherit;
+        }
+        .p-menuitem-text:hover {
+          color: black !important;
+          font-weight: bold;
+        }
+      }
+    }
+  }
+  .p-contextmenu .p-menuitem-link .p-menuitem-icon,
+  .p-menu .p-menuitem-link .p-menuitem-icon {
+    color: #F4F4F4;
+    //font-size: 1.7em;
+    font-size: 16px;
+  }
+}
+
