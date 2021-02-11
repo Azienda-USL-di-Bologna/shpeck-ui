@@ -12,6 +12,8 @@
           <label for="to" style="padding-right: 9px">A: </label>
           <span class="ui-fluid flex-1 margin-lr-5">
               <p-autoComplete #toAutoComplete
+              
+                [autofocus]="true"
                 required="true" 
                 type="email"
                 field="descrizioneCustom"
@@ -28,7 +30,7 @@
                 [minLength]="1" placeholder="Seleziona contatti..." 
                 [multiple]="true">
                 <ng-template let-value pTemplate="selectedItem">
-                  <span class="token-label" [ngClass]="emailRegex.test(value) ? null : 'alert-message-warn'">{{value}}</span>
+                  <span class="token-label" [ngClass]="emailRegex.test(value) ? null : 'alert-message-warn'">{{value}} </span>
                 </ng-template>
               </p-autoComplete>
           </span>
