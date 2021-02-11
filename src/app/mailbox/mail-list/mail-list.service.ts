@@ -696,8 +696,7 @@ export class MailListService {
             ENTITIES_STRUCTURE.shpeck.message.path,
           entityBody: messaggioDaInviare,
           additionalData: null,
-          returnProjection: ENTITIES_STRUCTURE.shpeck.message.customProjections
-          .CustomMessageForMailList
+          returnProjection: null
         });
       }
     });
@@ -710,14 +709,17 @@ export class MailListService {
           const map: any = {};
           messages.forEach((bacthOperation: BatchOperation) => {
             let index: number = this.selectedMessages.findIndex(m => m.id === bacthOperation.id);
-            const updatedMessage = bacthOperation.entityBody as Message;
+            let updatedMessage = bacthOperation.entityBody as Message;
             this.setMailTagVisibility([updatedMessage]);
             if (index >= 0) {
               this.selectedMessages.splice(index, 1, updatedMessage);
             }
             index = this.messages.findIndex(m => m.id === bacthOperation.id);
             if (index >= 0) {
-              this.messages.splice(index, 1, updatedMessage);
+              //this.messages.splice(index, 1, updatedMessage);
+              this.messages[index].seen = updatedMessage.seen;
+              this.messages[index].version = updatedMessage.version;
+              updatedMessage = this.messages[index];
             }
             if (!map[updatedMessage.messageFolderList[0].idFolder.id]) {
               this.mailFoldersService.doReloadFolder(updatedMessage.messageFolderList[0].idFolder.id);

@@ -1,4 +1,4 @@
-import {AfterViewInit, Component, ElementRef, EventEmitter, OnDestroy, OnInit, Output, ViewChild} from "@angular/core";
+import {AfterViewInit, Component, ElementRef, EventEmitter, HostListener, OnDestroy, OnInit, Output, ViewChild} from "@angular/core";
 import {buildLazyEventFiltersAndSorts} from "@bds/primeng-plugin";
 import {Azienda, ENTITIES_STRUCTURE, Folder, FolderType, Message, MessageTag, MessageType, Note, Pec, Tag} from "@bds/ng-internauta-model";
 import {MessageEvent, ShpeckMessageService} from "src/app/services/shpeck-message.service";
@@ -246,7 +246,7 @@ export class MailListComponent implements OnInit, OnDestroy, AfterViewInit {
   // private MEDIUM_SIZE_VIRTUAL_ROW_HEIGHT = 83;
   // private LARGE_SIZE_VIRTUAL_ROW_HEIGHT = 89;
   public virtualRowHeight: number = this.VIRTUAL_ROW_HEIGHTS[FONTSIZE.BIG];
-  public rowsNmber = 25;
+  public rowsNmber = 50;
   public cols = /* [
     { field: "vin", header: "Vin" },
     { field: "year", header: "Year" },
@@ -901,12 +901,13 @@ export class MailListComponent implements OnInit, OnDestroy, AfterViewInit {
     this._selectedFolder = null;
     this._filters = null;
     this.mailListService.selectedMessages = [];
+    this.mailListService.messages = [];
     // trucco per far si che la table vanga tolta e rimessa nel dom (in modo da essere resettata) altrimenti sminchia
     // NB: nell'html la visualizzazione della table è controllata da un *ngIf
     setTimeout(() => {
       this._selectedTag = tag;
       if (tag) {
-        this.lazyLoad(null);
+        //this.lazyLoad(null);
       }
     }, 0);
   }
@@ -919,6 +920,7 @@ export class MailListComponent implements OnInit, OnDestroy, AfterViewInit {
     this._selectedTag = null;
     this._filters = null;
     this.mailListService.selectedMessages = [];
+    this.mailListService.messages = [];
     // trucco per far si che la table vanga tolta e rimessa nel dom (in modo da essere resettata) altrimenti sminchia
     // NB: nell'html la visualizzazione della table è controllata da un *ngIf
     setTimeout(() => {
@@ -930,7 +932,7 @@ export class MailListComponent implements OnInit, OnDestroy, AfterViewInit {
           this.primavolta = false;
           this.mostratable = true;
         } else {
-          this.lazyLoad(null);
+          //this.lazyLoad(null);
         }
       }
     }, 0);
@@ -938,13 +940,17 @@ export class MailListComponent implements OnInit, OnDestroy, AfterViewInit {
 
   private setFilters(filters: FilterDefinition[]) {
     // this._selectedFolder = null;
+    this.mostratable = false;
     this._filters = null;
+    this.mailListService.selectedMessages = [];
+    this.mailListService.messages = [];
     setTimeout(() => {
       this._filters = filters;
+      this.mostratable = true;
       if (filters) {
         // this.resetPageConfig = true;
         // this.filtering = true;
-        this.lazyLoad(null);
+        //this.lazyLoad(null);
       }
     }, 0);
   }
@@ -974,7 +980,7 @@ export class MailListComponent implements OnInit, OnDestroy, AfterViewInit {
     return this.tagService.getData(null, filtersAndSorts, null, null);
   }
 
-  private loadData(pageConf: PagingConf, lazyFilterAndSort?: FiltersAndSorts, folder?: Folder, tag?: Tag) {
+  private loadData(pageConf: PagingConf, lazyFilterAndSort?: FiltersAndSorts, folder?: Folder, tag?: Tag, event?) {
     this.loading = true;
     // mi devo salvare la folder/tag selezionata al momento del caricamento,
     // perché nella subscribe quando la invio al mailbox-component per scrivere il numero di messaggi
@@ -1005,7 +1011,14 @@ export class MailListComponent implements OnInit, OnDestroy, AfterViewInit {
           // mando l'evento con il numero di messaggi (serve a mailbox-component perché lo deve scrivere nella barra superiore)
           this.mailListService.refreshAndSendTotalMessagesNumber(0, folderSelected);
 
-          this.mailListService.messages = data.results;
+          //this.mailListService.messages = data.results;
+
+          Array.prototype.splice.apply(this.mailListService.messages, [...[event.first, event.rows], ...data.results]);
+        
+          //trigger change detection
+          this.mailListService.messages = [...this.mailListService.messages];
+
+
           console.log("this.mailListService.messages", this.mailListService.messages);
           this.mailListService.setMailTagVisibility(this.mailListService.messages);
           this.mailFoldersService.doReloadTag(this.mailListService.tags.find(t => t.name === "in_error").id);
@@ -1057,7 +1070,7 @@ export class MailListComponent implements OnInit, OnDestroy, AfterViewInit {
     }
   }
 
-  private needLoading(event: LazyLoadEvent): boolean {
+  /* private needLoading(event: LazyLoadEvent): boolean {
     let needLoading = this.pageConf.conf.limit !== event.rows ||
       this.pageConf.conf.offset !== event.first;
     if (!needLoading) {
@@ -1074,7 +1087,7 @@ export class MailListComponent implements OnInit, OnDestroy, AfterViewInit {
       }
     }
     return needLoading;
-  }
+  } */
 
   public lazyLoad(event: LazyLoadEvent) {
     console.log("lazyload", event);
@@ -1088,7 +1101,7 @@ export class MailListComponent implements OnInit, OnDestroy, AfterViewInit {
       if (event.first !== event.first) {
         event.first = 0;
       }
-      if (this.needLoading(event)) {
+     /*  if (this.needLoading(event)) { */
         //event.rows = event.rows - 50;
         this.pageConf.conf = {
           limit: event.rows,
@@ -1100,13 +1113,15 @@ export class MailListComponent implements OnInit, OnDestroy, AfterViewInit {
           this.datepipe
         );
 
-        this.loadData(this.pageConf, filtersAndSorts, this._selectedFolder, this._selectedTag);
-      }
+        this.loadData(this.pageConf, filtersAndSorts, this._selectedFolder, this._selectedTag, event);
+      /* } */
     } else {
+      event = {
+        rows: this.rowsNmber,
+        first: 0
+      };
       if (eventFilters) {
-        event = {
-          filters: eventFilters
-        };
+        event["filters"] = eventFilters;
       }
       this.pageConf.conf = {
         limit: this.rowsNmber,
@@ -1118,7 +1133,7 @@ export class MailListComponent implements OnInit, OnDestroy, AfterViewInit {
         this.datepipe
       );
 
-      this.loadData(this.pageConf, filtersAndSorts, this._selectedFolder, this._selectedTag);
+      this.loadData(this.pageConf, filtersAndSorts, this._selectedFolder, this._selectedTag, event);
     }
     this.previousFilter = this._filters;
     // this.filtering = false;
@@ -1218,9 +1233,9 @@ export class MailListComponent implements OnInit, OnDestroy, AfterViewInit {
           // selezione di un singolo messaggio (o come click singolo oppure come click del primo messaggio con il ctrl)
           if (this.mailListService.selectedMessages.length === 1) {
             const selectedMessage: Message = this.mailListService.selectedMessages[0];
-            if (event.type === "row") {
+            /* if (event.type === "row") {
               this.mailListService.setSeen(true, true);
-            }
+            } */
             const emlSource: string = this.getEmlSource(selectedMessage);
             this.messageService.manageMessageEvent(
               emlSource,
@@ -2161,6 +2176,49 @@ export class MailListComponent implements OnInit, OnDestroy, AfterViewInit {
     if (!!mailDetailContainer) { mailDetailContainer.focus(); }
   }
 
+  public arrowPress(direction: string) {
+    if (this.mailListService.selectedMessages.length > 0) {
+      console.log("hola")
+      const actualMessageIndex: number = this.mailListService.messages.findIndex(m => m.id === this.mailListService.selectedMessages[0].id);
+      if (actualMessageIndex >= 0) {
+        switch (direction) {
+          case 'up':
+            if (actualMessageIndex > 0) {
+              setTimeout(() => {
+              this.mailListService.selectedMessages = [this.mailListService.messages[actualMessageIndex - 1]];
+              this.mailListService.selectedMessages = [...this.mailListService.selectedMessages];
+              this.setRowFocused(this.mailListService.messages[actualMessageIndex - 1].id);
+              }, 0);
+            }
+            break;
+          case 'down': 
+            if (actualMessageIndex < this.mailListService.messages.length - 1) {
+              this.mailListService.selectedMessages = [this.mailListService.messages[actualMessageIndex + 1]];
+              this.mailListService.selectedMessages = [...this.mailListService.selectedMessages];
+              this.setRowFocused(this.mailListService.messages[actualMessageIndex + 1].id);
+            }
+            break;
+        }
+      }
+    }
+  }
+
+  public setRowFocused(idRiga: number) {
+    let rows = document.getElementsByClassName('riga-tabella') as any;
+    for (const row of rows) {
+      if (+row.attributes.name.value === idRiga) {
+        if (row.rowIndex < 1) {
+          this.dt.el.nativeElement.getElementsByClassName("p-datatable-virtual-scrollable-body")[0].scrollTop = 
+                this.dt.el.nativeElement.getElementsByClassName("p-datatable-virtual-scrollable-body")[0].scrollTop - this.virtualRowHeight / 2;
+        }
+
+        row.focus();
+        //this.dt.scrollToVirtualIndex(row.getAttribute("ng-reflect-index"));
+        //row.scrollIntoView();
+      }
+    }
+  }
+
   public onRowFocus(event, rowData: Message) {
     setTimeout(() => {
       this.setAccessibilityProperties(false);
@@ -2168,7 +2226,10 @@ export class MailListComponent implements OnInit, OnDestroy, AfterViewInit {
       event.srcElement.setAttribute("aria-selected", true)
 
       if (!this.mailListService.selectedMessages.some(m => m.id === rowData.id)) {
-        this.mailListService.selectedMessages = [rowData];
+        console.log("onRowFocus")
+        //this.mailListService.selectedMessages.push(rowData);
+        //this.mailListService.selectedMessages = [...this.mailListService.selectedMessages];
+        // this.stopPropagation(event);
         clearTimeout(this.timeoutOnFocusEvent);
         this.contextMenu.hide();
         const emlSource: string = this.getEmlSource(rowData);
@@ -2179,7 +2240,9 @@ export class MailListComponent implements OnInit, OnDestroy, AfterViewInit {
         );
         if (!rowData.seen) {
           this.timeoutOnFocusEvent = setTimeout(() => {
-            this.mailListService.setSeen(true, true);
+            if (this.mailListService.selectedMessages.length === 1) { 
+              this.mailListService.setSeen(true, true);
+            }
           }, 350);
         }
       }
@@ -2192,7 +2255,7 @@ export class MailListComponent implements OnInit, OnDestroy, AfterViewInit {
    * @param firstTime 
    */
   private setAccessibilityProperties(firstTime: boolean): void {
-
+    //return;
     // Uso questo if per assicurarmi che la tabella sia caricata nel DOM
     if ((document.getElementsByClassName('cdk-virtual-scroll-content-wrapper') as any)[0]) {
 
@@ -2231,7 +2294,35 @@ export class MailListComponent implements OnInit, OnDestroy, AfterViewInit {
 
   }
 
-  private stopPropagation(event) {
+  /* @HostListener('keydown.ArrowUp', ['$event']) ArrowUp($event: KeyboardEvent) {
+    console.log("up")
+    this.dt.selection = this.navigateItem(-1);
+    this.dt.onRowSelect.emit({originalEvent: $event, data: this.dt.selection, type: 'row'});
+    event.preventDefault();
+  }
+
+  @HostListener('keydown.ArrowDown', ['$event']) ArrowDown($event: KeyboardEvent) {
+    console.log("down")
+    this.dt.selection = this.navigateItem(1);
+    this.dt.onRowSelect.emit({originalEvent: $event, data: this.dt.selection, type: 'row'});
+    event.preventDefault();
+  }
+
+  navigateItem(num) {
+    if (!this.dt.selection) { return; }
+    //console.log("value", this.dt.value);
+    const i = this.dt.value.indexOf(this.dt.selection);
+    console.log("i", i)
+    const len = this.dt.value.length;
+    this.dt.scrollToVirtualIndex(i);
+    if (num > 0) {
+      return this.dt.value[(i + num) % len];
+    }
+    return this.dt.value[(i + len + num) % len];
+  } */
+
+  public stopPropagation(event) {
+    console.log("Stop propagation")
     event.preventDefault();
     event.stopPropagation();
   }

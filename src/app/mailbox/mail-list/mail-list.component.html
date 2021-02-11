@@ -5,8 +5,6 @@
     [value]="mailListService.messages" 
     [(selection)]="mailListService.selectedMessages"
     dataKey="id" 
-
-
     [lazyLoadOnInit]="true"
     scrollHeight="100%"
     [columns]="cols" 
@@ -15,7 +13,6 @@
     [autoLayout]="true"
     [responsive]="true"
     [totalRecords]="mailListService.totalRecords" 
-    
     contextMenuSelectionMode="joint" 
     selectionMode="multiple" 
     [metaKeySelection]="true" 
@@ -28,18 +25,18 @@
     [virtualScrollDelay]="150"
     (onRowSelect)="handleEvent('onRowSelect', $event)" 
     (onRowUnselect)="handleEvent('onRowUnselect', $event)"
-    
     (mouseenter)="handleEvent('onMouseEnter', $event)"
-    (onContextMenuSelect)="handleEvent('onContextMenuSelect', $event)"
-    >
-    <!--    
+    (onContextMenuSelect)="handleEvent('onContextMenuSelect', $event)">
+    <!--[virtualRowHeight]="virtualRowHeight"     
+
+
         [value]="virtualCars" 
  (onLazyLoad)="lazyLoadProva($event)" 
  [(selection)]="carselected"
  dataKey="vin" 
+*ngIf="mailListService.totalRecords > 0 && (_selectedTag || _selectedFolder || _filters)"
 
-
-    *ngIf="mailListService.totalRecords > 0 && (_selectedTag || _selectedFolder || _filters)"  -->
+      -->
 
     <ng-template pTemplate="body" let-rowData let-message let-rowIndex="rowIndex" let-columns="columns">
         <!-- <tr style="height:34px"
@@ -50,8 +47,24 @@
                 {{rowData[col.field]}}
             </td>
         </tr> --><!-- *ngIf="rowData.id != null"  -->
+       <!--  <tr style="height:34px"
+            [pSelectableRow]="rowData" 
+            [pSelectableRowIndex]="rowIndex" 
+            [pContextMenuRow]="rowData"  >
+            <td >
+                {{rowIndex + ' ' + rowData.subject}}
+            </td>
+        </tr> -->
+
+
+        <!---->
         <tr #selRow 
-            (focus)="onRowFocus($event, rowData)"
+            [attr.name]="rowData.id"
+            (keydown.ArrowDown)="arrowPress('down')"
+            (keydown.ArrowUp)="arrowPress('up')" 
+        (focus)="onRowFocus($event, rowData)"
+            
+
             [pTooltip]="message['moved'] ? message['movedInfo']: null"
             tooltipPosition="top"
             class="riga-tabella"
