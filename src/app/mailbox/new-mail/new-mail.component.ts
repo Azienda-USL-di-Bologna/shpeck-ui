@@ -29,6 +29,7 @@ export class NewMailComponent implements OnInit, AfterViewInit, OnDestroy {
   private toAddresses: any[] = [];
   private ccAddresses: any[] = [];
 
+  public suggestion: number=688300;
   public attachments: any[] = [];
   public mailForm: FormGroup;
   public selectedPec: Pec;
@@ -36,7 +37,7 @@ export class NewMailComponent implements OnInit, AfterViewInit, OnDestroy {
   emailRegex = new RegExp(/^(([^<>()\[\]\.,;:\s@\"]+(\.[^<>()\[\]\.,;:\s@\"]+)*)|(\".+\"))@(([^<>()[\]\.,;:\s@\"]+\.)+[^<>()[\]\.,;:\s@\"]{2,})$/);
   /* Questi andranno rinominati */
   public filteredAddressSingle: any[];
-  public filteredAddressMultiple: any[];
+  public filteredAddressMultiple: string[];
   public lastAddressBookUsed = "";
 
   public displayRubricaPopup = false;
@@ -92,7 +93,10 @@ export class NewMailComponent implements OnInit, AfterViewInit, OnDestroy {
       };
       this.customContactService.manageCallerApp(Apps.PEC);
     }
+    
+
   }
+  
 
   private prepareMessageOrDraft() {
     // console.log("DATA PASSED = ", this.config.data);
@@ -183,11 +187,15 @@ export class NewMailComponent implements OnInit, AfterViewInit, OnDestroy {
       this.addressesCC.markAsDirty();
       this.addressesCC.updateValueAndValidity();
     }
+
   }
 
   ngAfterViewInit() {
-    /* Inizializzazione del body per le risposte e l'inoltra */
+  /* Inizializzazione del body per le risposte e l'inoltra */
+    
     if (this.config.data.action !== TOOLBAR_ACTIONS.NEW) {
+      
+
       let body = "";
       if (this.config.data.fullMessage.emlData) {
         body = this.config.data.fullMessage.emlData.displayBody;
@@ -207,6 +215,7 @@ export class NewMailComponent implements OnInit, AfterViewInit, OnDestroy {
     /* Disabilito la compilazione automatica degli indirizzi */
     this.setAttribute("toInputId", "autocomplete", "false");
     this.setAttribute("ccInputId", "autocomplete", "false");
+    this.toAutoComplete.focusInput();
   }
 
   /**
@@ -563,6 +572,8 @@ export class NewMailComponent implements OnInit, AfterViewInit, OnDestroy {
   // }
 
   filterAddressMultiple(event) {
+    console.log("sadhjashdhsakdhkasdasjhkd")
+    console.log(this.filteredAddressMultiple)
     const query = event.query;
     if (this.checkIfRubricaInternautaShouldBeEnabled()) {
       this.loadEmailsFromDettaglioContatto(query);

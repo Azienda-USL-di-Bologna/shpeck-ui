@@ -1,4 +1,4 @@
-import {AfterViewInit, Component, ElementRef, EventEmitter, OnDestroy, OnInit, Output, ViewChild} from "@angular/core";
+import {AfterViewInit, Component, ElementRef, EventEmitter, HostListener, OnDestroy, OnInit, Output, ViewChild} from "@angular/core";
 import {buildLazyEventFiltersAndSorts} from "@bds/primeng-plugin";
 import {Azienda, ENTITIES_STRUCTURE, Folder, FolderType, Message, MessageTag, MessageType, Note, Pec, Tag} from "@bds/ng-internauta-model";
 import {MessageEvent, ShpeckMessageService} from "src/app/services/shpeck-message.service";
@@ -8,7 +8,7 @@ import {Observable, Subscription} from "rxjs";
 import {DatePipe} from "@angular/common";
 import {Table} from "primeng-lts/table";
 import {BaseUrls, BaseUrlType, EMLSOURCE, FONTSIZE, TOOLBAR_ACTIONS} from "src/environments/app-constants";
-import {ConfirmationService, FilterMetadata, LazyLoadEvent, MenuItem, MessageService} from "primeng-lts/api";
+import {ConfirmationService, DialogService, FilterMetadata, LazyLoadEvent, MenuItem, MessageService} from "primeng-lts/api";
 import {Utils} from "src/app/utils/utils";
 import {MailFoldersService, PecFolder, PecFolderType} from "../mail-folders/mail-folders.service";
 import {ToolBarService} from "../toolbar/toolbar.service";
@@ -22,7 +22,11 @@ import {FormControl, FormGroup, Validators} from "@angular/forms";
 import {MailboxService, Sorting} from "../mailbox.service";
 import {ContextMenu} from "primeng-lts/primeng";
 import {IntimusClientService, IntimusCommand, IntimusCommands, RefreshMailsParams, RefreshMailsParamsEntities, RefreshMailsParamsOperations} from "@bds/nt-communicator";
-import { isArray } from "util";
+import { NewMailComponent } from "src/app/mailbox/new-mail/new-mail.component"
+
+
+
+
 
 @Component({
   selector: "app-mail-list",
@@ -45,6 +49,7 @@ export class MailListComponent implements OnInit, OnDestroy, AfterViewInit {
     private settingsService: SettingsService,
     private loginService: NtJwtLoginService,
     private mailboxService: MailboxService,
+    private dialogService: DialogService,
     private intimusClient: IntimusClientService
   ) {
     this.selectedContextMenuItem = this.selectedContextMenuItem.bind(this);
@@ -258,6 +263,36 @@ export class MailListComponent implements OnInit, OnDestroy, AfterViewInit {
     tagMenuOpened : false
   };
   public loggedUserIsSuperD: boolean = false;
+
+
+  @HostListener('window:keyup', ['$event'])
+  keyEvent(event: KeyboardEvent) {
+    console.log(event);
+    
+    if (event.altKey == true && event.code == "KeyN") { 
+      console.log("creo nuova mail");
+      this.toolBarService.newMail("new");
+    }
+    
+    if (event.altKey == true && event.code == "KeyR") { 
+      this.toolBarService.newMail("reply");
+    }
+
+    if (event.altKey == true && event.code == "KeyA") { 
+      this.toolBarService.newMail("reply_all");
+    }
+
+    if (event.altKey == true && event.code == "KeyI") { 
+      this.toolBarService.newMail("forward");
+    }
+
+    if (event.altKey == true && event.code == "KeyD") { 
+      this.toolBarService.handleDelete();
+    }
+    
+    
+  }
+
 
   ngOnInit() {
     this.subscriptions.push({id: null, type: "pecFolderSelected", subscription: this.mailFoldersService.pecFolderSelected.subscribe((pecFolderSelected: PecFolder) => {
