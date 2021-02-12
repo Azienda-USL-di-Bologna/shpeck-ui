@@ -43,16 +43,9 @@ export class ToolbarComponent implements OnDestroy, AfterViewInit {
     private confirmationService: ConfirmationService
   ) {
     this.askConfirmationBeforeArchiviation = this.askConfirmationBeforeArchiviation.bind(this);
-
-    setTimeout( ()=> {
-      this.searchField.nativeElement.focus();
-    });
   }
 
   ngAfterViewInit() {
-    setTimeout( ()=> {
-      this.searchField.nativeElement.focus();
-    });
   }
 
   /**
