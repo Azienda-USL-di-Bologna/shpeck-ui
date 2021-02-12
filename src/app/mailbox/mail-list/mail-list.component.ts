@@ -286,7 +286,7 @@ export class MailListComponent implements OnInit, OnDestroy, AfterViewInit {
       this.toolBarService.newMail("forward");
     }
 
-    if (event.altKey == true && event.code == "KeyD") { 
+    if (event.altKey == true && event.code == "KeyC") { 
       this.toolBarService.handleDelete();
     }
     
