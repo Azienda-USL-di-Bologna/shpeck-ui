@@ -1277,6 +1277,12 @@ export class MailFoldersComponent implements OnInit, OnDestroy {
     if (divElements && divElements[1]) {
       divElements[1].setAttribute('tabindex', 0); 
     }
+
+    // Ora mi occupo dell'icona che serve ad espandere i nodi
+    const treeTogglers = this.tree.el.nativeElement.getElementsByClassName('p-tree-toggler');
+    for (const treeToggler of treeTogglers) {
+      treeToggler.setAttribute('tabindex', -1); 
+    }
   }
 
   /**

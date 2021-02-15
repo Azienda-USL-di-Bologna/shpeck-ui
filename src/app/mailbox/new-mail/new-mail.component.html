@@ -15,7 +15,7 @@
                 [required]="true" 
                 type="email"
                 field="descrizioneCustom"
-                [delay]=1000 
+                [delay]="1000"
                 inputId="toInputId"
                 id="to" 
                 formControlArray="to" 
@@ -36,7 +36,7 @@
             <button pButton type="button" icon="fa fa-address-book" class="ui-button-raised custom-primary-button" (click)="onOpenRubricaPopup(); lastAddressBookUsed = 'to'"></button>
           </span>
         </li>
-        <li *ngIf="addressesTO.dirty && addressesTO.invalid && !addressesTO.errors?.required" class="alert-message-warn">
+        <li *ngIf="addressesTO?.dirty && addressesTO?.invalid && !addressesTO?.errors?.required" class="alert-message-warn">
           Hai inserito un indirizzo mail sbagliato!
         </li>
         <!-- CC Addresses -->
@@ -46,7 +46,7 @@
             <p-autoComplete #ccAutoComplete
               type="email"
               field="descrizioneCustom"
-              [delay]=1000 
+              [delay]="1000" 
               inputId="ccInputId"
               id="cc" 
               formControlArray="cc" 
@@ -56,7 +56,7 @@
               (onSelect)="onSelect($event, 'cc')" 
               (onUnselect)="onUnselect($event, 'cc')" 
               (onBlur)="onKeyUp($event, 'cc')"
-              [pTooltip]="mailForm.get('hideRecipients').value ? ccTooltip : ''" [disabled]="mailForm.get('hideRecipients')?.value"
+              [pTooltip]="mailForm.get('hideRecipients')?.value ? ccTooltip : ''" [disabled]="mailForm.get('hideRecipients')?.value"
               [minLength]="1" 
               [multiple]="true">
               <ng-template let-value pTemplate="selectedItem">
@@ -68,7 +68,7 @@
             <button pButton type="button" icon="fa fa-address-book" class="ui-button-raised custom-primary-button" (click)="onOpenRubricaPopup(); lastAddressBookUsed = 'cc'"></button>
           </span>
         </li>
-        <li *ngIf="addressesCC.invalid" class="alert-message-warn">
+        <li *ngIf="addressesCC?.invalid" class="alert-message-warn">
           Hai inserito un indirizzo mail sbagliato!
         </li>
         <!-- Destinatari Privati -->
@@ -76,7 +76,7 @@
           <label for="hideRecipients">Destinatari privati: </label>
           <span class="ui-fluid margin-lr-5">
             <p-checkbox id="hideRecipients" formControlName="hideRecipients" [binary]="true"
-              [pTooltip]="mailForm.get('cc').value.length > 0 ? hideRecipientsTooltip : ''" >
+              [pTooltip]="mailForm.get('cc')?.value.length > 0 ? hideRecipientsTooltip : ''" >
             </p-checkbox>
           </span>
         </li>

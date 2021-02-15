@@ -49,7 +49,7 @@ import { MailListService } from "./mailbox/mail-list/mail-list.service";
 import { MatIconModule } from "@angular/material/icon";
 import { RubricaContainerComponent } from "./rubrica/rubrica-container/rubrica-container.component";
 import { DialogService } from "primeng-lts/dynamicdialog";
-import { CarService } from "./carservice";
+
 
 registerLocaleData(localeIt, "it-IT", localeItExtra);
 
@@ -98,8 +98,7 @@ registerLocaleData(localeIt, "it-IT", localeItExtra);
     MessageService,
     ShpeckMessageService,
     MessageFolderService,
-    MailListService,
-    CarService
+    MailListService
   ],
   bootstrap: [AppComponent],
   entryComponents: [SettingsComponent, NewMailComponent, ReaddressComponent]

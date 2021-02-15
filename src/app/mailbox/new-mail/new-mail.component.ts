@@ -28,6 +28,8 @@ export class NewMailComponent implements OnInit, AfterViewInit, OnDestroy {
   private ccAddressesForLabel: string[] = [];
   private toAddresses: any[] = [];
   private ccAddresses: any[] = [];
+  private toFormControl: FormControl[] = [];
+  private ccFormControl: FormControl[] = [];
 
   public attachments: any[] = [];
   public mailForm: FormGroup;
@@ -142,6 +144,8 @@ export class NewMailComponent implements OnInit, AfterViewInit, OnDestroy {
     this.mailFormInit(hideRecipients, subject, message, action, messageRelatedType);
   }
 
+  
+
   /**
    * Inizializzazione della form, funziona per tutte le actions ed é l'oggetto che contiene tutti i campi
    * @param hideRecipients 
@@ -151,21 +155,12 @@ export class NewMailComponent implements OnInit, AfterViewInit, OnDestroy {
    * @param messageRelatedType 
    */
   private mailFormInit(hideRecipients: { value: boolean; disabled: boolean; }, subject: string, message: Message | Draft, action: any, messageRelatedType: string) {
-    const toFormControl: FormControl[] = [];
-    if (this.toAddresses && this.toAddresses.length > 0) {
-      this.toAddresses.forEach(el => toFormControl.push(new FormControl(el, Validators.pattern(this.emailRegex))));
-      this.toAutoComplete.writeValue(this.toAddresses);
-    }
-    const ccFormControl: FormControl[] = [];
-    if (this.ccAddresses && this.ccAddresses.length > 0) {
-      this.ccAddresses.forEach(el => ccFormControl.push(new FormControl(el, Validators.pattern(this.emailRegex))));
-      this.ccAutoComplete.writeValue(this.ccAddresses);
-    }
+    
     this.mailForm = new FormGroup({
       idDraftMessage: new FormControl(this.config.data.idDraft),
       idPec: new FormControl(this.selectedPec.id),
-      to: new FormArray(toFormControl, Validators.required),
-      cc: new FormArray(ccFormControl),
+      to: new FormArray(this.toFormControl, Validators.required),
+      cc: new FormArray(this.ccFormControl),
       hideRecipients: new FormControl(hideRecipients),
       subject: new FormControl(subject),
       attachments: new FormControl(this.attachments),
@@ -186,6 +181,17 @@ export class NewMailComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   ngAfterViewInit() {
+
+    if (this.toAddresses && this.toAddresses.length > 0) {
+      this.toAddresses.forEach(el => this.toFormControl.push(new FormControl(el, Validators.pattern(this.emailRegex))));
+      this.toAutoComplete.writeValue(this.toAddresses);
+    }
+    
+    if (this.ccAddresses && this.ccAddresses.length > 0) {
+      this.ccAddresses.forEach(el => this.ccFormControl.push(new FormControl(el, Validators.pattern(this.emailRegex))));
+      this.ccAutoComplete.writeValue(this.ccAddresses);
+    }
+    
     /* Inizializzazione del body per le risposte e l'inoltra */
     if (this.config.data.action !== TOOLBAR_ACTIONS.NEW) {
       let body = "";

@@ -10,8 +10,6 @@ import { ActivatedRoute, Router, Params } from "@angular/router";
 import { getInternautaUrl, BaseUrlType, ENTITIES_STRUCTURE } from "@bds/ng-internauta-model";
 import Quill from "quill";
 import { DialogService } from "primeng-lts/dynamicdialog";
-import { CarService } from "./carservice";
-import { Car } from "./car";
 import { ShpeckMessageService } from "./services/shpeck-message.service";
 
 @Component({
@@ -91,80 +89,4 @@ export class AppComponent implements OnInit {
       contentStyle: { "max-height": "450px", "min-height": "250px", "overflow": "auto", "height": height, }
     });
   }
-  cars: Car[];
-
-  virtualCars: Car[] = [];
-  numerocaricamenti = 0;
-  cols: any[];
-  totale: number;
-  public loading = false;
-  evento = ["vuoto"];
-  evento2 = "vuoro";
- /*  constructor(private carService: CarService, private messageService: ShpeckMessageService ) {} */
-
- /*  ngOnInit() {
-    this.cols = [
-      { field: "vin", header: "Vin" },
-      { field: "year", header: "Year" },
-      { field: "brand", header: "Brand" },
-      { field: "color", header: "Color" }
-    ];
-
-    this.cars = Array.from({ length: 510 }).map(() =>
-      this.carService.generateCar()
-    );
-    // this.virtualCars = Array.from({length: 10000});
-    this.loadCarsLazy(null);
-  } */
-
-  loadCarsLazy(event: LazyLoadEvent) {
-    this.evento.push(JSON.stringify(event));
-    this.evento2 = JSON.stringify(event);
-    //simulate remote connection with a timeout
-    this.loading = true;
-    setTimeout(() => {
-      this.numerocaricamenti++;
-      this.totale = 510;
-      //load data of required page
-      let loadedCars = this.cars.slice(event.first, event.first + event.rows);
-
-      //populate page of virtual cars
-      Array.prototype.splice.apply(this.virtualCars, [
-        ...[event.first, event.rows],
-        ...loadedCars
-      ]);
-
-      //trigger change detection
-      this.virtualCars = [...this.virtualCars];
-      this.loading = false;
-    }, Math.random() * 1000 + 250);
-  }
-
-
-  /* loaddata() {
-   this.messageService
-      .getData(
-        ENTITIES_STRUCTURE.shpeck.message.customProjections
-      .CustomMessageForMailList,
-        ,
-        lazyFilterAndSort,
-        pageConf
-      )
-      .subscribe(data => {
-        if (data && data.results) {
-          this.mailListService.totalRecords = data.page.totalElements;
-          // mando l'evento con il numero di messaggi (serve a mailbox-component perché lo deve scrivere nella barra superiore)
-          this.mailListService.refreshAndSendTotalMessagesNumber(0, folderSelected);
-
-          this.mailListService.messages = data.results;
-          console.log("this.mailListService.messages", this.mailListService.messages);
-          this.mailListService.setMailTagVisibility(this.mailListService.messages);
-          this.mailFoldersService.doReloadTag(this.mailListService.tags.find(t => t.name === "in_error").id);
-          
-        }
-        this.loading = false;
-
-        
-      }
-  } */
 }

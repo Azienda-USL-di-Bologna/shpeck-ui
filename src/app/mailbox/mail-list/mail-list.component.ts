@@ -23,8 +23,6 @@ import {MailboxService, Sorting} from "../mailbox.service";
 import {IntimusClientService, IntimusCommand, IntimusCommands, RefreshMailsParams, RefreshMailsParamsEntities, RefreshMailsParamsOperations} from "@bds/nt-communicator";
 import { isArray } from "util";
 import { ContextMenu } from "primeng-lts/contextmenu";
-import { Car } from "src/app/car";
-import { CarService } from "src/app/carservice";
 
 @Component({
   selector: "app-mail-list",
@@ -37,7 +35,6 @@ export class MailListComponent implements OnInit, OnDestroy, AfterViewInit {
   public lazy: boolean = false;
 
   constructor(
-    private carService: CarService,
     public mailListService: MailListService,
     private messageService: ShpeckMessageService,
     private tagService: TagService,
@@ -247,12 +244,7 @@ export class MailListComponent implements OnInit, OnDestroy, AfterViewInit {
   // private LARGE_SIZE_VIRTUAL_ROW_HEIGHT = 89;
   public virtualRowHeight: number = this.VIRTUAL_ROW_HEIGHTS[FONTSIZE.BIG];
   public rowsNmber = 50;
-  public cols = /* [
-    { field: "vin", header: "Vin" },
-    { field: "year", header: "Year" },
-    { field: "brand", header: "Brand" },
-    { field: "color", header: "Color" }
-  ]; */[
+  public cols = [
     {
       field: "subject",
       header: "Oggetto",
@@ -261,39 +253,6 @@ export class MailListComponent implements OnInit, OnDestroy, AfterViewInit {
       minWidth: "85px"
     }
   ];
-  cars: Car[];
-
-  virtualCars: Car[] = [];
-  public carselected: Car[] = [];
-  numerocaricamenti = 0;
-  
-  totale: number;
-  evento = ["vuoto"];
-  evento2 = "vuoro";
-  
-  lazyLoadProva(event: LazyLoadEvent) {
-    this.evento.push(JSON.stringify(event));
-    this.evento2 = JSON.stringify(event);
-    //simulate remote connection with a timeout
-    this.loading = true;
-    setTimeout(() => {
-      this.numerocaricamenti++;
-      this.mailListService.totalRecords = 510;
-      //load data of required page
-      let loadedCars = this.cars.slice(event.first, event.first + event.rows);
-
-      //populate page of virtual cars
-      Array.prototype.splice.apply(this.virtualCars, [
-        ...[event.first, event.rows],
-        ...loadedCars
-      ]);
-
-      //trigger change detection
-      this.virtualCars = [...this.virtualCars];
-      this.loading = false;
-    }, Math.random() * 10000 + 250);
-  }
-
 
   @ViewChild("cm", {}) private contextMenu: ContextMenu;
   private tagsMenuOpened = {
@@ -385,9 +344,6 @@ export class MailListComponent implements OnInit, OnDestroy, AfterViewInit {
       // setTimeout(() => {
       // }, 5000);
     })});
-    this.cars = Array.from({ length: 510 }).map(() =>
-      this.carService.generateCar()
-    );
   }
 
   ngAfterViewInit() {
@@ -1386,6 +1342,7 @@ export class MailListComponent implements OnInit, OnDestroy, AfterViewInit {
         }
       }
     });
+    this.cmItems = [...this.cmItems]
   }
 
 
@@ -2255,7 +2212,7 @@ export class MailListComponent implements OnInit, OnDestroy, AfterViewInit {
    * @param firstTime 
    */
   private setAccessibilityProperties(firstTime: boolean): void {
-    //return;
+
     // Uso questo if per assicurarmi che la tabella sia caricata nel DOM
     if ((document.getElementsByClassName('cdk-virtual-scroll-content-wrapper') as any)[0]) {
 

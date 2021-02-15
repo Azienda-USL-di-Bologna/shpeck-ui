@@ -86,6 +86,28 @@ body {
       }
     }
   }
+  p-slidemenu {
+    .p-slidemenu {
+      background-color: #203142 !important;
+      .p-menuitem {
+        .p-menuitem-link {
+          padding: 6px 12px;
+          color: #F4F4F4;
+          .p-menuitem-text {
+            color: #F4F4F4;
+          }
+          &:hover {
+            color: black !important;
+            font-weight: bold;
+            .p-menuitem-text, .p-menuitem-icon {
+              color: black !important;
+              font-weight: bold;
+            }
+          }
+        }
+      }
+    }
+  }
   .p-menuitem {
     .p-menuitem-link {
       padding: 6px 12px;

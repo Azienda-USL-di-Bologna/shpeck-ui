@@ -63,6 +63,11 @@ p-table,
 .icon-used {
   cursor: help !important;
 }
+::ng-deep .no-records-found {
+  .cdk-virtual-scroll-content-wrapper {
+    height: 100%;
+  }
+}
 ::ng-deep .cdk-virtual-scroll-content-wrapper {
   // height: 100%;
   table {
@@ -97,6 +102,9 @@ p-table,
 }
 .riga-tabella {
   height: 79px !important;
+}
+.cella-no-elementi {
+  height: 100%;
 }
 .prima-riga-sinistra {
   align-self: center;

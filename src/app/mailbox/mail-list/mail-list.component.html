@@ -1,5 +1,5 @@
 <p-table #dt id="pec-mail-list" 
-*ngIf="mostratable && (_selectedTag || _selectedFolder || _filters)"
+    *ngIf="mostratable && (_selectedTag || _selectedFolder || _filters)"
     [lazy]="true" 
     (onLazyLoad)="lazyLoad($event)" 
     [value]="mailListService.messages" 
@@ -20,51 +20,20 @@
     [rowTrackBy]="trackByFn" 
     [contextMenu]="cm" 
     [scrollable]="true"
-    [virtualRowHeight]="virtualRowHeight" 
     [virtualScroll]="true" 
     [virtualScrollDelay]="150"
     (onRowSelect)="handleEvent('onRowSelect', $event)" 
     (onRowUnselect)="handleEvent('onRowUnselect', $event)"
     (mouseenter)="handleEvent('onMouseEnter', $event)"
-    (onContextMenuSelect)="handleEvent('onContextMenuSelect', $event)">
-    <!--[virtualRowHeight]="virtualRowHeight"     
-
-
-        [value]="virtualCars" 
- (onLazyLoad)="lazyLoadProva($event)" 
- [(selection)]="carselected"
- dataKey="vin" 
-*ngIf="mailListService.totalRecords > 0 && (_selectedTag || _selectedFolder || _filters)"
-
-      -->
-
+    (onContextMenuSelect)="handleEvent('onContextMenuSelect', $event)"
+    [ngClass]="mailListService?.totalRecords > 0 ? '' : 'no-records-found'">
+    <!-- [virtualRowHeight]="virtualRowHeight"  -->
     <ng-template pTemplate="body" let-rowData let-message let-rowIndex="rowIndex" let-columns="columns">
-        <!-- <tr style="height:34px"
-        [pSelectableRow]="rowData" 
-        [pSelectableRowIndex]="rowIndex" 
-        [pContextMenuRow]="rowData"  >
-            <td *ngFor="let col of columns">
-                {{rowData[col.field]}}
-            </td>
-        </tr> --><!-- *ngIf="rowData.id != null"  -->
-       <!--  <tr style="height:34px"
-            [pSelectableRow]="rowData" 
-            [pSelectableRowIndex]="rowIndex" 
-            [pContextMenuRow]="rowData"  >
-            <td >
-                {{rowIndex + ' ' + rowData.subject}}
-            </td>
-        </tr> -->
-
-
-        <!---->
         <tr #selRow 
             [attr.name]="rowData.id"
             (keydown.ArrowDown)="arrowPress('down')"
             (keydown.ArrowUp)="arrowPress('up')" 
-        (focus)="onRowFocus($event, rowData)"
-            
-
+            (focus)="onRowFocus($event, rowData)"
             [pTooltip]="message['moved'] ? message['movedInfo']: null"
             tooltipPosition="top"
             class="riga-tabella"
@@ -332,25 +301,17 @@
     </ng-template> -->
     <ng-template pTemplate="emptymessage" let-columns>
         <tr>
-            <td *ngIf="_filters" [attr.colspan]="columns.length"> 
-                Nessun elemento trovato
-            </td>
-            <td *ngIf="!_filters && _selectedFolder" [attr.colspan]="columns.length"> 
-                La cartella selezionata non contiene elementi
+            <td *ngIf="(_selectedTag || _selectedFolder || _filters)" 
+                [attr.colspan]="columns.length" 
+                class="flex-1 message-align flex-direction-col cella-no-elementi"> 
+                <p *ngIf="_filters" style="margin: 0">Nessun elemento trovato</p>
+                <p *ngIf="!_filters && _selectedFolder" style="margin: 0">La cartella selezionata non contiene elementi</p>
+                <p *ngIf="!_filters && _selectedTag" style="margin: 0">L'etichetta selezionata non contiene elementi</p>
             </td>
         </tr>
     </ng-template>
-
 </p-table>
-<!-- <div *ngIf="!(_selectedTag || _selectedFolder || _filters)" class="flex-1 message-align flex-direction-col">
-    <p style="margin: 0">Non ci sono elementi da visualizzare.</p>
-    <p style="margin: 0.5em">Selezionare una cartella o effettuare una ricerca.</p>
-</div>
 
-<div *ngIf=" (_selectedTag || _selectedFolder || _filters) && (mailListService.totalRecords === 0 && !!!loading)" class="flex-1 message-align flex-direction-col">
-    <p *ngIf="_filters" style="margin: 0">Nessun elemento trovato</p>
-    <p *ngIf="!_filters && _selectedFolder" style="margin: 0">La cartella selezionata non contiene elementi</p>
-</div> -->
 
 <p-contextMenu #cm [model]="cmItems" styleClass="context-menu-mail-list"></p-contextMenu>
 
@@ -500,11 +461,11 @@ class="ui-button-raised ui-button-secondary button-styles custom-secondary-butto
 </p-dialog>
 
 <!-- POPUP AGGIUNTA TAG -->
-<p-dialog *ngIf="displayNewTagPopup" [(visible)]="displayNewTagPopup" [modal]="true" [style]="{width: '320px'}">
+<p-dialog *ngIf="displayNewTagPopup" [(visible)]="displayNewTagPopup" [modal]="true" [style]="{width: '420px'}">
     <p-header>Nuova Etichetta</p-header>
     <form [formGroup]="tagForm">
-        <span class="ui-float-label" style="margin: 8px 0 8px 0px;">
-            <input #idtag id="float-input" type="text" size="30" formControlName="tagName" pInputText>
+        <span class="p-float-label" style="margin: 8px 0 8px 0px;">
+            <input #idtag id="float-input" type="text" size="30" formControlName="tagName" pInputText style="width: 100% !important;">
             <label for="float-input">Inserisci un nome per la nuova etichetta</label>
         </span>
         <p-footer>
