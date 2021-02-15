@@ -1,6 +1,6 @@
 <!-- *ngIf="_selectedFolder || _filters" -->
 <!-- (selectionChange)="handleEvent('selectionChange', $event)" -->
-<p-table #dt *ngIf="_selectedPecId && totalRecords > 0"
+<p-table #dt *ngIf="_selectedPecId && totalRecords > 0" id="draft-mail-list" 
     [lazy]="true" (onLazyLoad)="lazyLoad($event)"
     scrollHeight="100%"
     [value]="drafts"

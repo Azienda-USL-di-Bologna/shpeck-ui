@@ -1,7 +1,6 @@
 :host {
     height: 100%;
 }
-
 ::ng-deep .toolbar-pec button {
     margin-right: .25em;
 }
@@ -48,26 +47,21 @@
         left: 5%;
         width: 21px;
     }
-    
     .input-find {
         width: auto;
         margin-left: auto;
         margin-right: 0;
     }
-    
     .input-find:invalid {
         box-shadow: 0px 0px 4px red;
     }
 }
-
 ::ng-deep .margin-l-15 > span {
     margin-left: 15px;
 }
-
 ::ng-deep .dialog-class {
     top: 30%;
 }
-
 ::ng-deep .move-menu > div {
     max-height: 330px;
     overflow-y: auto;
@@ -77,18 +71,6 @@
     max-width: 300px;
     overflow-x: hidden;
 }
-
 .buttons {
     width: 62px !important;
 }
-/* :host ::ng-deep .ui-splitbutton {
-    margin-left: .25em;
-}
-:host ::ng-deep .ui-splitbutton button {
-    margin-right: 0;
-}
-
-.a-items-center {
-    align-items: center;
-}
- */

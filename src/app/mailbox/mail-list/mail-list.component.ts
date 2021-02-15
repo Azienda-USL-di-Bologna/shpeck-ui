@@ -2133,9 +2133,13 @@ export class MailListComponent implements OnInit, OnDestroy, AfterViewInit {
     if (!!mailDetailContainer) { mailDetailContainer.focus(); }
   }
 
+  /**
+   * Gestione dei bottoni freccia su e giù.
+   * Seleziono il messaggio e lo setto focused
+   * @param direction 
+   */
   public arrowPress(direction: string) {
     if (this.mailListService.selectedMessages.length > 0) {
-      console.log("hola")
       const actualMessageIndex: number = this.mailListService.messages.findIndex(m => m.id === this.mailListService.selectedMessages[0].id);
       if (actualMessageIndex >= 0) {
         switch (direction) {
@@ -2160,6 +2164,7 @@ export class MailListComponent implements OnInit, OnDestroy, AfterViewInit {
     }
   }
 
+  // Cerco la riga indicata dall'id -> la setto focused -> se necessario scrollo
   public setRowFocused(idRiga: number) {
     let rows = document.getElementsByClassName('riga-tabella') as any;
     for (const row of rows) {
@@ -2168,14 +2173,19 @@ export class MailListComponent implements OnInit, OnDestroy, AfterViewInit {
           this.dt.el.nativeElement.getElementsByClassName("p-datatable-virtual-scrollable-body")[0].scrollTop = 
                 this.dt.el.nativeElement.getElementsByClassName("p-datatable-virtual-scrollable-body")[0].scrollTop - this.virtualRowHeight / 2;
         }
-
         row.focus();
-        //this.dt.scrollToVirtualIndex(row.getAttribute("ng-reflect-index"));
-        //row.scrollIntoView();
       }
     }
   }
 
+  /**
+   * Gestione del focus sulle mail. Quando una mail riceve il focus:
+   * - Gli do tabindex 0
+   * - Tramite timeout setto il messaggio come letto
+   * - Invio evento di selezione messaggio
+   * @param event 
+   * @param rowData 
+   */
   public onRowFocus(event, rowData: Message) {
     setTimeout(() => {
       this.setAccessibilityProperties(false);
@@ -2183,10 +2193,6 @@ export class MailListComponent implements OnInit, OnDestroy, AfterViewInit {
       event.srcElement.setAttribute("aria-selected", true)
 
       if (!this.mailListService.selectedMessages.some(m => m.id === rowData.id)) {
-        console.log("onRowFocus")
-        //this.mailListService.selectedMessages.push(rowData);
-        //this.mailListService.selectedMessages = [...this.mailListService.selectedMessages];
-        // this.stopPropagation(event);
         clearTimeout(this.timeoutOnFocusEvent);
         this.contextMenu.hide();
         const emlSource: string = this.getEmlSource(rowData);
@@ -2250,33 +2256,6 @@ export class MailListComponent implements OnInit, OnDestroy, AfterViewInit {
     }
 
   }
-
-  /* @HostListener('keydown.ArrowUp', ['$event']) ArrowUp($event: KeyboardEvent) {
-    console.log("up")
-    this.dt.selection = this.navigateItem(-1);
-    this.dt.onRowSelect.emit({originalEvent: $event, data: this.dt.selection, type: 'row'});
-    event.preventDefault();
-  }
-
-  @HostListener('keydown.ArrowDown', ['$event']) ArrowDown($event: KeyboardEvent) {
-    console.log("down")
-    this.dt.selection = this.navigateItem(1);
-    this.dt.onRowSelect.emit({originalEvent: $event, data: this.dt.selection, type: 'row'});
-    event.preventDefault();
-  }
-
-  navigateItem(num) {
-    if (!this.dt.selection) { return; }
-    //console.log("value", this.dt.value);
-    const i = this.dt.value.indexOf(this.dt.selection);
-    console.log("i", i)
-    const len = this.dt.value.length;
-    this.dt.scrollToVirtualIndex(i);
-    if (num > 0) {
-      return this.dt.value[(i + num) % len];
-    }
-    return this.dt.value[(i + len + num) % len];
-  } */
 
   public stopPropagation(event) {
     console.log("Stop propagation")

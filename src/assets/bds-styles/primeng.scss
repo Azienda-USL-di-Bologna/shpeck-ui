@@ -1,4 +1,7 @@
 // BUTTON =====================================================================
+.p-button {
+  display: -moz-box !important;
+}
 .p-button:enabled:focus {
   box-shadow: none !important;
 }
@@ -23,12 +26,27 @@ body .p-autocomplete-panel .p-autocomplete-items .p-autocomplete-item {
 }
 body .p-autocomplete-panel .p-autocomplete-items .p-autocomplete-item.p-highlight,
 body .p-autocomplete-panel .p-autocomplete-items .p-autocomplete-item:hover{
-  /* background-color: #969da1 !important;
-  color: #ffffff !important; */
   border: 1px solid #2e4a65 !important;
   color: #333333 !important;
+  //color: black;
   /* font-weight: bold !important; */  // TODO: per mettere il bold bisogna implementare il trucco tale per cui non si allarga..
   background-color: #eaeaea !important;
+  // background-color: #F4F4F4;
+}
+body .p-autocomplete .p-button {
+  background-color: #203142;
+  &::hover {
+    box-shadow: grey;
+    &:enabled {
+      background-color: #203142;
+      border: 1px solid #203142;
+      color: #f4f4f4;
+      &:active {
+        background-color: rgba(32,49,66,0.7);
+      }
+    }
+  }
+
 }
 
 
@@ -150,3 +168,8 @@ body {
   }
 }
 
+// FOOTER
+body p-footer {
+  display: flex;
+  justify-content: space-around;
+}

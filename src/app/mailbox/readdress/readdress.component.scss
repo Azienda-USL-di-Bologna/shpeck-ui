@@ -10,32 +10,11 @@
             min-width: 410px;
         }
     }
-    .p-autocomplete-panel .p-autocomplete-items .p-autocomplete-item {
-        background-color: #203142;
-        color:#F4F4F4;
-    }
-    .p-autocomplete-panel .p-autocomplete-items .p-autocomplete-item:hover {
-        background-color: #F4F4F4;
-        color: black;
-        font-weight: bold;
-    }
-
+    
     .p-autocomplete-input {
         width: 375px;
     }
-    p-autocomplete .p-button:enabled:active {
-        background-color: rgba(32,49,66,0.7);
-    }
-    p-autocomplete .p-button:enabled {
-        background-color: #203142;
-        border: 1px solid #203142;
-    }
-    p-autocomplete .p-button:hover {
-        box-shadow: grey;
-    }
     p-footer {
-        display: flex;
-        justify-content: space-around;
         button {
             width: 100px;
         }
