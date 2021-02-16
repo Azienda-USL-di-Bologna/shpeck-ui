@@ -1190,9 +1190,9 @@ export class MailListComponent implements OnInit, OnDestroy, AfterViewInit {
           // selezione di un singolo messaggio (o come click singolo oppure come click del primo messaggio con il ctrl)
           if (this.mailListService.selectedMessages.length === 1) {
             const selectedMessage: Message = this.mailListService.selectedMessages[0];
-            if (event.type === "row") {
+            /* if (event.type === "row") {
               this.mailListService.setSeen(true, true);
-            }
+            } */
             const emlSource: string = this.getEmlSource(selectedMessage);
             this.messageService.manageMessageEvent(
               emlSource,
@@ -2133,6 +2133,59 @@ export class MailListComponent implements OnInit, OnDestroy, AfterViewInit {
     if (!!mailDetailContainer) { mailDetailContainer.focus(); }
   }
 
+  /**
+   * Gestione dei bottoni freccia su e giù.
+   * Seleziono il messaggio e lo setto focused
+   * @param direction 
+   */
+  public arrowPress(direction: string) {
+    if (this.mailListService.selectedMessages.length > 0) {
+      const actualMessageIndex: number = this.mailListService.messages.findIndex(m => m.id === this.mailListService.selectedMessages[0].id);
+      if (actualMessageIndex >= 0) {
+        switch (direction) {
+          case 'up':
+            if (actualMessageIndex > 0) {
+              setTimeout(() => {
+              this.mailListService.selectedMessages = [this.mailListService.messages[actualMessageIndex - 1]];
+              this.mailListService.selectedMessages = [...this.mailListService.selectedMessages];
+              this.setRowFocused(this.mailListService.messages[actualMessageIndex - 1].id);
+              }, 0);
+            }
+            break;
+          case 'down': 
+            if (actualMessageIndex < this.mailListService.messages.length - 1) {
+              this.mailListService.selectedMessages = [this.mailListService.messages[actualMessageIndex + 1]];
+              this.mailListService.selectedMessages = [...this.mailListService.selectedMessages];
+              this.setRowFocused(this.mailListService.messages[actualMessageIndex + 1].id);
+            }
+            break;
+        }
+      }
+    }
+  }
+
+  // Cerco la riga indicata dall'id -> la setto focused -> se necessario scrollo
+  public setRowFocused(idRiga: number) {
+    let rows = document.getElementsByClassName('riga-tabella') as any;
+    for (const row of rows) {
+      if (+row.attributes.name.value === idRiga) {
+        if (row.rowIndex < 1) {
+          this.dt.el.nativeElement.getElementsByClassName("p-datatable-virtual-scrollable-body")[0].scrollTop = 
+                this.dt.el.nativeElement.getElementsByClassName("p-datatable-virtual-scrollable-body")[0].scrollTop - this.virtualRowHeight / 2;
+        }
+        row.focus();
+      }
+    }
+  }
+
+  /**
+   * Gestione del focus sulle mail. Quando una mail riceve il focus:
+   * - Gli do tabindex 0
+   * - Tramite timeout setto il messaggio come letto
+   * - Invio evento di selezione messaggio
+   * @param event 
+   * @param rowData 
+   */
   public onRowFocus(event, rowData: Message) {
     setTimeout(() => {
       this.setAccessibilityProperties(false);
@@ -2140,7 +2193,6 @@ export class MailListComponent implements OnInit, OnDestroy, AfterViewInit {
       event.srcElement.setAttribute("aria-selected", true)
 
       if (!this.mailListService.selectedMessages.some(m => m.id === rowData.id)) {
-        this.mailListService.selectedMessages = [rowData];
         clearTimeout(this.timeoutOnFocusEvent);
         this.contextMenu.hide();
         const emlSource: string = this.getEmlSource(rowData);
@@ -2151,7 +2203,9 @@ export class MailListComponent implements OnInit, OnDestroy, AfterViewInit {
         );
         if (!rowData.seen) {
           this.timeoutOnFocusEvent = setTimeout(() => {
-            this.mailListService.setSeen(true, true);
+            if (this.mailListService.selectedMessages.length === 1) { 
+              this.mailListService.setSeen(true, true);
+            }
           }, 350);
         }
       }
