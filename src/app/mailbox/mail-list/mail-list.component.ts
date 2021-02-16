@@ -1155,9 +1155,9 @@ export class MailListComponent implements OnInit, OnDestroy, AfterViewInit {
           // selezione di un singolo messaggio (o come click singolo oppure come click del primo messaggio con il ctrl)
           if (this.mailListService.selectedMessages.length === 1) {
             const selectedMessage: Message = this.mailListService.selectedMessages[0];
-            if (event.type === "row") {
+            /* if (event.type === "row") {
               this.mailListService.setSeen(true, true);
-            }
+            } */
             const emlSource: string = this.getEmlSource(selectedMessage);
             this.messageService.manageMessageEvent(
               emlSource,
@@ -2116,7 +2116,9 @@ export class MailListComponent implements OnInit, OnDestroy, AfterViewInit {
         );
         if (!rowData.seen) {
           this.timeoutOnFocusEvent = setTimeout(() => {
-            this.mailListService.setSeen(true, true);
+            if (this.mailListService.selectedMessages.length === 1) { 
+              this.mailListService.setSeen(true, true);
+            }
           }, 350);
         }
       }
