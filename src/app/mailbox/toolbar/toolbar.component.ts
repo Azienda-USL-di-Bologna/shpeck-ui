@@ -184,7 +184,12 @@ export class ToolbarComponent implements OnDestroy, AfterViewInit {
       return "";
     }
     if (this.toolBarService.actualPecFolderTagSelected.type === PecFolderType.TAG_CONTAINER || this.toolBarService.actualPecFolderTagSelected.type === PecFolderType.PEC) {
-      return "Cerca nella casella pec " + this.toolBarService.actualPecFolderTagSelected.pec.indirizzo;
+      if (this.toolBarService.actualPecFolderTagSelected.type === "pec") {
+        return "Cerca nella casella pec " + (this.toolBarService.actualPecFolderTagSelected.data as Pec).indirizzo;
+      } else {
+        return "Cerca nella casella pec " + this.toolBarService.actualPecFolderTagSelected.pec.indirizzo;
+      }
+      
     }
     if (this.toolBarService.actualPecFolderTagSelected.type === PecFolderType.FOLDER) {
       return "Cerca nella cartella " + (this.toolBarService.actualPecFolderTagSelected.data as Folder).description + " della casella pec " + this.toolBarService.actualPecFolderTagSelected.pec.indirizzo;
