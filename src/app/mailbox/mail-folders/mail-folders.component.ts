@@ -763,6 +763,10 @@ export class MailFoldersComponent implements OnInit, OnDestroy {
   }
 
   public handleNodeSelect(name: string, event: any) {
+    if (event && event.originalEvent && event.originalEvent.currentTarget) {
+      this.setTabindexMinusOne(); 
+      event.originalEvent.currentTarget.setAttribute("tabindex", 0);
+    }
     switch (name) {
       case "onContextMenuSelect":
         this.op.hide();
@@ -1251,16 +1255,35 @@ export class MailFoldersComponent implements OnInit, OnDestroy {
     node.styleClass =  node.styleClass + ` nodeStyle${node.key}`;
   }
 
-  fixTreeHtmlRole() { 
-    const liElements = this.tree.el.nativeElement.getElementsByClassName('ui-treenode'); 
+  /**
+   * Questa funzione chiamata all'apertura dela componente
+   * so occupa si settare i role e i tabindex dell'albero folder.
+   * In particolare solo la cartella in arrivo della prima casella pec 
+   * avrà tabindex="0"
+   */
+  private fixTreeHtmlRole(): void {
+    const liElements = this.tree.el.nativeElement.getElementsByClassName('ui-treenode');
     for (const liEl of liElements) { 
       liEl.setAttribute('role', 'none'); 
-    } 
-    const divElements = this.tree.el.nativeElement.getElementsByClassName('ui-treenode-content'); 
-    for (const divEl of divElements) { 
+    }
+
+    const divElements = this.tree.el.nativeElement.getElementsByClassName('ui-treenode-content');
+    for (const divEl of divElements) {
       divEl.setAttribute('role', 'treeitem'); 
-    } 
-    console.log("tutto ok!")
+      divEl.setAttribute('tabindex', -1); 
+    }
+    divElements[1].setAttribute('tabindex', 0); 
+  }
+
+  /**
+   * Questa funzione setta tutti i nodi dell'albero folder con
+   * tabindex = -1 
+   */
+  private setTabindexMinusOne() {
+    const divElements = this.tree.el.nativeElement.getElementsByClassName('ui-treenode-content');
+    for (const divEl of divElements) {
+      divEl.setAttribute('tabindex', -1); 
+    }
   }
 
   public ngOnDestroy() {

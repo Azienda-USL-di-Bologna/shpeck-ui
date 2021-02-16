@@ -30,6 +30,8 @@ export class ToolBarService {
   public moveMenuItems: MenuItem[];
   private loggedUser: UtenteUtilities;
   public isDialogOpen: boolean = false;
+  public actualPecFolderTagSelected: PecFolder = null;
+
 
   public deleteLabel = new BehaviorSubject<string>("Elimina");
 
@@ -40,7 +42,7 @@ export class ToolBarService {
     ["buttonsActive", new BehaviorSubject<boolean>(false)],
     ["deleteActive", new BehaviorSubject<boolean>(false)],
     ["moveActive", new BehaviorSubject<boolean>(false)],
-    ["searchActive", new BehaviorSubject<boolean>(false)],
+    ["searchActive", new BehaviorSubject<boolean>(true)],
     ["archiveActive", new BehaviorSubject<boolean>(false)]
   ]);
 
@@ -64,6 +66,7 @@ export class ToolBarService {
         }
       }));
       this.subscriptions.push(this.mailFoldersService.pecFolderSelected.subscribe((pecFolderSelected: PecFolder) => {
+        this.actualPecFolderTagSelected = pecFolderSelected;
         if (pecFolderSelected && this.myPecs && this.myPecs.length > 0) {
           let idPec: number;
           if (pecFolderSelected.type === PecFolderType.FOLDER) {

@@ -2,7 +2,7 @@
   {{numberOfMessageSelected}} {{messageTrueDraftFalse ? 'email' : 'bozze'}} selezionate
 </div>
 <div class="detail-container" *ngIf="numberOfMessageSelected === null || numberOfMessageSelected <= 1">
-  <h3 class="mail-object" *ngIf="fullMessage?.emlData?.subject">{{fullMessage?.emlData?.subject}}</h3>
+  <h3 class="mail-object" *ngIf="fullMessage?.emlData?.subject" tabindex="0">{{fullMessage?.emlData?.subject}}</h3>
   <div *ngIf="message?.inOut === inOut?.OUT && fullMessage?.emlData?.displayBody" class="recepit-detail">
     <div class="recepit-dates">
       <li class="recepit-date">
@@ -27,7 +27,7 @@
       pTooltip="Apri dettaglio ricevute">
     </button>
   </div>
-  <div *ngIf="fullMessage && message?.inOut === inOut?.IN" class="recepit-detail">
+  <div *ngIf="fullMessage && message?.inOut === inOut?.IN" class="recepit-detail" aria-hidden="true">
     <div class="recepit-dates">
       <li class="recepit-date">
         <span class="recepit-date-label">Ricevuto il:</span>
@@ -40,41 +40,51 @@
     </div>
   </div>
   <p-accordion [multiple]="true" class="multi-accordion-eml-detail">
-      <p-accordionTab header="Dettagli" class="accordion-dettagli"
-        selected = true;
+      <p-accordionTab
+        #dettagli
+        header="Dettagli" 
+        class="accordion-dettagli"
+        selected = true
         [disabled]="fullMessage?.emlData == null">
         <div *ngIf="fullMessage?.emlData" class="id-date">
-          <div>
-            <span class="idPec">Id Pec: {{message?.id}}</span>
-            <span class="idPec" *ngIf="message?.idMessagePecgw !== null">Id Pecg: {{message.idMessagePecgw}}</span>
+          <div >
+            <span class="idPec" [tabindex]="this.getTabindexForAccordion(dettagli)">Id Pec: {{message?.id}}</span>
+            <span class="idPec" *ngIf="message?.idMessagePecgw !== null" [tabindex]="this.getTabindexForAccordion(dettagli)">Id Pecg: {{message.idMessagePecgw}}</span>
           </div>
-          <span *ngIf="fullMessage?.emlData?.sendDate">{{fullMessage?.emlData.sendDate | date:"EEEE d MMMM y, HH:mm" | titlecase}}</span>
+          <span *ngIf="fullMessage?.emlData?.sendDate" [tabindex]="this.getTabindexForAccordion(dettagli)">{{fullMessage?.emlData.sendDate | date:"EEEE d MMMM y, HH:mm" | titlecase}}</span>
         </div>
 
         <ul class="elenco-dettagli">
             <!-- <li *ngIf="fullMessage?.emlData?.sendDate"><span class="li-description">Inviato:</span><span class="li-content">{{getDateDisplay(fullMessage?.emlData.sendDate)}}</span></li> -->
             <li *ngIf="fullMessage?.emlData?.from">
-              <span class="li-description">Da:</span>
-              <span class="li-content indirizzo">{{fullMessage?.emlData?.from}}</span>
+              <div [tabindex]="this.getTabindexForAccordion(dettagli)">
+                <span class="li-description">Da:</span>
+                <span class="li-content indirizzo">{{fullMessage?.emlData?.from}}</span>  
+              </div>
             </li>
             <li *ngIf="fullMessage?.emlData?.to && fullMessage?.emlData?.to.length > 0">
-              <span class="li-description">A:</span>
-              <span *ngFor="let t of fullMessage?.emlData?.to" class="li-content indirizzo">{{t}}</span>
+              <div [tabindex]="this.getTabindexForAccordion(dettagli)">
+                <span class="li-description">A:</span>
+                <span *ngFor="let t of fullMessage?.emlData?.to" class="li-content indirizzo">{{t}}</span>  
+              </div>
             </li>
             <li *ngIf="fullMessage?.emlData?.cc && fullMessage?.emlData?.cc.length > 0">
-              <span class="li-description">CC:</span>
-              <span *ngFor="let c of fullMessage?.emlData?.cc" class="li-content indirizzo">{{c}}</span>
+              <div [tabindex]="this.getTabindexForAccordion(dettagli)">
+                <span class="li-description">CC:</span>
+                <span *ngFor="let c of fullMessage?.emlData?.cc" class="li-content indirizzo">{{c}}</span>
+              </div>
             </li>
         </ul>
       </p-accordionTab>
       <p-accordionTab
+        #allegati
         *ngIf="fullMessage?.emlData?.realAttachmentNumber > 0"
         header="Allegati"
         selected="fullMessage?.emlData?.realAttachmentNumber > 0"
         [disabled]="fullMessage?.emlData?.realAttachmentNumber == 0"
         class="accordion-allegati">
         <div class="box-allegati">
-          <div *ngFor="let attachment of fullMessage?.emlData?.attachments">
+          <div *ngFor="let attachment of fullMessage?.emlData?.attachments" [tabindex]="this.getTabindexForAccordion(allegati)" (keyup.enter)="getEmlAttachment(attachment)">
             <span *ngIf="!attachment.forHtmlAttribute" class="allegato">
               <i class="far icona" [ngClass]="getFaClass(attachment)"></i>
               <span
@@ -103,17 +113,18 @@
         </span>
       </p-accordionTab>
   </p-accordion>
-  <div class="mail-body-box" [ngClass]="{'mail-body-box-no-anteprima' : !fullMessage?.emlData?.displayBody}">
+  <div class="mail-body-box" *ngIf="fullMessage?.emlData?.displayBody">
     <iframe
       #emliframe
-      *ngIf="fullMessage?.emlData?.displayBody"
       [srcdoc]="fullMessage?.emlData?.displayBody | sanitizeHtml"
       class="mail-body"
       (load)="customizeIframeContent()"
       frameborder="0"
       sandbox="allow-popups allow-popups-to-escape-sandbox allow-same-origin">
     </iframe>
-    <div *ngIf="!fullMessage?.emlData?.displayBody" class="no-anteprima">Anteprima non disponibile.</div>
+  </div>
+  <div *ngIf="!fullMessage?.emlData?.displayBody" class="mail-body-box-no-anteprima mail-body-box">
+    <div >Anteprima non disponibile.</div>
   </div>
 </div>
 

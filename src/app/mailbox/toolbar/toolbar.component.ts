@@ -1,12 +1,12 @@
-import { Component, OnDestroy, ViewChild, ElementRef} from "@angular/core";
+import { Component, OnDestroy, ViewChild, ElementRef, AfterViewInit} from "@angular/core";
 import { DialogService, ConfirmationService, MenuItem } from "primeng-lts/api";
 import { Subscription, Observable } from "rxjs";
 import { TOOLBAR_ACTIONS } from "src/environments/app-constants";
-import { Pec, Folder, FolderType } from "@bds/ng-internauta-model";
+import { Pec, Folder, FolderType, Tag } from "@bds/ng-internauta-model";
 import { PecService } from "src/app/services/pec.service";
 import { FilterDefinition, FILTER_TYPES } from "@nfa/next-sdr";
 import { ToolBarService } from "./toolbar.service";
-import { MailFoldersService } from "../mail-folders/mail-folders.service";
+import { MailFoldersService, PecFolderType } from "../mail-folders/mail-folders.service";
 import { MailListService } from "../mail-list/mail-list.service";
 import { Menu } from "primeng-lts/menu";
 
@@ -16,7 +16,7 @@ import { Menu } from "primeng-lts/menu";
   providers: [ConfirmationService],
   styleUrls: ["./toolbar.component.scss"]
 })
-export class ToolbarComponent implements OnDestroy {
+export class ToolbarComponent implements OnDestroy, AfterViewInit {
   private subscriptions: Subscription[] = [];
   private myPecs: Pec[];
   private folders: Folder[];
@@ -43,6 +43,16 @@ export class ToolbarComponent implements OnDestroy {
     private confirmationService: ConfirmationService
   ) {
     this.askConfirmationBeforeArchiviation = this.askConfirmationBeforeArchiviation.bind(this);
+
+    setTimeout( ()=> {
+      this.searchField.nativeElement.focus();
+    });
+  }
+
+  ngAfterViewInit() {
+    setTimeout( ()=> {
+      this.searchField.nativeElement.focus();
+    });
   }
 
   /**
@@ -165,6 +175,30 @@ export class ToolbarComponent implements OnDestroy {
     }
   }
 
+  /**
+   * Questa funzione si occupa di costruire la frase che sarà letta tramite screenreader
+   * quando ci si posiziona sulla ricerca
+   */
+  public getDescrizioneCerca(): string {
+    if (this.toolBarService.actualPecFolderTagSelected === null) {
+      return "";
+    }
+    if (this.toolBarService.actualPecFolderTagSelected.type === PecFolderType.TAG_CONTAINER || this.toolBarService.actualPecFolderTagSelected.type === PecFolderType.PEC) {
+      if (this.toolBarService.actualPecFolderTagSelected.type === "pec") {
+        return "Cerca nella casella pec " + (this.toolBarService.actualPecFolderTagSelected.data as Pec).indirizzo;
+      } else {
+        return "Cerca nella casella pec " + this.toolBarService.actualPecFolderTagSelected.pec.indirizzo;
+      }
+      
+    }
+    if (this.toolBarService.actualPecFolderTagSelected.type === PecFolderType.FOLDER) {
+      return "Cerca nella cartella " + (this.toolBarService.actualPecFolderTagSelected.data as Folder).description + " della casella pec " + this.toolBarService.actualPecFolderTagSelected.pec.indirizzo;
+    }
+    if (this.toolBarService.actualPecFolderTagSelected.type === PecFolderType.TAG) {
+      return "Cerca nell'etichetta " + (this.toolBarService.actualPecFolderTagSelected.data as Tag).description + " della casella pec " + this.toolBarService.actualPecFolderTagSelected.pec.indirizzo;
+    }
+    return "";
+  }
 
   ngOnDestroy() {
     if (this.subscriptions && this.subscriptions.length > 0) {
