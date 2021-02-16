@@ -13,6 +13,8 @@
     </ng-template> -->
     <ng-template pTemplate="body" let-rowData let-message let-rowIndex="rowIndex">
         <tr #selRow 
+            (keydown.ArrowDown)="arrowPress('down')"
+            (keydown.ArrowUp)="arrowPress('up')" 
             (focus)="onRowFocus($event, rowData)"
             [pTooltip]="message['moved'] ? message['movedInfo']: null"
             tooltipPosition="top"
