@@ -1,10 +1,10 @@
 <p-toolbar > <!-- (keyup.Control)="onKeyUpMoveFocus($event)" -->
   <div class="toolbar-container">
-    <div class="d-flex toolbar-pec" aria-hidden="true">
+    <div class="d-flex toolbar-pec" aria-hidden="true" tabindex="-1">
       
         <!-- Nuova Pec -->
         <button
-          pButton type="button" label="Nuova PEC"
+          pButton type="button" label="Nuova PEC" tabindex="-1"
           icon="pi pi-plus" class="button-new-mail ui-button-raised ui-button-primary custom-primary-button"
           (click)="handleEvent($event, 'new'); this.toolBarService.isDialogOpen = true" onclick="this.blur()"
           [disabled]="!(toolBarService.buttonObs.get('newMailActive') | async) || this.toolBarService.isDialogOpen">
@@ -12,42 +12,42 @@
         <!-- Modifica -->
         <button
           *ngIf="toolBarService.buttonObs.get('editVisible') | async"
-          pButton type="button" label="Modifica"
+          pButton type="button" label="Modifica" tabindex="-1" 
           icon="fa fa-pen" class="button-styles ui-button-raised ui-button-secondary custom-border"
           (click)="handleEvent($event, 'edit'); this.toolBarService.isDialogOpen = true"
           [disabled]="!((toolBarService.buttonObs.get('editActive') | async) && (toolBarService.buttonObs.get('newMailActive') | async)) || this.toolBarService.isDialogOpen">
         </button>
         <!-- Rispondi -->
         <button
-          pButton type="button" label="Rispondi"
+          pButton type="button" label="Rispondi" tabindex="-1"
           icon="fa fa-reply" class="button-styles ui-button-raised ui-button-secondary custom-border"
           (click)="handleEvent($event, 'reply'); this.toolBarService.isDialogOpen = true"
           [disabled]="!((toolBarService.buttonObs.get('buttonsActive') | async) && (toolBarService.buttonObs.get('newMailActive') | async)) || this.toolBarService.isDialogOpen">
         </button>
         <!-- Rispondi a tutti -->
         <button
-          pButton type="button" label="Rispondi a tutti"
+          pButton type="button" label="Rispondi a tutti" tabindex="-1"
           icon="fa fa-reply-all" class="button-styles ui-button-raised ui-button-secondary custom-border"
           (click)="handleEvent($event, 'reply_all'); this.toolBarService.isDialogOpen = true"
           [disabled]="!((toolBarService.buttonObs.get('buttonsActive') | async) && (toolBarService.buttonObs.get('newMailActive') | async)) || this.toolBarService.isDialogOpen">
         </button>
         <!-- Inoltra -->
         <button
-          pButton type="button" label="Inoltra"
+          pButton type="button" label="Inoltra" tabindex="-1"
           icon="fa fa-share" class="button-styles ui-button-raised ui-button-secondary custom-border"
           (click)="handleEvent($event, 'forward'); this.toolBarService.isDialogOpen = true"
           [disabled]="!((toolBarService.buttonObs.get('buttonsActive') | async) && (toolBarService.buttonObs.get('newMailActive') | async)) || this.toolBarService.isDialogOpen">
         </button>
         <!-- Elimina -->
         <button
-          pButton type="button" [label]="toolBarService.deleteLabel | async"
+          pButton type="button" [label]="toolBarService.deleteLabel | async" tabindex="-1"
           icon="fa fa-trash" class="button-styles ui-button-raised ui-button-secondary custom-border"
           (click)="handleEvent($event, 'delete')"
           [disabled]="!(toolBarService.buttonObs.get('deleteActive') | async)">
         </button>
         <!-- Sposta -->
         <button
-          pButton type="button" label="Sposta"
+          pButton type="button" label="Sposta" tabindex="-1"
           icon="fa fa-folder" class="button-styles ui-button-raised ui-button-secondary custom-border"
           (click)="handleEvent($event, 'move')"
           [disabled]="!(toolBarService.buttonObs.get('moveActive') | async)">
@@ -56,7 +56,7 @@
         <p-menu #moveMenu (mouseleave)="handleEvent($event, 'mouseout')" class="move-menu" [popup]="true" [model]="moveMenuItems"></p-menu>
         <!-- Fascicola -->
         <button
-          pButton type="button" label="Fascicola"
+          pButton type="button" label="Fascicola" tabindex="-1"
           icon="fa fa-server" class="button-styles ui-button-raised ui-button-secondary custom-border rotate"
           (click)="handleEvent($event, 'archive')"
           [disabled]="!(toolBarService.buttonObs.get('archiveActive') | async)">
@@ -73,9 +73,7 @@
       <input #search 
         [attr.aria-label]="getDescrizioneCerca()"
        
-        aria-selected="true" 
         type="search" 
-        autofocus
         matInput 
         pInputText 
         size="30"

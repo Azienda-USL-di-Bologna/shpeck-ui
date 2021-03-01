@@ -7,7 +7,7 @@
   <div #mailContainer class="mail-container p-col" *ngIf="true">
 
     <!-- Left side -->
-    <div #mailFolder class="content-left"> <!-- tabindex="0" aria-label="Albero delle Pec" (keyup.Control)="onKeyUpMoveFocus($event)" -->
+    <div #mailFolder class="content-left"> <!-- tabindex="0" aria-label="Albero cartelle della Pec" (keyup.Control)="onKeyUpMoveFocus($event)" -->
       <app-mail-folders></app-mail-folders> <!-- role="region" -->
     </div>
 
@@ -28,7 +28,7 @@
           [filters] = "filtersSelected"
           (messageClicked)="messageClicked($event)">
         </app-mail-list> -->
-        <div class="filter-box">
+        <div class="filter-box" aria-hidden="true">
           <!-- (keyup.Control)="onKeyUpMoveFocus($event)" -->
           <div class="filter-box-left">
               {{_selectedFolder ? _selectedFolder.description : _selectedTag ? _selectedTag.description : _selectedPec?.indirizzo}}
@@ -52,7 +52,6 @@
       <!-- role="region" -->
       <div [ngClass]="hideDetail ? 'hidden' : 'mail-detail'" 
         #mailDetail 
-        
         tabindex="0" 
         aria-label="Dettaglio del messaggio selezionato">
         <div [ngClass]="{'overlap-div' : sliding}"></div>
