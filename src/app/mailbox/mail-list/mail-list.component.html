@@ -1,18 +1,36 @@
-<p-table #dt id="pec-mail-list" *ngIf="mailListService.totalRecords > 0 && (_selectedTag || _selectedFolder || _filters)" [lazy]="true" (onLazyLoad)="lazyLoad($event)" scrollHeight="100%"
-    [value]="mailListService.messages" [columns]="cols" [paginator]="false" [loading]="loading" [autoLayout]="true"
-    [responsive]="true" [totalRecords]="mailListService.totalRecords" [(selection)]="mailListService.selectedMessages"
-    contextMenuSelectionMode="joint" selectionMode="multiple" [metaKeySelection]="true" [lazyLoadOnInit]="false"
-    [rows]="rowsNmber" [rowTrackBy]="trackByFn" [contextMenu]="cm" [scrollable]="true"
-    [virtualRowHeight]="virtualRowHeight" [virtualScroll]="true" [virtualScrollDelay]="150"
-    (onRowSelect)="handleEvent('onRowSelect', $event)" (onRowUnselect)="handleEvent('onRowUnselect', $event)"
-    dataKey="id" (mouseenter)="handleEvent('onMouseEnter', $event)"
+<p-table #dt id="pec-mail-list" 
+    *ngIf="mostratable && (_selectedTag || _selectedFolder || _filters)"
+    [lazy]="true" 
+    (onLazyLoad)="lazyLoad($event)" 
+    [value]="mailListService.messages" 
+    [(selection)]="mailListService.selectedMessages"
+    dataKey="id" 
+    [lazyLoadOnInit]="true"
+    scrollHeight="100%"
+    [columns]="cols" 
+    [paginator]="false" 
+    [loading]="loading" 
+    [autoLayout]="true"
+    [responsive]="true"
+    [totalRecords]="mailListService.totalRecords" 
+    contextMenuSelectionMode="joint" 
+    selectionMode="multiple" 
+    [metaKeySelection]="true" 
+    [rows]="rowsNmber" 
+    [rowTrackBy]="trackByFn" 
+    [contextMenu]="cm" 
+    [scrollable]="true"
+    [virtualScroll]="true" 
+    [virtualScrollDelay]="150"
+    (onRowSelect)="handleEvent('onRowSelect', $event)" 
+    (onRowUnselect)="handleEvent('onRowUnselect', $event)"
+    (mouseenter)="handleEvent('onMouseEnter', $event)"
     (onContextMenuSelect)="handleEvent('onContextMenuSelect', $event)"
-    ><!-- (keyup.Control)="onKeyUpMoveFocus($event)" -->
- <!--    <ng-template pTemplate="header">
-        <th hidden=true>Lista messaggi</th>
-    </ng-template> -->
-    <ng-template pTemplate="body" let-rowData let-message let-rowIndex="rowIndex">
+    [ngClass]="mailListService?.totalRecords > 0 ? '' : 'no-records-found'">
+    <!-- [virtualRowHeight]="virtualRowHeight"  -->
+    <ng-template pTemplate="body" let-rowData let-message let-rowIndex="rowIndex" let-columns="columns">
         <tr #selRow 
+            [attr.name]="rowData.id"
             (keydown.ArrowDown)="arrowPress('down')"
             (keydown.ArrowUp)="arrowPress('up')" 
             (focus)="onRowFocus($event, rowData)"
@@ -68,7 +86,13 @@
                                     class="material-icons mail-icons icon-enabled mi-fist-line"
                                     (click)="onFixMessageTagInRegistration($event, message)">adjust
                                 </i>
-                                <p-menu appendTo="body"  (onShow)="tagsMenuStatus('registerMenuOpened')" #registrationMenu [popup]="true" [model]="aziendeProtocollabiliSubCmItems"></p-menu>
+                                <p-menu 
+                                    appendTo="body" 
+                                    (onShow)="tagsMenuStatus('registerMenuOpened')" 
+                                    #registrationMenu 
+                                    [popup]="true" 
+                                    [model]="aziendeProtocollabiliSubCmItems">
+                                </p-menu>
                             </ng-template>
                             <ng-template [ngTemplateOutlet]="registrationTemplate"
                                 [ngTemplateOutletContext]="{$implicit: getRegistrationStatus(message)}">
@@ -219,7 +243,7 @@
                         </span>
                     </span>
                 </div>
-                <div class="seconda-riga" [pTooltip]="'Id della pec:\n' + message['id']" showDelay="500" tooltipPosition="left">
+                <div class="seconda-riga" [pTooltip]="'Id della pec:\n' + message['id']" [showDelay]="500" tooltipPosition="left">
                     <!-- <span class="pi pi-user icon-default-color second-line-icon"></span> -->
                     <!-- <span *ngIf="message.fromOrTo.fromOrTo === 'FROM'" title="Mittente" class="pi pi-angle-left icon-default-color second-line-icon"></span>
                     <span *ngIf="message.fromOrTo.fromOrTo === 'TO'" title="Destinatari" class="pi pi-angle-right icon-default-color second-line-icon"></span> -->
@@ -275,20 +299,24 @@
             </td>
         </tr>
     </ng-template> -->
-
+    <ng-template pTemplate="emptymessage" let-columns>
+        <tr>
+            <td *ngIf="(_selectedTag || _selectedFolder || _filters)" 
+                [attr.colspan]="columns.length" 
+                class="flex-1 message-align flex-direction-col cella-no-elementi"> 
+                <p *ngIf="_filters" style="margin: 0">Nessun elemento trovato</p>
+                <p *ngIf="!_filters && _selectedFolder" style="margin: 0">La cartella selezionata non contiene elementi</p>
+                <p *ngIf="!_filters && _selectedTag" style="margin: 0">L'etichetta selezionata non contiene elementi</p>
+            </td>
+        </tr>
+    </ng-template>
 </p-table>
-<div *ngIf="!(_selectedTag || _selectedFolder || _filters)" class="flex-1 message-align flex-direction-col">
-    <p style="margin: 0">Non ci sono elementi da visualizzare.</p>
-    <p style="margin: 0.5em">Selezionare una cartella o effettuare una ricerca.</p>
-</div>
-<div *ngIf=" (_selectedTag || _selectedFolder || _filters) && (mailListService.totalRecords === 0 && !!!loading)" class="flex-1 message-align flex-direction-col">
-    <p *ngIf="_filters" style="margin: 0">Nessun elemento trovato</p>
-    <p *ngIf="!_filters && _selectedFolder" style="margin: 0">La cartella selezionata non contiene elementi</p>
-</div>
+
 
 <p-contextMenu #cm [model]="cmItems" styleClass="context-menu-mail-list"></p-contextMenu>
 
-<p-confirmDialog #cd acceptLabel="Sì" rejectLabel="No" [style]="{width: '20vw', top: '40%'}">
+<!-- Questa serve per chiedere conferma all'utente sul dove vuole protocollare -->
+<p-confirmDialog #cd acceptLabel="Sì" rejectLabel="No" [style]="{width: '20vw'}">
     <p-footer>
         <button type="button" pButton icon="pi pi-check" label="Sì" (click)="cd.accept()"
             class="confirm-buttons ui-button-raised ui-button-secondary custom-secondary-button">
@@ -433,11 +461,11 @@ class="ui-button-raised ui-button-secondary button-styles custom-secondary-butto
 </p-dialog>
 
 <!-- POPUP AGGIUNTA TAG -->
-<p-dialog *ngIf="displayNewTagPopup" [(visible)]="displayNewTagPopup" modal="true" [style]="{width: '320px'}">
+<p-dialog *ngIf="displayNewTagPopup" [(visible)]="displayNewTagPopup" [modal]="true" [style]="{width: '420px'}">
     <p-header>Nuova Etichetta</p-header>
     <form [formGroup]="tagForm">
-        <span class="ui-float-label" style="margin: 8px 0 8px 0px;">
-            <input #idtag id="float-input" type="text" size="30" formControlName="tagName" pInputText>
+        <span class="p-float-label" style="margin: 8px 0 8px 0px;">
+            <input #idtag id="float-input" type="text" size="30" formControlName="tagName" pInputText style="width: 100% !important;">
             <label for="float-input">Inserisci un nome per la nuova etichetta</label>
         </span>
         <p-footer>

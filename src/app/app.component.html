@@ -1,6 +1,6 @@
 <!--The content below is only a placeholder and can be replaced.-->
-<div class="p-grid p-nogutter page-wrapper"> <!---->
-  <!-- <app-header class="p-col-12 ui-g-nopad custom-header" style="align-items:center"></app-header> -->
+<div class="p-grid p-nogutter page-wrapper"> 
+ 
   <div class="full-width">
     <prp-header class="ui-g-nopad custom-header" logoPath="assets/images/logo.png" [addToRight]="headerTemplate" [appName]="'Babel Internauta - PEC'"></prp-header>
       <ng-template #headerTemplate>
@@ -11,3 +11,43 @@
       <router-outlet></router-outlet>
   </div>
 </div>
+
+<!-- 
+ <div class="card">
+  <h5>Virtual Scroll with Lazy Loading from a Remote Datasource (10000 Rows)</h5>
+  <p-table *ngIf="totale > 0"
+    [columns]="cols" 
+    [value]="virtualCars" 
+    [scrollable]="true" 
+    [rows]="100" 
+    scrollHeight="250px" 
+    [virtualScroll]="true" 
+    [virtualRowHeight]="34" 
+    [lazy]="true" 
+    (onLazyLoad)="loadCarsLazy($event)"
+    [lazyLoadOnInit]="false"
+    [totalRecords]="totale"  
+    >
+      <ng-template pTemplate="header" let-columns>
+          <tr>
+              <th *ngFor="let col of columns">
+                  {{col.header}}
+              </th>
+          </tr>
+      </ng-template>
+      <ng-template pTemplate="body" let-rowData let-columns="columns">
+          <tr style="height:34px">
+              <td *ngFor="let col of columns">
+                  {{rowData[col.field]}}
+              </td>
+          </tr>
+      </ng-template>
+      <ng-template pTemplate="loadingbody" let-columns="columns">
+          <tr style="height:34px">
+              <td *ngFor="let col of columns">
+                  <div class="loading-text"></div>
+              </td>
+          </tr>
+      </ng-template>
+  </p-table>
+</div> -->

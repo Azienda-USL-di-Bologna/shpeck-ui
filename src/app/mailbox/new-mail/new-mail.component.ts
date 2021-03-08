@@ -1,17 +1,17 @@
 import { Component, OnInit, ViewChild, AfterViewInit, OnDestroy } from "@angular/core";
 import { FormGroup, FormControl, Validators, FormArray } from "@angular/forms";
-import { DynamicDialogRef, DynamicDialogConfig, DialogService, ConfirmationService, MessageService } from "primeng-lts/api";
+import { ConfirmationService, MessageService } from "primeng-lts/api";
 import { Message, Pec, Draft, MessageRelatedType, InOut, ENTITIES_STRUCTURE, DettaglioContattoService, Utente, BaseUrls, BaseUrlType, Contatto } from "@bds/ng-internauta-model";
 import { Editor } from "primeng-lts/editor";
 import { TOOLBAR_ACTIONS, MAX_FILE_SIZE_UPLOAD } from "src/environments/app-constants";
 import { DraftService } from "src/app/services/draft.service";
-import { Chips } from "primeng-lts/chips";
-import { AutoComplete } from "primeng-lts/primeng";
 import { FiltersAndSorts, FilterDefinition, FILTER_TYPES, BatchOperation, BatchOperationTypes, NextSdrEntity, AdditionalDataDefinition } from "@nfa/next-sdr";
 import { Router } from "@angular/router";
 import { UtenteUtilities, NtJwtLoginService } from "@bds/nt-jwt-login";
 import { Subscription } from "rxjs";
 import { CustomContactService, SelectedContact } from "@bds/common-components";
+import { AutoComplete } from "primeng-lts/autocomplete";
+import { DialogService, DynamicDialogConfig, DynamicDialogRef } from "primeng-lts/dynamicdialog";
 
 @Component({
   selector: "app-new-mail",
@@ -20,14 +20,16 @@ import { CustomContactService, SelectedContact } from "@bds/common-components";
 })
 export class NewMailComponent implements OnInit, AfterViewInit, OnDestroy {
 
-  @ViewChild("toAutoComplete", null) toAutoComplete: AutoComplete;
-  @ViewChild("ccAutoComplete", null) ccAutoComplete: AutoComplete;
-  @ViewChild("editor", null) editor: Editor;
+  @ViewChild("toAutoComplete", {}) toAutoComplete: AutoComplete;
+  @ViewChild("ccAutoComplete", {}) ccAutoComplete: AutoComplete;
+  @ViewChild("editor", {}) editor: Editor;
   private fromAddress: string = ""; // Indirizzo che ha inviato la mail in caso di Rispondi e Rispondi a tutti
   private toAddressesForLabel: string[] = [];
   private ccAddressesForLabel: string[] = [];
   private toAddresses: any[] = [];
   private ccAddresses: any[] = [];
+  private toFormControl: FormControl[] = [];
+  private ccFormControl: FormControl[] = [];
 
   public suggestion: number=688300;
   public attachments: any[] = [];
@@ -146,6 +148,8 @@ export class NewMailComponent implements OnInit, AfterViewInit, OnDestroy {
     this.mailFormInit(hideRecipients, subject, message, action, messageRelatedType);
   }
 
+  
+
   /**
    * Inizializzazione della form, funziona per tutte le actions ed é l'oggetto che contiene tutti i campi
    * @param hideRecipients 
@@ -155,21 +159,12 @@ export class NewMailComponent implements OnInit, AfterViewInit, OnDestroy {
    * @param messageRelatedType 
    */
   private mailFormInit(hideRecipients: { value: boolean; disabled: boolean; }, subject: string, message: Message | Draft, action: any, messageRelatedType: string) {
-    const toFormControl: FormControl[] = [];
-    if (this.toAddresses && this.toAddresses.length > 0) {
-      this.toAddresses.forEach(el => toFormControl.push(new FormControl(el, Validators.pattern(this.emailRegex))));
-      this.toAutoComplete.writeValue(this.toAddresses);
-    }
-    const ccFormControl: FormControl[] = [];
-    if (this.ccAddresses && this.ccAddresses.length > 0) {
-      this.ccAddresses.forEach(el => ccFormControl.push(new FormControl(el, Validators.pattern(this.emailRegex))));
-      this.ccAutoComplete.writeValue(this.ccAddresses);
-    }
+    
     this.mailForm = new FormGroup({
       idDraftMessage: new FormControl(this.config.data.idDraft),
       idPec: new FormControl(this.selectedPec.id),
-      to: new FormArray(toFormControl, Validators.required),
-      cc: new FormArray(ccFormControl),
+      to: new FormArray(this.toFormControl, Validators.required),
+      cc: new FormArray(this.ccFormControl),
       hideRecipients: new FormControl(hideRecipients),
       subject: new FormControl(subject),
       attachments: new FormControl(this.attachments),
@@ -191,6 +186,17 @@ export class NewMailComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   ngAfterViewInit() {
+
+    if (this.toAddresses && this.toAddresses.length > 0) {
+      this.toAddresses.forEach(el => this.toFormControl.push(new FormControl(el, Validators.pattern(this.emailRegex))));
+      this.toAutoComplete.writeValue(this.toAddresses);
+    }
+    
+    if (this.ccAddresses && this.ccAddresses.length > 0) {
+      this.ccAddresses.forEach(el => this.ccFormControl.push(new FormControl(el, Validators.pattern(this.emailRegex))));
+      this.ccAutoComplete.writeValue(this.ccAddresses);
+    }
+    
   /* Inizializzazione del body per le risposte e l'inoltra */
     
     if (this.config.data.action !== TOOLBAR_ACTIONS.NEW) {
@@ -267,7 +273,8 @@ export class NewMailComponent implements OnInit, AfterViewInit, OnDestroy {
    * @param event L'evento del dom, contiene sia l'informazione sul tasto che il valore inserito
    * @param formField Il campo del form dove è stato inserito l'indirizzo, addresses o ccAddresses
   */
-  onKeyUp(event: KeyboardEvent, formField: string) {
+  onKeyUp(e: Event, formField: string) {
+    const event = e as KeyboardEvent;
     console.log("messageService onKeyUp");
     if (event.key === "Enter" || event.type === "blur") {
       const tokenInput = event.target as any;

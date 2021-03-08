@@ -18,33 +18,29 @@
   height: 100%;
 }
 
-
-// ::ng-deep * {
-//   box-sizing: content-box !important;
-// }
-
 /* ------------TEMPLATE GENERALE---------------------- */
 /* --- RIGHE P-TABLE --- */
-::ng-deep body .ui-dialog .ui-dialog-titlebar, .titolo-popup {
+::ng-deep body .p-dialog .p-dialog-titlebar, .titolo-popup,
+::ng-deep body .p-dialog .p-dialog-header {
   background-color: #993366;
   color: white;
+  height: 48px;
+  font-size: 14px;
 }
 
-::ng-deep body .ui-dialog .ui-dialog-titlebar .ui-dialog-titlebar-icon {
+::ng-deep body .p-dialog .p-dialog-titlebar .p-dialog-titlebar-icon,
+::ng-deep body .p-dialog .p-dialog-header .p-dialog-header-icon,
+::ng-deep body .p-dialog .p-dialog-titlebar-close  {
   color: white;
 }
 
-::ng-deep body .ui-dialog .ui-dialog-titlebar-close {
-  color: white;
-}
-
-::ng-deep body .ui-table .ui-table-tbody > tr.ui-state-highlight {
+::ng-deep body .p-datatable .p-datatable-tbody > tr.p-highlight {//.p-table .p-table-tbody > tr.p-highlight {
   background-color: #FCF9BF !important;
   color: black !important;
 }
 
 /* Vale per tutto gli autocomplete, la dropdown sarà largo quanto l'input */
-::ng-deep .ui-autocomplete-panel {
+::ng-deep .p-autocomplete-panel {
   width: min-content !important;
 }
 
@@ -93,7 +89,7 @@
 }
 
 @media only screen and (max-height: 801px) { /* For low resolutions */
-  ::ng-deep .new-draft .ui-dialog-content.ui-widget-content {
+  ::ng-deep .new-draft .p-dialog-content.p-widget-content {
     height: 91vh !important;
   }
 }

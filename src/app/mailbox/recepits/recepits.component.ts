@@ -16,7 +16,7 @@ export class RecepitsComponent implements OnInit {
 
   @Input("recepits")
   set setRecepits(recepits: Message[]) {
-    // console.log("recepit: ", recepits);
+    console.log("recepit: ", recepits);
     this.recepits = recepits;
   }
 
@@ -39,8 +39,9 @@ export class RecepitsComponent implements OnInit {
         field: "receiveTime",
         header: "Data",
         fieldType: "DateTime",
+        format: {viewFormat:'dd/MM/yyyy HH:mm'},
         style: {
-          width: "115px",
+          width: "135px",
           textAlign: "center"
         }
       },
@@ -58,7 +59,7 @@ export class RecepitsComponent implements OnInit {
         header: "Destinatario",
         fieldType: "string",
         style: {
-          width: "270px"
+          width: "260px"
         }
       },
       {
