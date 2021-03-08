@@ -46,8 +46,8 @@ export class MailDetailComponent implements OnInit, OnDestroy {
   get inOut() { return InOut; }
 
   @ViewChild("emliframe", {}) private emliframe: ElementRef;
-  @ViewChild("dettagli", null) private dettagli;
-  @ViewChild("allegati", null) private allegati;
+  @ViewChild("dettagli") private dettagli;
+  @ViewChild("allegati") private allegati;
 
   constructor(private messageService: ShpeckMessageService,
     private draftService: DraftService,

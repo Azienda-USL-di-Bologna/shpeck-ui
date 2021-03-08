@@ -8,7 +8,7 @@ import {Observable, Subscription} from "rxjs";
 import {DatePipe} from "@angular/common";
 import {Table} from "primeng-lts/table";
 import {BaseUrls, BaseUrlType, EMLSOURCE, FONTSIZE, TOOLBAR_ACTIONS} from "src/environments/app-constants";
-import {ConfirmationService, DialogService, FilterMetadata, LazyLoadEvent, MenuItem, MessageService} from "primeng-lts/api";
+import {ConfirmationService, FilterMetadata, LazyLoadEvent, MenuItem, MessageService} from "primeng-lts/api";
 import {Utils} from "src/app/utils/utils";
 import {MailFoldersService, PecFolder, PecFolderType} from "../mail-folders/mail-folders.service";
 import {ToolBarService} from "../toolbar/toolbar.service";
@@ -24,6 +24,7 @@ import {IntimusClientService, IntimusCommand, IntimusCommands, RefreshMailsParam
 import { NewMailComponent } from "src/app/mailbox/new-mail/new-mail.component"
 import { ContextMenu } from "primeng-lts/contextmenu";
 import { isArray } from "util";
+import { DialogService } from "primeng-lts/dynamicdialog";
 
 
 

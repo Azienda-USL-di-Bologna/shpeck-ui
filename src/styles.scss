@@ -3,8 +3,8 @@
 @import '../node_modules/primeng-lts/resources/primeng.min.css';
 @import '../node_modules/primeicons/primeicons.css';
 @import '../node_modules/primeflex/primeflex.css';
-@import 'assets/bds-styles/material-icons.scss';
-@import 'assets/bds-styles/primeng.scss';
+@import '../node_modules/@bds/common-components/assets/bds-styles/primeng.scss';
+@import '../node_modules/@bds/common-components/assets/bds-styles/material-icons.scss';
 
 html, body {
     height: 100%;
