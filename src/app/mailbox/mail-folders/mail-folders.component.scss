@@ -7,20 +7,20 @@
   display: flex;
 }
 ::ng-deep .general-style-icon {
-    color: #2e4a65 !important;
-    font-size: 18px;
+  color: #2e4a65 !important;
+  font-size: 18px;
 }
 ::ng-deep .bigger-icon {
-    font-size: 20px !important;
-    margin-left: -2px !important;
-    margin-right: 2px !important;
+  font-size: 20px !important;
+  margin-left: -2px !important;
+  margin-right: 2px !important;
 }
 ::ng-deep .smaller-icon {
-    font-size: 15px !important;
-    margin-right: 5px !important;
+  font-size: 15px !important;
+  margin-right: 5px !important;
 }
 ::ng-deep .error-icon {
-    margin-right: 4px !important;
+  margin-right: 4px !important;
 }
 ::ng-deep .p-treenode-icon.material-icons-outlined {
   vertical-align: sub !important;
@@ -70,7 +70,6 @@
 ::ng-deep .root-tree-node-style-selected .p-inputtext {
   border: none !important;
 }
-
 ::ng-deep .root-tree-node-style {
   font-size: 12px !important;
   font-weight: normal !important;
@@ -107,20 +106,20 @@
   margin: -128px 0 0 -8px;
 }
 ::ng-deep .folder-dialog {
-    left: 10px;
-  }
+  left: 10px;
+}
 ::ng-deep .fa-exclamation-triangle.tree-icon {
-    color: #993366 !important;
+  color: #993366 !important;
 }
 ::ng-deep .tree-node-error span div {
-    background: #993366 !important;
-    border-radius: 30px;
-    padding: 0 0.6em 0 0.6em;
-    color: white;
+  background: #993366 !important;
+  border-radius: 30px;
+  padding: 0 0.6em 0 0.6em;
+  color: white;
 }
 :host {
-    width: 100%;
-    display: flex;
+  width: 100%;
+  display: flex;
 }
 ::ng-deep .p-tooltip {
   width: fit-content;
