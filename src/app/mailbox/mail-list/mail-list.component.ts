@@ -27,8 +27,6 @@ import { isArray } from "util";
 import { DialogService } from "primeng-lts/dynamicdialog";
 
 
-
-
 @Component({
   selector: "app-mail-list",
   templateUrl: "./mail-list.component.html",

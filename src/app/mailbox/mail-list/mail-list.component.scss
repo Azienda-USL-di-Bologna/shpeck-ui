@@ -11,15 +11,15 @@
 .d-flex {
   display: flex;
 }
-p-table,
+/* p-table,
 ::ng-deep p-table > div,
 ::ng-deep p-table > div > div,
 ::ng-deep p-table > div > div > div {
   height: 100%;
-}
+} */
 ::ng-deep p-table > div > div > div div.ui-table-scrollable-body {
-  max-height: 100% !important;
-  height: 100% !important;
+  /* max-height: 100% !important;
+  height: 100% !important; */
   overflow-x: auto;
 }
 ::ng-deep #pec-mail-list .p-datatable .p-datatable-tbody > tr:nth-child(even) {
