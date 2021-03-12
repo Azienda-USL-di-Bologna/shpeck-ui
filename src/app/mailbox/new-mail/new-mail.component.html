@@ -97,9 +97,9 @@
           </span>
           <span class="ui-fluid flex-1 margin-lr-5">
             <p-chips id="attachments" formControlName="attachments">
-                <ng-template let-item pTemplate="item">
-                    {{ item.name ? item.name : item.displayName }} ({{item.id ? formatSize(item.size) :  formatSize(item.size, true)}}) <i style="margin-right:1.5em"></i>
-                </ng-template>
+              <ng-template let-item pTemplate="item">
+                {{ item.name ? item.name : item.displayName }} ({{item.id ? formatSize(item.size) :  formatSize(item.size, true)}}) <i style="margin-right:1.5em"></i>
+              </ng-template>
             </p-chips>
           </span>
           <span>

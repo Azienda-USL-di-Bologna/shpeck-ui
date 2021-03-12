@@ -401,6 +401,7 @@ export class NewMailComponent implements OnInit, AfterViewInit, OnDestroy {
           element.id ? tot + element.size * 0.71 : tot + element.size, 0);
         if (file.size && (maxFilesSize + file.size) <= MAX_FILE_SIZE_UPLOAD) {
           fileForm.value.push(file);
+          fileForm.setValue([...fileForm.value]);
           if (this.mailForm.pristine) {
             this.mailForm.markAsDirty();
           }
