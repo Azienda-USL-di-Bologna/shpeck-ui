@@ -297,6 +297,7 @@ export class MailListComponent implements OnInit, OnDestroy, AfterViewInit {
 
 
   ngOnInit() {
+    
     this.subscriptions.push({id: null, type: "pecFolderSelected", subscription: this.mailFoldersService.pecFolderSelected.subscribe((pecFolderSelected: PecFolder) => {
       // this.tempSelectedMessages = null;
       this.mailListService.selectedMessages = [];

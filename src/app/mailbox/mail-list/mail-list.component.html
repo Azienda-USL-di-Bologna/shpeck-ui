@@ -292,13 +292,6 @@
             </td>
         </tr>
     </ng-template>
-    <!-- <ng-template pTemplate="loadingbody" let-columns="columns">
-        <tr style="height:68px">
-            <td *ngFor="let col of columns">
-                <div class="loading-text"></div>
-            </td>
-        </tr>
-    </ng-template> -->
     <ng-template pTemplate="emptymessage" let-columns>
         <tr>
             <td *ngIf="(_selectedTag || _selectedFolder || _filters)" 
@@ -326,7 +319,8 @@
         </button>
     </p-footer>
 </p-confirmDialog>
-<!-- "{'margin': '-128px 0 0 -312px'}" -->
+
+
 <p-dialog header="Nota messaggio" [(visible)]="displayNote" [modal]="true" [closable]="false" [responsive]="true"
     [style]="{width: '350px', minWidth: '264px'}" [minY]="60" [baseZIndex]="10000">
     <div class="flex-1" style="height: 100%; min-height: 80px;">

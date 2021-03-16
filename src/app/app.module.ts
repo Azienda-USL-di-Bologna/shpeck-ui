@@ -9,6 +9,7 @@ import { AppComponent } from "./app.component";
 import { PrimengModule } from "./primeng.module";
 import { MailboxComponent } from "./mailbox/mailbox.component";
 import { MailListComponent } from "./mailbox/mail-list/mail-list.component";
+import { AccessibilitaMailListComponent } from "./mailbox/accessibilita-mail-list/accessibilita-mail-list.component"
 import { MailDetailComponent } from "./mailbox/mail-detail/mail-detail.component";
 import { ReaddressComponent } from "./mailbox/readdress/readdress.component";
 import { SearchContactComponent } from "./search-contact/search-contact.component";
@@ -59,6 +60,7 @@ registerLocaleData(localeIt, "it-IT", localeItExtra);
     AppComponent,
     MailboxComponent,
     MailListComponent,
+    AccessibilitaMailListComponent,
     MailDetailComponent,
     MailFoldersComponent,
     SanitizeHtmlPipe,

@@ -1,0 +1,57 @@
+<p-table #dt 
+  tabindex="0"
+  *ngIf="mostratable && (_selectedTag || _selectedFolder || _filters)"
+  [value]="mailListService.messages"
+  (onLazyLoad)="lazyLoad($event)"
+  [(selection)]="mailListService.selectedMessages" 
+  (onRowUnselect)="handleEvent('onRowUnselect', $event)"
+  (onContextMenuSelect)="handleEvent('onContextMenuSelect', $event)"
+  [lazy]="true" 
+  [totalRecords]="mailListService.totalRecords"
+  dataKey="id"
+  selectionMode="single"
+  [lazyLoadOnInit]="true"
+  [loading]="loading"
+  [paginator]="true" 
+  [rows]="rowsNmber" 
+  [showCurrentPageReport]="true" 
+  [metaKeySelection]="true"
+  [(first)]="first"
+  [rowTrackBy]="trackByFn"
+  currentPageReportTemplate="Showing {first} to {last} of {totalRecords} entries" 
+  [rowsPerPageOptions]="[10,25,50]">
+    <ng-template pTemplate="header">
+      <tr>
+        <th *ngIf="_selectedFolder.name !== folderTypeSent">Da</th>
+        <th *ngIf="_selectedFolder.name === folderTypeSent">A</th>
+        <th>Oggetto</th>
+        <th>Ora</th>
+      </tr>
+    </ng-template>
+    <ng-template pTemplate="body" let-message> 
+      <tr #selRow
+        [attr.name]="message.id"
+        [pSelectableRow]="message"
+        (keydown.enter)="openDetailPopup($event, message, message)">
+
+        <td *ngIf="message.messageAddressList[0].addressRole === 'TO' && (_selectedFolder.name != folderTypeSent || _selectedFolder.name===folderTypeTrash)">{{message.messageAddressList[0].idAddress.mailAddress}}</td>
+        <td *ngIf="message.messageAddressList[1].addressRole === 'TO' && (_selectedFolder.name != folderTypeSent || _selectedFolder.name===folderTypeTrash)">{{message.messageAddressList[1].idAddress.mailAddress}}</td>
+        <td *ngIf="message.messageAddressList[0].addressRole === 'FROM' && _selectedFolder.name === folderTypeSent">{{message.messageAddressList[0].idAddress.mailAddress}}</td>
+        <td *ngIf="message.messageAddressList[1].addressRole === 'FROM' && _selectedFolder.name === folderTypeSent">{{message.messageAddressList[1].idAddress.mailAddress}}</td>        
+        <td>{{message.subject}}</td>
+        <td>{{message.receiveTime | date:'M/d/yy h:mm'}}</td>
+      </tr>
+    </ng-template>
+</p-table>
+
+
+<p-dialog *ngIf="displayDetailPopup" [(visible)]="displayDetailPopup" class="popup-mail-detail">
+  <p-header>
+      Dettaglio
+  </p-header>
+  <app-mail-detail></app-mail-detail>
+  <p-footer>
+      <button type="button" pButton (click)="displayDetailPopup = false" label="Chiudi"
+      class="ui-button-raised ui-button-secondary button-styles custom-secondary-button"></button>
+  </p-footer>
+</p-dialog>
