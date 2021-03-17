@@ -20,6 +20,7 @@ import { ContextMenu } from "primeng-lts/contextmenu";
 import { FormControl, FormGroup, Validators } from "@angular/forms";
 import { Utils } from "src/app/utils/utils"; 
 import { NoteService } from "src/app/services/note.service";
+import { elementAt } from "rxjs/operators";
 
 @Component({
   selector: 'accessibilita-mail-list',
@@ -190,9 +191,10 @@ export class AccessibilitaMailListComponent implements OnInit, OnDestroy {
   @ViewChild("archiviationMenu", {}) private archiviationMenu: Menu;
   @ViewChild("tagMenu", {}) private tagMenu: Menu;
   
-  public folderTypeSent: String = FolderType.OUTBOX;
-  public folderTypeTrash: String = FolderType.TRASH;
-  
+  public folderTypeOutbox: String = FolderType.OUTBOX;
+  public folderTypeSent: String = FolderType.SENT;
+  public folderTypeInbox: String = FolderType.INBOX;
+
   constructor(
     public mailListService: MailListService,
     private mailFoldersService: MailFoldersService,
@@ -216,6 +218,8 @@ export class AccessibilitaMailListComponent implements OnInit, OnDestroy {
   }
   
   ngOnInit() {
+    console.log("folderTypeSent", FolderType.SENT);
+    console.log("folderTypeOutbox", FolderType.OUTBOX);
     this.subscriptions.push({id: null, type: "pecFolderSelected", subscription: this.mailFoldersService.pecFolderSelected.subscribe((pecFolderSelected: PecFolder) => {
       this.mailListService.selectedMessages=[];
       this.pecFolderSelected = pecFolderSelected;
@@ -384,8 +388,8 @@ private setFilters(filters: FilterDefinition[]) {
         event.first = 0;
       }
         this.pageConf.conf = {
-          limit: event.rows,
-          offset: event.first
+          page: event.first / event.rows,
+          size: event.rows
         };
         const filtersAndSorts: FiltersAndSorts = buildLazyEventFiltersAndSorts(
           event,
@@ -404,8 +408,8 @@ private setFilters(filters: FilterDefinition[]) {
         event["filters"] = eventFilters;
       }
       this.pageConf.conf = {
-        limit: this.rowsNmber,
-        offset: 0
+        page: 0,
+        size: event.rows
       };
       const filtersAndSorts: FiltersAndSorts = buildLazyEventFiltersAndSorts(
         event,
@@ -605,10 +609,10 @@ private setFilters(filters: FilterDefinition[]) {
     }
   
     private pageConf: PagingConf = {
-      mode: "LIMIT_OFFSET",
+      mode: "PAGE",
       conf: {
-        limit: 0,
-        offset: 0
+        page: 0,
+        size: 0
       }
     };
   
@@ -641,12 +645,12 @@ private setFilters(filters: FilterDefinition[]) {
           if (data && data.results) {
             console.log("data", data);
             this.mailListService.totalRecords = data.page.totalElements;
-
             // mando l'evento con il numero di messaggi (serve a mailbox-component perché lo deve scrivere nella barra superiore)
             this.mailListService.refreshAndSendTotalMessagesNumber(0, folderSelected);
-            Array.prototype.splice.apply(this.mailListService.messages, [...[event.first, event.rows], ...data.results]);
+            this.mailListService.messages = data.results;
+            // Array.prototype.splice.apply(this.mailListService.messages, [...[event.first, event.rows], ...data.results]);
             //trigger change detection
-            this.mailListService.messages = [...this.mailListService.messages];
+            // this.mailListService.messages = [...this.mailListService.messages];
             console.log("this.mailListService.messages", this.mailListService.messages);
             this.mailListService.setMailTagVisibility(this.mailListService.messages);
             this.mailFoldersService.doReloadTag(this.mailListService.tags.find(t => t.name === "in_error").id);
@@ -1469,5 +1473,48 @@ private setFilters(filters: FilterDefinition[]) {
         this.displayDetailPopup = true;
       }
     }
+  
+  public buildAddressColumn(message: Message, tags:boolean): string[] { 
+    let addressColumn: string[] = [];
+    let TO: string = "";
+    let CC: string = "";
+    let FROM: string = "";
+    
+    if (message.inOut === "IN") { 
+      message.messageAddressList.forEach(ele => {
+        if (ele.addressRole === "FROM") {
+          FROM = FROM + ele.idAddress.mailAddress;
+        }
+      });
+      if (tags) {
+        FROM = "FROM: " + FROM; 
+      }
+      addressColumn.push(FROM);
+    } else {
+      message.messageAddressList.forEach(ele => {
+        if (ele.addressRole === "TO") {
+          if (TO === "") {
+            TO = ele.idAddress.mailAddress;
+          } else {
+            TO = TO + "; " + ele.idAddress.mailAddress;
+          }
+        } else if (ele.addressRole === "CC") {
+          if (CC === "") {
+            CC = ele.idAddress.mailAddress;
+          } else {
+            CC = CC + "; " + ele.idAddress.mailAddress;
+          }
+          
+        }
+      });
+      addressColumn.push("TO: " + TO);
+      if (CC !== "") {
+        addressColumn.push("CC: " + CC);
+        
+      }
+    }
+
+    return addressColumn;
+  }
   
 }

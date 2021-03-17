@@ -18,12 +18,15 @@
   [metaKeySelection]="true"
   [(first)]="first"
   [rowTrackBy]="trackByFn"
+  [scrollable]="true"
+  scrollHeight="100%"
   currentPageReportTemplate="Showing {first} to {last} of {totalRecords} entries" 
   [rowsPerPageOptions]="[10,25,50]">
     <ng-template pTemplate="header">
       <tr>
-        <th *ngIf="_selectedFolder.name !== folderTypeSent">Da</th>
-        <th *ngIf="_selectedFolder.name === folderTypeSent">A</th>
+        <th *ngIf="_selectedFolder !== null && (_selectedFolder.type === folderTypeSent || _selectedFolder.type === folderTypeOutbox)">A</th>
+        <th *ngIf="_selectedFolder !== null && _selectedFolder.type === folderTypeInbox">Da</th>
+        <th *ngIf="_selectedTag !== null || (_selectedFolder !== null &&( _selectedFolder.type !== folderTypeSent && _selectedFolder.type !== folderTypeOutbox && _selectedFolder.type !== folderTypeInbox)) ">Da/A</th>
         <th>Oggetto</th>
         <th>Ora</th>
       </tr>
@@ -34,12 +37,13 @@
         [pSelectableRow]="message"
         (keydown.enter)="openDetailPopup($event, message, message)">
 
-        <td *ngIf="message.messageAddressList[0].addressRole === 'TO' && (_selectedFolder.name != folderTypeSent || _selectedFolder.name===folderTypeTrash)">{{message.messageAddressList[0].idAddress.mailAddress}}</td>
-        <td *ngIf="message.messageAddressList[1].addressRole === 'TO' && (_selectedFolder.name != folderTypeSent || _selectedFolder.name===folderTypeTrash)">{{message.messageAddressList[1].idAddress.mailAddress}}</td>
-        <td *ngIf="message.messageAddressList[0].addressRole === 'FROM' && _selectedFolder.name === folderTypeSent">{{message.messageAddressList[0].idAddress.mailAddress}}</td>
-        <td *ngIf="message.messageAddressList[1].addressRole === 'FROM' && _selectedFolder.name === folderTypeSent">{{message.messageAddressList[1].idAddress.mailAddress}}</td>        
+        <td> <div *ngFor="let element of buildAddressColumn(message,_selectedTag !== null || _selectedFolder !== null && _selectedFolder.type !== folderTypeInbox)">
+          
+          {{element}}
+        </div>
+        </td>
         <td>{{message.subject}}</td>
-        <td>{{message.receiveTime | date:'M/d/yy h:mm'}}</td>
+        <td>{{message.receiveTime | date:'d/M/yy h:mm'}}</td>
       </tr>
     </ng-template>
 </p-table>
