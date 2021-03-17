@@ -31,11 +31,12 @@
         <th>Ora</th>
       </tr>
     </ng-template>
-    <ng-template pTemplate="body" let-message> 
+    <ng-template pTemplate="body" let-message let-rowData let-rowIndex="rowIndex"> 
       <tr #selRow
         [attr.name]="message.id"
         [pSelectableRow]="message"
-        (keydown.enter)="openDetailPopup($event, message, message)">
+        [pSelectableRowIndex]="rowIndex" 
+        (keydown.enter)="openDetailPopup($event, rowData, message)">
 
         <td> <div *ngFor="let element of buildAddressColumn(message,_selectedTag !== null || _selectedFolder !== null && _selectedFolder.type !== folderTypeInbox)">
           

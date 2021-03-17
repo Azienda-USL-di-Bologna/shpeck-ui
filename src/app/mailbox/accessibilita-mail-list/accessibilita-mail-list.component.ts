@@ -1468,8 +1468,15 @@ private setFilters(filters: FilterDefinition[]) {
       }, 0);
     }
     
-    public openDetailPopup(event, row, message) {
+  public openDetailPopup(event, row, message) {
+
+    const emlSource: string = this.getEmlSource(message);
       if (this.openDetailInPopup) {
+        this.messageService.manageMessageEvent(
+          emlSource,
+          message,
+          this.mailListService.selectedMessages
+        );
         this.displayDetailPopup = true;
       }
     }
