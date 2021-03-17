@@ -2,9 +2,12 @@ import { NgModule } from "@angular/core";
 import { Routes, RouterModule } from "@angular/router";
 import { NtJwtLoginComponent, LoggedOutPageComponent, NoLoginGuard, RefreshLoggedUserGuard, LoginGuard } from "@bds/nt-jwt-login";
 import { MailboxComponent } from "./mailbox/mailbox.component";
-import { LOGGED_OUT_ROUTE, MAILBOX_ROUTE, LOGIN_ROUTE } from "src/environments/app-constants";
-import { RubricaComponent, ContactDetailStart, ContactEditingComponent, GroupEditingComponent, ContactReadonlyComponent, PageNotFoundComponent, CanDeactivateContactEditingGuard, CanDeactivateGroupEditingGuard } from "@bds/common-components";
-import { DoNotShowRubricaPopupOnRefreshGuard} from "./rubrica/do-not-show-rubrica-popup-on-refresh.guard";
+import { LOGGED_OUT_ROUTE, MAILBOX_ROUTE, LOGIN_ROUTE, ACCESSIBLE_MAILBOX_ROUTE } from "src/environments/app-constants";
+import { RubricaComponent, ContactDetailStart, ContactEditingComponent, GroupEditingComponent,
+  ContactReadonlyComponent, PageNotFoundComponent, CanDeactivateContactEditingGuard, CanDeactivateGroupEditingGuard } from "@bds/common-components";
+import { DoNotShowRubricaPopupOnRefreshGuard } from "./rubrica/do-not-show-rubrica-popup-on-refresh.guard";
+import { AccessibilitaMailboxComponent } from "./mailbox/accessibilita-mailbox/accessibilita-mailbox.component";
+import { AccessibilitaMailListComponent } from "./mailbox/accessibilita-mail-list/accessibilita-mail-list.component";
 
 const routes: Routes = [
   { path: LOGIN_ROUTE, component: NtJwtLoginComponent, canActivate: [NoLoginGuard], data: {} },
@@ -13,8 +16,15 @@ const routes: Routes = [
     component: MailboxComponent,
     canActivate: [RefreshLoggedUserGuard, LoginGuard]
   },
+  {
+    path: ACCESSIBLE_MAILBOX_ROUTE,
+    loadChildren: () => import (
+      "./mailbox/accessibilita-mailbox/accessibilita-mailbox.module")
+      .then(m => m.AccessibilitaMailboxModule),
+    canActivate: [RefreshLoggedUserGuard, LoginGuard],
+  },
   { path: LOGGED_OUT_ROUTE, component: LoggedOutPageComponent },
-  {path: "", redirectTo:  MAILBOX_ROUTE, pathMatch: "full"},
+  { path: "", redirectTo:  MAILBOX_ROUTE, pathMatch: "full" },
   {
     path: "rubrica",
     component: RubricaComponent,

@@ -1,0 +1,20 @@
+.general-font-size-small .filter-box {
+    font-size: 12px;
+}
+.general-font-size-medium .filter-box {
+    font-size: 13px;
+}
+.general-font-size-big .filter-box {
+    font-size: 14px;
+}
+.content-right {
+    position: relative;
+    display: block;
+    flex: 1;
+    &:focus {
+      border: 1px solid black;
+    }
+  }
+  .d-flex{
+    display: flex;
+  }

@@ -4,6 +4,7 @@ export const LOCALHOST_PDD_PORT = "8080";
 export const LOGIN_ROUTE = "login";
 // export const HOME_ROUTE = '/welcome';
 export const MAILBOX_ROUTE = "mailbox";
+export const ACCESSIBLE_MAILBOX_ROUTE = "mailbox-accessibile";
 export const LOGGED_OUT_ROUTE = "logged-out";
 export const MAX_CHARS_100 = 100;
 export const MAX_FILE_SIZE_UPLOAD = 52428800;
