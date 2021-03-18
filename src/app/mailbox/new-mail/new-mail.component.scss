@@ -146,6 +146,9 @@ input:focus {
 
   min-height: 20px;
 }
+::ng-deep .ql-align.ql-picker.ql-icon-picker.ql-expanded .ql-picker-options .ql-picker-item {
+  padding: 0 !important;
+}
 .min-height-0 {
   min-height: 0;  // Quickfix per l'overflow su firefox
 }
