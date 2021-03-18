@@ -1,22 +1,23 @@
-<div class="p-col container p-nogutter" 
+<div 
+  class="container" 
   [ngClass]="fontSize === 'small' ? 'general-font-size-small' : fontSize === 'medium' ? 'general-font-size-medium' : 'general-font-size-big'">
 
-  <div class="buttons-bar">
+  <div>
     <app-toolbar></app-toolbar>
   </div>
-  <div #mailContainer class="mail-container p-col" *ngIf="true">
-
+  <div #mailContainer class="mail-container" *ngIf="true">
     <!-- Left side -->
     <div #mailFolder class="content-left"> <!-- tabindex="0" aria-label="Albero cartelle della Pec" (keyup.Control)="onKeyUpMoveFocus($event)" -->
       <app-mail-folders></app-mail-folders> <!-- role="region" -->
     </div>
 
     <div #leftSlider class="slider text-center">
-        <div></div>
+      <div></div>
     </div>
 
-    <div #rightSide class="content-right d-flex">
-        <!-- <router-outlet #routerOutlet name="accessibleRightSide"></router-outlet> -->
+    <div #rightSide class="content-right">
+      <router-outlet ></router-outlet>
     </div>
+  </div>
 </div>
 

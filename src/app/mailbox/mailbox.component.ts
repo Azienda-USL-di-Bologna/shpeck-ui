@@ -139,30 +139,33 @@ export class MailboxComponent implements OnInit, AfterViewInit, AfterViewChecked
           } else if (selectedFolder.type === FolderType.OUTBOX) {
             this.componentToLoad = "mail-outbox";
           } else {
-            if (this.accessibilita) {
+            this.componentToLoad = "mail-list";
+            /* if (this.accessibilita) {
               this.componentToLoad = "accessibilita-mail-list";
             } else {
               this.componentToLoad = "mail-list";
-            }
+            } */
           }
           this._selectedTag = null;
         } else if (pecFolderSelected.type === PecFolderType.TAG) {
-          if (this.accessibilita) {
+          this.componentToLoad = "mail-list";
+          /* if (this.accessibilita) {
             this.componentToLoad = "accessibilita-mail-list";
           } else {
             this.componentToLoad = "mail-list";
-          }
+          } */
           this._selectedFolder = null;
           this._selectedTag = pecFolderSelected.data as Tag;
           this._selectedTag.description = this._selectedTag.description.replace(this.regexFindP, "_");
           this._selectedPecId = this._selectedTag.fk_idPec.id;
           this._selectedPec = pecFolderSelected.pec;
         } else {
-          if (this.accessibilita) {
+          this.componentToLoad = "mail-list";
+          /* if (this.accessibilita) {
             this.componentToLoad = "accessibilita-mail-list";
           } else {
             this.componentToLoad = "mail-list";
-          }
+          } */
           this._selectedPec = pecFolderSelected.data as Pec;
           this._selectedPecId = this._selectedPec.id;
           this._selectedFolder = null;
