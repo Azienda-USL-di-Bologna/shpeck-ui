@@ -13,7 +13,7 @@
   </ng-template>
   <ng-template pTemplate="body" let-rowData let-columns="columns">
       <tr>
-        <td *ngFor="let col of columns" [ngStyle]="col.style">
+        <!-- <td *ngFor="let col of columns" [ngStyle]="col.style">
           <nextsdr-primeng-table-column-body *ngIf="!(['address','button'].indexOf(col.field) > -1)"
             [column]="col" 
             [rowData]="rowData">
@@ -22,6 +22,23 @@
             {{calculateAddress(rowData)}}
           </div>
           <button pButton *ngIf="col.field === 'button'"
+            icon="pi pi-download" 
+            (click)="dowloadRecepit(rowData)"
+            pTooltip="Scarica la ricevuta"
+            class="download-button">
+          </button>
+        </td> -->
+        <td style="width: 135px;" class="align-center">
+          {{rowData.receiveTime | date: 'EE d MMM y, H:mm' | titlecase}}
+        </td>
+        <td style="width: 120px;" class="align-center">
+          {{rowData.idRecepit.recepitType}}
+        </td>
+        <td style="width: 260px;">
+          {{calculateAddress(rowData)}}
+        </td>
+        <td style="width: 45px;" class="align-center">
+          <button pButton
             icon="pi pi-download" 
             (click)="dowloadRecepit(rowData)"
             pTooltip="Scarica la ricevuta"

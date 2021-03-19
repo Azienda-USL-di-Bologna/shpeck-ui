@@ -1,4 +1,4 @@
-/* :host,*/ .flex-1 {
+.flex-1 {
   display: flex;
   flex: 1;
   flex-direction: column;
@@ -8,39 +8,33 @@
   display: flex;
   flex-direction: column;
 }
-// .box-table {
-//   display: flex;
-//   flex: 1;
-// }
 .d-flex {
   display: flex;
 }
-p-table,
+/* p-table,
 ::ng-deep p-table > div,
 ::ng-deep p-table > div > div,
 ::ng-deep p-table > div > div > div {
   height: 100%;
-}
+} */
 ::ng-deep p-table > div > div > div div.ui-table-scrollable-body {
-  max-height: 100% !important;
-  height: 100% !important;
+  /* max-height: 100% !important;
+  height: 100% !important; */
   overflow-x: auto;
+}
+::ng-deep #pec-mail-list .p-datatable .p-datatable-tbody > tr:nth-child(even) {
+  background-color: #f9f9f9;
 }
 .column-checkbox {
   width: 32px;
 }
-::ng-deep .column-checkbox p-tableCheckbox .ui-chkbox.ui-widget .ui-chkbox-box.ui-widget.ui-state-default {
-  //visibility: hidden;
+::ng-deep .column-checkbox p-tableCheckbox .ui-chkbox.p-component .ui-chkbox-box.p-component.ui-state-default {
   opacity: 0.5;
 }
-.column-checkbox p-tableCheckbox:hover {
-  //visibility: visible;
-  
-}
-::ng-deep .message-row:hover .column-checkbox p-tableCheckbox .ui-chkbox.ui-widget .ui-chkbox-box.ui-widget.ui-state-default {
+::ng-deep .message-row:hover .column-checkbox p-tableCheckbox .ui-chkbox.p-component .ui-chkbox-box.p-component.ui-state-default {
   opacity: 1;
 }
-::ng-deep .column-checkbox p-tableCheckbox .ui-chkbox.ui-widget .ui-chkbox-box.ui-widget.ui-state-default.ui-state-active {
+::ng-deep .column-checkbox p-tableCheckbox .p-checkbox .p-checkbox-box.p-highlight {
   opacity: 1;
   border-color: #848484;
   background-color: #848484;
@@ -63,57 +57,34 @@ p-table,
   cursor: pointer !important;
 }
 .icon-disabled {
-  // color: #f1f1f1;
-  // background-color: #2e4a65;
   color: grey;
   cursor: not-allowed !important;
 }
 .icon-used {
   cursor: help !important;
 }
-/* .filter-box {
-  background-color: rgb(245, 245, 245);
-  border-bottom: 1px solid #2e4a65;
-  display: flex;
-  flex: 1;
-  flex-wrap: nowrap;
-  justify-content: space-between;
-  max-height: min-content;
-  flex-direction: row;
-  font-size: 12px;
-  .filter-box-left, .filter-box-right {
-    padding: 5px 10px;
+::ng-deep .no-records-found {
+  .cdk-virtual-scroll-content-wrapper {
+    height: 100%;
   }
-  .filter-box-left {
-    font-weight: bold;
+}
+::ng-deep .cdk-virtual-scroll-content-wrapper {
+  // height: 100%;
+  table {
+    height: 100%;
+    .p-datatable-tbody {
+      height: 100%;
+    }
   }
-  .filter-box-right {
-    // align-self: flex-end;
-  }
-} */
-
-//body .ui-table .ui-table-tbody > tr > td
-
-::ng-deep #pec-mail-list .ui-table-tbody > tr > td {
+}
+::ng-deep #pec-mail-list .p-datatable .p-datatable-tbody > tr > td {//.ui-table-tbody > tr > td {
   border: none !important;
 }
-
-::ng-deep #pec-mail-list .ui-table-scrollable-body {
-  // width: 100%;
-  // min-height: 900px;
-  //position: unset;
-}
-
-::ng-deep #pec-mail-list .ui-table-virtual-scroller {
-  // height: 100% !important;
-}
-
 .message-disabled {
   background-color: lightgrey !important;
   color: grey!important;
   font-style: italic;
 }
-
 .display-block {
   display: block;
 }
@@ -123,44 +94,36 @@ p-table,
 .extra-margin {
   margin-left: 11px;
 }
-
 .mail-icons-container {
-
-  //margin-left: 11px;
-  // display: block;
   display: flex;
   flex-direction: row;
   flex-wrap: nowrap;
   justify-content: space-between;
-  // align-items:
 }
-
+.riga-tabella {
+  height: 79px !important;
+}
+.cella-no-elementi {
+  height: 100%;
+}
 .prima-riga-sinistra {
   align-self: center;
   display: flex;
 }
-
 .prima-riga-destra {
   display: flex;
   flex-direction: row;
   flex-wrap: nowrap;
   justify-content: flex-end;
 }
-
 .seconda-riga-destra {
   display: flex;
   flex-direction: row;
   flex-wrap: nowrap;
   justify-content: flex-end;
 }
-
-.inout-message {
-  /* border-radius: 50px;
-  border: 1px solid rgb(211, 211, 211) */
-}
 .text-background {
   padding: 0 4px;
-  // background: cadetblue;
   background: #848484;
   text-align: center;
   font-weight: bold;
@@ -172,10 +135,6 @@ p-table,
 .mail-icon {
   padding-left: 5px;
   color: #2e4a65;
-  //position: absolute;
-  //margin-left: 11px;
-  // display: inline-block;
-  //width: 20px;
 }
 .first-icon-left {
   display: flex;
@@ -220,7 +179,6 @@ p-table,
 ::ng-deep .general-font-size-big .second-line-icon {
   font-size: 20px !important;
 }
-
 ::ng-deep .general-font-size-small .delete-icon {
   font-size: 20px !important;
   cursor: pointer;
@@ -233,8 +191,6 @@ p-table,
   font-size: 22px !important;
   cursor: pointer;
 }
-
-
 .second-line-icon-fa {
   font-size: 14px;
   margin-right: 3px;
@@ -250,21 +206,14 @@ p-table,
   font-size: 16px !important;
 }
 .mail-date {
-  // position: absolute;
-  // right: 1%;
-  //float: right;
   margin: 0 7px;
-  // width: 130px;
 }
-
 .visibility-hidden {
   visibility: hidden !important;
 }
-
 .display-icon {
   position: absolute;
 }
-
 .envelope-icon {
   padding-top: 3px;
 }
@@ -285,19 +234,15 @@ p-table,
   justify-content: space-between;
 }
 .display-text {
-  /* margin-left: 20px; */
   display: inline-block;
   position: relative;
 }
-
 .text-from-or-to {
   vertical-align: super;
 }
-
 .display-bold {
   font-weight: bold;
 }
-
 .loading-text {
   display: block;
   background-color: #f1f1f1;
@@ -306,44 +251,24 @@ p-table,
   text-indent: -99999px;
   overflow: hidden;
 }
-
 .message-row-font-size-small {
   font-size: 12px !important;
   width: 100% !important;
-  //align-items: stretch;
-  //flex-direction: row;
   height: 78px !important;
-  //white-space-collapsing: collapse;
-  //text-wrap: none;
   white-space: nowrap;
-  //overflow: scroll;
 }
-
 .message-row-font-size-medium {
   font-size: 13px !important;
   width: 100% !important;
-  //align-items: stretch;
-  //flex-direction: row;
   height: 84px !important;
-  //white-space-collapsing: collapse;
-  //text-wrap: none;
   white-space: nowrap;
-  //overflow: scroll;
 }
-
 .message-row-font-size-big {
   font-size: 14px !important;
   width: 100% !important;
-  //align-items: stretch;
-  //flex-direction: row;
   height: 89px !important;
-  //white-space-collapsing: collapse;
-  //text-wrap: none;
   white-space: nowrap;
-  //overflow: scroll;
 }
-
-
 ::ng-deep .general-font-size-small .message-row {
   font-size: 12px !important;
 }
@@ -353,18 +278,10 @@ p-table,
 ::ng-deep .general-font-size-big .message-row {
   font-size: 14px !important;
 }
-
 .button-centopx button {
   width: 100px;
 }
-
-::ng-deep .message-row:focus {
-  // border-style: solid !important;
-  // border-color:cornflowerblue !important;
-}
-
-.material-icons.mail-icons,  .material-icons-outlined.mail-icons{
-  // color: rgb(250, 250, 250);
+.material-icons.mail-icons,  .material-icons-outlined.mail-icons {
   font-size: 18px;
 }
 ::ng-deep .general-font-size-small .material-icons.mail-icons, ::ng-deep .general-font-size-small .material-icons-outlined.mail-icons {
@@ -380,29 +297,24 @@ p-table,
   vertical-align: text-top;
 }
 .material-icons.fa-icons {
-  // color: rgb(250, 250, 250);
   font-size: 16px;
   color: #393939
 }
 ::ng-deep .local-offer-icon::before {
   content: 'local_offer';
 }
-
 ::ng-deep .material-icons.color-green {
   color: darkcyan !important;
 }
-
 ::ng-deep .material-icons.color-yellow {
   color: orange !important;
 }
-
 ::ng-deep .fas.new-tag {
   font-size: 1.4em !important;
 }
 ::ng-deep .fas.no-tag {
   font-size: 3.3em !important;
 }
-
 ::ng-deep .context-menu-mail-list {
   margin: -128px 0 0 -312px;
   width: 226px;
@@ -410,7 +322,7 @@ p-table,
 .warn-color {
   color: #993366 !important;
 }
-/******* Close button *******/
+// ****** Close button ******* /
 .close-button {
   position: absolute;
   top: -36px;
@@ -424,7 +336,7 @@ p-table,
 }
 
 .confirm-buttons {
-  width: 110px !important;
+  // width: 110px !important;
   margin: 0 0 0 0.5em !important;
 }
 
@@ -433,7 +345,7 @@ p-table,
   resize: none;
 }
 
-/* MENU ETICHETTE */
+// MENU ETICHETTE * /
 ::ng-deep .message-labels-icon-action,
 ::ng-deep .message-labels + p-contextmenusub {
   width: auto;
@@ -454,7 +366,6 @@ p-table,
   margin-left: 2em;
   overflow: hidden;
   visibility: hidden;
-  /* width: min-content; */
 }
 ::ng-deep .message-moves + p-contextmenusub ul {
   max-height: 330px;
@@ -490,7 +401,7 @@ p-table,
   display: inline-flex !important;
 }
 
-/* POPUP DETAIL */
+//POPUP DETAIL * /
 ::ng-deep .popup-mail-detail {
   width: 900px !important;
   height: 80%;
@@ -505,17 +416,10 @@ p-table,
 ::ng-deep .popup-mail-detail  app-mail-detail {
   height: 100%;
 }
-
 ::ng-deep .tooltip-oggetto-mail {
-  // position: absolute;
-  // top: 50%;
-  // 
-  //width: 50vw !important;
   width: fit-content;
   max-width: 20vw;
   .ui-tooltip-text {
-    // overflow: scroll;
-    //transform: translateY(-50%);
     max-height: 50vh;
     overflow: hidden
   }

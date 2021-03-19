@@ -1,9 +1,9 @@
 import { Component, OnInit, OnDestroy } from "@angular/core";
-import { DynamicDialogRef } from "primeng-lts/api";
 import { NtJwtLoginService, UtenteUtilities } from "@bds/nt-jwt-login";
 import { SettingsService } from "src/app/services/settings.service";
 import { Subscription } from "rxjs";
 import { FONTSIZE } from "src/environments/app-constants";
+import { DynamicDialogRef } from "primeng-lts/dynamicdialog";
 
 @Component({
   selector: "app-settings",

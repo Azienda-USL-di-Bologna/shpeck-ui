@@ -1,4 +1,4 @@
-import { Component, OnInit, ViewChild, ElementRef, AfterViewInit, AfterViewChecked, OnChanges, HostListener } from "@angular/core";
+import { Component, OnInit, ViewChild, ElementRef, AfterViewInit, AfterViewChecked, OnChanges, HostListener, OnDestroy } from "@angular/core";
 import { Subscription } from "rxjs";
 import { SettingsService } from "../services/settings.service";
 import { AppCustomization } from "src/environments/app-customization";
@@ -8,13 +8,14 @@ import { MailFoldersService, PecFolder, PecFolderType } from "./mail-folders/mai
 import { MenuItem } from "primeng-lts/api";
 import { MailboxService, Sorting, TotalMessageNumberDescriptor } from "./mailbox.service";
 import { FONTSIZE } from "src/environments/app-constants";
+import { NtJwtLoginService, UtenteUtilities } from "@bds/nt-jwt-login";
 
 @Component({
   selector: "app-mailbox",
   templateUrl: "./mailbox.component.html",
   styleUrls: ["./mailbox.component.scss"],
 })
-export class MailboxComponent implements OnInit, AfterViewInit, AfterViewChecked, OnChanges {
+export class MailboxComponent implements OnInit, AfterViewInit, AfterViewChecked, OnChanges, OnDestroy {
 
   public pecFolderSelected: PecFolder;
   public _selectedPec: Pec;
@@ -25,13 +26,13 @@ export class MailboxComponent implements OnInit, AfterViewInit, AfterViewChecked
   public message: Message;
   public _selectedPecId: number;
   // @ViewChild("leftSide") private leftSide: ElementRef;
-  @ViewChild("mailFolder", null) private mailFolder: ElementRef;
-  @ViewChild("rightSide", null) private rightSide: ElementRef;
-  @ViewChild("mailContainer", null) private mailContainer: ElementRef;
-  @ViewChild("mailList", null) private mailList: ElementRef;
-  @ViewChild("mailDetail", null) private mailDetail: ElementRef;
-  @ViewChild("rightSlider", null) private rightSlider: ElementRef;
-  @ViewChild("leftSlider", null) private leftSlider: ElementRef;
+  @ViewChild("mailFolder", {}) private mailFolder: ElementRef;
+  @ViewChild("rightSide", {}) private rightSide: ElementRef;
+  @ViewChild("mailContainer", {}) private mailContainer: ElementRef;
+  @ViewChild("mailList", {}) private mailList: ElementRef;
+  @ViewChild("mailDetail", {}) private mailDetail: ElementRef;
+  @ViewChild("rightSlider", {}) private rightSlider: ElementRef;
+  @ViewChild("leftSlider", {}) private leftSlider: ElementRef;
 
   public rightSideVisible: boolean;
   public flexGridClass = "p-col-8";
@@ -39,6 +40,7 @@ export class MailboxComponent implements OnInit, AfterViewInit, AfterViewChecked
   public hideDetail = false;
   public fontSize = FONTSIZE.BIG;
   public componentToLoad: string = "mail-list";
+  public accessibilita:boolean = false;
   public totalMessageNumberDescriptor: TotalMessageNumberDescriptor;
 
   public tooltipSorting = "L'ordinamento è impostato su data discendente";
@@ -87,19 +89,34 @@ export class MailboxComponent implements OnInit, AfterViewInit, AfterViewChecked
   private MIN_X_RIGHTSIDE: number = 10;
   private MAX_X_RIGHTSIDE: number = 70;
   private subscriptions: Subscription[] = [];
-
+  private loggedUser: UtenteUtilities;
   private regexFindP = new RegExp(/[)()]+/, "gm"); // find  symbols ) or ( 
+  public loggedUserIsSuperD: boolean = false;
 
   constructor(private settingsService: SettingsService,
     private mailFoldersService: MailFoldersService,
-    private mailboxService: MailboxService) {
+    private mailboxService: MailboxService,
+    private loginService: NtJwtLoginService) {
 
     this.rightSideVisible = true;
   }
 
+  ngOnDestroy(): void {
+    this.subscriptions.forEach(sub => sub.unsubscribe);
+    this.subscriptions = [];
+  }
+
 
   ngOnInit() {
-    // this.setLook();
+    this.subscriptions.push(this.loginService.loggedUser$.subscribe((utente: UtenteUtilities) => {
+      if (utente) {
+        if (!this.loggedUser || utente.getUtente().id !== this.loggedUser.getUtente().id) {
+          this.loggedUser = utente;
+          this.loggedUserIsSuperD = this.loggedUser.isSD();
+          this.accessibilita = this.loggedUser.getUtente().idPersona.accessibilita;
+        }
+      }
+    }));
     this.subscriptions.push(this.settingsService.settingsChangedNotifier$.subscribe(newSettings => {
       this.hideDetail = newSettings[AppCustomization.shpeck.hideDetail] === "true";
       this.fontSize = newSettings[AppCustomization.shpeck.fontSize] ? newSettings[AppCustomization.shpeck.fontSize] : FONTSIZE.BIG;
@@ -122,18 +139,30 @@ export class MailboxComponent implements OnInit, AfterViewInit, AfterViewChecked
           } else if (selectedFolder.type === FolderType.OUTBOX) {
             this.componentToLoad = "mail-outbox";
           } else {
-            this.componentToLoad = "mail-list";
+            if (this.accessibilita) {
+              this.componentToLoad = "accessibilita-mail-list";
+            } else {
+              this.componentToLoad = "mail-list";
+            }
           }
           this._selectedTag = null;
         } else if (pecFolderSelected.type === PecFolderType.TAG) {
-          this.componentToLoad = "mail-list";
+          if (this.accessibilita) {
+            this.componentToLoad = "accessibilita-mail-list";
+          } else {
+            this.componentToLoad = "mail-list";
+          }
           this._selectedFolder = null;
           this._selectedTag = pecFolderSelected.data as Tag;
           this._selectedTag.description = this._selectedTag.description.replace(this.regexFindP, "_");
           this._selectedPecId = this._selectedTag.fk_idPec.id;
           this._selectedPec = pecFolderSelected.pec;
         } else {
-          this.componentToLoad = "mail-list";
+          if (this.accessibilita) {
+            this.componentToLoad = "accessibilita-mail-list";
+          } else {
+            this.componentToLoad = "mail-list";
+          }
           this._selectedPec = pecFolderSelected.data as Pec;
           this._selectedPecId = this._selectedPec.id;
           this._selectedFolder = null;
@@ -204,9 +233,6 @@ export class MailboxComponent implements OnInit, AfterViewInit, AfterViewChecked
   //   }
   // }
 
-  public onFilterSelection(filters: FilterDefinition[]) {
-    this.filtersSelected = filters;
-  }
 
   ngAfterViewInit() {
     this.setLook();

@@ -2,14 +2,16 @@
   <form #form="ngForm">
     <div>
       <ul class="settings-items">
-        <li>
+        <li class="item">
           <label for="hideDetail">Nascondi dettaglio e-mail</label>
-          <p-inputSwitch id="hideDetail" [(ngModel)]="model.hideDetail" styleClass="switch-class" name="hideDetail"></p-inputSwitch>
-          <span class="span-position">{{ model.hideDetail ? 'Sì': 'No' }}</span>
+          <div class="right">
+            <p-inputSwitch id="hideDetail" [(ngModel)]="model.hideDetail" styleClass="switch-class" name="hideDetail"></p-inputSwitch>
+            <span class="">{{ model.hideDetail ? 'Sì': 'No' }}</span>
+          </div>
         </li>
-        <li class="font-size">
+        <li class="item font-size">
           <label for="hideDetail">Dimensione caratteri</label>          
-          <span class="radio-button-group">
+          <span class="right">
             <span class="radio-button">
               <p-radioButton name="group2" value="small" [(ngModel)]="model.fontSize" inputId="small"></p-radioButton>
               <i class="material-icons icon" style="font-size: 13px">format_size</i>

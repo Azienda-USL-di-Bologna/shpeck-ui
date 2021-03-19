@@ -33,7 +33,7 @@ export class MailDraftsComponent implements OnInit, OnDestroy {
 
   public pecFolderSelected: PecFolder;
 
-  @ViewChild("dt", null) private dt: Table;
+  @ViewChild("dt", {}) private dt: Table;
   private previousFilter: FilterDefinition[] = [];
   private selectedProjection: string =
     ENTITIES_STRUCTURE.shpeck.draftlite.standardProjections.DraftLiteWithIdPec;
@@ -141,7 +141,7 @@ export class MailDraftsComponent implements OnInit, OnDestroy {
   //   }
   // }
 
-  public openDetailPopup(event, row, message) {
+  public openDetailPopup() {
     if (this.openDetailInPopup) {
       this.displayDetailPopup = true;
     }
