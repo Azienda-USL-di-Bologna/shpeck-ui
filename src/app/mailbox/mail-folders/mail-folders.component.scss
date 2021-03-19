@@ -1,3 +1,15 @@
+:host {
+  height: 100%;
+}
+::ng-deep .tree-style {
+  height: 100%;
+  .p-tree-wrapper {
+    height: 100%;
+    .p-tree-container {
+      height: 100%;
+    }
+  }
+}
 .flex-container{
   display: flex;
   flex: 1;
