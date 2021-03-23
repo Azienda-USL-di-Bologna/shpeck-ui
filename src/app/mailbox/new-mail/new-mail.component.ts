@@ -20,8 +20,8 @@ import { DialogService, DynamicDialogConfig, DynamicDialogRef } from "primeng-lt
 })
 export class NewMailComponent implements OnInit, AfterViewInit, OnDestroy {
 
-  @ViewChild("toAutoComplete", {}) toAutoComplete: AutoComplete;
-  @ViewChild("ccAutoComplete", {}) ccAutoComplete: AutoComplete;
+  @ViewChild("toAutoComplete", {static: true}) toAutoComplete: AutoComplete;
+  @ViewChild("ccAutoComplete", {static: true}) ccAutoComplete: AutoComplete;
   @ViewChild("editor", {}) editor: Editor;
   private fromAddress: string = ""; // Indirizzo che ha inviato la mail in caso di Rispondi e Rispondi a tutti
   private toAddressesForLabel: string[] = [];
@@ -159,6 +159,20 @@ export class NewMailComponent implements OnInit, AfterViewInit, OnDestroy {
    * @param messageRelatedType 
    */
   private mailFormInit(hideRecipients: { value: boolean; disabled: boolean; }, subject: string, message: Message | Draft, action: any, messageRelatedType: string) {
+    if (this.toAddresses && this.toAddresses.length > 0) {
+      console.log("qui ci entro", this.toAddresses);
+      this.toAddresses.forEach(el => this.toFormControl.push(new FormControl(el, Validators.pattern(this.emailRegex))));
+      this.toFormControl = [...this.toFormControl];
+      //this.mailForm.get("to").setValue([...this.toFormControl]);
+      this.toAutoComplete.writeValue(this.toAddresses);
+    }
+    
+    if (this.ccAddresses && this.ccAddresses.length > 0) {
+      this.ccAddresses.forEach(el => this.ccFormControl.push(new FormControl(el, Validators.pattern(this.emailRegex))));
+      this.ccFormControl = [...this.ccFormControl];
+      //this.mailForm.get("cc").setValue([...this.ccFormControl]);
+      this.ccAutoComplete.writeValue(this.ccAddresses);
+    }
     
     this.mailForm = new FormGroup({
       idDraftMessage: new FormControl(this.config.data.idDraft),
@@ -186,22 +200,11 @@ export class NewMailComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   ngAfterViewInit() {
-
-    if (this.toAddresses && this.toAddresses.length > 0) {
-      this.toAddresses.forEach(el => this.toFormControl.push(new FormControl(el, Validators.pattern(this.emailRegex))));
-      this.toAutoComplete.writeValue(this.toAddresses);
-    }
     
-    if (this.ccAddresses && this.ccAddresses.length > 0) {
-      this.ccAddresses.forEach(el => this.ccFormControl.push(new FormControl(el, Validators.pattern(this.emailRegex))));
-      this.ccAutoComplete.writeValue(this.ccAddresses);
-    }
     
   /* Inizializzazione del body per le risposte e l'inoltra */
     
     if (this.config.data.action !== TOOLBAR_ACTIONS.NEW) {
-      
-
       let body = "";
       if (this.config.data.fullMessage.emlData) {
         body = this.config.data.fullMessage.emlData.displayBody;

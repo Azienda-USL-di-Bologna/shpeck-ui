@@ -221,6 +221,9 @@
 /* =========== RECEPIT DIALOG ============ */
 ::ng-deep .recepit-dialog {
   width: 50vw;
+  .p-dialog-content {
+    height: 100%;
+  }
 }
 ::ng-deep .recepit-dialog .ui-dialog-footer {
   text-align: center !important;
