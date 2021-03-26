@@ -7,7 +7,7 @@ import { RubricaComponent, ContactDetailStart, ContactEditingComponent, GroupEdi
   ContactReadonlyComponent, PageNotFoundComponent, CanDeactivateContactEditingGuard, CanDeactivateGroupEditingGuard } from "@bds/common-components";
 import { DoNotShowRubricaPopupOnRefreshGuard } from "./rubrica/do-not-show-rubrica-popup-on-refresh.guard";
 import { AccessibilitaMailboxComponent } from "./mailbox/accessibilita-mailbox/accessibilita-mailbox.component";
-import { AccessibilitaMailListComponent } from "./mailbox/accessibilita-mail-list/accessibilita-mail-list.component";
+import { AccessibilitaMailListComponent } from "./mailbox/accessibilita-mailbox/accessibilita-mail-list/accessibilita-mail-list.component";
 
 const routes: Routes = [
   { path: LOGIN_ROUTE, component: NtJwtLoginComponent, canActivate: [NoLoginGuard], data: {} },

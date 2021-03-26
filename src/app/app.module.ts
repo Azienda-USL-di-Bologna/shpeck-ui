@@ -9,7 +9,7 @@ import { AppComponent } from "./app.component";
 import { PrimengModule } from "./primeng.module";
 import { MailboxComponent } from "./mailbox/mailbox.component";
 import { MailListComponent } from "./mailbox/mail-list/mail-list.component";
-import { MailDetailComponent } from "./mailbox/mail-detail/mail-detail.component";
+
 import { ReaddressComponent } from "./mailbox/readdress/readdress.component";
 import { SearchContactComponent } from "./search-contact/search-contact.component";
 
@@ -49,6 +49,9 @@ import { RubricaContainerComponent } from "./rubrica/rubrica-container/rubrica-c
 import { DialogService } from "primeng-lts/dynamicdialog";
 import { ToolbarModule } from "./mailbox/toolbar/toolbar.module";
 import { MailFoldersModule } from "./mailbox/mail-folders/mail-folders.module";
+import { MailDetailComponent } from './mailbox/mail-detail/mail-detail.component';
+import { RouteReuseStrategy } from '@angular/router';
+import { CustomReuseStrategy } from './custom-reuse-strategy';
 
 
 registerLocaleData(localeIt, "it-IT", localeItExtra);
@@ -89,6 +92,7 @@ registerLocaleData(localeIt, "it-IT", localeItExtra);
   ],
   providers: [
     { provide: LOCALE_ID, useValue: "it-IT" },
+    { provide: RouteReuseStrategy, useClass: CustomReuseStrategy },
     DialogService,
     DatePipe,
     PecService,

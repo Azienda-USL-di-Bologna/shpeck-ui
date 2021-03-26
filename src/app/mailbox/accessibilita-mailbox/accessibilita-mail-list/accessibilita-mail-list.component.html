@@ -35,7 +35,7 @@
       <tr #selRow
         [attr.name]="message.id"
         [pSelectableRow]="message"
-        (keydown.enter)="openDetailPopup($event, message, message)">
+        (keydown.enter)="vaiAlDettaglio($event, message, message)">
 
         <td> <div *ngFor="let element of buildAddressColumn(message,_selectedTag !== null || _selectedFolder !== null && _selectedFolder.type !== folderTypeInbox)">
           

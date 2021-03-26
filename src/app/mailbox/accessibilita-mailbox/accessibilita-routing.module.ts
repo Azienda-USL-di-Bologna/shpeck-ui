@@ -1,21 +1,25 @@
 import { NgModule } from "@angular/core";
 import { Routes, RouterModule } from "@angular/router";
 import { AccessibilitaMailboxComponent } from "./accessibilita-mailbox.component";
-import { AccessibilitaMailListComponent } from "../accessibilita-mail-list/accessibilita-mail-list.component";
-import { MailDetailComponent } from "../mail-detail/mail-detail.component";
+import { AccessibilitaMailListComponent } from "./accessibilita-mail-list/accessibilita-mail-list.component";
+import { AccessibilitaMailDetailComponent } from './accessibilita-mail-detail/accessibilita-mail-detail.component';
 
 const routes: Routes = [
   {
     path: "",
     component: AccessibilitaMailboxComponent,
     children: [
+      { path: "",
+        redirectTo: "/mailbox-accessibile/mail-list",
+        pathMatch: "full"
+      },
       {
         path: "mail-list",
         component: AccessibilitaMailListComponent
       },
       {
         path: "mail-detail",
-        component: MailDetailComponent
+        component: AccessibilitaMailDetailComponent
       }
     ]
   }

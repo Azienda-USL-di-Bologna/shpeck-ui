@@ -3,24 +3,26 @@ import { NtJwtLoginService, UtenteUtilities } from '@bds/nt-jwt-login';
 import { Subscription } from 'rxjs';
 import { SettingsService } from 'src/app/services/settings.service';
 import { ShpeckMessageService, MessageEvent } from 'src/app/services/shpeck-message.service';
-import { MailFoldersService, PecFolder, PecFolderType } from '../mail-folders/mail-folders.service';
-import { MailListService } from '../mail-list/mail-list.service';
-import { ToolBarService } from '../toolbar/toolbar.service';
+import { MailFoldersService, PecFolder, PecFolderType } from '../../mail-folders/mail-folders.service';
+import { MailListService } from '../../mail-list/mail-list.service';
+import { ToolBarService } from '../../toolbar/toolbar.service';
 import { AppCustomization } from "src/environments/app-customization";
 import {BaseUrls, BaseUrlType, EMLSOURCE, FONTSIZE, TOOLBAR_ACTIONS} from "src/environments/app-constants";
-import { MailboxService, Sorting } from '../mailbox.service';
+import { MailboxService, Sorting } from '../../mailbox.service';
 import { Table } from 'primeng-lts/table';
 import {IntimusClientService, IntimusCommand, IntimusCommands, RefreshMailsParams, RefreshMailsParamsEntities, RefreshMailsParamsOperations} from "@bds/nt-communicator";
 import {ConfirmationService, FilterMetadata, LazyLoadEvent, MenuItem, MessageService} from "primeng-lts/api";
 import { BatchOperation, BatchOperationTypes, FILTER_TYPES, FilterDefinition, FiltersAndSorts, PagingConf, SortDefinition } from "@nfa/next-sdr";
 import { buildLazyEventFiltersAndSorts } from "@bds/primeng-plugin";
-import { DatePipe } from "@angular/common";
+import { DatePipe, Location } from "@angular/common";
 import {Azienda, ENTITIES_STRUCTURE, Folder, FolderType, Menu, Message, MessageTag, MessageType, Note, Pec, Tag} from "@bds/ng-internauta-model";
 import { ContextMenu } from "primeng-lts/contextmenu";
 import { FormControl, FormGroup, Validators } from "@angular/forms";
 import { Utils } from "src/app/utils/utils"; 
 import { NoteService } from "src/app/services/note.service";
 import { elementAt } from "rxjs/operators";
+import { Router, ActivatedRoute, NavigationStart, NavigationEnd } from '@angular/router';
+import { CustomReuseStrategy } from 'src/app/custom-reuse-strategy';
 
 @Component({
   selector: 'accessibilita-mail-list',
@@ -194,6 +196,8 @@ export class AccessibilitaMailListComponent implements OnInit, OnDestroy {
   public folderTypeOutbox: String = FolderType.OUTBOX;
   public folderTypeSent: String = FolderType.SENT;
   public folderTypeInbox: String = FolderType.INBOX;
+  lastRoute: string;
+  lastPosition: any;
 
   constructor(
     public mailListService: MailListService,
@@ -207,7 +211,10 @@ export class AccessibilitaMailListComponent implements OnInit, OnDestroy {
     private intimusClient: IntimusClientService,
     private messagePrimeService: MessageService,
     public confirmationService: ConfirmationService,
-    private messageService: ShpeckMessageService
+    private messageService: ShpeckMessageService,
+    private router: Router,
+    private location: Location,
+    private activateRoute: ActivatedRoute,
   ) {
     this.selectedContextMenuItem = this.selectedContextMenuItem.bind(this);
     this.showNewTagPopup = this.showNewTagPopup.bind(this);
@@ -218,6 +225,8 @@ export class AccessibilitaMailListComponent implements OnInit, OnDestroy {
   }
   
   ngOnInit() {
+    console.log("ACCESSIBILITA MAIL LIST ON INIT");   
+    
     console.log("folderTypeSent", FolderType.SENT);
     console.log("folderTypeOutbox", FolderType.OUTBOX);
     this.subscriptions.push({id: null, type: "pecFolderSelected", subscription: this.mailFoldersService.pecFolderSelected.subscribe((pecFolderSelected: PecFolder) => {
@@ -301,7 +310,21 @@ export class AccessibilitaMailListComponent implements OnInit, OnDestroy {
     })});
     console.log("GUSGUSGUSGUSGUS");
     console.log(this.mailListService.messages);
-    
+   
+   /*  this.router.events.pipe(
+      filter((events) => events instanceof NavigationStart || events instanceof NavigationEnd)
+    ).subscribe(event => {
+      if (event instanceof NavigationStart && event.url !== this.lastRoute) {
+        this.lastRoute = this.router.url
+        this.lastPosition = this.dt.sc('top') // get the scrollTop property
+        // this.lastPosition = this.grid.nativeElement.scrollTop
+      } 
+      else if (event instanceof NavigationEnd && event.url === this.lastRoute) {
+        this.grid.scrollTo({ top: this.lastPosition }) // set scrollTop to last position
+        // this.grid.nativeElement.firstChild.scrollTop  = this.lastPosition
+      }
+    }) */
+
   }
 
   private setFolder(folder: Folder) {
@@ -653,7 +676,7 @@ private setFilters(filters: FilterDefinition[]) {
             // this.mailListService.messages = [...this.mailListService.messages];
             console.log("this.mailListService.messages", this.mailListService.messages);
             this.mailListService.setMailTagVisibility(this.mailListService.messages);
-            this.mailFoldersService.doReloadTag(this.mailListService.tags.find(t => t.name === "in_error").id);
+            //this.mailFoldersService.doReloadTag(this.mailListService.tags.find(t => t.name === "in_error").id);
 
             
           }
@@ -1468,10 +1491,18 @@ private setFilters(filters: FilterDefinition[]) {
       }, 0);
     }
     
-    public openDetailPopup(event, row, message) {
-      if (this.openDetailInPopup) {
+    public vaiAlDettaglio(event, row, message) {
+      /* if (this.openDetailInPopup) {
         this.displayDetailPopup = true;
-      }
+      } */
+
+      let dtCastato = this.dt.el.nativeElement as HTMLElement;
+      console.log("DT", this.dt);
+      console.log("dtCastato", dtCastato.scrollTop);
+      
+
+      CustomReuseStrategy.componentsReuseList.push("*");
+      this.router.navigate(['./mailbox-accessibile/mail-detail'])
     }
   
   public buildAddressColumn(message: Message, tags:boolean): string[] { 

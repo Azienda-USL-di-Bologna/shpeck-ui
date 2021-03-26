@@ -16,7 +16,7 @@ export class AccessibilitaMailboxComponent implements OnInit {
 
   ngOnInit(): void {
     this.router.events.subscribe(e => {
-      console.log("E!", e);
+      // console.log("E!", e);
 
     });
   }
