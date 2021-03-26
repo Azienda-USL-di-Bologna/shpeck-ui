@@ -19,7 +19,7 @@ export class AccessibilitaMailDetailComponent implements OnInit {
 
   tornaIndietro(){
     CustomReuseStrategy.componentsReuseList.push("*");
-    this.router.navigate(['..'], { relativeTo: this.activatedRoute })
+    this.router.navigate(['../mail-list'], { relativeTo: this.activatedRoute })
   }
 
 }

@@ -24,6 +24,7 @@ import { elementAt } from "rxjs/operators";
 import { Router, ActivatedRoute, NavigationStart, NavigationEnd } from '@angular/router';
 import { CustomReuseStrategy } from 'src/app/custom-reuse-strategy';
 
+
 @Component({
   selector: 'accessibilita-mail-list',
   templateUrl: './accessibilita-mail-list.component.html',
@@ -224,9 +225,7 @@ export class AccessibilitaMailListComponent implements OnInit, OnDestroy {
     this.subscriptions = [];
   }
   
-  ngOnInit() {
-    console.log("ACCESSIBILITA MAIL LIST ON INIT");   
-    
+  ngOnInit() {    
     console.log("folderTypeSent", FolderType.SENT);
     console.log("folderTypeOutbox", FolderType.OUTBOX);
     this.subscriptions.push({id: null, type: "pecFolderSelected", subscription: this.mailFoldersService.pecFolderSelected.subscribe((pecFolderSelected: PecFolder) => {
@@ -311,19 +310,22 @@ export class AccessibilitaMailListComponent implements OnInit, OnDestroy {
     console.log("GUSGUSGUSGUSGUS");
     console.log(this.mailListService.messages);
    
-   /*  this.router.events.pipe(
-      filter((events) => events instanceof NavigationStart || events instanceof NavigationEnd)
-    ).subscribe(event => {
+    this.subscriptions.push({id: null, type: "router.events", subscription: this.router.events.subscribe(event => {      
       if (event instanceof NavigationStart && event.url !== this.lastRoute) {
+        let dtToGetScrollTop = this.dt.scrollableViewChild.scrollBodyViewChild as ElementRef;
+        // console.log("DT", dtToGetScrollTop.nativeElement.scrollTop);
         this.lastRoute = this.router.url
-        this.lastPosition = this.dt.sc('top') // get the scrollTop property
+        this.lastPosition = dtToGetScrollTop.nativeElement.scrollTop // get the scrollTop property
         // this.lastPosition = this.grid.nativeElement.scrollTop
       } 
       else if (event instanceof NavigationEnd && event.url === this.lastRoute) {
-        this.grid.scrollTo({ top: this.lastPosition }) // set scrollTop to last position
+        this.dt.scrollTo({ top: this.lastPosition }) // set scrollTop to last position
+        console.log("this.mailListService.selectedMessages",this.mailListService.selectedMessages);
+        document.getElementsByName(this.mailListService.selectedMessages["id"])[0].focus();
+        
         // this.grid.nativeElement.firstChild.scrollTop  = this.lastPosition
       }
-    }) */
+    })});
 
   }
 
@@ -1496,13 +1498,12 @@ private setFilters(filters: FilterDefinition[]) {
         this.displayDetailPopup = true;
       } */
 
-      let dtCastato = this.dt.el.nativeElement as HTMLElement;
-      console.log("DT", this.dt);
-      console.log("dtCastato", dtCastato.scrollTop);
+      let dtToGetScrollTop = this.dt.scrollableViewChild.scrollBodyViewChild as ElementRef;
+      console.log("DT", dtToGetScrollTop.nativeElement.scrollTop);
       
 
       CustomReuseStrategy.componentsReuseList.push("*");
-      this.router.navigate(['./mailbox-accessibile/mail-detail'])
+      this.router.navigate(['../mail-detail'], {relativeTo: this.activateRoute});
     }
   
   public buildAddressColumn(message: Message, tags:boolean): string[] { 

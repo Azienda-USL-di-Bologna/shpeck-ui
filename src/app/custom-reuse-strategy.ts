@@ -88,7 +88,6 @@ export class CustomReuseStrategy implements RouteReuseStrategy {
     shouldAttach(route: ActivatedRouteSnapshot): boolean {
         console.log("componentsReuseMap", CustomReuseStrategy.componentsReuseList);
 
-        //debugger 
         let attach: boolean = false;
 
         if (route && route.routeConfig && route.routeConfig.path) {
@@ -144,9 +143,9 @@ export class CustomReuseStrategy implements RouteReuseStrategy {
      * @returns boolean basically indicating true if the user intends to leave the current route
      */
     shouldReuseRoute(future: ActivatedRouteSnapshot, curr: ActivatedRouteSnapshot): boolean {
-        console.log("deciding to reuse", "future", future.routeConfig, "current", curr.routeConfig, "return: ", future.routeConfig === curr.routeConfig);
-        console.log("future", future);
-        console.log("current", curr);
+        if(!(future.routeConfig === curr.routeConfig)){
+            console.log("deciding to reuse", "future", future.routeConfig, "current", curr.routeConfig, "return: ", future.routeConfig === curr.routeConfig);
+        }
         
         return future.routeConfig === curr.routeConfig;
     }
