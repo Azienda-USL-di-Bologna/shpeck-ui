@@ -1041,10 +1041,13 @@ private setFilters(filters: FilterDefinition[]) {
             }
           break;
         case "onContextMenuSelect":
+          console.log("onContextMenuSelect");
+          
           const s: Message[] = [];
           Object.assign(s, this.mailListService.selectedMessages);
           this.setContextMenuItemLook();
-          setTimeout(() => {this.mailListService.selectedMessages = s; }, 0);
+          setTimeout(() => {this.mailListService.selectedMessages = s; console.log("CHE E'???", this.mailListService.selectedMessages);
+          }, 0);
           break;
         case "saveNote":
           this.saveNote();
@@ -1440,6 +1443,8 @@ private setFilters(filters: FilterDefinition[]) {
                 this.mailListService.selectedMessages = [this.mailListService.messages[actualMessageIndex - 1]];
                 this.mailListService.selectedMessages = [...this.mailListService.selectedMessages];
                 this.setRowFocused(this.mailListService.messages[actualMessageIndex - 1].id);
+                
+                
                 }, 0);
               }
               break;
@@ -1500,18 +1505,15 @@ private setFilters(filters: FilterDefinition[]) {
 
       // let dtToGetScrollTop = this.dt.scrollableViewChild.scrollBodyViewChild as ElementRef;
       // console.log("DT", dtToGetScrollTop.nativeElement.scrollTop);
-      if (this.mailListService.selectedMessages.length === 1) {
-        const selectedMessage: Message = this.mailListService.selectedMessages[0];
-        const emlSource: string = this.getEmlSource(selectedMessage);
-        this.messageService.manageMessageEvent(
-          emlSource,
-          selectedMessage,
-          this.mailListService.selectedMessages
-        );
-      } else {
-        this.messageService.manageMessageEvent(null, null, this.mailListService.selectedMessages);
-      }
-      
+      console.log("vaiAlDettaglio()", this.mailListService.selectedMessages);
+      this.mailListService.selectedMessages = Array.of(message);
+      const selectedMessage: Message = message;
+      const emlSource: string = this.getEmlSource(selectedMessage);
+      this.messageService.manageMessageEvent(
+        emlSource,
+        selectedMessage,
+        this.mailListService.selectedMessages
+      );
 
       CustomReuseStrategy.componentsReuseList.push("*");
       this.router.navigate(['../mail-detail'], {relativeTo: this.activateRoute});
