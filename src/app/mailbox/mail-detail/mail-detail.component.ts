@@ -11,6 +11,8 @@ import { Utils } from "src/app/utils/utils";
 import { DraftService, DraftEvent } from "src/app/services/draft.service";
 import { EMLSOURCE } from "src/environments/app-constants";
 import { OutboxService, OutboxEvent } from "src/app/services/outbox.service";
+import { Router } from '@angular/router';
+import { ActivatedRoute } from '@angular/router';
 
 
 @Component({
@@ -36,6 +38,8 @@ export class MailDetailComponent implements OnInit, OnDestroy {
     }
   }
 
+  public router;
+  public activatedRoute;
   public fullMessage: FullMessage;
   public message: Message;
   public numberOfMessageSelected = null;
@@ -52,7 +56,12 @@ export class MailDetailComponent implements OnInit, OnDestroy {
   constructor(private messageService: ShpeckMessageService,
     private draftService: DraftService,
     private http: HttpClient,
-    private outboxService: OutboxService) { }
+    private outboxService: OutboxService,
+    private _router: Router,
+    private _activatedRoute: ActivatedRoute) {
+      this.router = _router;
+      this.activatedRoute = _activatedRoute;
+     }
 
   public ngOnInit(): void {
     /* Mi sottoscrivo al messageEvent */
