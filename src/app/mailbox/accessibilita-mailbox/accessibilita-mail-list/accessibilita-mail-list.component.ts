@@ -1498,8 +1498,19 @@ private setFilters(filters: FilterDefinition[]) {
         this.displayDetailPopup = true;
       } */
 
-      let dtToGetScrollTop = this.dt.scrollableViewChild.scrollBodyViewChild as ElementRef;
-      console.log("DT", dtToGetScrollTop.nativeElement.scrollTop);
+      // let dtToGetScrollTop = this.dt.scrollableViewChild.scrollBodyViewChild as ElementRef;
+      // console.log("DT", dtToGetScrollTop.nativeElement.scrollTop);
+      if (this.mailListService.selectedMessages.length === 1) {
+        const selectedMessage: Message = this.mailListService.selectedMessages[0];
+        const emlSource: string = this.getEmlSource(selectedMessage);
+        this.messageService.manageMessageEvent(
+          emlSource,
+          selectedMessage,
+          this.mailListService.selectedMessages
+        );
+      } else {
+        this.messageService.manageMessageEvent(null, null, this.mailListService.selectedMessages);
+      }
       
 
       CustomReuseStrategy.componentsReuseList.push("*");

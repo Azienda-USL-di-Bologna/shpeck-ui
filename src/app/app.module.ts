@@ -49,9 +49,10 @@ import { RubricaContainerComponent } from "./rubrica/rubrica-container/rubrica-c
 import { DialogService } from "primeng-lts/dynamicdialog";
 import { ToolbarModule } from "./mailbox/toolbar/toolbar.module";
 import { MailFoldersModule } from "./mailbox/mail-folders/mail-folders.module";
-import { MailDetailComponent } from './mailbox/mail-detail/mail-detail.component';
+
 import { RouteReuseStrategy } from '@angular/router';
 import { CustomReuseStrategy } from './custom-reuse-strategy';
+import { MailDetailModule } from './mailbox/mail-detail/mail-detail.module';
 
 
 registerLocaleData(localeIt, "it-IT", localeItExtra);
@@ -62,11 +63,11 @@ registerLocaleData(localeIt, "it-IT", localeItExtra);
     AppComponent,
     MailboxComponent,
     MailListComponent,
-    MailDetailComponent,
-    SanitizeHtmlPipe,
+    
+    
     SettingsComponent,
     NewMailComponent,
-    RecepitsComponent,
+    
     MailDraftsComponent,
     StripeHtmlPipe,
     ReaddressComponent,
@@ -88,7 +89,8 @@ registerLocaleData(localeIt, "it-IT", localeItExtra);
     NextSdrModule,
     MatIconModule,
     ToolbarModule,
-    MailFoldersModule
+    MailFoldersModule,
+    MailDetailModule
   ],
   providers: [
     { provide: LOCALE_ID, useValue: "it-IT" },
@@ -106,6 +108,7 @@ registerLocaleData(localeIt, "it-IT", localeItExtra);
     MailListService
   ],
   bootstrap: [AppComponent],
-  entryComponents: [SettingsComponent, NewMailComponent, ReaddressComponent]
+  entryComponents: [SettingsComponent, NewMailComponent, ReaddressComponent],
+  exports: [  ]
 })
 export class AppModule { }
