@@ -221,7 +221,14 @@ export class AccessibilitaMailListComponent implements OnInit, OnDestroy {
       else if (event instanceof NavigationEnd && event.url === this.lastRoute) {
         this.dt.scrollTo({ top: this.lastPosition }) // set scrollTop to last position
         console.log("this.mailListService.selectedMessages",this.mailListService.selectedMessages);
-        document.getElementsByName(this.mailListService.selectedMessages[0].id.toString())[0].focus();
+        if(this.mailListService.selectedMessages.length > 0){
+          const idMessageSelected = this.mailListService.selectedMessages[0].id.toString();
+          try {
+            document.getElementsByName(idMessageSelected)[0].focus();
+          } catch (error) {
+            
+          }
+        }
         
         // this.grid.nativeElement.firstChild.scrollTop  = this.lastPosition
       }
