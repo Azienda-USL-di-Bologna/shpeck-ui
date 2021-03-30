@@ -23,6 +23,7 @@ import { NoteService } from "src/app/services/note.service";
 import { elementAt } from "rxjs/operators";
 import { Router, ActivatedRoute, NavigationStart, NavigationEnd } from '@angular/router';
 import { CustomReuseStrategy } from 'src/app/custom-reuse-strategy';
+import { COMMON_MENU_ITEMS } from 'src/app/classes/common-menu-items';
 
 
 @Component({
@@ -32,99 +33,7 @@ import { CustomReuseStrategy } from 'src/app/custom-reuse-strategy';
 })
 export class AccessibilitaMailListComponent implements OnInit, OnDestroy {
 
-  public cmItems: MenuItem[] = [
-    {
-      label: "NOT_SET",
-      id: "MessageSeen",
-      disabled: false,
-      queryParams: {}
-    },
-    {
-      label: "Rispondi",
-      id: "MessageReply",
-      disabled: true,
-      queryParams: {}
-    },
-    {
-      label: "Rispondi a tutti",
-      id: "MessageReplyAll",
-      disabled: true,
-      queryParams: {}
-    },
-    {
-      label: "Inoltra",
-      id: "MessageForward",
-      disabled: true,
-      queryParams: {}
-    },
-    {
-      label: "Protocolla",
-      id: "MessageRegistration",
-      disabled: true,
-      queryParams: {}
-    },
-    {
-      label: "Sposta",
-      id: "MessageMove",
-      disabled: true,
-      queryParams: {}
-    },
-    {
-      label: "Etichette",
-      id: "MessageLabels",
-      disabled: true,
-      items: [] as MenuItem[],
-      queryParams: {}
-    },
-    {
-      label: "Elimina",
-      id: "MessageDelete",
-      disabled: true,
-      queryParams: {}
-    },
-    {
-      label: "Segna come errore visto",
-      id: "ToggleErrorFalse",
-      disabled: true,
-      queryParams: {}
-    },
-    {
-      label: "Segna come errore non visto",
-      id: "ToggleErrorTrue",
-      disabled: true,
-      queryParams: {}
-    },
-    {
-      label: "Nota",
-      id: "MessageNote",
-      disabled: false,
-      queryParams: {}
-    },
-    {
-      label: "Scarica",
-      id: "MessageDownload",
-      disabled: true,
-      queryParams: {}
-    },
-    {
-      label: "Fascicola",
-      id: "MessageArchive",
-      disabled: true,
-      queryParams: {}
-    },
-    {
-      label: "Reindirizza",
-      id: "MessageReaddress",
-      disabled: true,
-      queryParams: {}
-    },
-    {
-      label: "Ripristina",
-      id: "MessageUndelete",
-      disabled: true,
-      queryParams: {}
-    }
-  ];
+  public cmItems: MenuItem[] = COMMON_MENU_ITEMS;
   
   public cols = [
     {
@@ -135,12 +44,6 @@ export class AccessibilitaMailListComponent implements OnInit, OnDestroy {
       minWidth: "85px"
     }
   ];
-
-  private tagsMenuOpened = {
-    registerMenuOpened : false,
-    archiveMenuOpened : false,
-    tagMenuOpened : false
-  };
 
   public archiviationDetail: any = {
     displayArchiviationDetail: false,
@@ -158,7 +61,6 @@ export class AccessibilitaMailListComponent implements OnInit, OnDestroy {
   private primavolta = true;
   public mostratable = false;
   public _filters: FilterDefinition[];
-  private foldersSubCmItems: MenuItem[] = [];
   public tagForm;
   public aziendeProtocollabiliSubCmItems: MenuItem[] = [];
   private loggedUser: UtenteUtilities;
@@ -173,7 +75,6 @@ export class AccessibilitaMailListComponent implements OnInit, OnDestroy {
   public displayProtocollaDialog = false;
   private timeoutOnFocusEvent = null;
   public fontSize = FONTSIZE.BIG;
-  private previousFilter: FilterDefinition[] = [];
   private VIRTUAL_ROW_HEIGHTS = {
     small: 79,
     medium: 84,
@@ -220,6 +121,7 @@ export class AccessibilitaMailListComponent implements OnInit, OnDestroy {
     this.selectedContextMenuItem = this.selectedContextMenuItem.bind(this);
     this.showNewTagPopup = this.showNewTagPopup.bind(this);
   }
+
   ngOnDestroy(): void {
     this.subscriptions.forEach(sub => sub.subscription.unsubscribe());
     this.subscriptions = [];
@@ -261,7 +163,7 @@ export class AccessibilitaMailListComponent implements OnInit, OnDestroy {
     });
     this.subscriptions.push({id: null, type: "messageEvent", subscription: this.messageService.messageEvent.subscribe(
       (messageEvent: MessageEvent) => {
-
+        // BEH??? COSA FACCIAMO? NON FACCIAMO NULLA?
       })
     });
     
@@ -292,9 +194,7 @@ export class AccessibilitaMailListComponent implements OnInit, OnDestroy {
       this.fontSize = this.settingsService.getFontSize() ? this.settingsService.getFontSize() : FONTSIZE.BIG;
       this.virtualRowHeight = this.VIRTUAL_ROW_HEIGHTS[this.fontSize];
     }
-    this.subscriptions.push({id: null, type: "messageEvent", subscription: this.messageService.messageEvent.subscribe(
-      (messageEvent: MessageEvent) => {
-      })});
+    
     this.subscriptions.push({id: null, type: "sorting", subscription: this.mailboxService.sorting.subscribe((sorting: Sorting) => {
       if (sorting) {
         this.mailListService.sorting = sorting;
@@ -321,7 +221,7 @@ export class AccessibilitaMailListComponent implements OnInit, OnDestroy {
       else if (event instanceof NavigationEnd && event.url === this.lastRoute) {
         this.dt.scrollTo({ top: this.lastPosition }) // set scrollTop to last position
         console.log("this.mailListService.selectedMessages",this.mailListService.selectedMessages);
-        document.getElementsByName(this.mailListService.selectedMessages["id"])[0].focus();
+        document.getElementsByName(this.mailListService.selectedMessages[0].id.toString())[0].focus();
         
         // this.grid.nativeElement.firstChild.scrollTop  = this.lastPosition
       }
@@ -445,7 +345,6 @@ private setFilters(filters: FilterDefinition[]) {
       this.loadData(this.pageConf, filtersAndSorts, this._selectedFolder, this._selectedTag, event);
         
     }
-    this.previousFilter = this._filters;
   }
 
   private manageIntimusCommand(command: IntimusCommand) {
