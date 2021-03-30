@@ -1,24 +1,211 @@
-.general-font-size-small .filter-box {
-    font-size: 12px;
+// .general-font-size-small .filter-box {
+//     font-size: 12px;
+// }
+// .general-font-size-medium .filter-box {
+//     font-size: 13px;
+// }
+// .general-font-size-big .filter-box {
+//     font-size: 14px;
+// }
+// :host {
+//   height: 100%;
+// }
+// .container {
+//   height: 100%;
+//   display: flex;
+//   flex-direction: column;
+//   overflow: hidden;
+//   .mail-container {
+//     display: flex;
+//     flex-direction: row;
+//     flex: 1 1 0;
+//   }
+  
+// }
+
+.container {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
 }
-.general-font-size-medium .filter-box {
-    font-size: 13px;
+.box {
+  background-color: #cce4f7;
+  text-align: center;
+  display: flex;
+  flex: 1;
 }
-.general-font-size-big .filter-box {
-    font-size: 14px;
+.buttons-bar {
+  display: block;
+  width: 100%;
+}
+.oldslider{
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 15px;
+  cursor: w-resize;
+  text-align: center;
+  justify-content: center;
+}
+.oldslider > div{
+  border: dotted 1px grey;
+  width: 3px;
+  border-top: none;
+  border-bottom: none;
+  height: 100%;
+  display: inline-block;
+}
+.slider {
+  position: relative;
+  cursor: w-resize;
+  border: solid 1px grey;
+  width: 5px;
+  border-top: none;
+  border-bottom: none;
+  height: 100%;
+  display: inline-block;
+  overflow: hidden;
+}
+.slider::before {
+  content: "";
+  border: dotted 2px grey;
+  position: absolute;
+  left: 0;
+  width: 0px;
+  height: 18px;
+  // serve per centrarlo rispetto all'altezza del padre
+  top: 50%;
+  // serve per far si che sia centrato rispettto all'altezza di se stesso
+  transform: translateY(-50%);
+}
+.hidden {
+  display: none !important;
+}
+.content-left {
+  display: block;
+  width: 300px;
+  overflow-x: hidden;
+  overflow-y: auto;
+  &:focus {
+    border: 1px solid black;
+  }
+}
+.content-right {
+  position: relative;
+  display: block;
+  flex: 1;
+  &:focus {
+    border: 1px solid black;
+  }
+}
+.d-flex{
+  display: flex;
+}
+.mail-container {
+  display: flex;
+  flex: 1;
+  position: relative;
+  flex-direction: row;
+  margin-top: 5px;
+  min-height: 0;
 }
 :host {
-  height: 100%;
+  width: 100%;
+  display: flex;
 }
-.container {
+.flex-1{
+  flex: 1;
+}
+.text-center{
+  text-align: center;
+}
+/* ========= MAIL LIST ========== */
+app-mail-list, app-mail-drafts {
+  overflow: hidden;
+}
+.mail-list {
+  display: flex;
+  flex: 1;
+  padding: 5px;
+  overflow: hidden;
   height: 100%;
   display: flex;
   flex-direction: column;
-  overflow: hidden;
-  .mail-container {
-    display: flex;
-    flex-direction: row;
-    flex: 1 1 0;
-  }
-  
 }
+.mail-list:hover {
+  overflow: auto;
+}
+.filter-box {
+  background-color: #eaecef; // rgb(248, 248, 248);
+  border-bottom: 1px solid #96a4b2;
+  display: flex;
+  flex: 1;
+  flex-wrap: nowrap;
+  justify-content: space-between;
+  max-height: min-content;
+  flex-direction: row;
+  font-size: 12px;
+  .filter-box-left, .filter-box-right {
+    padding: 5px 10px;
+  }
+  .filter-box-left {
+    font-weight: bold;
+  }
+  .filter-box-right {
+    position: relative;
+    cursor: pointer;
+    padding-right: 16px;
+  }
+  .filter-box-right:hover {
+    // font-weight: bold;
+    background-color: #d5dae0 !important;
+  }
+  .filter-box-right::before {
+    content: "";
+    width: 0;
+    height: 0;
+    border-style: solid;
+    border-width: 6px 5px 0 5px;
+    border-color: #848484 transparent transparent transparent;
+    position: absolute;
+    right: 3px;
+    top: 11px;
+  }
+  &:focus {
+    border: 1px solid black;
+  }
+}
+.general-font-size-small .filter-box {
+  font-size: 12px;
+}
+.general-font-size-medium .filter-box {
+  font-size: 13px;
+}
+.general-font-size-big .filter-box {
+  font-size: 14px;
+}
+
+/* ========= MAIL DETAIL ========== */
+.mail-detail {
+  display: flex;
+  flex: 1;
+  padding-left: 4px;
+  position: relative;
+  overflow: hidden;
+  &:focus {
+    border: 1px solid black;
+  }
+}
+.mail-detail:hover {
+  overflow: overlay;
+}
+.overlap-div {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 100;
+}
+
