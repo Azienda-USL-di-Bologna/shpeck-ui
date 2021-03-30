@@ -8,13 +8,14 @@ import { RubricaComponent, ContactDetailStart, ContactEditingComponent, GroupEdi
 import { DoNotShowRubricaPopupOnRefreshGuard } from "./rubrica/do-not-show-rubrica-popup-on-refresh.guard";
 import { AccessibilitaMailboxComponent } from "./mailbox/accessibilita-mailbox/accessibilita-mailbox.component";
 import { AccessibilitaMailListComponent } from "./mailbox/accessibilita-mailbox/accessibilita-mail-list/accessibilita-mail-list.component";
+import { AccessibilityGuardService } from './services/accessibility-guard.service';
 
 const routes: Routes = [
   { path: LOGIN_ROUTE, component: NtJwtLoginComponent, canActivate: [NoLoginGuard], data: {} },
   {
     path: MAILBOX_ROUTE,
     component: MailboxComponent,
-    canActivate: [RefreshLoggedUserGuard, LoginGuard]
+    canActivate: [RefreshLoggedUserGuard, LoginGuard, AccessibilityGuardService]
   },
   {
     path: ACCESSIBLE_MAILBOX_ROUTE,

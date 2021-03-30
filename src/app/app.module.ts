@@ -53,6 +53,7 @@ import { MailFoldersModule } from "./mailbox/mail-folders/mail-folders.module";
 import { RouteReuseStrategy } from '@angular/router';
 import { CustomReuseStrategy } from './custom-reuse-strategy';
 import { MailDetailModule } from './mailbox/mail-detail/mail-detail.module';
+import { AccessibilityGuardService } from './services/accessibility-guard.service';
 
 
 registerLocaleData(localeIt, "it-IT", localeItExtra);
@@ -105,7 +106,8 @@ registerLocaleData(localeIt, "it-IT", localeItExtra);
     MessageService,
     ShpeckMessageService,
     MessageFolderService,
-    MailListService
+    MailListService,
+    AccessibilityGuardService
   ],
   bootstrap: [AppComponent],
   entryComponents: [SettingsComponent, NewMailComponent, ReaddressComponent],
