@@ -16,6 +16,7 @@ export class SettingsComponent implements OnInit, OnDestroy {
   model: Impostazioni;
   loggedUser: UtenteUtilities;
   private subscription: Subscription;
+  public accessibilitaEnabled: boolean = false;
 
   constructor(public ref: DynamicDialogRef, private loginService: NtJwtLoginService, private impostazioniService: SettingsService) { }
 
@@ -25,6 +26,7 @@ export class SettingsComponent implements OnInit, OnDestroy {
         if (!this.loggedUser || utente.getUtente().id !== this.loggedUser.getUtente().id) {
           this.loggedUser = utente;
           this.loadSettings();
+          this.accessibilitaEnabled = this.loggedUser.getUtente().idPersona.accessibilita;
         }
       }
     });
