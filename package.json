@@ -28,7 +28,7 @@
     "@bds/ng-internauta-model": "1.0.5-beta",
     "@bds/nt-communicator": "1.0.2-beta",
     "@bds/nt-jwt-login": "1.0.2-beta",
-    "@bds/primeng-plugin": "1.0.4-beta",
+    "@bds/primeng-plugin": "1.0.5-beta",
     "@nfa/ref": "3.0.0-beta",
     "@nfa/core": "3.0.0-beta",
     "@nfa/next-sdr": "3.0.0-beta",
