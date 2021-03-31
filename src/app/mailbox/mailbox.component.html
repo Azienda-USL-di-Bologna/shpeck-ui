@@ -40,9 +40,6 @@
         <app-mail-list *ngIf="componentToLoad === 'mail-list'"
           (messageClicked)="messageClicked($event)">
         </app-mail-list>
-        <accessibilita-mail-list *ngIf="componentToLoad === 'accessibilita-mail-list'"
-        (messageClicked)="messageClicked($event)">
-      </accessibilita-mail-list>
         <app-mail-drafts *ngIf="componentToLoad === 'mail-draft'" [pecId]="_selectedPecId"></app-mail-drafts>
         <app-mail-outbox *ngIf="componentToLoad === 'mail-outbox'" [pecId]="_selectedPecId"></app-mail-outbox>
       </div>

@@ -3,24 +3,28 @@ import { NtJwtLoginService, UtenteUtilities } from '@bds/nt-jwt-login';
 import { Subscription } from 'rxjs';
 import { SettingsService } from 'src/app/services/settings.service';
 import { ShpeckMessageService, MessageEvent } from 'src/app/services/shpeck-message.service';
-import { MailFoldersService, PecFolder, PecFolderType } from '../mail-folders/mail-folders.service';
-import { MailListService } from '../mail-list/mail-list.service';
-import { ToolBarService } from '../toolbar/toolbar.service';
+import { MailFoldersService, PecFolder, PecFolderType } from '../../mail-folders/mail-folders.service';
+import { MailListService } from '../../mail-list/mail-list.service';
+import { ToolBarService } from '../../toolbar/toolbar.service';
 import { AppCustomization } from "src/environments/app-customization";
 import {BaseUrls, BaseUrlType, EMLSOURCE, FONTSIZE, TOOLBAR_ACTIONS} from "src/environments/app-constants";
-import { MailboxService, Sorting } from '../mailbox.service';
+import { MailboxService, Sorting } from '../../mailbox.service';
 import { Table } from 'primeng-lts/table';
 import {IntimusClientService, IntimusCommand, IntimusCommands, RefreshMailsParams, RefreshMailsParamsEntities, RefreshMailsParamsOperations} from "@bds/nt-communicator";
 import {ConfirmationService, FilterMetadata, LazyLoadEvent, MenuItem, MessageService} from "primeng-lts/api";
 import { BatchOperation, BatchOperationTypes, FILTER_TYPES, FilterDefinition, FiltersAndSorts, PagingConf, SortDefinition } from "@nfa/next-sdr";
 import { buildLazyEventFiltersAndSorts } from "@bds/primeng-plugin";
-import { DatePipe } from "@angular/common";
+import { DatePipe, Location } from "@angular/common";
 import {Azienda, ENTITIES_STRUCTURE, Folder, FolderType, Menu, Message, MessageTag, MessageType, Note, Pec, Tag} from "@bds/ng-internauta-model";
 import { ContextMenu } from "primeng-lts/contextmenu";
 import { FormControl, FormGroup, Validators } from "@angular/forms";
 import { Utils } from "src/app/utils/utils"; 
 import { NoteService } from "src/app/services/note.service";
 import { elementAt } from "rxjs/operators";
+import { Router, ActivatedRoute, NavigationStart, NavigationEnd } from '@angular/router';
+import { CustomReuseStrategy } from 'src/app/custom-reuse-strategy';
+import { COMMON_MENU_ITEMS } from 'src/app/classes/common-menu-items';
+
 
 @Component({
   selector: 'accessibilita-mail-list',
@@ -29,99 +33,7 @@ import { elementAt } from "rxjs/operators";
 })
 export class AccessibilitaMailListComponent implements OnInit, OnDestroy {
 
-  public cmItems: MenuItem[] = [
-    {
-      label: "NOT_SET",
-      id: "MessageSeen",
-      disabled: false,
-      queryParams: {}
-    },
-    {
-      label: "Rispondi",
-      id: "MessageReply",
-      disabled: true,
-      queryParams: {}
-    },
-    {
-      label: "Rispondi a tutti",
-      id: "MessageReplyAll",
-      disabled: true,
-      queryParams: {}
-    },
-    {
-      label: "Inoltra",
-      id: "MessageForward",
-      disabled: true,
-      queryParams: {}
-    },
-    {
-      label: "Protocolla",
-      id: "MessageRegistration",
-      disabled: true,
-      queryParams: {}
-    },
-    {
-      label: "Sposta",
-      id: "MessageMove",
-      disabled: true,
-      queryParams: {}
-    },
-    {
-      label: "Etichette",
-      id: "MessageLabels",
-      disabled: true,
-      items: [] as MenuItem[],
-      queryParams: {}
-    },
-    {
-      label: "Elimina",
-      id: "MessageDelete",
-      disabled: true,
-      queryParams: {}
-    },
-    {
-      label: "Segna come errore visto",
-      id: "ToggleErrorFalse",
-      disabled: true,
-      queryParams: {}
-    },
-    {
-      label: "Segna come errore non visto",
-      id: "ToggleErrorTrue",
-      disabled: true,
-      queryParams: {}
-    },
-    {
-      label: "Nota",
-      id: "MessageNote",
-      disabled: false,
-      queryParams: {}
-    },
-    {
-      label: "Scarica",
-      id: "MessageDownload",
-      disabled: true,
-      queryParams: {}
-    },
-    {
-      label: "Fascicola",
-      id: "MessageArchive",
-      disabled: true,
-      queryParams: {}
-    },
-    {
-      label: "Reindirizza",
-      id: "MessageReaddress",
-      disabled: true,
-      queryParams: {}
-    },
-    {
-      label: "Ripristina",
-      id: "MessageUndelete",
-      disabled: true,
-      queryParams: {}
-    }
-  ];
+  public cmItems: MenuItem[] = COMMON_MENU_ITEMS;
   
   public cols = [
     {
@@ -132,12 +44,6 @@ export class AccessibilitaMailListComponent implements OnInit, OnDestroy {
       minWidth: "85px"
     }
   ];
-
-  private tagsMenuOpened = {
-    registerMenuOpened : false,
-    archiveMenuOpened : false,
-    tagMenuOpened : false
-  };
 
   public archiviationDetail: any = {
     displayArchiviationDetail: false,
@@ -155,7 +61,6 @@ export class AccessibilitaMailListComponent implements OnInit, OnDestroy {
   private primavolta = true;
   public mostratable = false;
   public _filters: FilterDefinition[];
-  private foldersSubCmItems: MenuItem[] = [];
   public tagForm;
   public aziendeProtocollabiliSubCmItems: MenuItem[] = [];
   private loggedUser: UtenteUtilities;
@@ -170,7 +75,6 @@ export class AccessibilitaMailListComponent implements OnInit, OnDestroy {
   public displayProtocollaDialog = false;
   private timeoutOnFocusEvent = null;
   public fontSize = FONTSIZE.BIG;
-  private previousFilter: FilterDefinition[] = [];
   private VIRTUAL_ROW_HEIGHTS = {
     small: 79,
     medium: 84,
@@ -194,6 +98,8 @@ export class AccessibilitaMailListComponent implements OnInit, OnDestroy {
   public folderTypeOutbox: String = FolderType.OUTBOX;
   public folderTypeSent: String = FolderType.SENT;
   public folderTypeInbox: String = FolderType.INBOX;
+  lastRoute: string;
+  lastPosition: any;
 
   constructor(
     public mailListService: MailListService,
@@ -207,17 +113,21 @@ export class AccessibilitaMailListComponent implements OnInit, OnDestroy {
     private intimusClient: IntimusClientService,
     private messagePrimeService: MessageService,
     public confirmationService: ConfirmationService,
-    private messageService: ShpeckMessageService
+    private messageService: ShpeckMessageService,
+    private router: Router,
+    private location: Location,
+    private activateRoute: ActivatedRoute,
   ) {
     this.selectedContextMenuItem = this.selectedContextMenuItem.bind(this);
     this.showNewTagPopup = this.showNewTagPopup.bind(this);
   }
+
   ngOnDestroy(): void {
     this.subscriptions.forEach(sub => sub.subscription.unsubscribe());
     this.subscriptions = [];
   }
   
-  ngOnInit() {
+  ngOnInit() {    
     console.log("folderTypeSent", FolderType.SENT);
     console.log("folderTypeOutbox", FolderType.OUTBOX);
     this.subscriptions.push({id: null, type: "pecFolderSelected", subscription: this.mailFoldersService.pecFolderSelected.subscribe((pecFolderSelected: PecFolder) => {
@@ -253,7 +163,7 @@ export class AccessibilitaMailListComponent implements OnInit, OnDestroy {
     });
     this.subscriptions.push({id: null, type: "messageEvent", subscription: this.messageService.messageEvent.subscribe(
       (messageEvent: MessageEvent) => {
-
+        // BEH??? COSA FACCIAMO? NON FACCIAMO NULLA?
       })
     });
     
@@ -284,9 +194,7 @@ export class AccessibilitaMailListComponent implements OnInit, OnDestroy {
       this.fontSize = this.settingsService.getFontSize() ? this.settingsService.getFontSize() : FONTSIZE.BIG;
       this.virtualRowHeight = this.VIRTUAL_ROW_HEIGHTS[this.fontSize];
     }
-    this.subscriptions.push({id: null, type: "messageEvent", subscription: this.messageService.messageEvent.subscribe(
-      (messageEvent: MessageEvent) => {
-      })});
+    
     this.subscriptions.push({id: null, type: "sorting", subscription: this.mailboxService.sorting.subscribe((sorting: Sorting) => {
       if (sorting) {
         this.mailListService.sorting = sorting;
@@ -301,7 +209,31 @@ export class AccessibilitaMailListComponent implements OnInit, OnDestroy {
     })});
     console.log("GUSGUSGUSGUSGUS");
     console.log(this.mailListService.messages);
-    
+   
+    this.subscriptions.push({id: null, type: "router.events", subscription: this.router.events.subscribe(event => {      
+      if (event instanceof NavigationStart && event.url !== this.lastRoute) {
+        let dtToGetScrollTop = this.dt.scrollableViewChild.scrollBodyViewChild as ElementRef;
+        // console.log("DT", dtToGetScrollTop.nativeElement.scrollTop);
+        this.lastRoute = this.router.url
+        this.lastPosition = dtToGetScrollTop.nativeElement.scrollTop // get the scrollTop property
+        // this.lastPosition = this.grid.nativeElement.scrollTop
+      } 
+      else if (event instanceof NavigationEnd && event.url === this.lastRoute) {
+        this.dt.scrollTo({ top: this.lastPosition }) // set scrollTop to last position
+        console.log("this.mailListService.selectedMessages",this.mailListService.selectedMessages);
+        if(this.mailListService.selectedMessages.length > 0){
+          const idMessageSelected = this.mailListService.selectedMessages[0].id.toString();
+          try {
+            document.getElementsByName(idMessageSelected)[0].focus();
+          } catch (error) {
+            
+          }
+        }
+        
+        // this.grid.nativeElement.firstChild.scrollTop  = this.lastPosition
+      }
+    })});
+
   }
 
   private setFolder(folder: Folder) {
@@ -420,7 +352,6 @@ private setFilters(filters: FilterDefinition[]) {
       this.loadData(this.pageConf, filtersAndSorts, this._selectedFolder, this._selectedTag, event);
         
     }
-    this.previousFilter = this._filters;
   }
 
   private manageIntimusCommand(command: IntimusCommand) {
@@ -653,7 +584,7 @@ private setFilters(filters: FilterDefinition[]) {
             // this.mailListService.messages = [...this.mailListService.messages];
             console.log("this.mailListService.messages", this.mailListService.messages);
             this.mailListService.setMailTagVisibility(this.mailListService.messages);
-            this.mailFoldersService.doReloadTag(this.mailListService.tags.find(t => t.name === "in_error").id);
+            //this.mailFoldersService.doReloadTag(this.mailListService.tags.find(t => t.name === "in_error").id);
 
             
           }
@@ -1016,10 +947,13 @@ private setFilters(filters: FilterDefinition[]) {
             }
           break;
         case "onContextMenuSelect":
+          console.log("onContextMenuSelect");
+          
           const s: Message[] = [];
           Object.assign(s, this.mailListService.selectedMessages);
           this.setContextMenuItemLook();
-          setTimeout(() => {this.mailListService.selectedMessages = s; }, 0);
+          setTimeout(() => {this.mailListService.selectedMessages = s; console.log("CHE E'???", this.mailListService.selectedMessages);
+          }, 0);
           break;
         case "saveNote":
           this.saveNote();
@@ -1415,6 +1349,8 @@ private setFilters(filters: FilterDefinition[]) {
                 this.mailListService.selectedMessages = [this.mailListService.messages[actualMessageIndex - 1]];
                 this.mailListService.selectedMessages = [...this.mailListService.selectedMessages];
                 this.setRowFocused(this.mailListService.messages[actualMessageIndex - 1].id);
+                
+                
                 }, 0);
               }
               break;
@@ -1468,17 +1404,25 @@ private setFilters(filters: FilterDefinition[]) {
       }, 0);
     }
     
-  public openDetailPopup(event, row, message) {
-
-    const emlSource: string = this.getEmlSource(message);
-      if (this.openDetailInPopup) {
-        this.messageService.manageMessageEvent(
-          emlSource,
-          message,
-          this.mailListService.selectedMessages
-        );
+    public vaiAlDettaglio(event, row, message) {
+      /* if (this.openDetailInPopup) {
         this.displayDetailPopup = true;
-      }
+      } */
+
+      // let dtToGetScrollTop = this.dt.scrollableViewChild.scrollBodyViewChild as ElementRef;
+      // console.log("DT", dtToGetScrollTop.nativeElement.scrollTop);
+      console.log("vaiAlDettaglio()", this.mailListService.selectedMessages);
+      this.mailListService.selectedMessages = Array.of(message);
+      const selectedMessage: Message = message;
+      const emlSource: string = this.getEmlSource(selectedMessage);
+      this.messageService.manageMessageEvent(
+        emlSource,
+        selectedMessage,
+        this.mailListService.selectedMessages
+      );
+
+      CustomReuseStrategy.componentsReuseList.push("*");
+      this.router.navigate(['../mail-detail'], {relativeTo: this.activateRoute});
     }
   
   public buildAddressColumn(message: Message, tags:boolean): string[] { 
