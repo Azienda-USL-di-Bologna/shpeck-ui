@@ -1,14 +1,26 @@
-::ng-deep .switch-class {
+/* ::ng-deep .switch-class {
   position: absolute;
   right: 10%;
   margin-top: -2.3px;
-}
+} */
 
 .settings-items {
   list-style: none;
   padding: 10px;
   margin: 0;
   display: inline;
+  .item {
+    display: flex;
+    align-items: center;
+    label {
+      width: 234px;
+      text-align: right;
+    }
+    .right {
+      display: flex;
+      align-items: center;
+    }
+  }
 }
 
 .button-styles {
@@ -26,10 +38,7 @@
   margin-left: 70px;
 }
 
-.span-position {
-  position: absolute;
-  right: 4%;
-}
+
 
 li {
   margin-top: 9px;
@@ -37,10 +46,10 @@ li {
 .radio-button {
   margin-right: 10px;
 }
-.radio-button-group {
+/* .radio-button-group {
   position: absolute;
   right: 0;
-}
+} */
 .icon {
   vertical-align: middle;
 }

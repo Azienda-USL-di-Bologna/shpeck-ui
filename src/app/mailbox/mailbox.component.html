@@ -2,7 +2,7 @@
   [ngClass]="fontSize === 'small' ? 'general-font-size-small' : fontSize === 'medium' ? 'general-font-size-medium' : 'general-font-size-big'">
 
   <div class="buttons-bar">
-    <app-toolbar (filtersEmitter)="onFilterSelection($event)"></app-toolbar>
+    <app-toolbar></app-toolbar>
   </div>
   <div #mailContainer class="mail-container p-col" *ngIf="true">
 
@@ -40,6 +40,9 @@
         <app-mail-list *ngIf="componentToLoad === 'mail-list'"
           (messageClicked)="messageClicked($event)">
         </app-mail-list>
+        <accessibilita-mail-list *ngIf="componentToLoad === 'accessibilita-mail-list'"
+        (messageClicked)="messageClicked($event)">
+      </accessibilita-mail-list>
         <app-mail-drafts *ngIf="componentToLoad === 'mail-draft'" [pecId]="_selectedPecId"></app-mail-drafts>
         <app-mail-outbox *ngIf="componentToLoad === 'mail-outbox'" [pecId]="_selectedPecId"></app-mail-outbox>
       </div>

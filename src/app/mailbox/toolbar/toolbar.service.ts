@@ -3,7 +3,7 @@ import { BehaviorSubject, Observable, Subscription, Observer, of } from "rxjs";
 import { FilterDefinition } from "@nfa/next-sdr";
 import { Draft, Pec, Folder, Message, FolderType, Tag, PecPermission } from "@bds/ng-internauta-model";
 import { NewMailComponent } from "../new-mail/new-mail.component";
-import { DialogService, MessageService, MenuItem } from "primeng-lts/api";
+import { MessageService, MenuItem } from "primeng-lts/api";
 import { MessageEvent, ShpeckMessageService } from "src/app/services/shpeck-message.service";
 import { DraftService, DraftEvent } from "src/app/services/draft.service";
 import { TOOLBAR_ACTIONS } from "src/environments/app-constants";
@@ -11,6 +11,7 @@ import { PecFolderType, MailFoldersService, PecFolder, FoldersAndTags } from "..
 import { PecService } from "src/app/services/pec.service";
 import { MailListService } from "../mail-list/mail-list.service";
 import { UtenteUtilities, NtJwtLoginService } from "@bds/nt-jwt-login";
+import { DialogService } from "primeng-lts/dynamicdialog";
 
 @Injectable({
   providedIn: "root"
@@ -226,7 +227,7 @@ export class ToolBarService {
           width: "80%",
           styleClass: "new-draft",
           contentStyle: { "overflow": "visible", "height": "85vh" },
-          closable: false,
+          closable: false, // la x di chiusura la mettiamo noi custom.
           closeOnEscape: false
         });
         ref.onClose.subscribe((el) => {

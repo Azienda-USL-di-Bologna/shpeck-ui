@@ -8,7 +8,7 @@ import {Observable, Subscription} from "rxjs";
 import {DatePipe} from "@angular/common";
 import {Table} from "primeng-lts/table";
 import {BaseUrls, BaseUrlType, EMLSOURCE, FONTSIZE, TOOLBAR_ACTIONS} from "src/environments/app-constants";
-import {ConfirmationService, DialogService, FilterMetadata, LazyLoadEvent, MenuItem, MessageService} from "primeng-lts/api";
+import {ConfirmationService, FilterMetadata, LazyLoadEvent, MenuItem, MessageService} from "primeng-lts/api";
 import {Utils} from "src/app/utils/utils";
 import {MailFoldersService, PecFolder, PecFolderType} from "../mail-folders/mail-folders.service";
 import {ToolBarService} from "../toolbar/toolbar.service";
@@ -20,12 +20,11 @@ import {AppCustomization} from "src/environments/app-customization";
 import {SettingsService} from "src/app/services/settings.service";
 import {FormControl, FormGroup, Validators} from "@angular/forms";
 import {MailboxService, Sorting} from "../mailbox.service";
-import {ContextMenu} from "primeng-lts/primeng";
 import {IntimusClientService, IntimusCommand, IntimusCommands, RefreshMailsParams, RefreshMailsParamsEntities, RefreshMailsParamsOperations} from "@bds/nt-communicator";
 import { NewMailComponent } from "src/app/mailbox/new-mail/new-mail.component"
-
-
-
+import { ContextMenu } from "primeng-lts/contextmenu";
+import { isArray } from "util";
+import { DialogService } from "primeng-lts/dynamicdialog";
 
 
 @Component({
@@ -35,6 +34,8 @@ import { NewMailComponent } from "src/app/mailbox/new-mail/new-mail.component"
   providers: [ConfirmationService]
 })
 export class MailListComponent implements OnInit, OnDestroy, AfterViewInit {
+
+  public lazy: boolean = false;
 
   constructor(
     public mailListService: MailListService,
@@ -58,13 +59,13 @@ export class MailListComponent implements OnInit, OnDestroy, AfterViewInit {
 
   @Output() public messageClicked = new EventEmitter<Message>();
 
-  @ViewChild("selRow", null) private selRow: ElementRef;
-  @ViewChild("dt", null) private dt: Table;
-  @ViewChild("noteArea", null) private noteArea;
-  @ViewChild("idtag", null) private inputTextTag;
-  @ViewChild("registrationMenu", null) private registrationMenu: Menu;
-  @ViewChild("archiviationMenu", null) private archiviationMenu: Menu;
-  @ViewChild("tagMenu", null) private tagMenu: Menu;
+  @ViewChild("selRow", {}) private selRow: ElementRef;
+  @ViewChild("dt", {}) private dt: Table;
+  @ViewChild("noteArea", {}) private noteArea;
+  @ViewChild("idtag", {}) private inputTextTag;
+  @ViewChild("registrationMenu", {}) private registrationMenu: Menu;
+  @ViewChild("archiviationMenu", {}) private archiviationMenu: Menu;
+  @ViewChild("tagMenu", {}) private tagMenu: Menu;
   // @ViewChild("ordermenu") private ordermenu: Menu;
 
   // serve per mandarlo al mailbox-component
@@ -89,8 +90,8 @@ export class MailListComponent implements OnInit, OnDestroy, AfterViewInit {
   private subscriptions: {id: number, type: string, subscription: Subscription}[] = [];
   private previousFilter: FilterDefinition[] = [];
   private foldersSubCmItems: MenuItem[] = null;
-  private aziendeProtocollabiliSubCmItems: MenuItem[] = null;
-  private aziendeFascicolabiliSubCmItems: MenuItem[] = null;
+  public aziendeProtocollabiliSubCmItems: MenuItem[] = null;
+  public aziendeFascicolabiliSubCmItems: MenuItem[] = null;
   private registerMessageEvent: any = null;
   private loggedUser: UtenteUtilities;
   private timeoutOnFocusEvent = null;
@@ -238,7 +239,7 @@ export class MailListComponent implements OnInit, OnDestroy, AfterViewInit {
   public loading = false;
   public fontSize = FONTSIZE.BIG;
   private VIRTUAL_ROW_HEIGHTS = {
-    small: 78,
+    small: 79,
     medium: 84,
     big: 89
   };
@@ -256,7 +257,8 @@ export class MailListComponent implements OnInit, OnDestroy, AfterViewInit {
       minWidth: "85px"
     }
   ];
-  @ViewChild("cm", null) private contextMenu: ContextMenu;
+
+  @ViewChild("cm", {}) private contextMenu: ContextMenu;
   private tagsMenuOpened = {
     registerMenuOpened : false,
     archiveMenuOpened : false,
@@ -295,6 +297,7 @@ export class MailListComponent implements OnInit, OnDestroy, AfterViewInit {
 
 
   ngOnInit() {
+    
     this.subscriptions.push({id: null, type: "pecFolderSelected", subscription: this.mailFoldersService.pecFolderSelected.subscribe((pecFolderSelected: PecFolder) => {
       // this.tempSelectedMessages = null;
       this.mailListService.selectedMessages = [];
@@ -305,6 +308,7 @@ export class MailListComponent implements OnInit, OnDestroy, AfterViewInit {
           if ((selectedFolder.type !== FolderType.DRAFT) && (selectedFolder.type !== FolderType.OUTBOX)) {
             this._selectedPecId = selectedFolder.fk_idPec.id;
             this._selectedPec = pecFolderSelected.pec;
+            console.log("selezionata ", selectedFolder);
             this.setFolder(selectedFolder);
             this.cmItems.map(element => {
               if (element.id === "MessageDelete" && selectedFolder.type === FolderType.TRASH) {
@@ -365,7 +369,7 @@ export class MailListComponent implements OnInit, OnDestroy, AfterViewInit {
       if (sorting) {
         this.mailListService.sorting = sorting;
         if (this.dt && this.dt.el && this.dt.el.nativeElement) {
-          this.dt.el.nativeElement.getElementsByClassName("ui-table-scrollable-body")[0].scrollTop = 0;
+          this.dt.el.nativeElement.getElementsByClassName("p-datatable-virtual-scrollable-body")[0].scrollTop = 0;
         }
         this.lazyLoad(null);
       }
@@ -888,40 +892,56 @@ export class MailListComponent implements OnInit, OnDestroy, AfterViewInit {
     this._selectedFolder = null;
     this._filters = null;
     this.mailListService.selectedMessages = [];
+    this.mailListService.messages = [];
     // trucco per far si che la table vanga tolta e rimessa nel dom (in modo da essere resettata) altrimenti sminchia
     // NB: nell'html la visualizzazione della table è controllata da un *ngIf
     setTimeout(() => {
       this._selectedTag = tag;
       if (tag) {
-        this.lazyLoad(null);
+        //this.lazyLoad(null);
       }
     }, 0);
   }
+
+  private primavolta = true;
+  public mostratable = false;
 
   private setFolder(folder: Folder) {
     this._selectedFolder = null;
     this._selectedTag = null;
     this._filters = null;
     this.mailListService.selectedMessages = [];
+    this.mailListService.messages = [];
     // trucco per far si che la table vanga tolta e rimessa nel dom (in modo da essere resettata) altrimenti sminchia
     // NB: nell'html la visualizzazione della table è controllata da un *ngIf
     setTimeout(() => {
       this._selectedFolder = folder;
       if (folder) {
-        this.lazyLoad(null);
+        //this.lazy = true;
+        //this.lazyLoad(null);
+        if (this.primavolta) {
+          this.primavolta = false;
+          this.mostratable = true;
+        } else {
+          //this.lazyLoad(null);
+        }
       }
     }, 0);
   }
 
   private setFilters(filters: FilterDefinition[]) {
     // this._selectedFolder = null;
+    this.mostratable = false;
     this._filters = null;
+    this.mailListService.selectedMessages = [];
+    this.mailListService.messages = [];
     setTimeout(() => {
       this._filters = filters;
+      this.mostratable = true;
       if (filters) {
         // this.resetPageConfig = true;
         // this.filtering = true;
-        this.lazyLoad(null);
+        //this.lazyLoad(null);
       }
     }, 0);
   }
@@ -931,7 +951,7 @@ export class MailListComponent implements OnInit, OnDestroy, AfterViewInit {
     this.ordermenu.toggle(event);
   } */
 
-  public getTagDescription(tagName: string) {
+  public getTagDescription(tagName: string): string {
     if (this.mailListService.tags) {
       const tag = this.mailListService.tags.find(t => t.name === tagName);
       if (tag) {
@@ -940,6 +960,7 @@ export class MailListComponent implements OnInit, OnDestroy, AfterViewInit {
         return null;
       }
     }
+    return null;
   }
 
   private loadTag(pec: Pec): Observable<Tag[]> {
@@ -950,7 +971,7 @@ export class MailListComponent implements OnInit, OnDestroy, AfterViewInit {
     return this.tagService.getData(null, filtersAndSorts, null, null);
   }
 
-  private loadData(pageConf: PagingConf, lazyFilterAndSort?: FiltersAndSorts, folder?: Folder, tag?: Tag) {
+  private loadData(pageConf: PagingConf, lazyFilterAndSort?: FiltersAndSorts, folder?: Folder, tag?: Tag, event?) {
     this.loading = true;
     // mi devo salvare la folder/tag selezionata al momento del caricamento,
     // perché nella subscribe quando la invio al mailbox-component per scrivere il numero di messaggi
@@ -967,6 +988,7 @@ export class MailListComponent implements OnInit, OnDestroy, AfterViewInit {
       }
       this.subscriptions.splice(currentSubscription, 1);
     }
+    
     this.subscriptions.push({id: folderSelected.data.id, type: "folder_message", subscription: this.messageService
       .getData(
         this.mailListService.selectedProjection,
@@ -980,10 +1002,18 @@ export class MailListComponent implements OnInit, OnDestroy, AfterViewInit {
           // mando l'evento con il numero di messaggi (serve a mailbox-component perché lo deve scrivere nella barra superiore)
           this.mailListService.refreshAndSendTotalMessagesNumber(0, folderSelected);
 
-          this.mailListService.messages = data.results;
+          //this.mailListService.messages = data.results;
+
+          Array.prototype.splice.apply(this.mailListService.messages, [...[event.first, event.rows], ...data.results]);
+        
+          //trigger change detection
+          this.mailListService.messages = [...this.mailListService.messages];
+
+
           console.log("this.mailListService.messages", this.mailListService.messages);
           this.mailListService.setMailTagVisibility(this.mailListService.messages);
-          this.mailFoldersService.doReloadTag(this.mailListService.tags.find(t => t.name === "in_error").id);          
+          this.mailFoldersService.doReloadTag(this.mailListService.tags.find(t => t.name === "in_error").id);
+          
         }
         this.loading = false;
         // setTimeout(() => {
@@ -1001,6 +1031,7 @@ export class MailListComponent implements OnInit, OnDestroy, AfterViewInit {
           }
         }
         this.setAccessibilityProperties(true);
+        
       })
     });
   }
@@ -1030,7 +1061,7 @@ export class MailListComponent implements OnInit, OnDestroy, AfterViewInit {
     }
   }
 
-  private needLoading(event: LazyLoadEvent): boolean {
+  /* private needLoading(event: LazyLoadEvent): boolean {
     let needLoading = this.pageConf.conf.limit !== event.rows ||
       this.pageConf.conf.offset !== event.first;
     if (!needLoading) {
@@ -1047,7 +1078,7 @@ export class MailListComponent implements OnInit, OnDestroy, AfterViewInit {
       }
     }
     return needLoading;
-  }
+  } */
 
   public lazyLoad(event: LazyLoadEvent) {
     console.log("lazyload", event);
@@ -1061,7 +1092,8 @@ export class MailListComponent implements OnInit, OnDestroy, AfterViewInit {
       if (event.first !== event.first) {
         event.first = 0;
       }
-      if (this.needLoading(event)) {
+     /*  if (this.needLoading(event)) { */
+        //event.rows = event.rows - 50;
         this.pageConf.conf = {
           limit: event.rows,
           offset: event.first
@@ -1072,13 +1104,15 @@ export class MailListComponent implements OnInit, OnDestroy, AfterViewInit {
           this.datepipe
         );
 
-        this.loadData(this.pageConf, filtersAndSorts, this._selectedFolder, this._selectedTag);
-      }
+        this.loadData(this.pageConf, filtersAndSorts, this._selectedFolder, this._selectedTag, event);
+      /* } */
     } else {
+      event = {
+        rows: this.rowsNmber,
+        first: 0
+      };
       if (eventFilters) {
-        event = {
-          filters: eventFilters
-        };
+        event["filters"] = eventFilters;
       }
       this.pageConf.conf = {
         limit: this.rowsNmber,
@@ -1090,7 +1124,7 @@ export class MailListComponent implements OnInit, OnDestroy, AfterViewInit {
         this.datepipe
       );
 
-      this.loadData(this.pageConf, filtersAndSorts, this._selectedFolder, this._selectedTag);
+      this.loadData(this.pageConf, filtersAndSorts, this._selectedFolder, this._selectedTag, event);
     }
     this.previousFilter = this._filters;
     // this.filtering = false;
@@ -1343,6 +1377,7 @@ export class MailListComponent implements OnInit, OnDestroy, AfterViewInit {
         }
       }
     });
+    this.cmItems = [...this.cmItems]
   }
 
 
@@ -1559,7 +1594,7 @@ export class MailListComponent implements OnInit, OnDestroy, AfterViewInit {
     field.setAttribute(attribute, value);
   }
 
-  private noteHandler(specificMessage?: Message) {
+  public noteHandler(specificMessage?: Message) {
     if (specificMessage) {
       this.mailListService.selectedMessages[0] = specificMessage;
     }
@@ -2220,16 +2255,16 @@ export class MailListComponent implements OnInit, OnDestroy, AfterViewInit {
   private setAccessibilityProperties(firstTime: boolean): void {
 
     // Uso questo if per assicurarmi che la tabella sia caricata nel DOM
-    if ((document.getElementsByClassName('ui-table-scrollable-body-table') as any)[0]) {
+    if ((document.getElementsByClassName('cdk-virtual-scroll-content-wrapper') as any)[0]) {
 
       // NB Il ruolo della tabella è listbox perché quello table non funziona bene per il nostro caso.
 
       // Setto il numero totale di record ed il ruolo rowgrup al contenitore delle righe
       //(document.getElementsByClassName('ui-table-scrollable-body-table') as any)[0].setAttribute("aria-rowcount", this.mailListService.totalRecords);
-      (document.getElementsByClassName('ui-table-scrollable-body-table') as any)[0].setAttribute("aria-label", "Lista email");
+      (document.getElementsByClassName('cdk-virtual-scroll-content-wrapper') as any)[0].setAttribute("aria-label", "Lista email");
       //(document.getElementsByClassName('ui-table-scrollable-body-table') as any)[0].setAttribute("role", "treegrid");
       //(document.getElementsByClassName('ui-table-tbody') as any)[1].setAttribute("role", "rowgroup");
-      (document.getElementsByClassName('ui-table-tbody') as any)[1].setAttribute("role", "listbox");
+      (document.getElementsByClassName('p-datatable-tbody') as any)[1].setAttribute("role", "listbox");
 
       // Setto le righe non raggiungibili col tab
       let rows = document.getElementsByClassName('riga-tabella') as any;
@@ -2244,13 +2279,12 @@ export class MailListComponent implements OnInit, OnDestroy, AfterViewInit {
       }
 
       // Se il parametro firstTime è true setto la prima riga come tabbabile
-      console.log("rowssss", rows);
       if (firstTime && rows && rows[0]) {
         rows[0].setAttribute('tabindex', 0);
       }
 
       // Ora mi occupo dei checkbox, non li voglio trovare col tab
-      rows = document.getElementsByClassName('ui-helper-hidden-accessible') as any;
+      rows = document.getElementsByClassName('p-hidden-accessible') as any;
       for (const row of rows) {
         row.getElementsByTagName("input")[0].setAttribute('tabindex', -1); 
       }
@@ -2258,7 +2292,8 @@ export class MailListComponent implements OnInit, OnDestroy, AfterViewInit {
 
   }
 
-  private stopPropagation(event) {
+  public stopPropagation(event) {
+    console.log("Stop propagation")
     event.preventDefault();
     event.stopPropagation();
   }

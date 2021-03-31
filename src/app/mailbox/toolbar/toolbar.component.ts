@@ -1,5 +1,5 @@
 import { Component, OnDestroy, ViewChild, ElementRef, AfterViewInit} from "@angular/core";
-import { DialogService, ConfirmationService, MenuItem } from "primeng-lts/api";
+import { ConfirmationService, MenuItem } from "primeng-lts/api";
 import { Subscription, Observable } from "rxjs";
 import { TOOLBAR_ACTIONS } from "src/environments/app-constants";
 import { Pec, Folder, FolderType, Tag } from "@bds/ng-internauta-model";
@@ -9,6 +9,7 @@ import { ToolBarService } from "./toolbar.service";
 import { MailFoldersService, PecFolderType } from "../mail-folders/mail-folders.service";
 import { MailListService } from "../mail-list/mail-list.service";
 import { Menu } from "primeng-lts/menu";
+import { DialogService } from "primeng-lts/dynamicdialog";
 
 @Component({
   selector: "app-toolbar",
@@ -30,12 +31,13 @@ export class ToolbarComponent implements OnDestroy, AfterViewInit {
 
   public showErrorDialog: boolean = false;
 
-  @ViewChild("closeDialog", null) closeField: ElementRef;
-  @ViewChild("search", null) searchField: ElementRef;
-  @ViewChild("moveMenu", null) private moveMenu: Menu;
-  @ViewChild("archiveMenu", null) private archiveMenu: Menu;
+  @ViewChild("closeDialog", {}) closeField: ElementRef;
+  @ViewChild("search", {}) searchField: ElementRef;
+  @ViewChild("moveMenu", {}) private moveMenu: Menu;
+  @ViewChild("archiveMenu", {}) private archiveMenu: Menu;
 
-  constructor(public dialogService: DialogService,
+  constructor(
+    public dialogService: DialogService,
     private pecService: PecService,
     public toolBarService: ToolBarService,
     private mailFoldersService: MailFoldersService,

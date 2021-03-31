@@ -4,7 +4,6 @@
   padding: 0;
   margin: 0;
 }
-
 label {
   font-size:medium;
   font-weight: bold;
@@ -12,38 +11,34 @@ label {
   // width: 152px;
   // justify-content: flex-end;
 }
-
 ul {
   flex: 1 0 auto;
   height: 94%;
 }
-
 li {
   margin: 0 0 10px;
 }
-
+.oggetto {
+  input {
+    width: 100%;
+  }
+}
 .d-flex, ul, li {
   display: flex;
 }
-
 .flex-dir-col, ul {
   flex-direction: column;
 }
 
-::ng-deep body .ui-chkbox .ui-chkbox-box.ui-state-active {
-  border-color: #2e4a65 !important;
-  background-color: #406284 !important;
-  color: #ffffff;
-}
 /******* Chips *******/
-::ng-deep #attachments .ui-chips {
-  > ul.ui-inputtext,
-  > ul.ui-inputtext:focus {
+::ng-deep #attachments .p-chips {
+  > ul.p-inputtext,
+  > ul.p-inputtext:focus {
     min-height: 33px;
     max-height: 100px;
     overflow-y: auto;
   }
-  .ui-chips-input-token {
+  .p-chips-input-token {
     display: none;  // Makes chips readonly
   }
 }
@@ -51,11 +46,25 @@ li {
 /******* Buttons *******/
 .button-styles {
   margin: 8px 0 5px 5px;
-  width: 135px;
+  min-width: 135px;
 }
 
-.ui-fileupload-choose:not(.ui-state-disabled):hover {
+.ui-fileupload-choose:not(.p-state-disabled):hover {
   background-color: #c8c8c8 !important;
+}
+.inputfile {
+  position: absolute;
+  top: 0;
+  right: 0;
+  margin: 0;
+  opacity: 0;
+  min-height: 100%;
+  font-size: 100px;
+  text-align: right;
+  filter: alpha(opacity=0);
+  direction: ltr;
+  cursor: pointer;
+  z-index: 1;
 }
 
 /******* Footer *******/
@@ -65,28 +74,29 @@ li {
   margin-bottom: -7px;
 }
 
+::ng-deep body .p-autocomplete {
+  width: 100%;
+}
+
 /******* Attachments and Address chips *******/
-::ng-deep body .ui-chips > ul.ui-inputtext .ui-chips-token,
-::ng-deep body .ui-autocomplete.ui-autocomplete-multiple .ui-autocomplete-multiple-container .ui-autocomplete-token {
+::ng-deep body .p-chips > ul.p-inputtext .p-chips-token,
+::ng-deep body .p-autocomplete.p-autocomplete-multiple .p-autocomplete-multiple-container .p-autocomplete-token {
   background-color: rgb(235, 235, 235);
   border-radius: 5px;
   padding: 2px 5px;
   margin: 1px;
   color: black;
 }
-::ng-deep body .ui-autocomplete.ui-autocomplete-multiple .ui-autocomplete-multiple-container {
+::ng-deep body .p-autocomplete.p-autocomplete-multiple .p-autocomplete-multiple-container {
   max-height: 81px;
   overflow: auto;
+  width: 100%;
 }
 .attachment:hover {
   background-color: rgb(206, 206, 206);
 }
-::ng-deep body .ui-autocomplete-panel .ui-autocomplete-items .ui-autocomplete-list-item.ui-state-highlight {
-  background-color: #969da1;
-  color: #ffffff;
-  border: 1px solid #2e4a65;
-}
-::ng-deep .ui-autocomplete-input-token input {
+
+::ng-deep .p-autocomplete-input-token input {
   width: 26em;
 }
 
@@ -121,62 +131,46 @@ li {
   justify-content: center;
 }
 
-::ng-deep body .ui-autocomplete.ui-autocomplete-multiple .ui-autocomplete-multiple-container:not(.ui-state-disabled).ui-state-focus,
+::ng-deep body .p-autocomplete.p-autocomplete-multiple .p-autocomplete-multiple-container:not(.p-state-disabled).p-state-focus,
 input:focus {
   border-color: #2e4a65 !important;
+  
 }
 
-::ng-deep .ui-tooltip {
+::ng-deep .p-tooltip {
   max-width: 18.5em;
 }
 
 /******* Editor *******/
-::ng-deep .ui-editor-content.ql-container.ql-snow {
-  // overflow: auto;
-  // word-break: break-word !important;
-  // word-break: break-all;
+::ng-deep .p-editor-content.ql-container.ql-snow {
+
   min-height: 20px;
 }
-
-p-editor {
-  // max-width: 50vw;
+::ng-deep .ql-align.ql-picker.ql-icon-picker.ql-expanded .ql-picker-options .ql-picker-item {
+  padding: 0 !important;
 }
-
 .min-height-0 {
   min-height: 0;  // Quickfix per l'overflow su firefox
 }
-
 ::ng-deep p-editor > div {
   height: 100%;
   display: flex;
   flex-flow: column;
 }
-
 /******* Close button *******/
 .close-button {
   position: absolute;
-  top: -36px;
-  right: 11px;
-  color: slategray;
+  top: 16px;
+  right: 24px;
+  color: white;
 }
 /******* Dialog classes ******/
 .confirm-buttons {
-  width: 110px !important;
   margin: 0 0.25em 0 0.25em !important;
 }
-
 .warn-class {
   margin: 0 .5em 0 .5em;
 }
-
-// /******** rubrica ************/
-// ::ng-deep .popup-rubrica {
-//   width: 1200px !important;
-// }
-// ::ng-deep .popup-rubrica > div {
-//   width: inherit !important;
-// }
-
 
 //type of alert 
 .alert-message-error {

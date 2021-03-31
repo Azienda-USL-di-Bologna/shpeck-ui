@@ -1,0 +1,62 @@
+<p-table #dt 
+  tabindex="0"
+  *ngIf="mostratable && (_selectedTag || _selectedFolder || _filters)"
+  [value]="mailListService.messages"
+  (onLazyLoad)="lazyLoad($event)"
+  [(selection)]="mailListService.selectedMessages" 
+  (onRowUnselect)="handleEvent('onRowUnselect', $event)"
+  (onContextMenuSelect)="handleEvent('onContextMenuSelect', $event)"
+  [lazy]="true" 
+  [totalRecords]="mailListService.totalRecords"
+  dataKey="id"
+  selectionMode="single"
+  [lazyLoadOnInit]="true"
+  [loading]="loading"
+  [paginator]="true" 
+  [rows]="rowsNmber" 
+  [showCurrentPageReport]="true" 
+  [metaKeySelection]="true"
+  [(first)]="first"
+  [rowTrackBy]="trackByFn"
+  [scrollable]="true"
+  scrollHeight="100%"
+  currentPageReportTemplate="Showing {first} to {last} of {totalRecords} entries" 
+  [rowsPerPageOptions]="[10,25,50]">
+    <ng-template pTemplate="header">
+      <tr>
+        <th *ngIf="_selectedFolder !== null && (_selectedFolder.type === folderTypeSent || _selectedFolder.type === folderTypeOutbox)">A</th>
+        <th *ngIf="_selectedFolder !== null && _selectedFolder.type === folderTypeInbox">Da</th>
+        <th *ngIf="_selectedTag !== null || (_selectedFolder !== null &&( _selectedFolder.type !== folderTypeSent && _selectedFolder.type !== folderTypeOutbox && _selectedFolder.type !== folderTypeInbox)) ">Da/A</th>
+        <th>Oggetto</th>
+        <th>Ora</th>
+      </tr>
+    </ng-template>
+    <ng-template pTemplate="body" let-message let-rowData let-rowIndex="rowIndex"> 
+      <tr #selRow
+        [attr.name]="message.id"
+        [pSelectableRow]="message"
+        [pSelectableRowIndex]="rowIndex" 
+        (keydown.enter)="openDetailPopup($event, rowData, message)">
+
+        <td> <div *ngFor="let element of buildAddressColumn(message,_selectedTag !== null || _selectedFolder !== null && _selectedFolder.type !== folderTypeInbox)">
+          
+          {{element}}
+        </div>
+        </td>
+        <td>{{message.subject}}</td>
+        <td>{{message.receiveTime | date:'d/M/yy h:mm'}}</td>
+      </tr>
+    </ng-template>
+</p-table>
+
+
+<p-dialog *ngIf="displayDetailPopup" [(visible)]="displayDetailPopup" class="popup-mail-detail">
+  <p-header>
+      Dettaglio
+  </p-header>
+  <app-mail-detail></app-mail-detail>
+  <p-footer>
+      <button type="button" pButton (click)="displayDetailPopup = false" label="Chiudi"
+      class="ui-button-raised ui-button-secondary button-styles custom-secondary-button"></button>
+  </p-footer>
+</p-dialog>

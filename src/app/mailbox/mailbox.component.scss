@@ -2,26 +2,17 @@
   display: flex;
   flex-direction: column;
   flex: 1;
-  //flex-basis: 20%;
 }
-
 .box {
   background-color: #cce4f7;
   text-align: center;
-  //height: 100%;
   display: flex;
   flex: 1;
 }
-
 .buttons-bar {
-  height: 50px;
   display: block;
-  //flex-grow: 0.05;
-  //flex-basis: 1%;
-  // flex-shrink: 1;
   width: 100%;
 }
-
 .oldslider{
   position: absolute;
   left: 0;
@@ -40,7 +31,6 @@
   height: 100%;
   display: inline-block;
 }
-
 .slider {
   position: relative;
   cursor: w-resize;
@@ -52,7 +42,6 @@
   display: inline-block;
   overflow: hidden;
 }
-
 .slider::before {
   content: "";
   border: dotted 2px grey;
@@ -60,56 +49,35 @@
   left: 0;
   width: 0px;
   height: 18px;
-  //background-color: black;
-
   // serve per centrarlo rispetto all'altezza del padre
   top: 50%;
-
   // serve per far si che sia centrato rispettto all'altezza di se stesso
   transform: translateY(-50%);
 }
-
 .hidden {
   display: none !important;
 }
-
-.content-left{
-  /*position: relative;*/
+.content-left {
   display: block;
   width: 300px;
   overflow-x: hidden;
   overflow-y: auto;
-  // padding: 5px
-  //flex-direction: column;
   &:focus {
     border: 1px solid black;
   }
 }
-.content-right{
-  //padding-left: 23px;
-  // overflow-y: auto;
+.content-right {
   position: relative;
   display: block;
-  //display: flex;
-  // width: 100%;
-  // height: 100%;
-
   flex: 1;
-  //flex-direction: row;
   &:focus {
     border: 1px solid black;
   }
 }
-
 .d-flex{
   display: flex;
-
-
 }
-
 .mail-container {
-  //height: 100%;
-  //width: 100%;
   display: flex;
   flex: 1;
   position: relative;
@@ -117,7 +85,6 @@
   margin-top: 5px;
   min-height: 0;
 }
-
 :host {
   width: 100%;
   display: flex;
@@ -132,7 +99,6 @@
 app-mail-list, app-mail-drafts {
   overflow: hidden;
 }
-
 .mail-list {
   display: flex;
   flex: 1;
