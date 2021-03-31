@@ -86,17 +86,17 @@
                                     class="material-icons mail-icons icon-enabled mi-fist-line"
                                     (click)="onFixMessageTagInRegistration($event, message)">adjust
                                 </i>
-                                <p-menu 
-                                    appendTo="body" 
-                                    (onShow)="tagsMenuStatus('registerMenuOpened')" 
-                                    #registrationMenu 
-                                    [popup]="true" 
-                                    [model]="aziendeProtocollabiliSubCmItems">
-                                </p-menu>
+                                
                             </ng-template>
                             <ng-template [ngTemplateOutlet]="registrationTemplate"
                                 [ngTemplateOutletContext]="{$implicit: getRegistrationStatus(message)}">
                             </ng-template>
+                            <p-contextMenu
+                                appendTo="body" 
+                                (onShow)="tagsMenuStatus('registerMenuOpened')" 
+                                #registrationMenu
+                                [model]="aziendeProtocollabiliSubCmItems">
+                            </p-contextMenu>
                         </span>
                         <!-- reindirizzato -->
                         <span class="mail-icon">
@@ -155,7 +155,12 @@
                                     (click)="!message['moved'] ? iconArchiveClicked($event, message, archivedstatus): null"
                                     >
                                 </i>
-                                <p-menu appendTo="body" (onShow)="tagsMenuStatus('archiveMenuOpened')" #archiviationMenu [popup]="true" [model]="aziendeFascicolabiliSubCmItems"></p-menu>
+                                <p-contextMenu 
+                                    appendTo="body" 
+                                    (onShow)="tagsMenuStatus('archiveMenuOpened')" 
+                                    #archiviationMenu 
+                                    [model]="aziendeFascicolabiliSubCmItems">
+                                </p-contextMenu>
                             </ng-template>
                             <ng-template [ngTemplateOutlet]="archivedTemplate"
                                 [ngTemplateOutletContext]="{$implicit: getArchiviationStatus(message)}">
@@ -173,7 +178,13 @@
                                     (click)="!message['moved'] ? iconTaggedClicked($event, message, taggedstatus): null"
                                     >
                                 </i>
-                                <p-menu appendTo="body" (onShow)="tagsMenuStatus('tagsMenuOpened')" #tagMenu [popup]="true" [model]="tagMenuItems" styleClass="message-labels-icon-action"></p-menu>
+                                <p-contextMenu 
+                                    appendTo="body" 
+                                    (onShow)="tagsMenuStatus('tagsMenuOpened')" 
+                                    #tagMenu
+                                    [model]="tagMenuItems" 
+                                    styleClass="message-labels-icon-action">
+                                </p-contextMenu>
                             </ng-template>
                             <ng-template [ngTemplateOutlet]="taggedTemplate"
                                 [ngTemplateOutletContext]="{$implicit: getTaggedStatus(message)}">
