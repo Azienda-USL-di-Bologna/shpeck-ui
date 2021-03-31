@@ -31,12 +31,11 @@
         <th>Ora</th>
       </tr>
     </ng-template>
-    <ng-template pTemplate="body" let-message let-rowData let-rowIndex="rowIndex"> 
+    <ng-template pTemplate="body" let-message> 
       <tr #selRow
         [attr.name]="message.id"
         [pSelectableRow]="message"
-        [pSelectableRowIndex]="rowIndex" 
-        (keydown.enter)="openDetailPopup($event, rowData, message)">
+        (keydown.enter)="vaiAlDettaglio($event, message, message)">
 
         <td> <div *ngFor="let element of buildAddressColumn(message,_selectedTag !== null || _selectedFolder !== null && _selectedFolder.type !== folderTypeInbox)">
           
@@ -54,7 +53,7 @@
   <p-header>
       Dettaglio
   </p-header>
-  <app-mail-detail></app-mail-detail>
+  <!-- <app-mail-detail></app-mail-detail> -->
   <p-footer>
       <button type="button" pButton (click)="displayDetailPopup = false" label="Chiudi"
       class="ui-button-raised ui-button-secondary button-styles custom-secondary-button"></button>
