@@ -10,7 +10,7 @@ import { LandingRoutingComponent } from './landing-routing/landing-routing.compo
 
 const routes: Routes = [
   { path: LOGIN_ROUTE, component: NtJwtLoginComponent, canActivate: [NoLoginGuard], data: {} },
-  { path: LANDING_ROUTE, component: LandingRoutingComponent, canActivate: [LoginGuard], data: {} },
+  { path: LANDING_ROUTE, component: LandingRoutingComponent, canActivate: [RefreshLoggedUserGuard, LoginGuard], data: {} },
   {
     path: MAILBOX_ROUTE,
     component: MailboxComponent,
