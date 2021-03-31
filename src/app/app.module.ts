@@ -53,7 +53,8 @@ import { MailFoldersModule } from "./mailbox/mail-folders/mail-folders.module";
 import { RouteReuseStrategy } from '@angular/router';
 import { CustomReuseStrategy } from './custom-reuse-strategy';
 import { MailDetailModule } from './mailbox/mail-detail/mail-detail.module';
-import { AccessibilityGuardService } from './services/accessibility-guard.service';
+import { LandingRoutingComponent } from './landing-routing/landing-routing.component';
+
 
 
 registerLocaleData(localeIt, "it-IT", localeItExtra);
@@ -64,18 +65,15 @@ registerLocaleData(localeIt, "it-IT", localeItExtra);
     AppComponent,
     MailboxComponent,
     MailListComponent,
-    
-    
     SettingsComponent,
     NewMailComponent,
-    
     MailDraftsComponent,
     StripeHtmlPipe,
     ReaddressComponent,
     SearchContactComponent,
     MailOutboxComponent,
     RubricaContainerComponent,
-
+    LandingRoutingComponent
   ],
   imports: [
     NtJwtLoginModule.forRoot(loginModuleConfig),
@@ -106,8 +104,7 @@ registerLocaleData(localeIt, "it-IT", localeItExtra);
     MessageService,
     ShpeckMessageService,
     MessageFolderService,
-    MailListService,
-    AccessibilityGuardService
+    MailListService
   ],
   bootstrap: [AppComponent],
   entryComponents: [SettingsComponent, NewMailComponent, ReaddressComponent],

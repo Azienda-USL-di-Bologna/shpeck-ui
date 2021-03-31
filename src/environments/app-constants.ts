@@ -2,6 +2,7 @@ export const LOCALHOST_PORT = "10005";
 export const INTIMUS_LOCALHOST_PORT = "1339";
 export const LOCALHOST_PDD_PORT = "8080";
 export const LOGIN_ROUTE = "login";
+export const LANDING_ROUTE = "landing";
 // export const HOME_ROUTE = '/welcome';
 export const MAILBOX_ROUTE = "mailbox";
 export const ACCESSIBLE_MAILBOX_ROUTE = "mailbox-accessibile";
