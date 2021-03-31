@@ -58,6 +58,10 @@ export class SettingsComponent implements OnInit, OnDestroy {
     this.ref.close();
   }
 
+  autoDestroy(){
+    this.ref.destroy();
+  }
+
   ngOnDestroy() {
     if (this.subscription) {
       this.subscription.unsubscribe();
