@@ -45,6 +45,7 @@ export class MailDetailComponent implements OnInit, OnDestroy {
   public getAllEmlAttachmentInProgress: boolean = false;
   get inOut() { return InOut; }
 
+  @ViewChild("subject") private subject;
   @ViewChild("emliframe", {}) private emliframe: ElementRef;
   @ViewChild("dettagli") private dettagli;
   @ViewChild("allegati") private allegati;
@@ -209,6 +210,11 @@ export class MailDetailComponent implements OnInit, OnDestroy {
   private setLook(): void {
     if (this.fullMessage == null || this.fullMessage.emlData == null || this.fullMessage.emlData.attachments == null) {
       this.accordionAttachmentsSelected = false;
+    }
+    else{
+      setTimeout(() => {
+        this.subject.nativeElement.focus();
+      }, 0);
     }
   }
 
