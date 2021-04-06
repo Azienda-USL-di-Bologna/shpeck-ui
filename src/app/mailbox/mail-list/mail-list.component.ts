@@ -267,7 +267,7 @@ export class MailListComponent implements OnInit, OnDestroy, AfterViewInit {
   public loggedUserIsSuperD: boolean = false;
 
 
-  @HostListener('window:keyup', ['$event'])
+ /*  @HostListener('window:keyup', ['$event'])
   keyEvent(event: KeyboardEvent) {
     console.log(event);
     
@@ -293,7 +293,7 @@ export class MailListComponent implements OnInit, OnDestroy, AfterViewInit {
     }
     
     
-  }
+  } */
 
 
   ngOnInit() {
@@ -1206,7 +1206,7 @@ export class MailListComponent implements OnInit, OnDestroy, AfterViewInit {
       // non c'è nella documentazione, ma pare che scatti sempre una sola volta anche nelle selezioni multiple.
       // le righe selezionati sono in this.mailListService.selectedMessages e anche in event
       case "onRowSelect":
-      case "selectionChange":
+      case "selectionChange": // paroladacercare
       case "onRowUnselect":
         event.originalEvent.stopPropagation();
         this.contextMenu.hide();
@@ -1222,7 +1222,9 @@ export class MailListComponent implements OnInit, OnDestroy, AfterViewInit {
           console.log("this.tempSelectedMessages", this.tempSelectedMessages);
           console.log("this.mailListService.selectedMessages", this.mailListService.selectedMessages); */
           // selezione di un singolo messaggio (o come click singolo oppure come click del primo messaggio con il ctrl)
-          if (this.mailListService.selectedMessages.length === 1) {
+          //debugger;
+            //debugger;
+          if (this.mailListService.selectedMessages.length === 1 && !this.mailListService.selectedMessages.some(m => m.id === event.data.id)) {
             const selectedMessage: Message = this.mailListService.selectedMessages[0];
             /* if (event.type === "row") {
               this.mailListService.setSeen(true, true);
@@ -2150,23 +2152,7 @@ export class MailListComponent implements OnInit, OnDestroy, AfterViewInit {
     });
   }
 
-  onKeyUpMoveFocus(event) {
-    this.stopPropagation(event);
-    // console.log("mail-list onKeyUpMoveFocus", event);
-    // to do: if detail is hidden
-    // console.log("mailDetailContainer", mailDetailContainer);
-    // if (!!mailDetailContainer) mailDetailContainer.focus();
-    // if (this.mailListService.selectedMessages.length === 1) {
-      //   const mailDetailContainer: HTMLElement = document.querySelector(".mail-detail");
-      //   if (!!mailDetailContainer) mailDetailContainer.focus();
-    // } else {
-      // const pecContainer: HTMLElement = document.querySelector(".content-left");
-      // if (!!pecContainer) pecContainer.focus();
-    // }
-    // do not confuse the user
-    const mailDetailContainer: HTMLElement = document.querySelector(".mail-detail");
-    if (!!mailDetailContainer) { mailDetailContainer.focus(); }
-  }
+
 
   /**
    * Gestione dei bottoni freccia su e giù.
@@ -2174,6 +2160,7 @@ export class MailListComponent implements OnInit, OnDestroy, AfterViewInit {
    * @param direction 
    */
   public arrowPress(direction: string) {
+    console.log("qua ci sono")
     if (this.mailListService.selectedMessages.length > 0) {
       const actualMessageIndex: number = this.mailListService.messages.findIndex(m => m.id === this.mailListService.selectedMessages[0].id);
       if (actualMessageIndex >= 0) {
@@ -2184,6 +2171,7 @@ export class MailListComponent implements OnInit, OnDestroy, AfterViewInit {
               this.mailListService.selectedMessages = [this.mailListService.messages[actualMessageIndex - 1]];
               this.mailListService.selectedMessages = [...this.mailListService.selectedMessages];
               this.setRowFocused(this.mailListService.messages[actualMessageIndex - 1].id);
+              this.manageMessageSelection( this.mailListService.selectedMessages[0]);
               }, 0);
             }
             break;
@@ -2192,6 +2180,7 @@ export class MailListComponent implements OnInit, OnDestroy, AfterViewInit {
               this.mailListService.selectedMessages = [this.mailListService.messages[actualMessageIndex + 1]];
               this.mailListService.selectedMessages = [...this.mailListService.selectedMessages];
               this.setRowFocused(this.mailListService.messages[actualMessageIndex + 1].id);
+              this.manageMessageSelection( this.mailListService.selectedMessages[0]);
             }
             break;
         }
@@ -2209,6 +2198,7 @@ export class MailListComponent implements OnInit, OnDestroy, AfterViewInit {
                 this.dt.el.nativeElement.getElementsByClassName("p-datatable-virtual-scrollable-body")[0].scrollTop - this.virtualRowHeight / 2;
         }
         row.focus();
+        
       }
     }
   }
@@ -2221,30 +2211,35 @@ export class MailListComponent implements OnInit, OnDestroy, AfterViewInit {
    * @param event 
    * @param rowData 
    */
-  public onRowFocus(event, rowData: Message) {
+  public onRowFocus(event, rowData: Message) { //paroladacercare
     setTimeout(() => {
       this.setAccessibilityProperties(false);
       event.srcElement.setAttribute('tabindex', 0);
       event.srcElement.setAttribute("aria-selected", true)
 
       if (!this.mailListService.selectedMessages.some(m => m.id === rowData.id)) {
-        clearTimeout(this.timeoutOnFocusEvent);
-        this.contextMenu.hide();
-        const emlSource: string = this.getEmlSource(rowData);
-        this.messageService.manageMessageEvent(
-          emlSource,
-          rowData,
-          this.mailListService.selectedMessages
-        );
-        if (!rowData.seen) {
-          this.timeoutOnFocusEvent = setTimeout(() => {
-            if (this.mailListService.selectedMessages.length === 1) { 
-              this.mailListService.setSeen(true, true);
-            }
-          }, 350);
-        }
+        this.manageMessageSelection(rowData);
       }
     }, 0);
+  }
+
+  private manageMessageSelection(rowData) {
+    //debugger;
+    clearTimeout(this.timeoutOnFocusEvent);
+    this.contextMenu.hide();
+    const emlSource: string = this.getEmlSource(rowData);
+    this.messageService.manageMessageEvent(
+      emlSource,
+      rowData,
+      this.mailListService.selectedMessages
+    );
+    if (!rowData.seen) {
+      this.timeoutOnFocusEvent = setTimeout(() => {
+        if (this.mailListService.selectedMessages.length === 1) { 
+          this.mailListService.setSeen(true, true);
+        }
+      }, 350);
+    }
   }
 
   /**
