@@ -1,9 +1,19 @@
 <form id="readdress" [formGroup]="readdressForm" (ngSubmit)="onSubmit()">
   <div class="ui-g autoComplete">
     <div class="ui-g-12">
-      <p-autoComplete formControlName="to" [suggestions]="filteredPecs" (completeMethod)="filterPecs($event)"
-        field="indirizzo" [minLength]="1" placeholder="Digita le prime lettere oppure scegli con la freccia"
-        [dropdown]="true" [forceSelection]="true" ariaLabel="reindirizzo" [autofocus]="true" [tabindex]="0">
+      <p-autoComplete 
+        formControlName="to" 
+        [suggestions]="filteredPecs" 
+        (completeMethod)="filterPecs($event)"
+        field="indirizzo" 
+        [minLength]="1" 
+        placeholder="Digita le prime lettere oppure scegli con la freccia"
+        [dropdown]="true" 
+        [forceSelection]="true" 
+        ariaLabel="reindirizzo" 
+        [autofocus]="true" 
+        [tabindex]="0"
+        appendTo="body">
       </p-autoComplete>
     </div>
   </div>
