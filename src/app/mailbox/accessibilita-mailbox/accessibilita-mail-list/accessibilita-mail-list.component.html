@@ -28,7 +28,7 @@
         <th *ngIf="_selectedFolder !== null && _selectedFolder.type === folderTypeInbox">Da</th>
         <th *ngIf="_selectedTag !== null || (_selectedFolder !== null &&( _selectedFolder.type !== folderTypeSent && _selectedFolder.type !== folderTypeOutbox && _selectedFolder.type !== folderTypeInbox)) ">Da/A</th>
         <th>Oggetto</th>
-        <th>Ora</th>
+        <th>Data</th>
       </tr>
     </ng-template>
     <ng-template pTemplate="body" let-message> 
@@ -43,7 +43,7 @@
         </div>
         </td>
         <td>{{message.subject}}</td>
-        <td>{{message.receiveTime | date:'d/M/yy h:mm'}}</td>
+        <td>{{message.receiveTime | date:'dd/MM/yyyy hh:mm'}}</td>
       </tr>
     </ng-template>
 </p-table>
