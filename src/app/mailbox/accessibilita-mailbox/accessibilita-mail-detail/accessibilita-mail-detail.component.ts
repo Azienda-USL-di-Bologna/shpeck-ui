@@ -2,7 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { Router, ActivatedRoute } from '@angular/router';
 import { Location } from '@angular/common';
 import { CustomReuseStrategy } from 'src/app/custom-reuse-strategy';
-import { ShpeckMessageService, MessageEvent } from 'src/app/services/shpeck-message.service';
+import { ShpeckMessageService, MessageEvent, MessageAction } from 'src/app/services/shpeck-message.service';
 import { Message } from "@bds/ng-internauta-model";
 
 @Component({
@@ -12,6 +12,7 @@ import { Message } from "@bds/ng-internauta-model";
 })
 export class AccessibilitaMailDetailComponent implements OnInit {
   subscription: any = [];
+  public _action = MessageAction;
 
   constructor(private router: Router,
     private location: Location,
@@ -34,4 +35,8 @@ export class AccessibilitaMailDetailComponent implements OnInit {
     this.router.navigate(['../mail-list'], { relativeTo: this.activatedRoute })
   }
 
+
+  doAction(action : MessageAction){
+    
+  }
 }
