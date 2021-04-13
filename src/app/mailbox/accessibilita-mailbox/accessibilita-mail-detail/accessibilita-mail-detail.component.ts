@@ -50,7 +50,11 @@ export class AccessibilitaMailDetailComponent implements OnInit {
     this.router.navigate(['../mail-list'], { relativeTo: this.activatedRoute })
   }
 
-
+/*  Gestisce le azioni (per il momento solo il 'PROTOCOLLA') 
+*   PROTOCOLLA: -controlla che l'utente abbia il permesso di protocollare
+                -crea l'url della pagina che vuole aprire di scripta, passando il comando NEW e l'idpec come parametro
+                -apre la pagina di scripta 
+*/
   doAction(action : MessageAction){
     console.log(this.selectedMessages)
     console.log(this.isRegistrationActive) 
@@ -60,14 +64,14 @@ export class AccessibilitaMailDetailComponent implements OnInit {
       const encodeParams = false;
       const addPassToken = true;
       const addRichiestaParam = false;
-      //in qualche modo ci devo mettere l'id pec (?)
       this.loginService.buildInterAppUrl(urlNewDoc, encodeParams, addRichiestaParam, addPassToken, true).subscribe((url: string) => {
         console.log("urlAperto:", url);
       });
     }
     
   }
-
+  
+/**Crea l'url di una app frontend */
   public getFrontedAppUrl(app: string): string {
     const wl = window.location;
     let port = wl.port;
