@@ -4,7 +4,7 @@ import { HttpClient } from "@angular/common/http";
 import { DatePipe } from "@angular/common";
 import { getInternautaUrl, BaseUrlType, CUSTOM_SERVER_METHODS, EMLSOURCE } from "src/environments/app-constants";
 import { ENTITIES_STRUCTURE, Message, Draft, Outbox } from "@bds/ng-internauta-model";
-import { Observable, BehaviorSubject } from "rxjs";
+import { Observable, BehaviorSubject, Subject } from "rxjs";
 import { EmlAttachment } from "../classes/eml-attachment";
 import { EmlData } from "../classes/eml-data";
 
@@ -22,6 +22,9 @@ export class ShpeckMessageService extends NextSDREntityProvider {
     return this._messageEvent.asObservable();
   }
 
+  
+
+  
   /**
    * Notifica un evento alla sottoscrizione di MessageEvent.
    * Almeno uno dei 2 parametri è obbligatorio
@@ -107,6 +110,7 @@ export class ShpeckMessageService extends NextSDREntityProvider {
     const url = getInternautaUrl(BaseUrlType.Shpeck) + "/" + CUSTOM_SERVER_METHODS.archiveMessage + "/" + message.id;
     return this.http.post(url, null);
   }
+
 }
 
 /**
@@ -126,4 +130,9 @@ export interface FullMessage {
 export interface MessageEvent {
   downloadedMessage?: FullMessage;
   selectedMessages?: Message[];
+}
+
+export enum MessageAction {
+  PROTOCOLLA = "PROTOCOLLA",
+  FASCICOLA = "FASCICOLA"
 }

@@ -1,5 +1,5 @@
 import { Component, Input, ViewChild, ElementRef, OnInit, OnDestroy } from "@angular/core";
-import { ShpeckMessageService, MessageEvent, FullMessage } from "src/app/services/shpeck-message.service";
+import { ShpeckMessageService, MessageEvent, FullMessage, MessageAction } from "src/app/services/shpeck-message.service";
 import { Message, InOut, ENTITIES_STRUCTURE, MessageType, RecepitType, Draft } from "@bds/ng-internauta-model";
 import { ContentTypeList } from "src/app/utils/styles-constants";
 import { EmlData } from "src/app/classes/eml-data";
@@ -9,7 +9,6 @@ import { Subscription } from "rxjs";
 import { FiltersAndSorts, FilterDefinition, FILTER_TYPES, SortDefinition, SORT_MODES, PagingConf } from "@nfa/next-sdr";
 import { Utils } from "src/app/utils/utils";
 import { DraftService, DraftEvent } from "src/app/services/draft.service";
-import { EMLSOURCE } from "src/environments/app-constants";
 import { OutboxService, OutboxEvent } from "src/app/services/outbox.service";
 
 
@@ -21,6 +20,7 @@ import { OutboxService, OutboxEvent } from "src/app/services/outbox.service";
 export class MailDetailComponent implements OnInit, OnDestroy {
 
   private subscription: Subscription[] = [];
+  private _versioneAccessibile = false;
   private pageConfNoLimit: PagingConf = {
     conf: {
       page: 0,
@@ -34,6 +34,11 @@ export class MailDetailComponent implements OnInit, OnDestroy {
     if (message) {
       this.messageService.manageMessageEvent(null, message);
     }
+  }
+
+  @Input("versioneAccessibile")
+  set versioneAccessibile(versioneAccessibile: boolean) {
+    this._versioneAccessibile = versioneAccessibile;
   }
 
   public fullMessage: FullMessage;
@@ -113,6 +118,7 @@ export class MailDetailComponent implements OnInit, OnDestroy {
         }
       }
     ));
+    
   }
 
   public ngOnDestroy(): void {
@@ -213,7 +219,9 @@ export class MailDetailComponent implements OnInit, OnDestroy {
     }
     else{
       setTimeout(() => {
-        this.subject.nativeElement.focus();
+        if (this._versioneAccessibile) {
+          this.subject.nativeElement.focus();
+        }
       }, 0);
     }
   }
