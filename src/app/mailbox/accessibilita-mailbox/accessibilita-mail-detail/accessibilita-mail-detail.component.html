@@ -1,4 +1,13 @@
 <button autofocus (click)="tornaIndietro()" aria-label="Torna alla lista messaggi">Torna alla lista messaggi</button>
-<button autofocus (click)= "doAction(_action.PROTOCOLLA)" [disabled]="!this.isRegistrationActive " aria-label="Protocolla">Protocolla</button>
+<button 
+  autofocus 
+  (click)="protocollamenu.toggle($event)" 
+  [disabled]="!this.isRegistrationActive" 
+  [attr.aria-label]="this.isRegistrationActive ? 'Avvia protocollazione' : 'Il messaggio non può essere protocollato'">
+  Protocolla
+</button>
+<!-- <p-button autofocus (click)="tornaIndietro()" aria-label="Torna alla lista messaggi" label="Torna alla lista messaggi"></p-button>
+<p-button autofocus (click)="protocollamenu.toggle($event)" [disabled]="!this.isRegistrationActive" aria-label="Protocolla" label="Protocolla"></p-button> -->
+<p-menu #protocollamenu [popup]="true" [model]="aziendeProtocollabiliMenuItems" appendTo="body"></p-menu><!-- doAction(_action.PROTOCOLLA)" -->
 <app-mail-detail style="height: 80vh;"  [versioneAccessibile]="true"></app-mail-detail>
 

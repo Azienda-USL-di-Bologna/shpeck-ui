@@ -947,7 +947,7 @@ export class MailListService {
     * @param idCommand
     * @param command
     */
-  public buildAziendeMenuItems(codiciAziende: string[], selectedPec: Pec, idCommand: string, command: (any) => any): MenuItem[] {
+  public buildAziendeMenuItems(codiciAziende: string[], selectedPec: Pec, idCommand: string, command: (any) => any, longDescriptionItem: boolean = false): MenuItem[] {
     const aziendeMenuItems = [];
     codiciAziende.forEach(codiceAzienda => {
       const azienda = this.loggedUser.getUtente().aziende.find(a => a.codice === codiceAzienda);
@@ -961,7 +961,7 @@ export class MailListService {
       }
       aziendeMenuItems.push(
         {
-          label: azienda.nome,
+          label: longDescriptionItem ? azienda.descrizione : azienda.nome,
           icon: pIcon,
           id: idCommand,
           title: pTitle,
@@ -1046,12 +1046,13 @@ export class MailListService {
    * lista delle aziende su cui l'utente loggato ha il permesso redige per la funzione protocolla Pec.
    * @param command
    */
-  public buildRegistrationMenuItems(message: Message, selectedPec: Pec, command: (any) => any): MenuItem[] {
+  public buildRegistrationMenuItems(message: Message, selectedPec: Pec, command: (any) => any, longDescriptionItem: boolean = false): MenuItem[] {
     return this.buildAziendeMenuItems(
       this.getCodiciMieAziendeProtocollabili(message),
       selectedPec,
       "MessageRegistration",
-      command
+      command,
+      longDescriptionItem
     );
   }
 
