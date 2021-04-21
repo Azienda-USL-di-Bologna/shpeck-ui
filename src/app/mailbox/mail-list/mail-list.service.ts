@@ -299,6 +299,39 @@ export class MailListService {
     }
   }
 
+  /**
+   * Questa funzione torna una stringa direttamente mostrabile all'utente.
+   * La scritta informa sul perché il messaggio passato non è protocollabile.
+   */
+  public getInfoPercheNonRegistrabile(message: Message): string {
+    if (!message) {
+      return "Nessun messaggio selezionato";
+    }
+    if (message.inOut !== InOut.IN) {
+      return "Messaggio in uscita non protocollabile";
+    }
+    if (message.messageType !== MessageType.MAIL) {
+      return "Tipo di messaggio non protocollabile";
+    }
+    if (message.messageFolderList && message.messageFolderList[0] && message.messageFolderList[0].idFolder.type === "TRASH") {
+      return "Messaggio nel cestino, non protocollabile";
+    }
+    if (message.messageTagList && message.messageTagList.some(messageTag => messageTag.idTag.name === "readdressed_out")) {
+      return "Messaggio reindirizzato, non protocollabile";
+    }
+    const aziendeProtocollabili = this.getCodiciMieAziendeProtocollabili(message);
+    if (aziendeProtocollabili.length === 0) {
+      return "Messaggio già protocollato";
+    }
+    return "";
+  }
+
+  /**
+   * Ricarica il messaggio assicurandosi che non sia già registrato.
+   * Se non lo è lancia la funzione passata in ingresso che si deve occupare di far partire la regisdtrazione
+   * @param exe 
+   * @param codiceAzienda 
+   */
   public checkCurrentStatusAndRegister(exe: any, codiceAzienda: string): void {
     if (this.selectedMessages && this.selectedMessages.length === 1) {
       const filtersAndSorts: FiltersAndSorts = new FiltersAndSorts();
@@ -947,7 +980,7 @@ export class MailListService {
     * @param idCommand
     * @param command
     */
-  public buildAziendeMenuItems(codiciAziende: string[], selectedPec: Pec, idCommand: string, command: (any) => any): MenuItem[] {
+  public buildAziendeMenuItems(codiciAziende: string[], selectedPec: Pec, idCommand: string, command: (any) => any, longDescriptionItem: boolean = false): MenuItem[] {
     const aziendeMenuItems = [];
     codiciAziende.forEach(codiceAzienda => {
       const azienda = this.loggedUser.getUtente().aziende.find(a => a.codice === codiceAzienda);
@@ -961,7 +994,7 @@ export class MailListService {
       }
       aziendeMenuItems.push(
         {
-          label: azienda.nome,
+          label: longDescriptionItem ? azienda.descrizione : azienda.nome,
           icon: pIcon,
           id: idCommand,
           title: pTitle,
@@ -1046,12 +1079,13 @@ export class MailListService {
    * lista delle aziende su cui l'utente loggato ha il permesso redige per la funzione protocolla Pec.
    * @param command
    */
-  public buildRegistrationMenuItems(message: Message, selectedPec: Pec, command: (any) => any): MenuItem[] {
+  public buildRegistrationMenuItems(message: Message, selectedPec: Pec, command: (any) => any, longDescriptionItem: boolean = false): MenuItem[] {
     return this.buildAziendeMenuItems(
       this.getCodiciMieAziendeProtocollabili(message),
       selectedPec,
       "MessageRegistration",
-      command
+      command,
+      longDescriptionItem
     );
   }
 
