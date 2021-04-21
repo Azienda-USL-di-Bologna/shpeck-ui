@@ -1,12 +1,12 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ViewChild } from '@angular/core';
 import { Router, ActivatedRoute } from '@angular/router';
-import { Location } from '@angular/common';
 import { CustomReuseStrategy } from 'src/app/custom-reuse-strategy';
 import { ShpeckMessageService, MessageEvent, MessageCommand } from 'src/app/services/shpeck-message.service';
 import { Message, Pec } from "@bds/ng-internauta-model";
 import { NtJwtLoginService } from '@bds/nt-jwt-login';
 import { MailListService } from '../../mail-list/mail-list.service';
 import { MailFoldersService, PecFolder, PecFolderType } from '../../mail-folders/mail-folders.service';
+import { Menu } from 'primeng-lts/menu';
 
 @Component({
   selector: 'app-accessibilita-mail-detail',
@@ -20,6 +20,8 @@ export class AccessibilitaMailDetailComponent implements OnInit {
   public isRegistrationActive: boolean = false;
   public aziendeProtocollabiliMenuItems = null;
   private _selectedPec: Pec;
+  public infoNonProtocollabile: string;
+  @ViewChild("protocollamenu", {}) private protocollamenu: Menu;
 
   constructor(
     private router: Router,
@@ -40,7 +42,10 @@ export class AccessibilitaMailDetailComponent implements OnInit {
 
           if (this.selectedMessages && this.selectedMessages.length === 1 && this.selectedMessages[0]) {
             this.aziendeProtocollabiliMenuItems = this.mailListService.buildRegistrationMenuItems(this.selectedMessages[0], this._selectedPec, this.doAction, true);
-            this.isRegistrationActive = this.mailListService.isRegisterActive(this.selectedMessages[0])
+            this.isRegistrationActive = this.mailListService.isRegisterActive(this.selectedMessages[0]);
+            if (!this.isRegistrationActive) {
+              this.infoNonProtocollabile = this.mailListService.getInfoPercheNonRegistrabile(this.selectedMessages[0]);
+            }
           } else {
             this.isRegistrationActive = false;
           }
@@ -66,10 +71,21 @@ export class AccessibilitaMailDetailComponent implements OnInit {
     this.router.navigate(['../mail-list'], { relativeTo: this.activatedRoute })
   }
 
-  /*  Gestisce le azioni (per il momento solo il 'PROTOCOLLA') 
-  *   PROTOCOLLA: -controlla che l'utente abbia il permesso di protocollare
-                -crea l'url della pagina che vuole aprire di scripta, passando il comando NEW e l'idpec come parametro
-                -apre la pagina di scripta 
+  public onDoProtocolla(event: any) {
+    if (this.aziendeProtocollabiliMenuItems.length === 1) {
+      this.doAction({
+        item: this.aziendeProtocollabiliMenuItems[0]
+      });
+    } else {
+      this.protocollamenu.toggle(event);
+    }
+  }
+
+  /*  Gestisce le azioni (per il momento solo il 'MessageRegistration') 
+  *   MessageRegistration: 
+                - controlla che l'utente abbia il permesso di protocollare
+                - crea l'url della pagina che vuole aprire di scripta, passando il comando NEW e l'idpec come parametro
+                - apre la pagina di scripta 
   */
   public doAction(comando : any): void {
     console.log("comando", comando);
@@ -77,16 +93,17 @@ export class AccessibilitaMailDetailComponent implements OnInit {
     console.log(this.isRegistrationActive);
     switch (comando.item.id) {
       case MessageCommand.MessageRegistration:
-        if (this.isRegistrationActive) {
+        this.mailListService.checkCurrentStatusAndRegister(() => {
           let urlNewDoc = "";
-          urlNewDoc = this.getFrontedAppUrl("scripta") + "/doc?command=NEW&message=" + this.selectedMessages[0].id + "&azienda=" + comando.item.queryParams.codiceAzienda;
+          urlNewDoc = this.getFrontedAppUrl("scripta") + "/doc?command=NEW&idMessage=" + this.selectedMessages[0].id + "&azienda=" + comando.item.queryParams.codiceAzienda;
           const encodeParams = false;
           const addPassToken = true;
           const addRichiestaParam = false;
           this.loginService.buildInterAppUrl(urlNewDoc, encodeParams, addRichiestaParam, addPassToken, true).subscribe((url: string) => {
             console.log("urlAperto:", url);
           });
-        }
+        },
+        comando.item.queryParams.codiceAzienda);
         break;
     }
   }
