@@ -7,6 +7,7 @@ import { NtJwtLoginService } from '@bds/nt-jwt-login';
 import { MailListService } from '../../mail-list/mail-list.service';
 import { MailFoldersService, PecFolder, PecFolderType } from '../../mail-folders/mail-folders.service';
 import { Menu } from 'primeng-lts/menu';
+import { MenuItem } from 'primeng-lts/api';
 
 @Component({
   selector: 'app-accessibilita-mail-detail',
@@ -32,8 +33,52 @@ export class AccessibilitaMailDetailComponent implements OnInit {
     public mailListService: MailListService) {
       this.doAction = this.doAction.bind(this);
     }
+
+    items: MenuItem[];
+
+
+   
+
+    update() {
+       
+    }
+
+    delete() {
+       
+    }
     
   ngOnInit(): void {
+    this.items = [{
+      label: 'Options',
+      items: [{
+          label: 'Update',
+          icon: 'pi pi-refresh',
+          command: () => {
+              this.update();
+          }
+      },
+      {
+          label: 'Delete',
+          icon: 'pi pi-times',
+          command: () => {
+              this.delete();
+          }
+      }
+      ]},
+      {
+          label: 'Navigate',
+          items: [{
+              label: 'Angular',
+              icon: 'pi pi-external-link',
+              url: 'http://angular.io'
+          },
+          {
+              label: 'Router',
+              icon: 'pi pi-upload',
+              routerLink: '/fileupload'
+          }
+      ]}
+  ];
     this.subscriptions.push(this.messageService.messageEvent.subscribe(
       (messageEvent: MessageEvent) => {
         console.log("messageEvent", messageEvent)
@@ -125,4 +170,9 @@ export class AccessibilitaMailDetailComponent implements OnInit {
     const out: string = wl.protocol + "//" + wl.hostname + (port? ":" + port: "") + app;
     return out;
   }
+
+
+
+
+  
 }
