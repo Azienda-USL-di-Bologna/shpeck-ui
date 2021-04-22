@@ -1,11 +1,13 @@
-<p-button 
+<button 
+  pButton
   autofocus 
   (click)="tornaIndietro()" 
   aria-label="Torna alla lista messaggi"
   label="Torna alla lista messaggi"
   [tabindex]="0">
-</p-button>
-<p-button 
+</button>
+<button 
+  pButton
   *ngIf="isRegistrationActive"
   autofocus 
   (click)="onDoProtocolla($event)" 
@@ -15,7 +17,7 @@
       'Protocolla in ' + aziendeProtocollabiliMenuItems[0].label : 'Protocolla') : 'Il messaggio non può essere protocollato'"
   [label]="aziendeProtocollabiliMenuItems.length === 1 ? 'Protocolla in ' + aziendeProtocollabiliMenuItems[0].label : 'Protocolla'"
   [tabindex]="0">
-</p-button>
+</button>
 <h5>Overlay</h5>
 <button type="button" pButton icon="pi pi-bars" label="Show" (click)="menu.toggle($event)"></button>
 <p-menu #menu [popup]="true" [model]="items"></p-menu>

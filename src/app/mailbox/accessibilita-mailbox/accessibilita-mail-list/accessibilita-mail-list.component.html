@@ -3,26 +3,27 @@
   *ngIf="mostratable && (_selectedTag || _selectedFolder || _filters)"
   [value]="mailListService.messages"
   (onLazyLoad)="lazyLoad($event)"
-  
   [lazy]="true" 
-  [totalRecords]="mailListService.totalRecords"
-  dataKey="id"
-  selectionMode="single"
   [lazyLoadOnInit]="true"
   [loading]="loading"
+  [(first)]="first" 
   [paginator]="true" 
   [rows]="rowsNmber" 
+  [totalRecords]="mailListService.totalRecords"
   [showCurrentPageReport]="true" 
-  [metaKeySelection]="true"
-  [(first)]="first"
-  [rowTrackBy]="trackByFn"
-  [scrollable]="true"
-  scrollHeight="100%"
-  currentPageReportTemplate="Showing {first} to {last} of {totalRecords} entries" 
-  [rowsPerPageOptions]="[10,25,50]">
+  currentPageReportTemplate="Visualizzate da {first} a {last} di {totalRecords} e-mail" 
+  [rowsPerPageOptions]="[10,25,50]"
+  class="shpeck-mail-list-accessibile">
   <!-- [(selection)]="mailListService.selectedMessages" 
-  (onRowUnselect)="handleEvent('onRowUnselect', $event)" -->
-  <ng-template pTemplate="header">
+  (onRowUnselect)="handleEvent('onRowUnselect', $event)"
+dataKey="id"
+  selectionMode="single" 
+[rowTrackBy]="trackByFn"
+[metaKeySelection]="true"
+[scrollable]="true"
+  scrollHeight="100%"
+-->
+  <!-- <ng-template pTemplate="header">
     <tr>
       <th *ngIf="_selectedFolder !== null && (_selectedFolder.type === folderTypeSent || _selectedFolder.type === folderTypeOutbox)">A</th>
       <th *ngIf="_selectedFolder !== null && _selectedFolder.type === folderTypeInbox">Da</th>
@@ -30,16 +31,17 @@
       <th>Oggetto</th>
       <th>Data</th>
     </tr>
-  </ng-template>
+  </ng-template> -->
   <ng-template pTemplate="body" let-message> 
     <tr #selRow
       [attr.name]="message.id"
       
       ><!-- [pSelectableRow]="message" (keydown.enter)="vaiAlDettaglio($event, message, message)" -->
 
-      <td> <div *ngFor="let element of buildAddressColumn(message,_selectedTag !== null || _selectedFolder !== null && _selectedFolder.type !== folderTypeInbox)">
-        {{element}}
-      </div>
+      <td>
+        <div *ngFor="let element of buildAddressColumn(message,_selectedTag !== null || _selectedFolder !== null && _selectedFolder.type !== folderTypeInbox)">
+          {{element}}
+        </div>
       </td>
       <td><a (click)="vaiAlDettaglio($event, message, message)" style="font-weight: bold; cursor: pointer;">{{message.subject}}</a></td>
       <td>{{message.receiveTime | date:'dd/MM/yyyy hh:mm'}}</td>

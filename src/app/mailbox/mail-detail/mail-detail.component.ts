@@ -218,12 +218,16 @@ export class MailDetailComponent implements OnInit, OnDestroy {
       this.accordionAttachmentsSelected = false;
     }
     else{
-      setTimeout(() => {
-        if (this._versioneAccessibile) {
-          this.subject.nativeElement.focus();
-        }
-      }, 0);
+      
     }
+  }
+
+  setFocusOnSubject() {
+    setTimeout(() => {
+      if (this._versioneAccessibile) {
+        this.subject.nativeElement.focus();
+      }
+    }, 0);
   }
 
   /**
