@@ -2,7 +2,7 @@ import { Component, OnInit, ViewChild } from '@angular/core';
 import { Router, ActivatedRoute } from '@angular/router';
 import { CustomReuseStrategy } from 'src/app/custom-reuse-strategy';
 import { ShpeckMessageService, MessageEvent, MessageCommand } from 'src/app/services/shpeck-message.service';
-import { Message, Pec } from "@bds/ng-internauta-model";
+import { ItemMenu, Message, Pec } from "@bds/ng-internauta-model";
 import { NtJwtLoginService } from '@bds/nt-jwt-login';
 import { MailListService } from '../../mail-list/mail-list.service';
 import { MailFoldersService, PecFolder, PecFolderType } from '../../mail-folders/mail-folders.service';
@@ -16,10 +16,9 @@ import { MenuItem } from 'primeng-lts/api';
 })
 export class AccessibilitaMailDetailComponent implements OnInit {
   private subscriptions: any = [];
-  //public _action = MessageCommand;
   public selectedMessages: Message[];
   public isRegistrationActive: boolean = false;
-  public aziendeProtocollabiliMenuItems = null;
+  public aziendeProtocollabiliMenuItems: ItemMenu[] = null;
   private _selectedPec: Pec;
   public infoNonProtocollabile: string;
   @ViewChild("protocollamenu", {}) private protocollamenu: Menu;
@@ -34,51 +33,8 @@ export class AccessibilitaMailDetailComponent implements OnInit {
       this.doAction = this.doAction.bind(this);
     }
 
-    items: MenuItem[];
-
-
-   
-
-    update() {
-       
-    }
-
-    delete() {
-       
-    }
     
   ngOnInit(): void {
-    this.items = [{
-      label: 'Options',
-      items: [{
-          label: 'Update',
-          icon: 'pi pi-refresh',
-          command: () => {
-              this.update();
-          }
-      },
-      {
-          label: 'Delete',
-          icon: 'pi pi-times',
-          command: () => {
-              this.delete();
-          }
-      }
-      ]},
-      {
-          label: 'Navigate',
-          items: [{
-              label: 'Angular',
-              icon: 'pi pi-external-link',
-              url: 'http://angular.io'
-          },
-          {
-              label: 'Router',
-              icon: 'pi pi-upload',
-              routerLink: '/fileupload'
-          }
-      ]}
-  ];
     this.subscriptions.push(this.messageService.messageEvent.subscribe(
       (messageEvent: MessageEvent) => {
         console.log("messageEvent", messageEvent)
@@ -86,7 +42,7 @@ export class AccessibilitaMailDetailComponent implements OnInit {
           this.selectedMessages = messageEvent.selectedMessages;
 
           if (this.selectedMessages && this.selectedMessages.length === 1 && this.selectedMessages[0]) {
-            this.aziendeProtocollabiliMenuItems = this.mailListService.buildRegistrationMenuItems(this.selectedMessages[0], this._selectedPec, this.doAction, true);
+            this.aziendeProtocollabiliMenuItems = this.mailListService.buildRegistrationBdsMenuItems(this.selectedMessages[0], this._selectedPec, this.doAction, true);
             this.isRegistrationActive = this.mailListService.isRegisterActive(this.selectedMessages[0]);
             if (!this.isRegistrationActive) {
               this.infoNonProtocollabile = this.mailListService.getInfoPercheNonRegistrabile(this.selectedMessages[0]);
@@ -111,7 +67,7 @@ export class AccessibilitaMailDetailComponent implements OnInit {
     })});
   }
 
-  tornaIndietro(){
+  tornaIndietro() {
     CustomReuseStrategy.componentsReuseList.push("*");
     this.router.navigate(['../mail-list'], { relativeTo: this.activatedRoute })
   }
@@ -170,9 +126,4 @@ export class AccessibilitaMailDetailComponent implements OnInit {
     const out: string = wl.protocol + "//" + wl.hostname + (port? ":" + port: "") + app;
     return out;
   }
-
-
-
-
-  
 }

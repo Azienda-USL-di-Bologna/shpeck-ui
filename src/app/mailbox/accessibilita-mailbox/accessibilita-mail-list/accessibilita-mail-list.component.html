@@ -14,16 +14,17 @@
   currentPageReportTemplate="Visualizzate da {first} a {last} di {totalRecords} e-mail" 
   [rowsPerPageOptions]="[10,25,50]"
   class="shpeck-mail-list-accessibile">
-  <!-- [(selection)]="mailListService.selectedMessages" 
-  (onRowUnselect)="handleEvent('onRowUnselect', $event)"
-dataKey="id"
-  selectionMode="single" 
-[rowTrackBy]="trackByFn"
-[metaKeySelection]="true"
-[scrollable]="true"
-  scrollHeight="100%"
--->
-  <!-- <ng-template pTemplate="header">
+  <!-- 
+    [(selection)]="mailListService.selectedMessages" 
+    (onRowUnselect)="handleEvent('onRowUnselect', $event)"
+    dataKey="id"
+    selectionMode="single" 
+    [rowTrackBy]="trackByFn"
+    [metaKeySelection]="true"
+    [scrollable]="true"
+    scrollHeight="100%"
+  -->
+  <ng-template pTemplate="header">
     <tr>
       <th *ngIf="_selectedFolder !== null && (_selectedFolder.type === folderTypeSent || _selectedFolder.type === folderTypeOutbox)">A</th>
       <th *ngIf="_selectedFolder !== null && _selectedFolder.type === folderTypeInbox">Da</th>
@@ -31,13 +32,11 @@ dataKey="id"
       <th>Oggetto</th>
       <th>Data</th>
     </tr>
-  </ng-template> -->
+  </ng-template>
   <ng-template pTemplate="body" let-message> 
     <tr #selRow
-      [attr.name]="message.id"
-      
-      ><!-- [pSelectableRow]="message" (keydown.enter)="vaiAlDettaglio($event, message, message)" -->
-
+      [attr.name]="message.id">
+      <!-- [pSelectableRow]="message" (keydown.enter)="vaiAlDettaglio($event, message, message)" -->
       <td>
         <div *ngFor="let element of buildAddressColumn(message,_selectedTag !== null || _selectedFolder !== null && _selectedFolder.type !== folderTypeInbox)">
           {{element}}

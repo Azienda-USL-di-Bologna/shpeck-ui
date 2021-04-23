@@ -51,6 +51,13 @@ export class AccessibilitaMailListComponent implements OnInit, OnDestroy {
     additionalData: null
   };
 
+  products = [
+  {
+    code: "codidec", name: "cicsi", category: "rutto", quantity: "38"
+  }
+
+  ]
+
   private subscriptions: { id: number, type: string, subscription: Subscription }[] = [];
   private pecFolderSelected: PecFolder;
   public _selectedPecId: number;
@@ -597,7 +604,7 @@ export class AccessibilitaMailListComponent implements OnInit, OnDestroy {
             this.mailListService.selectedMessages[i] = this.mailListService.messages[index];
           }
         }
-        this.setAccessibilityProperties(true);
+        //this.setAccessibilityProperties(true);
         
       })
     });
@@ -1335,80 +1342,8 @@ export class AccessibilitaMailListComponent implements OnInit, OnDestroy {
       return item.id;
     }
   }
-
-  public arrowPress(direction: string) {
-    if (this.mailListService.selectedMessages.length > 0) {
-      const actualMessageIndex: number = this.mailListService.messages.findIndex(m => m.id === this.mailListService.selectedMessages[0].id);
-      if (actualMessageIndex >= 0) {
-        switch (direction) {
-          case 'up':
-            if (actualMessageIndex > 0) {
-              setTimeout(() => {
-              this.mailListService.selectedMessages = [this.mailListService.messages[actualMessageIndex - 1]];
-              this.mailListService.selectedMessages = [...this.mailListService.selectedMessages];
-              this.setRowFocused(this.mailListService.messages[actualMessageIndex - 1].id);
-              
-              
-              }, 0);
-            }
-            break;
-          case 'down': 
-            if (actualMessageIndex < this.mailListService.messages.length - 1) {
-              this.mailListService.selectedMessages = [this.mailListService.messages[actualMessageIndex + 1]];
-              this.mailListService.selectedMessages = [...this.mailListService.selectedMessages];
-              this.setRowFocused(this.mailListService.messages[actualMessageIndex + 1].id);
-            }
-            break;
-        }
-      }
-    }
-  }
-
-  public setRowFocused(idRiga: number) {
-    let rows = document.getElementsByClassName('riga-tabella') as any;
-    for (const row of rows) {
-      if (+row.attributes.name.value === idRiga) {
-        if (row.rowIndex < 1) {
-          this.dt.el.nativeElement.getElementsByClassName("p-datatable-virtual-scrollable-body")[0].scrollTop = 
-                this.dt.el.nativeElement.getElementsByClassName("p-datatable-virtual-scrollable-body")[0].scrollTop - this.virtualRowHeight / 2;
-        }
-        row.focus();
-      }
-    }
-  }
-
-  public onRowFocus(event, rowData: Message) {
-    setTimeout(() => {
-      this.setAccessibilityProperties(false);
-      event.srcElement.setAttribute('tabindex', 0);
-      event.srcElement.setAttribute("aria-selected", true)
-
-      if (!this.mailListService.selectedMessages.some(m => m.id === rowData.id)) {
-        clearTimeout(this.timeoutOnFocusEvent);
-        const emlSource: string = this.getEmlSource(rowData);
-        this.messageService.manageMessageEvent(
-          emlSource,
-          rowData,
-          this.mailListService.selectedMessages
-        );
-        if (!rowData.seen) {
-          this.timeoutOnFocusEvent = setTimeout(() => {
-            if (this.mailListService.selectedMessages.length === 1) { 
-              this.mailListService.setSeen(true, true);
-            }
-          }, 350);
-        }
-      }
-    }, 0);
-  }
   
   public vaiAlDettaglio(event, row, message) {
-    /* if (this.openDetailInPopup) {
-      this.displayDetailPopup = true;
-    } */
-
-    // let dtToGetScrollTop = this.dt.scrollableViewChild.scrollBodyViewChild as ElementRef;
-    // console.log("DT", dtToGetScrollTop.nativeElement.scrollTop);
     console.log("vaiAlDettaglio()", this.mailListService.selectedMessages);
     this.mailListService.selectedMessages = Array.of(message);
     const selectedMessage: Message = message;

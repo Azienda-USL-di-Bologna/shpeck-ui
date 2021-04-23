@@ -3,9 +3,15 @@
   autofocus 
   (click)="tornaIndietro()" 
   aria-label="Torna alla lista messaggi"
-  label="Torna alla lista messaggi"
-  [tabindex]="0">
+  label="Torna alla lista messaggi">
 </button>
+
+<bds-menu 
+  *ngIf="isRegistrationActive" 
+  [items]="aziendeProtocollabiliMenuItems" 
+  [executeAction]="openMenuUrl">
+</bds-menu>
+
 <button 
   pButton
   *ngIf="isRegistrationActive"
@@ -15,13 +21,10 @@
   [attr.aria-label]="isRegistrationActive ? 
     (aziendeProtocollabiliMenuItems.length === 1 ? 
       'Protocolla in ' + aziendeProtocollabiliMenuItems[0].label : 'Protocolla') : 'Il messaggio non può essere protocollato'"
-  [label]="aziendeProtocollabiliMenuItems.length === 1 ? 'Protocolla in ' + aziendeProtocollabiliMenuItems[0].label : 'Protocolla'"
-  [tabindex]="0">
+  [label]="aziendeProtocollabiliMenuItems.length === 1 ? 'Protocolla in ' + aziendeProtocollabiliMenuItems[0].label : 'Protocolla'">
 </button>
-<h5>Overlay</h5>
-<button type="button" pButton icon="pi pi-bars" label="Show" (click)="menu.toggle($event)"></button>
-<p-menu #menu [popup]="true" [model]="items"></p-menu>
+<!--  -->
 <span *ngIf="!isRegistrationActive" tabindex="0">{{infoNonProtocollabile}}</span>
-<p-menu #protocollamenu [popup]="true" [model]="aziendeProtocollabiliMenuItems" appendTo="body"></p-menu><!-- doAction(_action.PROTOCOLLA)" -->
+<p-menu #protocollamenu [popup]="true" [model]="aziendeProtocollabiliMenuItems" appendTo="body"></p-menu>
 <app-mail-detail style="height: 80vh;"  [versioneAccessibile]="true"></app-mail-detail>
 

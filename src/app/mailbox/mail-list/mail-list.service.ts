@@ -1090,6 +1090,24 @@ export class MailListService {
   }
 
   /**
+   * Come la buildRegistrationMenuItems, ma gli item sono preparati per il bds-menu nostro e non per quello di primeng
+   * @param message 
+   * @param selectedPec 
+   * @param command 
+   * @param longDescriptionItem 
+   * @returns 
+   */
+  public buildRegistrationBdsMenuItems(message: Message, selectedPec: Pec, command: (any) => any, longDescriptionItem: boolean = false): MenuItem[] {
+    return this.buildAziendeMenuItems(
+      this.getCodiciMieAziendeProtocollabili(message),
+      selectedPec,
+      "MessageRegistration",
+      command,
+      longDescriptionItem
+    );
+  }
+
+  /**
    * Questa funzione si occupa di creare un MenuItem[] che contenga come items la
    * lista delle aziende dell'utente loggato .
    * @param command
