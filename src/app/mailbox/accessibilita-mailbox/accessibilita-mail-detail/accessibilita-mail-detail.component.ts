@@ -42,7 +42,7 @@ export class AccessibilitaMailDetailComponent implements OnInit {
           this.selectedMessages = messageEvent.selectedMessages;
 
           if (this.selectedMessages && this.selectedMessages.length === 1 && this.selectedMessages[0]) {
-            this.aziendeProtocollabiliMenuItems = this.mailListService.buildRegistrationBdsMenuItems(this.selectedMessages[0], this._selectedPec, this.doAction, true);
+            //this.aziendeProtocollabiliMenuItems = this.mailListService.buildRegistrationBdsMenuItems(this.selectedMessages[0], this._selectedPec, this.doAction, true);
             this.isRegistrationActive = this.mailListService.isRegisterActive(this.selectedMessages[0]);
             if (!this.isRegistrationActive) {
               this.infoNonProtocollabile = this.mailListService.getInfoPercheNonRegistrabile(this.selectedMessages[0]);
