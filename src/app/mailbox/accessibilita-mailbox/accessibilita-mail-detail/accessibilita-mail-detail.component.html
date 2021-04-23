@@ -6,11 +6,11 @@
   label="Torna alla lista messaggi">
 </button>
 
-<bds-menu 
+<!-- <bds-menu 
   *ngIf="isRegistrationActive" 
   [items]="aziendeProtocollabiliMenuItems" 
   [executeAction]="openMenuUrl">
-</bds-menu>
+</bds-menu> -->
 
 <button 
   pButton
@@ -23,7 +23,6 @@
       'Protocolla in ' + aziendeProtocollabiliMenuItems[0].label : 'Protocolla') : 'Il messaggio non può essere protocollato'"
   [label]="aziendeProtocollabiliMenuItems.length === 1 ? 'Protocolla in ' + aziendeProtocollabiliMenuItems[0].label : 'Protocolla'">
 </button>
-<!--  -->
 <span *ngIf="!isRegistrationActive" tabindex="0">{{infoNonProtocollabile}}</span>
 <p-menu #protocollamenu [popup]="true" [model]="aziendeProtocollabiliMenuItems" appendTo="body"></p-menu>
 <app-mail-detail style="height: 80vh;"  [versioneAccessibile]="true"></app-mail-detail>

@@ -18,7 +18,7 @@ export class AccessibilitaMailDetailComponent implements OnInit {
   private subscriptions: any = [];
   public selectedMessages: Message[];
   public isRegistrationActive: boolean = false;
-  public aziendeProtocollabiliMenuItems: ItemMenu[] = null;
+  public aziendeProtocollabiliMenuItems: ItemMenu[] = [];
   private _selectedPec: Pec;
   public infoNonProtocollabile: string;
   @ViewChild("protocollamenu", {}) private protocollamenu: Menu;
