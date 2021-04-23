@@ -216,7 +216,7 @@ export class AccessibilitaMailListComponent implements OnInit, OnDestroy {
     console.log(this.mailListService.messages);
    
     this.subscriptions.push({id: null, type: "router.events", subscription: this.router.events.subscribe(event => {      
-      if (event instanceof NavigationStart && event.url !== this.lastRoute) {
+      if (event instanceof NavigationStart && event.url !== this.lastRoute && this.dt && this.dt.scrollableViewChild)  {
         let dtToGetScrollTop = this.dt.scrollableViewChild.scrollBodyViewChild as ElementRef;
         // console.log("DT", dtToGetScrollTop.nativeElement.scrollTop);
         this.lastRoute = this.router.url

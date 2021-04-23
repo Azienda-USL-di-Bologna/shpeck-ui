@@ -31,6 +31,7 @@ export class AccessibilitaMailDetailComponent implements OnInit {
     private mailFoldersService: MailFoldersService,
     public mailListService: MailListService) {
       this.doAction = this.doAction.bind(this);
+      this.onDoProtocolla = this.onDoProtocolla.bind(this);
     }
 
     
@@ -42,7 +43,8 @@ export class AccessibilitaMailDetailComponent implements OnInit {
           this.selectedMessages = messageEvent.selectedMessages;
 
           if (this.selectedMessages && this.selectedMessages.length === 1 && this.selectedMessages[0]) {
-            //this.aziendeProtocollabiliMenuItems = this.mailListService.buildRegistrationBdsMenuItems(this.selectedMessages[0], this._selectedPec, this.doAction, true);
+            this.preparaBottoneProtocolla();
+            
             this.isRegistrationActive = this.mailListService.isRegisterActive(this.selectedMessages[0]);
             if (!this.isRegistrationActive) {
               this.infoNonProtocollabile = this.mailListService.getInfoPercheNonRegistrabile(this.selectedMessages[0]);
@@ -67,19 +69,45 @@ export class AccessibilitaMailDetailComponent implements OnInit {
     })});
   }
 
+  private preparaBottoneProtocolla() {
+    const items = this.mailListService.buildRegistrationBdsMenuItems(this.selectedMessages[0], this._selectedPec, this.doAction, true);
+
+    if (items.length === 1) {
+      items[0].descrizione = "Protocolla in " + items[0].descrizione;
+      this.aziendeProtocollabiliMenuItems = items;
+    } else {
+      const itemButton = new ItemMenu();
+      itemButton.descrizione = "Protocolla";
+      itemButton.children = items;
+      this.aziendeProtocollabiliMenuItems = [itemButton];
+    }
+  }
+
   tornaIndietro() {
     CustomReuseStrategy.componentsReuseList.push("*");
     this.router.navigate(['../mail-list'], { relativeTo: this.activatedRoute })
   }
 
-  public onDoProtocolla(event: any) {
-    if (this.aziendeProtocollabiliMenuItems.length === 1) {
+  public onDoProtocolla(event: ItemMenu) {
+    this.mailListService.checkCurrentStatusAndRegister(() => {
+      let urlNewDoc = "";
+      urlNewDoc = this.getFrontedAppUrl("scripta") + "/doc?command=NEW&idMessage=" + this.selectedMessages[0].id + "&azienda=" + event.openCommand;
+      const encodeParams = false;
+      const addPassToken = true;
+      const addRichiestaParam = false;
+      this.loginService.buildInterAppUrl(urlNewDoc, encodeParams, addRichiestaParam, addPassToken, true).subscribe((url: string) => {
+        console.log("urlAperto:", url);
+      });
+    },
+    event.openCommand);
+
+    /* if (this.aziendeProtocollabiliMenuItems.length === 1) {
       this.doAction({
         item: this.aziendeProtocollabiliMenuItems[0]
       });
     } else {
       this.protocollamenu.toggle(event);
-    }
+    } */
   }
 
   /*  Gestisce le azioni (per il momento solo il 'MessageRegistration') 

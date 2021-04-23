@@ -1,6 +1,6 @@
 import { Injectable } from "@angular/core";
 import { Tag, Folder, Message, FolderType, InOut, ENTITIES_STRUCTURE, FluxPermission, PecPermission, Note, MessageTag,
-  Utente, Azienda, MessageType, MessageStatus, TagType, Pec, MessageFolder, AddresRoleType, MessageAddress, getInternautaUrl, BaseUrlType, BaseUrls } from "@bds/ng-internauta-model";
+  Utente, Azienda, MessageType, MessageStatus, TagType, Pec, MessageFolder, AddresRoleType, MessageAddress, getInternautaUrl, BaseUrlType, BaseUrls, ItemMenu, CommandType } from "@bds/ng-internauta-model";
 import { MenuItem, MessageService } from "primeng-lts/api";
 import { Utils } from "src/app/utils/utils";
 import { MessageFolderService } from "src/app/services/message-folder.service";
@@ -1011,6 +1011,27 @@ export class MailListService {
   }
 
   /**
+    * Questo metodo si occupa di construire un menu che contenga le aziende passate come items.
+    * Le aziende non associate alla pec passata (selectedPec) avranno un messaggio d'avviso.
+    * @param codiciAziende
+    * @param selectedPec
+    * @param idCommand
+    * @param command
+    */
+   public buildAziendeBdsMenuItems(codiciAziende: string[], selectedPec: Pec, idCommand: string, command: (any) => any, longDescriptionItem: boolean = false): ItemMenu[] {
+    const aziendeMenuItems: ItemMenu[] = [];
+    codiciAziende.forEach(codiceAzienda => {
+      const azienda = this.loggedUser.getUtente().aziende.find(a => a.codice === codiceAzienda);
+      let item = new ItemMenu();
+      item.commandType = CommandType.URL;
+      item.descrizione = longDescriptionItem ? azienda.descrizione : azienda.nome;
+      item.openCommand = codiceAzienda;
+      aziendeMenuItems.push(item);
+    });
+    return aziendeMenuItems;
+  }
+
+  /**
    *  restituisce array d'interi con gli id delle aziende su cui il messaggio è stato protocollato
    * @param message il messaggio
    */
@@ -1097,8 +1118,8 @@ export class MailListService {
    * @param longDescriptionItem 
    * @returns 
    */
-  public buildRegistrationBdsMenuItems(message: Message, selectedPec: Pec, command: (any) => any, longDescriptionItem: boolean = false): MenuItem[] {
-    return this.buildAziendeMenuItems(
+  public buildRegistrationBdsMenuItems(message: Message, selectedPec: Pec, command: (any) => any, longDescriptionItem: boolean = false): ItemMenu[] {
+    return this.buildAziendeBdsMenuItems(
       this.getCodiciMieAziendeProtocollabili(message),
       selectedPec,
       "MessageRegistration",
