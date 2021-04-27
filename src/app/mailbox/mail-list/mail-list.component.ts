@@ -1224,7 +1224,7 @@ export class MailListComponent implements OnInit, OnDestroy, AfterViewInit {
           // selezione di un singolo messaggio (o come click singolo oppure come click del primo messaggio con il ctrl)
           //debugger;
             //debugger;
-          if (this.mailListService.selectedMessages.length === 1 && !this.mailListService.selectedMessages.some(m => m.id === event.data.id)) {
+          if (this.mailListService.selectedMessages.length === 1 /* && !this.mailListService.selectedMessages.some(m => m.id === event.data.id) */) {
             const selectedMessage: Message = this.mailListService.selectedMessages[0];
             /* if (event.type === "row") {
               this.mailListService.setSeen(true, true);
