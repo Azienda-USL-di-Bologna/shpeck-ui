@@ -2,7 +2,7 @@
   <form #form="ngForm">
     <div>
       <ul class="settings-items">
-        <li class="item">
+        <li class="item" *ngIf="!accessibilitaEnabled">
           <label for="hideDetail">Nascondi dettaglio e-mail</label>
           <div class="right">
             <p-inputSwitch id="hideDetail" [(ngModel)]="model.hideDetail" styleClass="switch-class" name="hideDetail"></p-inputSwitch>
@@ -30,7 +30,7 @@
     </div>
     <div class="p-grid button-wrapper">
         <button pButton class="button-styles" label="Salva" (click)="saveSettings()"></button>
-        <button pButton class="button-styles button-margin-left" label="Annulla" (click)="onClose()"></button>
+        <button pButton class="button-styles button-margin-left" label="Annulla" (click)="autoDestroy()"></button>
     </div>
   </form>
 </section>

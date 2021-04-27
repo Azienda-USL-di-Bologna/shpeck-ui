@@ -1,7 +1,7 @@
 import { BrowserModule } from "@angular/platform-browser";
 import { BrowserAnimationsModule } from "@angular/platform-browser/animations";
 import { NgModule } from "@angular/core";
-import { DatePipe } from "@angular/common";
+import { DatePipe, CommonModule } from "@angular/common";
 import { FormsModule, ReactiveFormsModule } from "@angular/forms";
 
 import { AppRoutingModule } from "./app-routing.module";
@@ -9,8 +9,7 @@ import { AppComponent } from "./app.component";
 import { PrimengModule } from "./primeng.module";
 import { MailboxComponent } from "./mailbox/mailbox.component";
 import { MailListComponent } from "./mailbox/mail-list/mail-list.component";
-import { AccessibilitaMailListComponent } from "./mailbox/accessibilita-mail-list/accessibilita-mail-list.component"
-import { MailDetailComponent } from "./mailbox/mail-detail/mail-detail.component";
+
 import { ReaddressComponent } from "./mailbox/readdress/readdress.component";
 import { SearchContactComponent } from "./search-contact/search-contact.component";
 
@@ -21,9 +20,7 @@ import { loginModuleConfig } from "./config/module-config";
 import { PrimengPluginModule } from "@bds/primeng-plugin";
 import { MessageService } from "primeng-lts/api";
 import { TooltipModule } from "primeng-lts/tooltip";
-import { MailFoldersComponent } from "./mailbox/mail-folders/mail-folders.component";
 import { SanitizeHtmlPipe } from "./utils/sanitize-html-pipe";
-import { ToolbarComponent } from "./mailbox/toolbar/toolbar.component";
 import { SettingsComponent } from "./settings/settings.component";
 import { NewMailComponent } from "./mailbox/new-mail/new-mail.component";
 import { TagService } from "./services/tag.service";
@@ -50,6 +47,14 @@ import { MailListService } from "./mailbox/mail-list/mail-list.service";
 import { MatIconModule } from "@angular/material/icon";
 import { RubricaContainerComponent } from "./rubrica/rubrica-container/rubrica-container.component";
 import { DialogService } from "primeng-lts/dynamicdialog";
+import { ToolbarModule } from "./mailbox/toolbar/toolbar.module";
+import { MailFoldersModule } from "./mailbox/mail-folders/mail-folders.module";
+
+import { RouteReuseStrategy } from '@angular/router';
+import { CustomReuseStrategy } from './custom-reuse-strategy';
+import { MailDetailModule } from './mailbox/mail-detail/mail-detail.module';
+import { LandingRoutingComponent } from './landing-routing/landing-routing.component';
+
 
 
 registerLocaleData(localeIt, "it-IT", localeItExtra);
@@ -60,20 +65,15 @@ registerLocaleData(localeIt, "it-IT", localeItExtra);
     AppComponent,
     MailboxComponent,
     MailListComponent,
-    AccessibilitaMailListComponent,
-    MailDetailComponent,
-    MailFoldersComponent,
-    SanitizeHtmlPipe,
-    ToolbarComponent,
     SettingsComponent,
     NewMailComponent,
-    RecepitsComponent,
     MailDraftsComponent,
     StripeHtmlPipe,
     ReaddressComponent,
     SearchContactComponent,
     MailOutboxComponent,
-    RubricaContainerComponent
+    RubricaContainerComponent,
+    LandingRoutingComponent
   ],
   imports: [
     NtJwtLoginModule.forRoot(loginModuleConfig),
@@ -86,10 +86,14 @@ registerLocaleData(localeIt, "it-IT", localeItExtra);
     TooltipModule,
     ReactiveFormsModule,
     NextSdrModule,
-    MatIconModule
+    MatIconModule,
+    ToolbarModule,
+    MailFoldersModule,
+    MailDetailModule
   ],
   providers: [
     { provide: LOCALE_ID, useValue: "it-IT" },
+    { provide: RouteReuseStrategy, useClass: CustomReuseStrategy },
     DialogService,
     DatePipe,
     PecService,
@@ -103,6 +107,7 @@ registerLocaleData(localeIt, "it-IT", localeItExtra);
     MailListService
   ],
   bootstrap: [AppComponent],
-  entryComponents: [SettingsComponent, NewMailComponent, ReaddressComponent]
+  entryComponents: [SettingsComponent, NewMailComponent, ReaddressComponent],
+  exports: [  ]
 })
 export class AppModule { }
