@@ -132,7 +132,6 @@ export interface MessageEvent {
   selectedMessages?: Message[];
 }
 
-export enum MessageAction {
-  PROTOCOLLA = "PROTOCOLLA",
-  FASCICOLA = "FASCICOLA"
+export enum MessageCommand {
+  MessageRegistration = "MessageRegistration"
 }
