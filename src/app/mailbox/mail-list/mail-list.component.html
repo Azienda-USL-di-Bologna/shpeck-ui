@@ -97,6 +97,13 @@
                                 #registrationMenu
                                 [model]="aziendeProtocollabiliSubCmItems">
                             </p-contextMenu>
+                            <!-- questo è un menu alternativo usato per il 'protocolla ancora' -->
+                            <p-menu 
+                                appendTo="body"
+                                [popup]="true" 
+                                #alternativeMenu
+                                [model]="aziendeProtocollabiliSubCmItems">   
+                            </p-menu>
                         </span>
                         <!-- reindirizzato -->
                         <span class="mail-icon">
@@ -385,8 +392,8 @@
     </ul>
     <p-footer>
         <button *ngIf="registrationDetail.buttonRegistration"
-        type="button" pButton 
-            (click)="iconRegistrationClicked($event, registrationDetail.message, 'REGISTRABLE')" 
+            type="button" pButton 
+            (click)="iconRegistrationClicked($event, registrationDetail.message, 'REGISTRABLE', true)" 
             label="Protocolla ancora"
             class="ui-button-raised ui-button-secondary button-styles custom-secondary-button">
         </button>

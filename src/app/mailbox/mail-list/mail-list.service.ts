@@ -1124,7 +1124,7 @@ export class MailListService {
       selectedPec,
       "MessageRegistration",
       command,
-      longDescriptionItem
+      longDescriptionItem 
     );
   }
 
