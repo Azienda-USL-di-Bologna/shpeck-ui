@@ -1264,9 +1264,10 @@ export class MailListComponent implements OnInit, OnDestroy, AfterViewInit {
       case "onContextMenuSelect":
         const s: Message[] = [];
         Object.assign(s, this.mailListService.selectedMessages);
+        console.log("dentro on contextmenuselect:", this.mailListService.selectedMessages[0].messageFolderList);
         this.setContextMenuItemLook();
         // workaround per evitare il fatto che la selezione dei messaggi si rompe quando si clicca sul messaggi prima con il tasto sinistro e poi quello destro
-        setTimeout(() => {this.mailListService.selectedMessages = s; }, 0);
+        setTimeout(() => {this.mailListService.selectedMessages = s; console.log("dentro timeout:", this.mailListService.selectedMessages[0].messageFolderList); }, 0);
         break;
       case "saveNote":
         this.saveNote();

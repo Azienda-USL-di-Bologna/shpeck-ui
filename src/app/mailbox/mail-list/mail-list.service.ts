@@ -424,12 +424,13 @@ export class MailListService {
 
 
   /**
-   *Questa funzione si occupa di spostare i selectedMessages nel folder passato
-   *@param idFolder di folder passato ( fk_idPreviousFolder )
+   * Questa funzione si occupa di spostare i selectedMessages nel folder passato
+   * @param idFolder di folder passato ( fk_idPreviousFolder )
    */
   public moveMessages(idFolder: number): void {
     if (idFolder && (typeof (idFolder) === "number")) {
       const numberOfSelectedMessages: number = this.selectedMessages.length;
+      console.log("dentro move message:", this.selectedMessages[0].messageFolderList);
       const messagesFolder: MessageFolder[] = this.selectedMessages.map((message: Message) => {
         return message.messageFolderList[0];  // Basta prendere il primo elemente perché ogni messaggio può essere in una sola cartella
       });
@@ -441,7 +442,7 @@ export class MailListService {
           ).subscribe(
             res => {
               if (this.pecFolderSelected.type === PecFolderType.FOLDER) {
-                this.messages = Utils.arrayDiff(this.messages, this.selectedMessages);
+                this.messages = Utils.arrayDiff(this.messages, this.selectedMessages, "id");
                 this.mailFoldersService.doReloadFolder(messagesFolder[0].fk_idFolder.id);
                 this.mailFoldersService.doReloadFolder(idFolder);
                 this.selectedMessages = [];
@@ -713,7 +714,7 @@ export class MailListService {
     console.log("setseen messaggi: ", this.selectedMessages);
     const messagesToUpdate: BatchOperation[] = [];
     let messaggioDaInviare: Message = null;
-    const selectedMessagesTemp = this.selectedMessages;
+    //const selectedMessagesTemp = this.selectedMessages;
     this.selectedMessages.forEach((message: Message) => {
       if (message.seen !== seen) {
         messaggioDaInviare = new Message();
@@ -729,7 +730,7 @@ export class MailListService {
             ENTITIES_STRUCTURE.shpeck.message.path,
           entityBody: messaggioDaInviare,
           additionalData: null,
-          returnProjection: null
+          returnProjection: this.selectedProjection
         });
       }
     });
