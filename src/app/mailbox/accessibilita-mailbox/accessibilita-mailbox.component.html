@@ -7,8 +7,8 @@
   </div>
   <div #mailContainer class="mail-container" *ngIf="true">
     <!-- Left side -->
-    <div #mailFolder class="content-left"> <!-- tabindex="0" aria-label="Albero cartelle della Pec" (keyup.Control)="onKeyUpMoveFocus($event)" -->
-      <app-mail-folders></app-mail-folders> <!-- role="region" -->
+    <div #mailFolder class="content-left">
+      <app-mail-folders></app-mail-folders>
     </div>
 
     <div #leftSlider class="slider text-center">
@@ -20,4 +20,4 @@
     </div>
   </div>
 </div>
-
+<p-toast key="c" position="center"></p-toast>

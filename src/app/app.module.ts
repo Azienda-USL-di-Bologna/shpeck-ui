@@ -54,6 +54,7 @@ import { RouteReuseStrategy } from '@angular/router';
 import { CustomReuseStrategy } from './custom-reuse-strategy';
 import { MailDetailModule } from './mailbox/mail-detail/mail-detail.module';
 import { LandingRoutingComponent } from './landing-routing/landing-routing.component';
+import { MatMenuModule } from "@angular/material/menu";
 
 
 
@@ -87,6 +88,7 @@ registerLocaleData(localeIt, "it-IT", localeItExtra);
     ReactiveFormsModule,
     NextSdrModule,
     MatIconModule,
+    MatMenuModule,
     ToolbarModule,
     MailFoldersModule,
     MailDetailModule

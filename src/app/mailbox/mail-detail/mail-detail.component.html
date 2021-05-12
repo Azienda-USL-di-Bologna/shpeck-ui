@@ -2,7 +2,13 @@
   {{numberOfMessageSelected}} {{messageTrueDraftFalse ? 'email' : 'bozze'}} selezionate
 </div>
 <div class="detail-container" *ngIf="numberOfMessageSelected === null || numberOfMessageSelected <= 1">
-  <h3 #subject class="mail-object" *ngIf="fullMessage?.emlData?.subject" tabindex="0">{{fullMessage?.emlData?.subject}}</h3>
+  <h3 
+    #subject 
+    class="mail-object" 
+    *ngIf="fullMessage?.emlData?.subject" 
+    tabindex="0">
+    {{fullMessage?.emlData?.subject}}
+  </h3>
   <div *ngIf="message?.inOut === inOut?.OUT && fullMessage?.emlData?.displayBody" class="recepit-detail">
     <div class="recepit-dates">
       <li class="recepit-date">
