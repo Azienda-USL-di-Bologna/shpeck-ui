@@ -1,5 +1,5 @@
 import { Component, Input, ViewChild, ElementRef, OnInit, OnDestroy } from "@angular/core";
-import { ShpeckMessageService, MessageEvent, FullMessage } from "src/app/services/shpeck-message.service";
+import { ShpeckMessageService, MessageEvent, FullMessage, MessageAction } from "src/app/services/shpeck-message.service";
 import { Message, InOut, ENTITIES_STRUCTURE, MessageType, RecepitType, Draft } from "@bds/ng-internauta-model";
 import { ContentTypeList } from "src/app/utils/styles-constants";
 import { EmlData } from "src/app/classes/eml-data";
@@ -224,14 +224,6 @@ export class MailDetailComponent implements OnInit, OnDestroy {
         }
       }, 0);
     }
-  }
-
-  setFocusOnSubject() {
-    setTimeout(() => {
-      if (this._versioneAccessibile) {
-        this.subject.nativeElement.focus();
-      }
-    }, 0);
   }
 
   /**

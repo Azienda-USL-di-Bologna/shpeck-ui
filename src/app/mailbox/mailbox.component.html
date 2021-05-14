@@ -7,8 +7,8 @@
   <div #mailContainer class="mail-container p-col" *ngIf="true">
 
     <!-- Left side -->
-    <div #mailFolder class="content-left">
-      <app-mail-folders></app-mail-folders>
+    <div #mailFolder class="content-left"> <!-- tabindex="0" aria-label="Albero cartelle della Pec" (keyup.Control)="onKeyUpMoveFocus($event)" -->
+      <app-mail-folders></app-mail-folders> <!-- role="region" -->
     </div>
 
     <div #leftSlider class="slider text-center">
@@ -17,6 +17,8 @@
 
     <!-- Right side -->
     <div #rightSide class="content-right d-flex">
+
+      <!-- tabindex="0"  (keyup.Control)="onKeyUpMoveFocus($event)" role="region" -->
       <div #mailList 
         class="mail-list"
         
@@ -27,6 +29,7 @@
           (messageClicked)="messageClicked($event)">
         </app-mail-list> -->
         <div class="filter-box" aria-hidden="true">
+          <!-- (keyup.Control)="onKeyUpMoveFocus($event)" -->
           <div class="filter-box-left">
               {{_selectedFolder ? _selectedFolder.description : _selectedTag ? _selectedTag.description : _selectedPec?.indirizzo}}
               {{totalMessageNumberDescriptor? '(' + totalMessageNumberDescriptor.messageNumber + ')': ''}}

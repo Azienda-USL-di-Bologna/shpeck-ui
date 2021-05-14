@@ -1,17 +1,4 @@
-<div class="toolbar-maildetail">
-  <button 
-    pButton
-    autofocus 
-    (click)="tornaIndietro()" 
-    aria-label="Torna alla lista messaggi"
-    label="Torna alla lista messaggi">
-  </button>
-  <bds-menu 
-    *ngIf="isRegistrationActive && aziendeProtocollabiliMenuItems.length > 0" 
-    [items]="aziendeProtocollabiliMenuItems" 
-    [executeAction]="onDoProtocolla">
-  </bds-menu>
-  <span *ngIf="!isRegistrationActive" tabindex="0">{{infoNonProtocollabile}}</span>
-</div>
-<app-mail-detail [versioneAccessibile]="true"></app-mail-detail>
+<button autofocus (click)="tornaIndietro()" aria-label="Torna alla lista messaggi">Torna alla lista messaggi</button>
+<button autofocus (click)= "doAction(_action.PROTOCOLLA)" [disabled]="!this.isRegistrationActive " aria-label="Protocolla">Protocolla</button>
+<app-mail-detail style="height: 80vh;"  [versioneAccessibile]="true"></app-mail-detail>
 

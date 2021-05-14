@@ -31,7 +31,7 @@
       [ngStyle]="{'font-style': (node.data.type ==='pec' && !node.data.data.attiva) ? 'italic' : 'normal'}"
       pTooltip="{{buildTooltipForNode(node)}}"
       tooltipPosition="top">
-      {{node.label + (node.unreadMessages > 0 ? ' (' + node.unreadMessages + ')' : '')}} {{(node.data.type ==='pec' && !node.data.data.attiva) ?'- disattivata':''}}
+      {{node.label}} {{(node.data.type ==='pec' && !node.data.data.attiva) ?'- disattivata':''}}
     </div>
 
     <!-- Pannello del cambia colore a icona -->

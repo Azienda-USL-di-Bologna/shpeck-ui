@@ -39,17 +39,8 @@ export class Utils {
     }
   }
 
-  public static arrayDiff(a: any[], b: any[], fieldId?: string) {
-    if (fieldId) {
-      return a.filter((el) => {
-        return !b.some((f) => {
-          return f[fieldId] === el[fieldId];
-        });
-      });
-      
-    } else {
-      return a.filter(i => b.indexOf(i) < 0);
-    }
+  public static arrayDiff(a: any[], b: any[]) {
+    return a.filter(i => b.indexOf(i) < 0);
   }
 
   public static arrayOverlap(array1: any[], array2: any[]): any[] {

@@ -1,13 +1,12 @@
-import { Component, OnInit, ViewChild } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { Router, ActivatedRoute } from '@angular/router';
+import { Location } from '@angular/common';
 import { CustomReuseStrategy } from 'src/app/custom-reuse-strategy';
-import { ShpeckMessageService, MessageEvent, MessageCommand } from 'src/app/services/shpeck-message.service';
-import { ItemMenu, Message, Pec } from "@bds/ng-internauta-model";
+import { ShpeckMessageService, MessageEvent, MessageAction } from 'src/app/services/shpeck-message.service';
+import { Applicazione, BaseUrls, BaseUrlType, getInternautaUrl, Message } from "@bds/ng-internauta-model";
 import { NtJwtLoginService } from '@bds/nt-jwt-login';
+import { stringify } from '@angular/compiler/src/util';
 import { MailListService } from '../../mail-list/mail-list.service';
-import { MailFoldersService, PecFolder, PecFolderType } from '../../mail-folders/mail-folders.service';
-import { Menu } from 'primeng-lts/menu';
-import { MenuItem } from 'primeng-lts/api';
 
 @Component({
   selector: 'app-accessibilita-mail-detail',
@@ -15,41 +14,27 @@ import { MenuItem } from 'primeng-lts/api';
   styleUrls: ['./accessibilita-mail-detail.component.scss']
 })
 export class AccessibilitaMailDetailComponent implements OnInit {
-  private subscriptions: any = [];
+  subscription: any = [];
+  public _action = MessageAction;
   public selectedMessages: Message[];
   public isRegistrationActive: boolean = false;
-  public aziendeProtocollabiliMenuItems: ItemMenu[] = [];
-  private _selectedPec: Pec;
-  public infoNonProtocollabile: string;
-  @ViewChild("protocollamenu", {}) private protocollamenu: Menu;
 
-  constructor(
-    private router: Router,
+  constructor(private router: Router,
+    private location: Location,
     private activatedRoute: ActivatedRoute,
     private messageService: ShpeckMessageService,
     private loginService: NtJwtLoginService,
-    private mailFoldersService: MailFoldersService,
-    public mailListService: MailListService) {
-      this.doAction = this.doAction.bind(this);
-      this.onDoProtocolla = this.onDoProtocolla.bind(this);
-    }
-
+    public mailListService: MailListService) { }
     
   ngOnInit(): void {
-    this.subscriptions.push(this.messageService.messageEvent.subscribe(
+    this.subscription.push(this.messageService.messageEvent.subscribe(
       (messageEvent: MessageEvent) => {
         console.log("messageEvent", messageEvent)
         if (messageEvent){
           this.selectedMessages = messageEvent.selectedMessages;
-
-          if (this.selectedMessages && this.selectedMessages.length === 1 && this.selectedMessages[0]) {
-            this.preparaBottoneProtocolla();
-            
-            this.isRegistrationActive = this.mailListService.isRegisterActive(this.selectedMessages[0]);
-            if (!this.isRegistrationActive) {
-              this.infoNonProtocollabile = this.mailListService.getInfoPercheNonRegistrabile(this.selectedMessages[0]);
-            }
-          } else {
+          if(this.selectedMessages && this.selectedMessages.length === 1 && this.selectedMessages[0]){
+            this.isRegistrationActive = this.mailListService.isRegisterActive(this.selectedMessages[0])
+          }else {
             this.isRegistrationActive = false;
           }
         }
@@ -58,88 +43,35 @@ export class AccessibilitaMailDetailComponent implements OnInit {
         }
       }
     ));
-    this.subscriptions.push({id: null, type: "pecFolderSelected", subscription: this.mailFoldersService.pecFolderSelected.subscribe((pecFolderSelected: PecFolder) => {
-      if (pecFolderSelected) {
-        if (pecFolderSelected.type === PecFolderType.TAG || pecFolderSelected.type === PecFolderType.FOLDER) {
-          this._selectedPec = pecFolderSelected.pec;
-        } else {
-          this._selectedPec =  pecFolderSelected.data as Pec;
-        }
-      }
-    })});
   }
 
-  private preparaBottoneProtocolla() {
-    const items = this.mailListService.buildRegistrationBdsMenuItems(this.selectedMessages[0], this._selectedPec, this.doAction, true);
-
-    if (items.length === 1) {
-      items[0].descrizione = "Protocolla in " + items[0].descrizione;
-      this.aziendeProtocollabiliMenuItems = items;
-    } else {
-      const itemButton = new ItemMenu();
-      itemButton.descrizione = "Protocolla";
-      itemButton.children = items;
-      this.aziendeProtocollabiliMenuItems = [itemButton];
-    }
-  }
-
-  tornaIndietro() {
+  tornaIndietro(){
     CustomReuseStrategy.componentsReuseList.push("*");
     this.router.navigate(['../mail-list'], { relativeTo: this.activatedRoute })
   }
 
-  public onDoProtocolla(event: ItemMenu) {
-    this.mailListService.checkCurrentStatusAndRegister(() => {
-      let urlNewDoc = "";
-      urlNewDoc = this.getFrontedAppUrl("scripta") + "/doc?command=NEW&idMessage=" + this.selectedMessages[0].id + "&azienda=" + event.openCommand;
+/*  Gestisce le azioni (per il momento solo il 'PROTOCOLLA') 
+*   PROTOCOLLA: -controlla che l'utente abbia il permesso di protocollare
+                -crea l'url della pagina che vuole aprire di scripta, passando il comando NEW e l'idpec come parametro
+                -apre la pagina di scripta 
+*/
+  doAction(action : MessageAction){
+    console.log(this.selectedMessages)
+    console.log(this.isRegistrationActive) 
+    if(this.isRegistrationActive){
+      let urlNewDoc =""
+      urlNewDoc = this.getFrontedAppUrl("scripta") + "/doc?command=NEW&pec=" + this.selectedMessages[0].id
       const encodeParams = false;
       const addPassToken = true;
       const addRichiestaParam = false;
       this.loginService.buildInterAppUrl(urlNewDoc, encodeParams, addRichiestaParam, addPassToken, true).subscribe((url: string) => {
         console.log("urlAperto:", url);
       });
-    },
-    event.openCommand);
-
-    /* if (this.aziendeProtocollabiliMenuItems.length === 1) {
-      this.doAction({
-        item: this.aziendeProtocollabiliMenuItems[0]
-      });
-    } else {
-      this.protocollamenu.toggle(event);
-    } */
-  }
-
-  /*  Gestisce le azioni (per il momento solo il 'MessageRegistration') 
-  *   MessageRegistration: 
-                - controlla che l'utente abbia il permesso di protocollare
-                - crea l'url della pagina che vuole aprire di scripta, passando il comando NEW e l'idpec come parametro
-                - apre la pagina di scripta 
-  */
-  public doAction(comando : any): void {
-    console.log("comando", comando);
-    console.log(this.selectedMessages);
-    console.log(this.isRegistrationActive);
-    switch (comando.item.id) {
-      case MessageCommand.MessageRegistration:
-        this.mailListService.checkCurrentStatusAndRegister(() => {
-          let urlNewDoc = "";
-          urlNewDoc = this.getFrontedAppUrl("scripta") + "/doc?command=NEW&idMessage=" + this.selectedMessages[0].id + "&azienda=" + comando.item.queryParams.codiceAzienda;
-          const encodeParams = false;
-          const addPassToken = true;
-          const addRichiestaParam = false;
-          this.loginService.buildInterAppUrl(urlNewDoc, encodeParams, addRichiestaParam, addPassToken, true).subscribe((url: string) => {
-            console.log("urlAperto:", url);
-          });
-        },
-        comando.item.queryParams.codiceAzienda);
-        break;
     }
+    
   }
   
-  /**
-   * Crea l'url di una app frontend 
-   * */
+/**Crea l'url di una app frontend */
   public getFrontedAppUrl(app: string): string {
     const wl = window.location;
     let port = wl.port;

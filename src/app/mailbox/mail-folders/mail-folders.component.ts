@@ -691,8 +691,7 @@ export class MailFoldersComponent implements OnInit, OnDestroy {
       collapsedIcon: folderIcons.collapsedIcon + " general-style-icon",
       styleClass: "tree-node-style",
       editable: editable,
-      key: PecFolderType.FOLDER + "_" + (folder.id ? folder.id : "new"),
-      unreadMessages: folder.unreadMessages
+      key: PecFolderType.FOLDER + "_" + (folder.id ? folder.id : "new")
     };
 
     if (folder.additionalData) {
@@ -706,16 +705,15 @@ export class MailFoldersComponent implements OnInit, OnDestroy {
       // prima rimuovo la parte "(numero messaggi)" dal label, poi se il numero dei messaggi non letti è > 0 lo reinserisco con il numero aggiornato
       folderNode.label = folderNode.label.replace(this.regexFindNumberBetweenP, "");
       if (res > 0) {
-        folderNode.unreadMessages = res;
-        /* folderNode.label = folderNode.label + ` (${res})`;
-        folderNode.numberOfMessages = res; */
+        folderNode.label = folderNode.label + ` (${res})`;
+        folderNode.numberOfMessages = res;
       }
     });
-    /* setTimeout(() => {
+    setTimeout(() => {
       // fa scattare la chiamata che fa il calcolo delle mail non lette che a sua volta fa scattare la sottoscrizione sopra
       const unSeen: boolean = !(folder.type === FolderType.OUTBOX || folder.type === FolderType.DRAFT);
       this.mailFoldersService.doReloadFolder(folder.id, unSeen, folder.type, folder.idPec.id);
-    }); */
+    });
 
     return folderNode;
   }
@@ -1013,13 +1011,7 @@ export class MailFoldersComponent implements OnInit, OnDestroy {
 
   private updateFolder(folder: Folder): void {
     this.previousSelectedNode = this.selectedNode;
-    const folderToSave = {
-      name: folder.name,
-      description: folder.description,
-      additionalData: folder.additionalData,
-      version: folder.version
-    } as Folder;
-    this.folderService.patchHttpCall(folderToSave, folder.id).subscribe((f: Folder) => {
+    this.folderService.patchHttpCall(folder, folder.id).subscribe((f: Folder) => {
       this.previousSelectedNode.data.data = f;
       const pecFolderList: Folder[] = (this.previousSelectedNode.parent.data.data as Pec).folderList;
       const index = pecFolderList.findIndex(childFolder => f.id === childFolder.id);
@@ -1318,6 +1310,5 @@ export interface MyTreeNode extends TreeNode {
   editable?: boolean;
   children?: MyTreeNode[];
   inColoring?: boolean;
-  //numberOfMessages?: number;
-  unreadMessages?: number;
+  numberOfMessages?: number;
 }
