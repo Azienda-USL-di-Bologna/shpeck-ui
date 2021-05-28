@@ -91,7 +91,7 @@ export class AccessibilitaMailDetailComponent implements OnInit {
   public onDoProtocolla(event: ItemMenu) {
     this.mailListService.checkCurrentStatusAndRegister(() => {
       let urlNewDoc = "";
-      urlNewDoc = this.getFrontedAppUrl("scripta") + "/doc?command=NEW&idMessage=" + this.selectedMessages[0].id + "&azienda=" + event.openCommand;
+      urlNewDoc = this.getFrontedAppUrl("scripta") + "/doc?from=internauta&command=NEW&idMessage=" + this.selectedMessages[0].id + "&azienda=" + event.openCommand;
       const encodeParams = false;
       const addPassToken = true;
       const addRichiestaParam = false;
