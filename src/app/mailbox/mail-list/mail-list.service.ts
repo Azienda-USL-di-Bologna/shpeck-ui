@@ -682,18 +682,28 @@ export class MailListService {
 
   private buildMessageFolderOperations(message: Message, typeFolder: string, batchOp: BatchOperationTypes, setDeleted: boolean): any {
     const mFolder: MessageFolder = message.messageFolderList.find(messageFolder => messageFolder.idFolder.type === typeFolder);
+
     if (mFolder) {
+      const messageFolderToUpdate = new MessageFolder();
+      messageFolderToUpdate.id = mFolder.id;
+      messageFolderToUpdate.version = mFolder.version;
+      
+      messageFolderToUpdate.idFolder = new Folder();
+      messageFolderToUpdate.idFolder.id = mFolder.idFolder.id;
+      messageFolderToUpdate.idFolder.version = mFolder.idFolder.version;
+
       // mFolder.deleted = setDeleted !== null ? setDeleted : mFolder.deleted;
       if (setDeleted) {
-        mFolder.deleted = true;
-        let utenteEliminatore: Utente;
-        if (mFolder.idUtente) {
+        messageFolderToUpdate.deleted = true;
+        const utenteEliminatore: Utente = new Utente();
+        /* if (mFolder.idUtente) {
           utenteEliminatore = mFolder.idUtente;
         } else {
           utenteEliminatore = new Utente();
-        }
+        } */
         utenteEliminatore.id = this.loggedUser.getUtente().id;
-        mFolder.idUtente = utenteEliminatore;
+        utenteEliminatore.version = this.loggedUser.getUtente().version;
+        messageFolderToUpdate.idUtente = utenteEliminatore;
       }
       return {
         idFolder: mFolder.idFolder.id,
@@ -701,7 +711,7 @@ export class MailListService {
           id: mFolder.id,
           operation: batchOp,
           entityPath: BaseUrls.get(BaseUrlType.Shpeck) + "/" + ENTITIES_STRUCTURE.shpeck.messagefolder.path,
-          entityBody: batchOp === BatchOperationTypes.DELETE ? null : mFolder,
+          entityBody: batchOp === BatchOperationTypes.DELETE ? null : messageFolderToUpdate,
           additionalData: null,
           returnProjection: null
         },
