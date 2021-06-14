@@ -320,8 +320,12 @@ export class MailListService {
       return "Messaggio reindirizzato, non protocollabile";
     }
     const aziendeProtocollabili = this.getCodiciMieAziendeProtocollabili(message);
-    if (aziendeProtocollabili.length === 0) {
-      return "Messaggio già protocollato";
+    //message.messageTagList.some(messageTag => messageTag.idTag.name === "registered");
+    if (aziendeProtocollabili.length === 0 && (message.messageTagList && message.messageTagList.some(messageTag => messageTag.idTag.name === "registered"))) {
+      return "Questo messaggio già protocollato";
+    }
+    else {
+      return "Messaggio non protocollabile";
     }
     return "";
   }

@@ -12,7 +12,7 @@ import { MailboxService, Sorting } from '../../mailbox.service';
 import { Table } from 'primeng-lts/table';
 import {IntimusClientService, IntimusCommand, IntimusCommands, RefreshMailsParams, RefreshMailsParamsEntities, RefreshMailsParamsOperations} from "@bds/nt-communicator";
 import {ConfirmationService, FilterMetadata, LazyLoadEvent, MenuItem, MessageService} from "primeng-lts/api";
-import { BatchOperation, BatchOperationTypes, FILTER_TYPES, FilterDefinition, FiltersAndSorts, PagingConf, SortDefinition } from "@nfa/next-sdr";
+import { BatchOperation, BatchOperationTypes, FILTER_TYPES, FilterDefinition, FiltersAndSorts, PagingConf, SortDefinition, AdditionalDataDefinition } from "@nfa/next-sdr";
 import { buildLazyEventFiltersAndSorts } from "@bds/primeng-plugin";
 import { DatePipe, Location } from "@angular/common";
 import {Azienda, ENTITIES_STRUCTURE, Folder, FolderType, Menu, Message, MessageTag, MessageType, Note, Pec, Tag} from "@bds/ng-internauta-model";
@@ -857,15 +857,7 @@ export class AccessibilitaMailListComponent implements OnInit, OnDestroy {
 
     // quando effettuo una ricerca generica (avendo selezionato la casella) non vengano considerate le mail nel cestino
     if (tag === null && folder === null) {
-      const folderList = this._selectedPec.folderList;
-
-      folderList.forEach(f => {
-        if (f.type !== "TRASH") {
-          filtersAndSorts.addFilter(
-            new FilterDefinition("messageFolderList.idFolder.id", FILTER_TYPES.not_string.equals, f.id)
-          );
-        }
-      });
+      filtersAndSorts.addAdditionalData(new AdditionalDataDefinition("OperationRequested", "FiltraSuTuttiFolderTranneTrash"));
     }
     filtersAndSorts.addFilter(
       new FilterDefinition(
