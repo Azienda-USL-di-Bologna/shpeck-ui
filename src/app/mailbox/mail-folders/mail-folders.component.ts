@@ -619,10 +619,15 @@ export class MailFoldersComponent implements OnInit, OnDestroy {
       folder.name = name.replace(/\s+/, "_").toLowerCase();
     }
     folder.type = FolderType.CUSTOM;
-    folder.idUtente = { id: this.loggedUser.getUtente().id } as Utente;
+    const idUtente = new Utente();
+    idUtente.id = this.loggedUser.getUtente().id;
+    idUtente.version = this.loggedUser.getUtente().version;
+    folder.idUtente = idUtente;
     const pec: Pec = new Pec();
     pec.id = pecContainer.id;
+    pec.version = pecContainer.version;
     folder.idPec = pec;
+    
     return folder;
   }
 
