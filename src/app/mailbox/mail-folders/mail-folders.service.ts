@@ -47,9 +47,9 @@ export class MailFoldersService {
   public doReloadTag(idTag: number): void {
     const url = getInternautaUrl(BaseUrlType.Shpeck) + "/" + CUSTOM_SERVER_METHODS.countMessageInTag + "/" + idTag;
     this.http.get(url).subscribe(
-        (res: number) => {
+        (res) => {
           if (this._reloadTag[idTag]) {
-            this._reloadTag[idTag].next(res);
+            this._reloadTag[idTag].next(res as number);
           }
         }
     );
