@@ -1,5 +1,5 @@
 import { Injectable } from "@angular/core";
-import { NextSDREntityProvider, BatchOperation, BatchOperationTypes } from "@nfa/next-sdr";
+import { NextSDREntityProvider, BatchOperation, BatchOperationTypes, NextSdrEntity } from "@nfa/next-sdr";
 import { DatePipe } from "@angular/common";
 import { HttpClient } from "@angular/common/http";
 import { ENTITIES_STRUCTURE, Message, MessageFolder } from "@bds/ng-internauta-model";
@@ -35,8 +35,8 @@ export class MessageFolderService extends NextSDREntityProvider {
             idUtente: {
               id: idUtente
             },
-            version: messageFolder.version
-          },
+            version: messageFolder.version,
+          } as NextSdrEntity,
           additionalData: null,
           returnProjection: null
         });

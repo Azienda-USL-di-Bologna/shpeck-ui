@@ -2,7 +2,7 @@ import {AfterViewInit, Component, ElementRef, EventEmitter, HostListener, OnDest
 import {buildLazyEventFiltersAndSorts} from "@bds/primeng-plugin";
 import {Azienda, ENTITIES_STRUCTURE, Folder, FolderType, Message, MessageTag, MessageType, Note, Pec, Tag} from "@bds/ng-internauta-model";
 import {MessageEvent, ShpeckMessageService} from "src/app/services/shpeck-message.service";
-import {BatchOperation, BatchOperationTypes, FILTER_TYPES, FilterDefinition, FiltersAndSorts, PagingConf, SortDefinition} from "@nfa/next-sdr";
+import {BatchOperation, BatchOperationTypes, FILTER_TYPES, FilterDefinition, FiltersAndSorts, PagingConf, SortDefinition, AdditionalDataDefinition} from "@nfa/next-sdr";
 import {TagService} from "src/app/services/tag.service";
 import {Observable, Subscription} from "rxjs";
 import {DatePipe} from "@angular/common";
@@ -1167,15 +1167,17 @@ export class MailListComponent implements OnInit, OnDestroy, AfterViewInit {
 
     // quando effettuo una ricerca generica (avendo selezionato la casella) non vengano considerate le mail nel cestino
     if (tag === null && folder === null) {
-      const folderList = this._selectedPec.folderList;
-
-      folderList.forEach(f => {
+      //const folderList = this._selectedPec.folderList;
+      filtersAndSorts.addAdditionalData(new AdditionalDataDefinition("OperationRequested", "FiltraSuTuttiFolderTranneTrash"));
+      //const cestino = folderList.find(f => f.type === "TRASH");
+      
+      /* folderList.forEach(f => {
         if (f.type !== "TRASH") {
           filtersAndSorts.addFilter(
             new FilterDefinition("messageFolderList.idFolder.id", FILTER_TYPES.not_string.equals, f.id)
           );
         }
-      });
+      }); */
     }
     filtersAndSorts.addFilter(
       new FilterDefinition(

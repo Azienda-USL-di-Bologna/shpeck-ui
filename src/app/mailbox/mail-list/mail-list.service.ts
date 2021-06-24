@@ -1,6 +1,6 @@
 import { Injectable } from "@angular/core";
 import { Tag, Folder, Message, FolderType, InOut, ENTITIES_STRUCTURE, FluxPermission, PecPermission, Note, MessageTag,
-  Utente, Azienda, MessageType, MessageStatus, TagType, Pec, MessageFolder, AddresRoleType, MessageAddress, getInternautaUrl, BaseUrlType, BaseUrls } from "@bds/ng-internauta-model";
+  Utente, Azienda, MessageType, MessageStatus, TagType, Pec, MessageFolder, AddresRoleType, MessageAddress, getInternautaUrl, BaseUrlType, BaseUrls, ItemMenu, CommandType } from "@bds/ng-internauta-model";
 import { MenuItem, MessageService } from "primeng-lts/api";
 import { Utils } from "src/app/utils/utils";
 import { MessageFolderService } from "src/app/services/message-folder.service";
@@ -299,6 +299,43 @@ export class MailListService {
     }
   }
 
+  /**
+   * Questa funzione torna una stringa direttamente mostrabile all'utente.
+   * La scritta informa sul perché il messaggio passato non è protocollabile.
+   */
+  public getInfoPercheNonRegistrabile(message: Message): string {
+    if (!message) {
+      return "Nessun messaggio selezionato";
+    }
+    if (message.inOut !== InOut.IN) {
+      return "Messaggio in uscita non protocollabile";
+    }
+    if (message.messageType !== MessageType.MAIL) {
+      return "Tipo di messaggio non protocollabile";
+    }
+    if (message.messageFolderList && message.messageFolderList[0] && message.messageFolderList[0].idFolder.type === "TRASH") {
+      return "Messaggio nel cestino, non protocollabile";
+    }
+    if (message.messageTagList && message.messageTagList.some(messageTag => messageTag.idTag.name === "readdressed_out")) {
+      return "Messaggio reindirizzato, non protocollabile";
+    }
+    const aziendeProtocollabili = this.getCodiciMieAziendeProtocollabili(message);
+    if (aziendeProtocollabili.length === 0) {
+      return "Messaggio già protocollato";
+      return "Questo messaggio già protocollato";
+    }
+    else {
+      return "Messaggio non protocollabile";
+    }
+    return "";
+  }
+
+  /**
+   * Ricarica il messaggio assicurandosi che non sia già registrato.
+   * Se non lo è lancia la funzione passata in ingresso che si deve occupare di far partire la regisdtrazione
+   * @param exe 
+   * @param codiceAzienda 
+   */
   public checkCurrentStatusAndRegister(exe: any, codiceAzienda: string): void {
     if (this.selectedMessages && this.selectedMessages.length === 1) {
       const filtersAndSorts: FiltersAndSorts = new FiltersAndSorts();
@@ -397,6 +434,7 @@ export class MailListService {
   public moveMessages(idFolder: number): void {
     if (idFolder && (typeof (idFolder) === "number")) {
       const numberOfSelectedMessages: number = this.selectedMessages.length;
+      console.log("dentro move message:", this.selectedMessages[0].messageFolderList);
       const messagesFolder: MessageFolder[] = this.selectedMessages.map((message: Message) => {
         return message.messageFolderList[0];  // Basta prendere il primo elemente perché ogni messaggio può essere in una sola cartella
       });
@@ -408,7 +446,7 @@ export class MailListService {
           ).subscribe(
             res => {
               if (this.pecFolderSelected.type === PecFolderType.FOLDER) {
-                this.messages = Utils.arrayDiff(this.messages, this.selectedMessages);
+                this.messages = Utils.arrayDiff(this.messages, this.selectedMessages, "id");
                 this.mailFoldersService.doReloadFolder(messagesFolder[0].fk_idFolder.id);
                 this.mailFoldersService.doReloadFolder(idFolder);
                 this.selectedMessages = [];
@@ -644,7 +682,16 @@ export class MailListService {
 
   private buildMessageFolderOperations(message: Message, typeFolder: string, batchOp: BatchOperationTypes, setDeleted: boolean): any {
     const mFolder: MessageFolder = message.messageFolderList.find(messageFolder => messageFolder.idFolder.type === typeFolder);
+
     if (mFolder) {
+      const messageFolderToUpdate = new MessageFolder();
+      messageFolderToUpdate.id = mFolder.id;
+      messageFolderToUpdate.version = mFolder.version;
+      
+      messageFolderToUpdate.idFolder = new Folder();
+      messageFolderToUpdate.idFolder.id = mFolder.idFolder.id;
+      messageFolderToUpdate.idFolder.version = mFolder.idFolder.version;
+
       // mFolder.deleted = setDeleted !== null ? setDeleted : mFolder.deleted;
       if (setDeleted) {
         mFolder.deleted = true;
@@ -655,7 +702,8 @@ export class MailListService {
           utenteEliminatore = new Utente();
         }
         utenteEliminatore.id = this.loggedUser.getUtente().id;
-        mFolder.idUtente = utenteEliminatore;
+        utenteEliminatore.version = this.loggedUser.getUtente().version;
+        messageFolderToUpdate.idUtente = utenteEliminatore;
       }
       return {
         idFolder: mFolder.idFolder.id,
@@ -663,7 +711,7 @@ export class MailListService {
           id: mFolder.id,
           operation: batchOp,
           entityPath: BaseUrls.get(BaseUrlType.Shpeck) + "/" + ENTITIES_STRUCTURE.shpeck.messagefolder.path,
-          entityBody: batchOp === BatchOperationTypes.DELETE ? null : mFolder,
+          entityBody: batchOp === BatchOperationTypes.DELETE ? null : messageFolderToUpdate,
           additionalData: null,
           returnProjection: null
         },
@@ -696,7 +744,7 @@ export class MailListService {
             ENTITIES_STRUCTURE.shpeck.message.path,
           entityBody: messaggioDaInviare,
           additionalData: null,
-          returnProjection: null
+          returnProjection: this.selectedProjection
         });
       }
     });
@@ -947,7 +995,7 @@ export class MailListService {
     * @param idCommand
     * @param command
     */
-  public buildAziendeMenuItems(codiciAziende: string[], selectedPec: Pec, idCommand: string, command: (any) => any): MenuItem[] {
+  public buildAziendeMenuItems(codiciAziende: string[], selectedPec: Pec, idCommand: string, command: (any) => any, longDescriptionItem: boolean = false): MenuItem[] {
     const aziendeMenuItems = [];
     codiciAziende.forEach(codiceAzienda => {
       const azienda = this.loggedUser.getUtente().aziende.find(a => a.codice === codiceAzienda);
@@ -961,7 +1009,7 @@ export class MailListService {
       }
       aziendeMenuItems.push(
         {
-          label: azienda.nome,
+          label: longDescriptionItem ? azienda.descrizione : azienda.nome,
           icon: pIcon,
           id: idCommand,
           title: pTitle,
@@ -973,6 +1021,27 @@ export class MailListService {
           command: event => command(event)
         }
       );
+    });
+    return aziendeMenuItems;
+  }
+
+  /**
+    * Questo metodo si occupa di construire un menu che contenga le aziende passate come items.
+    * Le aziende non associate alla pec passata (selectedPec) avranno un messaggio d'avviso.
+    * @param codiciAziende
+    * @param selectedPec
+    * @param idCommand
+    * @param command
+    */
+   public buildAziendeBdsMenuItems(codiciAziende: string[], selectedPec: Pec, idCommand: string, command: (any) => any, longDescriptionItem: boolean = false): ItemMenu[] {
+    const aziendeMenuItems: ItemMenu[] = [];
+    codiciAziende.forEach(codiceAzienda => {
+      const azienda = this.loggedUser.getUtente().aziende.find(a => a.codice === codiceAzienda);
+      let item = new ItemMenu();
+      item.commandType = CommandType.URL;
+      item.descrizione = longDescriptionItem ? azienda.descrizione : azienda.nome;
+      item.openCommand = codiceAzienda;
+      aziendeMenuItems.push(item);
     });
     return aziendeMenuItems;
   }
@@ -1046,12 +1115,31 @@ export class MailListService {
    * lista delle aziende su cui l'utente loggato ha il permesso redige per la funzione protocolla Pec.
    * @param command
    */
-  public buildRegistrationMenuItems(message: Message, selectedPec: Pec, command: (any) => any): MenuItem[] {
+  public buildRegistrationMenuItems(message: Message, selectedPec: Pec, command: (any) => any, longDescriptionItem: boolean = false): MenuItem[] {
     return this.buildAziendeMenuItems(
       this.getCodiciMieAziendeProtocollabili(message),
       selectedPec,
       "MessageRegistration",
-      command
+      command,
+      longDescriptionItem
+    );
+  }
+
+  /**
+   * Come la buildRegistrationMenuItems, ma gli item sono preparati per il bds-menu nostro e non per quello di primeng
+   * @param message 
+   * @param selectedPec 
+   * @param command 
+   * @param longDescriptionItem 
+   * @returns 
+   */
+  public buildRegistrationBdsMenuItems(message: Message, selectedPec: Pec, command: (any) => any, longDescriptionItem: boolean = false): ItemMenu[] {
+    return this.buildAziendeBdsMenuItems(
+      this.getCodiciMieAziendeProtocollabili(message),
+      selectedPec,
+      "MessageRegistration",
+      command,
+      longDescriptionItem 
     );
   }
 

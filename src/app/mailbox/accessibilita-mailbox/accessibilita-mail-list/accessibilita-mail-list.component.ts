@@ -20,7 +20,6 @@ import { ContextMenu } from "primeng-lts/contextmenu";
 import { FormControl, FormGroup, Validators } from "@angular/forms";
 import { Utils } from "src/app/utils/utils"; 
 import { NoteService } from "src/app/services/note.service";
-import { elementAt } from "rxjs/operators";
 import { Router, ActivatedRoute, NavigationStart, NavigationEnd } from '@angular/router';
 import { CustomReuseStrategy } from 'src/app/custom-reuse-strategy';
 import { COMMON_MENU_ITEMS } from 'src/app/classes/common-menu-items';
@@ -51,6 +50,13 @@ export class AccessibilitaMailListComponent implements OnInit, OnDestroy {
     message: null,
     additionalData: null
   };
+
+  products = [
+  {
+    code: "codidec", name: "cicsi", category: "rutto", quantity: "38"
+  }
+
+  ]
 
   private subscriptions: { id: number, type: string, subscription: Subscription }[] = [];
   private pecFolderSelected: PecFolder;
@@ -211,7 +217,7 @@ export class AccessibilitaMailListComponent implements OnInit, OnDestroy {
     console.log(this.mailListService.messages);
    
     this.subscriptions.push({id: null, type: "router.events", subscription: this.router.events.subscribe(event => {      
-      if (event instanceof NavigationStart && event.url !== this.lastRoute) {
+      if (event instanceof NavigationStart && event.url !== this.lastRoute && this.dt && this.dt.scrollableViewChild)  {
         let dtToGetScrollTop = this.dt.scrollableViewChild.scrollBodyViewChild as ElementRef;
         // console.log("DT", dtToGetScrollTop.nativeElement.scrollTop);
         this.lastRoute = this.router.url
@@ -852,15 +858,15 @@ private setFilters(filters: FilterDefinition[]) {
   
       // quando effettuo una ricerca generica (avendo selezionato la casella) non vengano considerate le mail nel cestino
       if (tag === null && folder === null) {
-        const folderList = this._selectedPec.folderList;
-  
-        folderList.forEach(f => {
-          if (f.type !== "TRASH") {
-            filtersAndSorts.addFilter(
-              new FilterDefinition("messageFolderList.idFolder.id", FILTER_TYPES.not_string.equals, f.id)
-            );
-          }
-        });
+      const folderList = this._selectedPec.folderList;
+
+      folderList.forEach(f => {
+        if (f.type !== "TRASH") {
+          filtersAndSorts.addFilter(
+            new FilterDefinition("messageFolderList.idFolder.id", FILTER_TYPES.not_string.equals, f.id)
+          );
+        }
+      });
       }
       filtersAndSorts.addFilter(
         new FilterDefinition(
