@@ -879,8 +879,12 @@ export class MailListService {
   public saveNoteAndUpdateTag(noteObj: Note) {
     const message: Message = new Message();
     message.id = this.selectedMessages[0].id;
+    message.version = this.selectedMessages[0].version;
     const batchOperations: BatchOperation[] = [];
-    noteObj.idUtente = { id: this.loggedUser.getUtente().id } as Utente;
+    const utente = new Utente();
+    utente.id = this.loggedUser.getUtente().id;
+    utente.version = this.loggedUser.getUtente().version;
+    noteObj.idUtente = utente;
     noteObj.memo = noteObj.memo.trim();
     if (noteObj.id && noteObj.memo !== "") {
       batchOperations.push({
@@ -920,16 +924,19 @@ export class MailListService {
     }
     const isAnnotedTagPresent = messageTag !== null && messageTag !== undefined;
     if (!isAnnotedTagPresent && noteObj.memo !== "") { // Insert
+      const tag = new Tag();
+      tag.id = this.annotedTag.id;
+      tag.version = this.annotedTag.version;
+      const messageTagToInsert: MessageTag = new MessageTag();
+      messageTagToInsert.idMessage = message;
+      messageTagToInsert.idUtente = utente;
+      messageTagToInsert.idTag = tag;
       batchOperations.push({
         id: null,
         operation: BatchOperationTypes.INSERT,
         entityPath:
           BaseUrls.get(BaseUrlType.Shpeck) + "/" + ENTITIES_STRUCTURE.shpeck.messagetag.path,
-        entityBody: {
-          idMessage: message,
-          idUtente: { id: this.loggedUser.getUtente().id } as Utente,
-          idTag: { id: this.annotedTag.id } as Tag
-        } as MessageTag,
+        entityBody: messageTagToInsert,
         additionalData: null,
         returnProjection: null
       });
