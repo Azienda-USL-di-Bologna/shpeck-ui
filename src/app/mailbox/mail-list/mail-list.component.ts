@@ -1005,7 +1005,7 @@ export class MailListComponent implements OnInit, OnDestroy, AfterViewInit {
 
           //this.mailListService.messages = data.results;
 
-          Array.prototype.splice.apply(this.mailListService.messages, [...[event.first, event.rows], ...data.results]);
+          Array.prototype.splice.apply(this.mailListService.messages, [event.first, event.rows, ...data.results]);
         
           //trigger change detection
           this.mailListService.messages = [...this.mailListService.messages];
