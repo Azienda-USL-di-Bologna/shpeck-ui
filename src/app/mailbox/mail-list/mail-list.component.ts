@@ -2,7 +2,7 @@ import {AfterViewInit, Component, ElementRef, EventEmitter, HostListener, OnDest
 import {buildLazyEventFiltersAndSorts} from "@bds/primeng-plugin";
 import {Azienda, ENTITIES_STRUCTURE, Folder, FolderType, Message, MessageTag, MessageType, Note, Pec, Tag} from "@bds/ng-internauta-model";
 import {MessageEvent, ShpeckMessageService} from "src/app/services/shpeck-message.service";
-import {BatchOperation, BatchOperationTypes, FILTER_TYPES, FilterDefinition, FiltersAndSorts, PagingConf, SortDefinition} from "@nfa/next-sdr";
+import {BatchOperation, BatchOperationTypes, FILTER_TYPES, FilterDefinition, FiltersAndSorts, PagingConf, SortDefinition, AdditionalDataDefinition} from "@nfa/next-sdr";
 import {TagService} from "src/app/services/tag.service";
 import {Observable, Subscription} from "rxjs";
 import {DatePipe} from "@angular/common";
@@ -64,6 +64,7 @@ export class MailListComponent implements OnInit, OnDestroy, AfterViewInit {
   @ViewChild("noteArea", {}) private noteArea;
   @ViewChild("idtag", {}) private inputTextTag;
   @ViewChild("registrationMenu", {}) private registrationMenu: Menu;
+  @ViewChild("alternativeMenu", {}) private alternativeMenu: Menu;
   @ViewChild("archiviationMenu", {}) private archiviationMenu: Menu;
   @ViewChild("tagMenu", {}) private tagMenu: Menu;
   // @ViewChild("ordermenu") private ordermenu: Menu;
@@ -1167,15 +1168,17 @@ export class MailListComponent implements OnInit, OnDestroy, AfterViewInit {
 
     // quando effettuo una ricerca generica (avendo selezionato la casella) non vengano considerate le mail nel cestino
     if (tag === null && folder === null) {
-      const folderList = this._selectedPec.folderList;
-
-      folderList.forEach(f => {
+      //const folderList = this._selectedPec.folderList;
+      filtersAndSorts.addAdditionalData(new AdditionalDataDefinition("OperationRequested", "FiltraSuTuttiFolderTranneTrash"));
+      //const cestino = folderList.find(f => f.type === "TRASH");
+      
+      /* folderList.forEach(f => {
         if (f.type !== "TRASH") {
           filtersAndSorts.addFilter(
             new FilterDefinition("messageFolderList.idFolder.id", FILTER_TYPES.not_string.equals, f.id)
           );
         }
-      });
+      }); */
     }
     filtersAndSorts.addFilter(
       new FilterDefinition(
@@ -1249,20 +1252,24 @@ export class MailListComponent implements OnInit, OnDestroy, AfterViewInit {
       case "onMouseEnter":
         if (this.tagsMenuOpened.registerMenuOpened) {
           this.registrationMenu.hide();
+          this.alternativeMenu.hide();
         }
         if (this.tagsMenuOpened.archiveMenuOpened) {
           this.archiviationMenu.hide();
+          this.alternativeMenu.hide();
         }
         if (this.tagsMenuOpened.tagMenuOpened) {
           this.tagMenu.hide();
+          this.alternativeMenu.hide();
         }
         break;
       case "onContextMenuSelect":
         const s: Message[] = [];
         Object.assign(s, this.mailListService.selectedMessages);
+        console.log("dentro on contextmenuselect:", this.mailListService.selectedMessages[0].messageFolderList);
         this.setContextMenuItemLook();
         // workaround per evitare il fatto che la selezione dei messaggi si rompe quando si clicca sul messaggi prima con il tasto sinistro e poi quello destro
-        setTimeout(() => {this.mailListService.selectedMessages = s; }, 0);
+        setTimeout(() => {this.mailListService.selectedMessages = s; console.log("dentro timeout:", this.mailListService.selectedMessages[0].messageFolderList); }, 0);
         break;
       case "saveNote":
         this.saveNote();
@@ -1789,12 +1796,14 @@ export class MailListComponent implements OnInit, OnDestroy, AfterViewInit {
   /**
    * Questa funzione scatta al click sull'icona di protocollazione.
    * A seconda dello stato del message vengono eseguite diverse azioni.
+   * Nel caso venga clickato 'Protocolla ancora' scatta questa funzione col parametro 'true' del menu alternativo.
    * @param event
    * @param message
    * @param registrable
    */
-  public iconRegistrationClicked(event: any, message: Message, registrationStatus: string) {
+  public iconRegistrationClicked(event: any, message: Message, registrationStatus: string, openAlternativeMenu = false) {
     const messageTag = null;
+    debugger;
     if (message) {
       switch (registrationStatus) {
         case "REGISTERED":
@@ -1804,7 +1813,11 @@ export class MailListComponent implements OnInit, OnDestroy, AfterViewInit {
         case "REGISTRABLE":
           // apro il menu
           this.aziendeProtocollabiliSubCmItems = this.mailListService.buildRegistrationMenuItems(message, this._selectedPec, this.selectedContextMenuItem);
-          this.registrationMenu.toggle(event);
+          if (openAlternativeMenu) {
+            this.alternativeMenu.toggle(event);
+          } else {
+            this.registrationMenu.toggle(event);
+          }
           break;
         case "NOT_REGISTRABLE":
           this.messagePrimeService.add({
@@ -2078,6 +2091,7 @@ export class MailListComponent implements OnInit, OnDestroy, AfterViewInit {
         this.tagsMenuOpened.archiveMenuOpened = true;
         if (this.tagsMenuOpened.registerMenuOpened) {
           this.registrationMenu.hide();
+          this.alternativeMenu.hide();
         }
         if (this.tagsMenuOpened.tagMenuOpened) {
           this.tagMenu.hide();
@@ -2087,6 +2101,7 @@ export class MailListComponent implements OnInit, OnDestroy, AfterViewInit {
         this.tagsMenuOpened.tagMenuOpened = true;
         if (this.tagsMenuOpened.registerMenuOpened) {
           this.registrationMenu.hide();
+          this.alternativeMenu.hide();
         }
         if (this.tagsMenuOpened.archiveMenuOpened) {
           this.archiviationMenu.hide();

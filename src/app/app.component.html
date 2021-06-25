@@ -1,13 +1,13 @@
 <!--The content below is only a placeholder and can be replaced.-->
 <div class="p-grid p-nogutter page-wrapper"> 
  
-  <div class="full-width">
+  <div class="full-width" style="display: hidden;">
     <prp-header class="ui-g-nopad custom-header" logoPath="assets/images/logo.png" [addToRight]="headerTemplate" [appName]="'Babel Internauta - PEC'"></prp-header>
       <ng-template #headerTemplate>
         <prp-header-features [params]="headerFeaturesConfig" [addToMenu]="addToMenu"></prp-header-features>
     </ng-template>
   </div>
-  <div class="content-wrapper ui-fluid" aria-hidden="true">
+  <div class="content-wrapper ui-fluid">
       <router-outlet></router-outlet>
   </div>
 </div>
