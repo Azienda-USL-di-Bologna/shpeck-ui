@@ -25,7 +25,6 @@
     display: flex;
 }
 .toolbar-pec{
-
     .button-new-mail,
     .button-styles {
         width: auto;
@@ -49,15 +48,13 @@
         width: 21px;
     }
     .input-find {
-        width: 100%;
+        width: auto;
         margin-left: auto;
         margin-right: 0;
-        border: 0px;
-        background-color: #f4f4f4;
     }
-    // .input-find:invalid {
-    //     box-shadow: 0px 0px 4px red;
-    // }
+    .input-find:invalid {
+        box-shadow: 0px 0px 4px red;
+    }
 }
 ::ng-deep .margin-l-15 > span {
     margin-left: 15px;
@@ -76,71 +73,4 @@
 }
 .buttons {
     width: 62px !important;
-}
-.close-icon {
-    align-self: center;
-    font-size: 15px;
-	border:1px solid transparent;
-	background-color: #f4f4f4;
-	display: inline-block;
-	vertical-align: middle;
-    outline: 0;
-    cursor: pointer;
-    &:after {
-    // content: "X";
-        display: block;
-        width: 15px;
-        height: 15px;
-        position: absolute;
-        // background-color: #FA9595;
-        z-index:1;
-        right: 35px;
-        top: 0;
-        bottom: 0;
-        margin: auto;
-        padding: 2px;
-        text-align: center;
-        color: #203142;
-        font-weight: normal;
-        font-size: 12px;
-        cursor: pointer;
-    }
-}
-
-
-.input-find,.close-icon,.search-wrapper {
-	position: relative;
-}
-.input-find:not(:valid) ~ .close-icon {
-	display: none !important;
-}
-
-.custom-search-button {
-    text-align: center;
-    // color: #223446;
-    color: #223446;
-    background-color: #f4f4f4;
-    font-family: 'primeicons';
-    line-height: 1;
-    display: inline-block;
-    font-size: 1.25em;
-    border: 0px;
-}
-.search-wrapper{
-    display: flex;
-    box-sizing: border-box;
-    flex-grow: 3;
-    background-color: #f4f4f4;
-    border-bottom: 1px solid #223446;
-    border-top: 1px solid transparent;
-    border-left: 1px solid transparent;
-    border-right: 1px solid transparent;
-    transition: border 0.3s ease-out;
-    &:hover {
-        border: 1px solid #223446 !important;
-    }
-    
-}
-.cerca-box{
-    width: 340px;
 }

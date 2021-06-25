@@ -162,7 +162,7 @@ export class ToolbarComponent implements OnDestroy, AfterViewInit {
   onKeyUpMoveFocus(event) {
     // console.log("mailbox onKeyUpMoveFocus", event);
     const pecContainer: HTMLElement = document.querySelector(".content-left");
-    const searchBar: HTMLElement = document.querySelector(".input-field");
+    const searchBar: HTMLElement = document.querySelector(".input-find");
     if (!!searchBar && document.activeElement === searchBar) {
       if (!!pecContainer) pecContainer.focus();
     } else if (document.activeElement !== pecContainer) {
@@ -194,17 +194,6 @@ export class ToolbarComponent implements OnDestroy, AfterViewInit {
     }
     return "";
   }
-
-	/**
-	 * Metodo che si occupa di resettare la ricerca contatti quando si preme la x
-	 */
-  clearInput(){
-		const filtro = [];
-    this.toolBarService.setFilterTyped(filtro);
-    this.searchField.nativeElement.value= "";
-	}
-
- 
 
   ngOnDestroy() {
     if (this.subscriptions && this.subscriptions.length > 0) {
