@@ -98,7 +98,6 @@
 ::ng-deep .root-tree-node-style-selected {
   font-size: 12px !important;
   color: black !important;
-  //background-color: #eaeaea;
   background-color: white;
   font-weight: bold;
 }
@@ -181,7 +180,6 @@
 }
 ::ng-deep .more-icon::before {
   content: 'more';
-  // content: 'label';
 }
 ::ng-deep .loyalty-icon::before {
   content: 'loyalty';
