@@ -30,7 +30,6 @@
     .button-styles {
         width: auto;
         white-space: nowrap;
-        // flex-grow: 0.1;
         &:focus{
             ::ng-deep .ui-button-text {
                 border: 1px solid black !important;
@@ -55,16 +54,10 @@
         border: 0px;
         background-color: #f4f4f4;
     }
-    // .input-find:invalid {
-    //     box-shadow: 0px 0px 4px red;
-    // }
 }
 ::ng-deep .margin-l-15 > span {
     margin-left: 15px;
 }
-/* ::ng-deep .dialog-class {
-    top: 30%;
-} */
 ::ng-deep .move-menu > div {
     max-height: 330px;
     overflow-y: auto;
@@ -87,12 +80,10 @@
     outline: 0;
     cursor: pointer;
     &:after {
-    // content: "X";
         display: block;
         width: 15px;
         height: 15px;
         position: absolute;
-        // background-color: #FA9595;
         z-index:1;
         right: 35px;
         top: 0;
@@ -117,7 +108,6 @@
 
 .custom-search-button {
     text-align: center;
-    // color: #223446;
     color: #223446;
     background-color: #f4f4f4;
     font-family: 'primeicons';

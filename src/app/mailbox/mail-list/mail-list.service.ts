@@ -1,7 +1,7 @@
 import { Injectable } from "@angular/core";
 import { Tag, Folder, Message, FolderType, InOut, ENTITIES_STRUCTURE, FluxPermission, PecPermission, Note, MessageTag,
   Utente, Azienda, MessageType, MessageStatus, TagType, Pec, MessageFolder, AddresRoleType, MessageAddress, getInternautaUrl, BaseUrlType, BaseUrls, ItemMenu, CommandType } from "@bds/ng-internauta-model";
-import { MenuItem, MessageService } from "primeng-lts/api";
+import { MenuItem, MessageService } from "primeng/api";
 import { Utils } from "src/app/utils/utils";
 import { MessageFolderService } from "src/app/services/message-folder.service";
 import { Subscription, Observable, BehaviorSubject, Subject } from "rxjs";
@@ -14,7 +14,7 @@ import { ReaddressComponent } from "../readdress/readdress.component";
 import { TagService } from "src/app/services/tag.service";
 import { MailboxService, TotalMessageNumberDescriptor, Sorting } from "../mailbox.service";
 import { HttpClient } from "@angular/common/http";
-import { DialogService } from "primeng-lts/dynamicdialog";
+import { DialogService } from "primeng/dynamicdialog";
 
 @Injectable({
   providedIn: "root"

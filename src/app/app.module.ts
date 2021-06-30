@@ -18,8 +18,8 @@ import { NtJwtLoginModule } from "@bds/nt-jwt-login";
 import { loginModuleConfig } from "./config/module-config";
 
 import { PrimengPluginModule } from "@bds/primeng-plugin";
-import { MessageService } from "primeng-lts/api";
-import { TooltipModule } from "primeng-lts/tooltip";
+import { MessageService } from "primeng/api";
+import { TooltipModule } from "primeng/tooltip";
 import { SanitizeHtmlPipe } from "./utils/sanitize-html-pipe";
 import { SettingsComponent } from "./settings/settings.component";
 import { NewMailComponent } from "./mailbox/new-mail/new-mail.component";
@@ -46,7 +46,7 @@ import { MailListService } from "./mailbox/mail-list/mail-list.service";
 // incon - font - styles
 import { MatIconModule } from "@angular/material/icon";
 import { RubricaContainerComponent } from "./rubrica/rubrica-container/rubrica-container.component";
-import { DialogService } from "primeng-lts/dynamicdialog";
+import { DialogService } from "primeng/dynamicdialog";
 import { ToolbarModule } from "./mailbox/toolbar/toolbar.module";
 import { MailFoldersModule } from "./mailbox/mail-folders/mail-folders.module";
 

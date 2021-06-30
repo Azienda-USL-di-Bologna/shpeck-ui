@@ -53,7 +53,7 @@
         #dettagli
         header="Dettagli" 
         class="accordion-dettagli"
-        selected = true
+        [selected]="true"
         [disabled]="fullMessage?.emlData == null">
         <div *ngIf="fullMessage?.emlData" class="id-date">
           <div >
@@ -89,7 +89,7 @@
         #allegati
         *ngIf="fullMessage?.emlData?.realAttachmentNumber > 0"
         header="Allegati"
-        selected="fullMessage?.emlData?.realAttachmentNumber > 0"
+        [selected]="fullMessage?.emlData?.realAttachmentNumber > 0"
         [disabled]="fullMessage?.emlData?.realAttachmentNumber == 0"
         class="accordion-allegati">
         <div class="box-allegati">

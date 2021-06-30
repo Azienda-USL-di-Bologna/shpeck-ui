@@ -6,8 +6,8 @@ import { ItemMenu, Message, Pec } from "@bds/ng-internauta-model";
 import { NtJwtLoginService } from '@bds/nt-jwt-login';
 import { MailListService } from '../../mail-list/mail-list.service';
 import { MailFoldersService, PecFolder, PecFolderType } from '../../mail-folders/mail-folders.service';
-import { Menu } from 'primeng-lts/menu';
-import { MenuItem } from 'primeng-lts/api';
+import { Menu } from 'primeng/menu';
+import { MenuItem } from 'primeng/api';
 
 @Component({
   selector: 'app-accessibilita-mail-detail',

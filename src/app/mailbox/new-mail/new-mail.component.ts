@@ -1,8 +1,8 @@
 import { Component, OnInit, ViewChild, AfterViewInit, OnDestroy } from "@angular/core";
 import { FormGroup, FormControl, Validators, FormArray } from "@angular/forms";
-import { ConfirmationService, MessageService } from "primeng-lts/api";
+import { ConfirmationService, MessageService } from "primeng/api";
 import { Message, Pec, Draft, MessageRelatedType, InOut, ENTITIES_STRUCTURE, DettaglioContattoService, Utente, BaseUrls, BaseUrlType, Contatto } from "@bds/ng-internauta-model";
-import { Editor } from "primeng-lts/editor";
+import { Editor } from "primeng/editor";
 import { TOOLBAR_ACTIONS, MAX_FILE_SIZE_UPLOAD } from "src/environments/app-constants";
 import { DraftService } from "src/app/services/draft.service";
 import { FiltersAndSorts, FilterDefinition, FILTER_TYPES, BatchOperation, BatchOperationTypes, NextSdrEntity, AdditionalDataDefinition } from "@nfa/next-sdr";
@@ -10,8 +10,8 @@ import { Router } from "@angular/router";
 import { UtenteUtilities, NtJwtLoginService } from "@bds/nt-jwt-login";
 import { Subscription } from "rxjs";
 import { CustomContactService, SelectedContact } from "@bds/common-components";
-import { AutoComplete } from "primeng-lts/autocomplete";
-import { DialogService, DynamicDialogConfig, DynamicDialogRef } from "primeng-lts/dynamicdialog";
+import { AutoComplete } from "primeng/autocomplete";
+import { DialogService, DynamicDialogConfig, DynamicDialogRef } from "primeng/dynamicdialog";
 
 @Component({
   selector: "app-new-mail",

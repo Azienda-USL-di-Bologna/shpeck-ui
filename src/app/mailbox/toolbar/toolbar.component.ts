@@ -1,5 +1,5 @@
 import { Component, OnDestroy, ViewChild, ElementRef, AfterViewInit} from "@angular/core";
-import { ConfirmationService, MenuItem } from "primeng-lts/api";
+import { ConfirmationService, MenuItem } from "primeng/api";
 import { Subscription, Observable } from "rxjs";
 import { TOOLBAR_ACTIONS } from "src/environments/app-constants";
 import { Pec, Folder, FolderType, Tag } from "@bds/ng-internauta-model";
@@ -8,8 +8,8 @@ import { FilterDefinition, FILTER_TYPES } from "@nfa/next-sdr";
 import { ToolBarService } from "./toolbar.service";
 import { MailFoldersService, PecFolderType } from "../mail-folders/mail-folders.service";
 import { MailListService } from "../mail-list/mail-list.service";
-import { Menu } from "primeng-lts/menu";
-import { DialogService } from "primeng-lts/dynamicdialog";
+import { Menu } from "primeng/menu";
+import { DialogService } from "primeng/dynamicdialog";
 
 @Component({
   selector: "app-toolbar",
