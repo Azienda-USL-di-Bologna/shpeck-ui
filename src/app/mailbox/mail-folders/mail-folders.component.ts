@@ -1,7 +1,7 @@
 import { Component, OnInit, ViewEncapsulation, OnDestroy, ViewChild, ElementRef, ViewChildren } from "@angular/core";
 import { Pec, Folder, FolderType, Tag, TagType, Utente } from "@bds/ng-internauta-model";
 import { PecService } from "src/app/services/pec.service";
-import { TreeNode, MenuItem, MessageService } from "primeng-lts/api";
+import { TreeNode, MenuItem, MessageService } from "primeng/api";
 import { MailFoldersService, PecFolder, PecFolderType } from "./mail-folders.service";
 import { Subscription } from "rxjs";
 import { FolderService } from "src/app/services/folder.service";
@@ -14,9 +14,9 @@ import { FilterDefinition, FiltersAndSorts, FILTER_TYPES } from "@nfa/next-sdr";
 import { OutboxLiteService } from "src/app/services/outbox-lite.service";
 import { DraftLiteService } from "src/app/services/draft-lite.service";
 import { filter } from 'rxjs/operators';
-import { ContextMenu } from "primeng-lts/contextmenu";
-import { Tree } from "primeng-lts/tree";
-import { OverlayPanel } from "primeng-lts/overlaypanel";
+import { ContextMenu } from "primeng/contextmenu";
+import { Tree } from "primeng/tree";
+import { OverlayPanel } from "primeng/overlaypanel";
 
 @Component({
   selector: "app-mail-folders",

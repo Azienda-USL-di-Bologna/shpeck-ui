@@ -3,12 +3,12 @@ import { FilterDefinition, FILTER_TYPES, PagingConf, SORT_MODES, FiltersAndSorts
 import { ENTITIES_STRUCTURE, Outbox } from "@bds/ng-internauta-model";
 import { Subscription } from "rxjs";
 import { Sorting, MailboxService, TotalMessageNumberDescriptor } from "../mailbox.service";
-import { Table } from "primeng-lts/table";
+import { Table } from "primeng/table";
 import { OutboxLiteService } from "src/app/services/outbox-lite.service";
 import { SettingsService } from "src/app/services/settings.service";
 import { DatePipe } from "@angular/common";
 import { OutboxService } from "src/app/services/outbox.service";
-import { FilterMetadata, LazyLoadEvent } from "primeng-lts/api";
+import { FilterMetadata, LazyLoadEvent } from "primeng/api";
 import { buildLazyEventFiltersAndSorts } from "@bds/primeng-plugin";
 import { AppCustomization } from "src/environments/app-customization";
 import { PecFolder, MailFoldersService, PecFolderType } from "../mail-folders/mail-folders.service";

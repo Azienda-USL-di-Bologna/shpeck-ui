@@ -6,25 +6,23 @@ import {BatchOperation, BatchOperationTypes, FILTER_TYPES, FilterDefinition, Fil
 import {TagService} from "src/app/services/tag.service";
 import {Observable, Subscription} from "rxjs";
 import {DatePipe} from "@angular/common";
-import {Table} from "primeng-lts/table";
+import {Table} from "primeng/table";
 import {BaseUrls, BaseUrlType, EMLSOURCE, FONTSIZE, TOOLBAR_ACTIONS} from "src/environments/app-constants";
-import {ConfirmationService, FilterMetadata, LazyLoadEvent, MenuItem, MessageService} from "primeng-lts/api";
+import {ConfirmationService, FilterMetadata, LazyLoadEvent, MenuItem, MessageService} from "primeng/api";
 import {Utils} from "src/app/utils/utils";
 import {MailFoldersService, PecFolder, PecFolderType} from "../mail-folders/mail-folders.service";
 import {ToolBarService} from "../toolbar/toolbar.service";
 import {MailListService} from "./mail-list.service";
 import {NoteService} from "src/app/services/note.service";
 import {NtJwtLoginService, UtenteUtilities} from "@bds/nt-jwt-login";
-import {Menu} from "primeng-lts/menu";
+import {Menu} from "primeng/menu";
 import {AppCustomization} from "src/environments/app-customization";
 import {SettingsService} from "src/app/services/settings.service";
 import {FormControl, FormGroup, Validators} from "@angular/forms";
 import {MailboxService, Sorting} from "../mailbox.service";
 import {IntimusClientService, IntimusCommand, IntimusCommands, RefreshMailsParams, RefreshMailsParamsEntities, RefreshMailsParamsOperations} from "@bds/nt-communicator";
-import { NewMailComponent } from "src/app/mailbox/new-mail/new-mail.component"
-import { ContextMenu } from "primeng-lts/contextmenu";
-import { isArray } from "util";
-import { DialogService } from "primeng-lts/dynamicdialog";
+import { ContextMenu } from "primeng/contextmenu";
+import { DialogService } from "primeng/dynamicdialog";
 
 
 @Component({

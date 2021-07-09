@@ -49,9 +49,7 @@
   left: 0;
   width: 0px;
   height: 18px;
-  // serve per centrarlo rispetto all'altezza del padre
   top: 50%;
-  // serve per far si che sia centrato rispettto all'altezza di se stesso
   transform: translateY(-50%);
 }
 .hidden {
@@ -112,7 +110,7 @@ app-mail-list, app-mail-drafts {
   overflow: auto;
 }
 .filter-box {
-  background-color: #eaecef; // rgb(248, 248, 248);
+  background-color: #eaecef; 
   border-bottom: 1px solid #96a4b2;
   display: flex;
   flex: 1;
@@ -133,7 +131,6 @@ app-mail-list, app-mail-drafts {
     padding-right: 16px;
   }
   .filter-box-right:hover {
-    // font-weight: bold;
     background-color: #d5dae0 !important;
   }
   .filter-box-right::before {

@@ -1,4 +1,4 @@
-import { MenuItem } from "primeng-lts/api/menuitem";
+import { MenuItem } from "primeng/api/menuitem";
 
 export const COMMON_MENU_ITEMS: MenuItem[] = [
     {

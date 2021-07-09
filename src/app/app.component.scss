@@ -9,7 +9,6 @@
   height: 100%;
 }
 .content-wrapper {
-  // display: flex; show on chrome pagina-non-trovata
   flex: 1;
   min-height: 0;
 }
@@ -34,7 +33,7 @@
   color: white;
 }
 
-::ng-deep body .p-datatable .p-datatable-tbody > tr.p-highlight {//.p-table .p-table-tbody > tr.p-highlight {
+::ng-deep body .p-datatable .p-datatable-tbody > tr.p-highlight {
   background-color: #FCF9BF !important;
   color: black !important;
 }
@@ -62,8 +61,8 @@
   border-color: #c8c8c8 !important;
 }
 
-// -----------CUSTOM SCROLLBAR----------------- //
-// CHROME
+/* -----------CUSTOM SCROLLBAR----------------- */
+/* CHROME */
 
 ::ng-deep ::-webkit-scrollbar {
   width: 10px;
@@ -79,7 +78,7 @@
   background: #8888889c;
 }
 
-// FIREFOX
+/* FIREFOX*/
 ::ng-deep * {
   scrollbar-color: #88888857 #f1f1f1;
   scrollbar-width: thin;
