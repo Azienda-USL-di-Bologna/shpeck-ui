@@ -36,7 +36,7 @@ export class NewMailComponent implements OnInit, AfterViewInit, OnDestroy {
   public mailForm: FormGroup;
   public selectedPec: Pec;
   public display = false;
-  emailRegex = new RegExp(/^[a-zA-Z0-9]+([-.-_a-zA-Z0-9]+[a-zA-Z0-9])+@([a-zA-Z0-9]+[a-zA-Z0-9-.]+[a-zA-Z0-9]+\.)+[a-zA-Z0-9]{2,8}$/);
+  emailRegex = new RegExp(/^([\w])+([\w-_\.]+)+([\w])@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.)|(([\w-]+\.)+))([a-zA-Z]{2,4}|[0-9]{1,3})(\]?)$/);
   /* Questi andranno rinominati */
   public filteredAddressSingle: any[];
   public filteredAddressMultiple: string[];
