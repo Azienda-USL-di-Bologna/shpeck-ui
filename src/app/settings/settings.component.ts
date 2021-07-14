@@ -3,7 +3,7 @@ import { NtJwtLoginService, UtenteUtilities } from "@bds/nt-jwt-login";
 import { SettingsService } from "src/app/services/settings.service";
 import { Subscription } from "rxjs";
 import { FONTSIZE } from "src/environments/app-constants";
-import { DynamicDialogRef } from "primeng-lts/dynamicdialog";
+import { DynamicDialogRef } from "primeng/dynamicdialog";
 
 @Component({
   selector: "app-settings",

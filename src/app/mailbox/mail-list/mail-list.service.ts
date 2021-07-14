@@ -1,7 +1,7 @@
 import { Injectable } from "@angular/core";
 import { Tag, Folder, Message, FolderType, InOut, ENTITIES_STRUCTURE, FluxPermission, PecPermission, Note, MessageTag,
   Utente, Azienda, MessageType, MessageStatus, TagType, Pec, MessageFolder, AddresRoleType, MessageAddress, getInternautaUrl, BaseUrlType, BaseUrls, ItemMenu, CommandType } from "@bds/ng-internauta-model";
-import { MenuItem, MessageService } from "primeng-lts/api";
+import { MenuItem, MessageService } from "primeng/api";
 import { Utils } from "src/app/utils/utils";
 import { MessageFolderService } from "src/app/services/message-folder.service";
 import { Subscription, Observable, BehaviorSubject, Subject } from "rxjs";
@@ -14,7 +14,7 @@ import { ReaddressComponent } from "../readdress/readdress.component";
 import { TagService } from "src/app/services/tag.service";
 import { MailboxService, TotalMessageNumberDescriptor, Sorting } from "../mailbox.service";
 import { HttpClient } from "@angular/common/http";
-import { DialogService } from "primeng-lts/dynamicdialog";
+import { DialogService } from "primeng/dynamicdialog";
 
 @Injectable({
   providedIn: "root"
@@ -879,8 +879,12 @@ export class MailListService {
   public saveNoteAndUpdateTag(noteObj: Note) {
     const message: Message = new Message();
     message.id = this.selectedMessages[0].id;
+    message.version = this.selectedMessages[0].version;
     const batchOperations: BatchOperation[] = [];
-    noteObj.idUtente = { id: this.loggedUser.getUtente().id } as Utente;
+    const utente = new Utente();
+    utente.id = this.loggedUser.getUtente().id;
+    utente.version = this.loggedUser.getUtente().version;
+    noteObj.idUtente = utente;
     noteObj.memo = noteObj.memo.trim();
     if (noteObj.id && noteObj.memo !== "") {
       batchOperations.push({
@@ -920,16 +924,19 @@ export class MailListService {
     }
     const isAnnotedTagPresent = messageTag !== null && messageTag !== undefined;
     if (!isAnnotedTagPresent && noteObj.memo !== "") { // Insert
+      const tag = new Tag();
+      tag.id = this.annotedTag.id;
+      tag.version = this.annotedTag.version;
+      const messageTagToInsert: MessageTag = new MessageTag();
+      messageTagToInsert.idMessage = message;
+      messageTagToInsert.idUtente = utente;
+      messageTagToInsert.idTag = tag;
       batchOperations.push({
         id: null,
         operation: BatchOperationTypes.INSERT,
         entityPath:
           BaseUrls.get(BaseUrlType.Shpeck) + "/" + ENTITIES_STRUCTURE.shpeck.messagetag.path,
-        entityBody: {
-          idMessage: message,
-          idUtente: { id: this.loggedUser.getUtente().id } as Utente,
-          idTag: { id: this.annotedTag.id } as Tag
-        } as MessageTag,
+        entityBody: messageTagToInsert,
         additionalData: null,
         returnProjection: null
       });

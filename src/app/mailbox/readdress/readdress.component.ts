@@ -1,7 +1,7 @@
 import { Component, OnInit, OnDestroy } from "@angular/core";
 import { FormGroup, FormControl, Validators } from "@angular/forms";
 import { ShpeckMessageService } from "src/app/services/shpeck-message.service";
-import { DialogService, DynamicDialogConfig, DynamicDialogRef } from "primeng-lts/dynamicdialog";
+import { DialogService, DynamicDialogConfig, DynamicDialogRef } from "primeng/dynamicdialog";
 import { Subscription } from "rxjs";
 import { PecService } from "src/app/services/pec.service";
 import { Pec, ENTITIES_STRUCTURE, Tag, Message, MessageTag } from "@bds/ng-internauta-model";

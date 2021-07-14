@@ -1,5 +1,5 @@
 import { Component, OnInit } from "@angular/core";
-import { LazyLoadEvent, MenuItem } from "primeng-lts/api";
+import { LazyLoadEvent, MenuItem } from "primeng/api";
 import { NtJwtLoginService, UtenteUtilities, UtilityFunctions } from "@bds/nt-jwt-login";
 import { MAILBOX_ROUTE, LOGIN_ROUTE, APPLICATION } from "src/environments/app-constants";
 import { IntimusClientService } from "@bds/nt-communicator";
@@ -9,7 +9,7 @@ import { SettingsComponent } from "./settings/settings.component";
 import { ActivatedRoute, Router, Params } from "@angular/router";
 import { getInternautaUrl, BaseUrlType, ENTITIES_STRUCTURE } from "@bds/ng-internauta-model";
 import Quill from "quill";
-import { DialogService } from "primeng-lts/dynamicdialog";
+import { DialogService } from "primeng/dynamicdialog";
 import { ShpeckMessageService } from "./services/shpeck-message.service";
 
 @Component({

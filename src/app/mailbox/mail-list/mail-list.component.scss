@@ -11,15 +11,9 @@
 .d-flex {
   display: flex;
 }
-/* p-table,
-::ng-deep p-table > div,
-::ng-deep p-table > div > div,
-::ng-deep p-table > div > div > div {
-  height: 100%;
-} */
+
 ::ng-deep p-table > div > div > div div.ui-table-scrollable-body {
-  /* max-height: 100% !important;
-  height: 100% !important; */
+
   overflow-x: auto;
 }
 ::ng-deep #pec-mail-list .p-datatable .p-datatable-tbody > tr:nth-child(even) {
@@ -69,7 +63,7 @@
   }
 }
 ::ng-deep .cdk-virtual-scroll-content-wrapper {
-  // height: 100%;
+  
   table {
     height: 100%;
     .p-datatable-tbody {
@@ -77,7 +71,7 @@
     }
   }
 }
-::ng-deep #pec-mail-list .p-datatable .p-datatable-tbody > tr > td {//.ui-table-tbody > tr > td {
+::ng-deep #pec-mail-list .p-datatable .p-datatable-tbody > tr > td {
   border: none !important;
 }
 .message-disabled {
@@ -322,7 +316,6 @@
 .warn-color {
   color: #993366 !important;
 }
-// ****** Close button ******* /
 .close-button {
   position: absolute;
   top: -36px;
@@ -336,7 +329,6 @@
 }
 
 .confirm-buttons {
-  // width: 110px !important;
   margin: 0 0 0 0.5em !important;
 }
 
@@ -345,7 +337,6 @@
   resize: none;
 }
 
-// MENU ETICHETTE * /
 ::ng-deep .message-labels-icon-action,
 ::ng-deep .message-labels + p-contextmenusub {
   width: auto;
@@ -401,7 +392,6 @@
   display: inline-flex !important;
 }
 
-//POPUP DETAIL * /
 ::ng-deep .popup-mail-detail {
   width: 900px !important;
   height: 80%;
