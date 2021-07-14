@@ -25,6 +25,7 @@
                 (keyup.enter)="onKeyUp($event, 'to')"
                 (onSelect)="onSelect($event, 'to')" 
                 (onUnselect)="onUnselect($event, 'to')" 
+                (input)="inputValidator($event)" 
                 (onBlur)="onKeyUp($event, 'to')"
                 [minLength]="1" placeholder="Seleziona contatti..." 
                 [multiple]="true">
@@ -55,6 +56,7 @@
               (completeMethod)="filterAddressMultiple($event)" 
               (keyup.enter)="onKeyUp($event, 'cc')"
               (onSelect)="onSelect($event, 'cc')" 
+              (input)="inputValidator($event)" 
               (onUnselect)="onUnselect($event, 'cc')" 
               (onBlur)="onKeyUp($event, 'cc')"
               [pTooltip]="mailForm.get('hideRecipients')?.value ? ccTooltip : ''" [disabled]="mailForm.get('hideRecipients')?.value"

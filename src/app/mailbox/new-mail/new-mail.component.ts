@@ -885,12 +885,23 @@ export class NewMailComponent implements OnInit, AfterViewInit, OnDestroy {
     }
   }
 
+  public inputValidator(event: any) {
+    const pattern = this.emailRegex;   
+    if (!pattern.test(event.target.value)) {
+      event.target.value = event.target.value.replace(/[^\w-_@\.]/g, "");
+    }
+  }
+  
+
+
   public ngOnDestroy(): void {
     this.subscriptions.forEach(s => s.unsubscribe());
     this.subscriptions = [];
   }
 
 }
+
+  
 
 enum Apps {
   PEC = "pec",
