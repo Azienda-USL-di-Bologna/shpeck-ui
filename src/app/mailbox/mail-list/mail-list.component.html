@@ -252,7 +252,7 @@
                         </span>
                         <!-- iconcina degli errori -->
                         <span class="first-line-error icon-default-color"
-                            [ngClass]="{'visibility-hidden':!(message?.iconsVisibility?.in_error || message.messageStatus === 'ERROR'),'warn-color': message?.iconsVisibility?.in_error}">
+                            [ngClass]="{'visibility-hidden':!(message?.iconsVisibility?.in_error ),'warn-color': message?.iconsVisibility?.in_error}">
                             <i
                                 [pTooltip]="message['moved'] ? null :
                                             getTagDescription('in_error')"
@@ -280,7 +280,7 @@
                     <i aria-hidden="true"
                         *ngIf="_selectedFolder?.type !== 'TRASH' && mailListService?.loggedUserCanDelete === true"
                         class="material-icons-outlined delete-icon" 
-                        (click)="!message['moved'] ? deletingConfirmation('Sei sicuro di voler eliminare il messaggio?'): null"
+                        (click)="!message['moved']? deletingConfirmation('Sei sicuro di voler eliminare il messaggio?'): null"
                         [pTooltip]="message['moved'] ? null :
                                     'Elimina il messaggio'">
                         delete

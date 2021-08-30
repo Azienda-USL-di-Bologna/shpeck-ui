@@ -133,7 +133,16 @@ export class ToolbarComponent implements OnDestroy, AfterViewInit {
    */
   private deletingConfirmation() {
     let message: string;
-
+    const almenoUnoConTag = this.mailListService.selectedMessages
+        .some(m => m.messageTagList)
+        if(almenoUnoConTag){
+          var almenoUnoInErrore = this.mailListService.selectedMessages
+            .some(m => m.messageTagList
+              .some(mt => mt.idTag.name === "in_error"));
+        }else{
+          almenoUnoInErrore = false;
+        }
+    const defaultMessage = almenoUnoInErrore ? "Almeno uno dei messaggi selezionati è in errore, sei sicuro di volerli eliminare" : "Sei sicuro di voler eliminare i messaggi selezionati?"
     if (this.toolBarService.selectedFolder.type === FolderType.TRASH) {
       this.mailListService.deleteSelectedMessageFromTrash();
     } else {
@@ -144,8 +153,13 @@ export class ToolbarComponent implements OnDestroy, AfterViewInit {
           message = "Vuoi eliminare definitivamente le bozze selezionate?";
         }
       } else {
-        message = "Sei sicuro di voler eliminare i messaggi selezionati?";
+        if(almenoUnoInErrore){
+          message = defaultMessage;
+        } else {
+          message = "Sei sicuro di voler eliminare i messaggi selezionati?";
+        }
       }
+      
       this.confirmationService.confirm({
         message: message,
         header: "Conferma",
