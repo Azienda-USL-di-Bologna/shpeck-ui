@@ -132,45 +132,45 @@ export class ToolbarComponent implements OnDestroy, AfterViewInit {
    * In caso affermativo faccio partire la cancellazione spostamento nel cestino).
    */
   private deletingConfirmation() {
-    let message: string;
-    const almenoUnoConTag = this.mailListService.selectedMessages
-        .some(m => m.messageTagList)
-        if(almenoUnoConTag){
-          var almenoUnoInErrore = this.mailListService.selectedMessages
-            .some(m => m.messageTagList
-              .some(mt => mt.idTag.name === "in_error"));
-        }else{
-          almenoUnoInErrore = false;
-        }
-    const defaultMessage = almenoUnoInErrore ? "Almeno uno dei messaggi selezionati è in errore, sei sicuro di volerli eliminare" : "Sei sicuro di voler eliminare i messaggi selezionati?"
-    if (this.toolBarService.selectedFolder.type === FolderType.TRASH) {
-      this.mailListService.deleteSelectedMessageFromTrash();
-    } else {
-      if (this.toolBarService.selectedFolder.type === FolderType.DRAFT) {
-        message = "Vuoi eliminare definitivamente la bozza selezionata?";
-        const drafts = this.toolBarService.draftEvent.selectedDrafts;
-        if (drafts && drafts.length > 1) {
-          message = "Vuoi eliminare definitivamente le bozze selezionate?";
-        }
+    setTimeout(() => {let message: string;
+      const almenoUnoConTag = this.mailListService.selectedMessages
+          .some(m => m.messageTagList)
+          if(almenoUnoConTag){
+            var almenoUnoInErrore = this.mailListService.selectedMessages
+              .some(m => m.messageTagList
+                .some(mt => mt.idTag.name === "in_error"));
+          }else{
+            almenoUnoInErrore = false;
+          }
+      const defaultMessage = almenoUnoInErrore ? "Almeno uno dei messaggi selezionati è <b>in errore</b>, sei sicuro di volerli eliminare? Se eliminato verrà segnato come errore visto" : "Sei sicuro di voler eliminare i messaggi selezionati?"
+      if (this.toolBarService.selectedFolder.type === FolderType.TRASH) {
+        this.mailListService.deleteSelectedMessageFromTrash();
       } else {
-        if(almenoUnoInErrore){
-          message = defaultMessage;
+        if (this.toolBarService.selectedFolder.type === FolderType.DRAFT) {
+          message = "Vuoi eliminare definitivamente la bozza selezionata?";
+          const drafts = this.toolBarService.draftEvent.selectedDrafts;
+          if (drafts && drafts.length > 1) {
+            message = "Vuoi eliminare definitivamente le bozze selezionate?";
+          }
         } else {
-          message = "Sei sicuro di voler eliminare i messaggi selezionati?";
-        }
+          if(almenoUnoInErrore){
+            message = defaultMessage;
+          } else {
+            message = "Sei sicuro di voler eliminare i messaggi selezionati?";
+          }
       }
       
-      this.confirmationService.confirm({
-        message: message,
-        header: "Conferma",
-        icon: "pi pi-exclamation-triangle",
-        accept: () => {
-          this.toolBarService.handleDelete();
-        },
-        reject: () => {}
-      });
-    }
-
+        this.confirmationService.confirm({
+          message: message,
+          header: "Conferma",
+          icon: "pi pi-exclamation-triangle",
+          accept: () => {
+            this.toolBarService.handleDelete();
+          },
+          reject: () => {}
+        });
+      }
+    }, 0);
   }
 
   onKeyUpMoveFocus(event) {

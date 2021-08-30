@@ -1645,9 +1645,9 @@ export class MailListComponent implements OnInit, OnDestroy, AfterViewInit {
         }else{
           almenoUnoInErrore = false;
         }
-      const defaultMessage = almenoUnoInErrore ? "Almeno uno dei messaggi selezionati è in errore, sei sicuro di volerli eliminare" : "Sei sicuro di voler eliminare i messaggi selezionati?"
+      const defaultMessage = almenoUnoInErrore ? "Almeno uno dei messaggi selezionati è <b>in errore</b>, sei sicuro di volerli eliminare? Se eliminato verrà segnato come errore visto" : "Sei sicuro di voler eliminare i messaggi selezionati?"
       if (almenoUnoInErrore) {
-        newMessage = "Il messaggio è in errore, sei sicuro di volerlo eliminare?"
+        newMessage = "Almeno uno dei messaggi selezionati è <b>in errore</b>, sei sicuro di volerli eliminare? Se eliminato verrà segnato come errore visto"
       }
       var message: string = newMessage ? newMessage : defaultMessage;
       this.confirmationService.confirm({

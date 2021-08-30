@@ -546,7 +546,13 @@ export class MailListService {
    * @param loggedUser
    */
   public moveMessagesToTrash(): void {
-    this.toggleError(false);   
+    if(this.selectedMessages.some(m => m.messageTagList)){
+      if(this.selectedMessages
+        .some(m => m.messageTagList
+          .some(mt => mt.idTag.name === "in_error"))){
+            this.toggleError(false);
+          } 
+    }      
     this.moveMessages(this.trashFolder.id);  
   }
 
