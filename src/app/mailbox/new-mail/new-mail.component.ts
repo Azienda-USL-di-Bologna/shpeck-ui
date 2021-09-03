@@ -24,6 +24,7 @@ export class NewMailComponent implements OnInit, AfterViewInit, OnDestroy {
   @ViewChild("ccAutoComplete", {static: true}) ccAutoComplete: AutoComplete;
   @ViewChild("editor", {}) editor: Editor;
   private fromAddress: string = ""; // Indirizzo che ha inviato la mail in caso di Rispondi e Rispondi a tutti
+  private replyAddress: string = ""; // Indirizzo che ha inviato la mail in caso di Rispondi e Rispondi a tutti
   private toAddressesForLabel: string[] = [];
   private ccAddressesForLabel: string[] = [];
   private toAddresses: any[] = [];
@@ -31,7 +32,7 @@ export class NewMailComponent implements OnInit, AfterViewInit, OnDestroy {
   private toFormControl: FormControl[] = [];
   private ccFormControl: FormControl[] = [];
 
-  public suggestion: number=688300;
+  public suggestion: number = 688300;
   public attachments: any[] = [];
   public mailForm: FormGroup;
   public selectedPec: Pec;
@@ -87,7 +88,7 @@ export class NewMailComponent implements OnInit, AfterViewInit, OnDestroy {
     this.prepareMessageOrDraft();
 
     if (this.checkIfRubricaInternautaShouldBeEnabled()) {
-      const fakeDestinatariforAppPEC = '{"mode":"DESTINATARI","app":"pec","codiceAzienda":"","guid":""}';
+      const fakeDestinatariforAppPEC = "{\"mode\":\"DESTINATARI\",\"app\":\"pec\",\"codiceAzienda\":\"\",\"guid\":\"\"}";
       this.customContactService._callerData = JSON.parse(fakeDestinatariforAppPEC);
       this.customContactService._callerData.selectedContactsLists = {
         "A": [],
@@ -96,10 +97,10 @@ export class NewMailComponent implements OnInit, AfterViewInit, OnDestroy {
       };
       this.customContactService.manageCallerApp(Apps.PEC);
     }
-    
+
 
   }
-  
+
 
   private prepareMessageOrDraft() {
     // console.log("DATA PASSED = ", this.config.data);
@@ -149,32 +150,32 @@ export class NewMailComponent implements OnInit, AfterViewInit, OnDestroy {
     this.mailFormInit(hideRecipients, subject, message, action, messageRelatedType);
   }
 
-  
+
 
   /**
    * Inizializzazione della form, funziona per tutte le actions ed é l'oggetto che contiene tutti i campi
-   * @param hideRecipients 
-   * @param subject 
-   * @param message 
-   * @param action 
-   * @param messageRelatedType 
+   * @param hideRecipients
+   * @param subject
+   * @param message
+   * @param action
+   * @param messageRelatedType
    */
   private mailFormInit(hideRecipients: { value: boolean; disabled: boolean; }, subject: string, message: Message | Draft, action: any, messageRelatedType: string) {
     if (this.toAddresses && this.toAddresses.length > 0) {
       console.log("qui ci entro", this.toAddresses);
       this.toAddresses.forEach(el => this.toFormControl.push(new FormControl(el, Validators.pattern(this.emailRegex))));
       this.toFormControl = [...this.toFormControl];
-      //this.mailForm.get("to").setValue([...this.toFormControl]);
+      // this.mailForm.get("to").setValue([...this.toFormControl]);
       this.toAutoComplete.writeValue(this.toAddresses);
     }
-    
+
     if (this.ccAddresses && this.ccAddresses.length > 0) {
       this.ccAddresses.forEach(el => this.ccFormControl.push(new FormControl(el, Validators.pattern(this.emailRegex))));
       this.ccFormControl = [...this.ccFormControl];
-      //this.mailForm.get("cc").setValue([...this.ccFormControl]);
+      // this.mailForm.get("cc").setValue([...this.ccFormControl]);
       this.ccAutoComplete.writeValue(this.ccAddresses);
     }
-    
+
     this.mailForm = new FormGroup({
       idDraftMessage: new FormControl(this.config.data.idDraft),
       idPec: new FormControl(this.selectedPec.id),
@@ -201,10 +202,10 @@ export class NewMailComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   ngAfterViewInit() {
-    
-    
+
+
   /* Inizializzazione del body per le risposte e l'inoltra */
-    
+
     if (this.config.data.action !== TOOLBAR_ACTIONS.NEW) {
       let body = "";
       if (this.config.data.fullMessage.emlData) {
@@ -237,15 +238,19 @@ export class NewMailComponent implements OnInit, AfterViewInit, OnDestroy {
   */
   fillAddressesArray(message?: Message, draft?: Draft, allAddresses?: boolean, action?: string) {
     if (message && message.messageAddressList && message.messageAddressList.length > 0) {
-      message.messageAddressList.forEach(obj => {
+      message.messageAddressList.forEach(
+        obj => {
         switch (obj.addressRole) {
+          case "REPLY_TO":
+            this.replyAddress = obj.idAddress.mailAddress;
+            break;
           case "FROM":
             this.fromAddress = obj.idAddress.mailAddress;
-            if (action !== TOOLBAR_ACTIONS.FORWARD) {
+            /* if (action !== TOOLBAR_ACTIONS.FORWARD) {
               if (message.inOut === InOut.IN) {
                 this.toAddresses.push(obj.idAddress.mailAddress);
               }
-            }
+            } */
             break;
           case "TO":
             this.toAddressesForLabel.push(obj.idAddress.mailAddress);
@@ -265,6 +270,12 @@ export class NewMailComponent implements OnInit, AfterViewInit, OnDestroy {
             break;
         }
       });
+      if (action !== TOOLBAR_ACTIONS.FORWARD) {
+        if (message.inOut === InOut.IN) {
+          const toWhom = this.replyAddress ? this.replyAddress : this.fromAddress;
+          this.toAddresses.push(toWhom);
+        }
+      }
     } else if (draft) {
       this.toAddresses = draft.toAddresses;
       this.ccAddresses = draft.ccAddresses;
@@ -584,8 +595,8 @@ export class NewMailComponent implements OnInit, AfterViewInit, OnDestroy {
   // }
 
   filterAddressMultiple(event) {
-    console.log("sadhjashdhsakdhkasdasjhkd")
-    console.log(this.filteredAddressMultiple)
+    console.log("sadhjashdhsakdhkasdasjhkd");
+    console.log(this.filteredAddressMultiple);
     const query = event.query;
     if (this.checkIfRubricaInternautaShouldBeEnabled()) {
       this.loadEmailsFromDettaglioContatto(query);
@@ -608,7 +619,7 @@ export class NewMailComponent implements OnInit, AfterViewInit, OnDestroy {
     filtersAndSorts.addFilter(new FilterDefinition("eliminato", FILTER_TYPES.not_string.equals, false));
     filtersAndSorts.addFilter(new FilterDefinition("tipo", FILTER_TYPES.not_string.equals, "EMAIL"));
 
-    //filtersAndSorts.addFilter(new FilterDefinition("tscol", FILTER_TYPES.not_string.equals, query));
+    // filtersAndSorts.addFilter(new FilterDefinition("tscol", FILTER_TYPES.not_string.equals, query));
     this.subscriptions.push(
       this.dettaglioContattoService.getData(projection, filtersAndSorts).subscribe(res => {
         res.results.forEach(dettaglioContatto => {
@@ -757,7 +768,7 @@ export class NewMailComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   /**
-   * 
+   *
    */
   onCloseRubricaPopup() {
     console.log("onCloseRubricaPopup");
@@ -887,12 +898,12 @@ export class NewMailComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   public inputValidator(event: any) {
-    const pattern = this.emailRegex;   
+    const pattern = this.emailRegex;
     if (!pattern.test(event.target.value)) {
       event.target.value = event.target.value.replace(/[^\w-_@\.]/g, "");
     }
   }
-  
+
 
 
   public ngOnDestroy(): void {
@@ -902,7 +913,7 @@ export class NewMailComponent implements OnInit, AfterViewInit, OnDestroy {
 
 }
 
-  
+
 
 enum Apps {
   PEC = "pec",
