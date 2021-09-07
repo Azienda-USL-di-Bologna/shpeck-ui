@@ -38,7 +38,7 @@ export class NewMailComponent implements OnInit, AfterViewInit, OnDestroy {
   public selectedPec: Pec;
   public display = false;
   // emailRegex = new RegExp(/^([\w])+([\w-_\.]+)+([\w])@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.)|(([\w-]+\.)+))([a-zA-Z]{2,4}|[0-9]{1,3})(\]?)$/);
-  emailRegex = new RegExp(/^(([^<>()\[\]\.,;:\s@\"]+(\.[^<>()\[\]\.,;:\s@\"]+)*)|(\".+\"))@(([^<>()[\]\.,;:\s@\"]+\.)+[^<>()[\]\.,;:\s@\"]{2,})$/);
+  emailRegex = new RegExp(/^(([^&#!?'òùàèéì%+*§$£<>()\[\]\.,;:\s@\"]+(\.[^<>&#!?'òùàèéì%+*§$£()\[\]\.,;:\s@\"]+)*)|(\".+\"))@(([^<>()&#!?'%òùàèéì+*§$£[\]\.,;:'\s@\"]+\.)+[^<>&#!?%'òùàèéì+*§$£()[\]\.,;:'\s@\"]{2,})$/);
   /* Questi andranno rinominati */
   public filteredAddressSingle: any[];
   public filteredAddressMultiple: string[];
@@ -897,13 +897,14 @@ export class NewMailComponent implements OnInit, AfterViewInit, OnDestroy {
     }
   }
 
+/*Nasceva dalla necessità di non far più digitare agli utenti i caratteri speciali per il momento lo rimuoviamo, anche (input)="inputValidator($event)" 
   public inputValidator(event: any) {
     const pattern = this.emailRegex;
     if (!pattern.test(event.target.value)) {
-      event.target.value = event.target.value.replace(/[^\w-_@\.]/g, "");
+      event.target.value = event.target.value.replace(/[^\w-_@'\.]/g, "");
     }
   }
-
+*/
 
 
   public ngOnDestroy(): void {
