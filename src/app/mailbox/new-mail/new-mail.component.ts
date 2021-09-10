@@ -49,6 +49,7 @@ export class NewMailComponent implements OnInit, AfterViewInit, OnDestroy {
   private subscriptions: Subscription[] = [];
   public disableButtonsConfermaDestinatariSelezionati: boolean = false;
   public isMailValid: boolean = true;
+  public isMailValidCC: boolean = true;
 
   public indirizziTest = [
     "l.salomone@nsi.it"
@@ -306,6 +307,7 @@ export class NewMailComponent implements OnInit, AfterViewInit, OnDestroy {
                 this.mailForm.markAsDirty();
                 this.addressesTO.markAsDirty();
               }
+              this.isMailValid = true;
             } else {
               this.messageService.add({severity: "warn", summary: "Attenzione", detail: "La mail è stata già inserita."});
             }
@@ -322,19 +324,28 @@ export class NewMailComponent implements OnInit, AfterViewInit, OnDestroy {
                 this.mailForm.markAsDirty();
                 this.addressesCC.markAsDirty();
               }
+              this.isMailValidCC = true;
             } else {
               this.messageService.add({severity: "warn", summary: "Attenzione", detail: "La mail è stata già inserita."});
             }
           }
         }
         tokenInput.value = "";
-        this.isMailValid = true;
+        
       }
       else if(event.type === "blur" && tokenInput.value && !tokenInput.validity.valid){
-        this.isMailValid = false;
+        if(formField){
+          if(formField === "to"){
+            this.isMailValid = false;
+          }
+          else if(formField === "cc") {
+            this.isMailValidCC = false;
+          }
+        }
       }
       else{
         this.isMailValid = true;
+        this.isMailValidCC = true;
       }
     }
   }
