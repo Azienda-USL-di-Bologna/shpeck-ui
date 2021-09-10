@@ -48,6 +48,7 @@ export class NewMailComponent implements OnInit, AfterViewInit, OnDestroy {
   public utenteConnesso: Utente;
   private subscriptions: Subscription[] = [];
   public disableButtonsConfermaDestinatariSelezionati: boolean = false;
+  public isMailValid: boolean = true;
 
   public indirizziTest = [
     "l.salomone@nsi.it"
@@ -327,6 +328,13 @@ export class NewMailComponent implements OnInit, AfterViewInit, OnDestroy {
           }
         }
         tokenInput.value = "";
+        this.isMailValid = true;
+      }
+      else if(event.type === "blur" && tokenInput.value && !tokenInput.validity.valid){
+        this.isMailValid = false;
+      }
+      else{
+        this.isMailValid = true;
       }
     }
   }
@@ -348,7 +356,7 @@ export class NewMailComponent implements OnInit, AfterViewInit, OnDestroy {
       if (formField === "to") {
         const toForm = this.mailForm.get("to") as FormArray;
         if (toForm.value.indexOf(item) === -1) {
-          toForm.push(new FormControl(item, Validators.pattern(this.emailRegex)));
+          toForm.push(new FormControl(item, {validators: Validators.pattern(this.emailRegex), updateOn: 'blur'}));
           if (this.mailForm.pristine) {
             this.mailForm.markAsDirty();
           }
@@ -356,10 +364,12 @@ export class NewMailComponent implements OnInit, AfterViewInit, OnDestroy {
           this.messageService.add({severity: "warn", summary: "Attenzione", detail: "La mail è stata già inserita."});
         }
         this.toAutoComplete.writeValue(toForm.value);
+        this.isMailValid= true;
+        console.log(this.isMailValid)
       } else if (formField === "cc") {
         const ccForm = this.mailForm.get("cc") as FormArray;
         if (ccForm.value.indexOf(item) === -1) {
-          ccForm.push(new FormControl(item, Validators.pattern(this.emailRegex)));
+          ccForm.push(new FormControl(item, {validators: Validators.pattern(this.emailRegex), updateOn: 'blur'}));
           if (ccForm.value && ccForm.value.length > 0) {
             const hideRecipients = this.mailForm.get("hideRecipients");
             hideRecipients.disable();
@@ -371,6 +381,8 @@ export class NewMailComponent implements OnInit, AfterViewInit, OnDestroy {
           this.messageService.add({severity: "warn", summary: "Attenzione", detail: "La mail è stata già inserita."});
         }
         this.ccAutoComplete.writeValue(ccForm.value);
+        this.isMailValid= true;
+        console.log(this.isMailValid)
       }
     }
   }
@@ -897,7 +909,7 @@ export class NewMailComponent implements OnInit, AfterViewInit, OnDestroy {
     }
   }
 
-/*Nasceva dalla necessità di non far più digitare agli utenti i caratteri speciali per il momento lo rimuoviamo, anche (input)="inputValidator($event)" 
+/* Nasceva dalla necessità di non far più digitare agli utenti i caratteri speciali per il momento lo rimuoviamo, anche (input)="inputValidator($event)" 
   public inputValidator(event: any) {
     const pattern = this.emailRegex;
     if (!pattern.test(event.target.value)) {
@@ -905,7 +917,6 @@ export class NewMailComponent implements OnInit, AfterViewInit, OnDestroy {
     }
   }
 */
-
 
   public ngOnDestroy(): void {
     this.subscriptions.forEach(s => s.unsubscribe());
