@@ -344,8 +344,14 @@ export class NewMailComponent implements OnInit, AfterViewInit, OnDestroy {
         }
       }
       else{
-        this.isMailValid = true;
-        this.isMailValidCC = true;
+        if(formField){
+          if(formField === "to"){
+            this.isMailValid = true;
+          }
+          else if(formField === "cc") {
+            this.isMailValidCC = true;
+          }
+        }
       }
     }
   }
