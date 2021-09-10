@@ -382,7 +382,6 @@ export class NewMailComponent implements OnInit, AfterViewInit, OnDestroy {
         }
         this.toAutoComplete.writeValue(toForm.value);
         this.isMailValid= true;
-        console.log(this.isMailValid)
       } else if (formField === "cc") {
         const ccForm = this.mailForm.get("cc") as FormArray;
         if (ccForm.value.indexOf(item) === -1) {
@@ -398,8 +397,7 @@ export class NewMailComponent implements OnInit, AfterViewInit, OnDestroy {
           this.messageService.add({severity: "warn", summary: "Attenzione", detail: "La mail è stata già inserita."});
         }
         this.ccAutoComplete.writeValue(ccForm.value);
-        this.isMailValid= true;
-        console.log(this.isMailValid)
+        this.isMailValidCC= true;
       }
     }
   }
