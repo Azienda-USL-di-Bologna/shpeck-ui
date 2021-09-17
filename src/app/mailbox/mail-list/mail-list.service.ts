@@ -1,7 +1,7 @@
 import { Injectable } from "@angular/core";
 import { Tag, Folder, Message, FolderType, InOut, ENTITIES_STRUCTURE, FluxPermission, PecPermission, Note, MessageTag,
   Utente, Azienda, MessageType, MessageStatus, TagType, Pec, MessageFolder, AddresRoleType, MessageAddress, getInternautaUrl, BaseUrlType, BaseUrls, ItemMenu, CommandType } from "@bds/ng-internauta-model";
-import { MenuItem, MessageService } from "primeng/api";
+import { ConfirmationService, MenuItem, MessageService } from "primeng/api";
 import { Utils } from "src/app/utils/utils";
 import { MessageFolderService } from "src/app/services/message-folder.service";
 import { Subscription, Observable, BehaviorSubject, Subject } from "rxjs";
@@ -15,6 +15,7 @@ import { TagService } from "src/app/services/tag.service";
 import { MailboxService, TotalMessageNumberDescriptor, Sorting } from "../mailbox.service";
 import { HttpClient } from "@angular/common/http";
 import { DialogService } from "primeng/dynamicdialog";
+import { find } from "rxjs/operators";
 
 @Injectable({
   providedIn: "root"
@@ -57,7 +58,8 @@ export class MailListService {
     private messageService: ShpeckMessageService,
     private mailboxService: MailboxService,
     private tagService: TagService,
-    private httpClient: HttpClient) {
+    private httpClient: HttpClient,
+    private confirmationService: ConfirmationService) {
     this.subscriptions.push(this.loginService.loggedUser$.subscribe((utente: UtenteUtilities) => {
       if (utente) {
         if (!this.loggedUser || utente.getUtente().id !== this.loggedUser.getUtente().id) {
@@ -464,6 +466,7 @@ export class MailListService {
                 });
                 this.messageService.getData(this.selectedProjection, filter, null, null).subscribe((data: any) => {
                   (data.results as Message[]).forEach(reloadedMessage => {
+                    this.messages = [...this.messages];
                     const messageIndex = this.messages.findIndex(m => m.id === reloadedMessage.id);
                     if (messageIndex >= 0) {
                       this.setMailTagVisibility([reloadedMessage]);
@@ -543,8 +546,16 @@ export class MailListService {
    * @param loggedUser
    */
   public moveMessagesToTrash(): void {
-    this.moveMessages(this.trashFolder.id);
+    if(this.selectedMessages.some(m => m.messageTagList)){
+      if(this.selectedMessages
+        .some(m => m.messageTagList
+          .some(mt => mt.idTag.name === "in_error"))){
+            this.toggleError(false);
+          } 
+    }      
+    this.moveMessages(this.trashFolder.id);  
   }
+
 
   public createAndApplyTag(tagName) {
     this.createTag(tagName).subscribe(
@@ -1241,7 +1252,7 @@ export class MailListService {
    */
   public isToggleErrorDisabled(toggleTrue: boolean): boolean {
     return this.selectedMessages.some(mess => {
-      if (mess.messageStatus === MessageStatus.ERROR) {
+      if (mess.messageStatus === MessageStatus.ERROR || mess.messageStatus === MessageStatus.CONFIRMED) {
         if (mess.messageTagList) {
           const aaa = this.messages;
           return mess.messageTagList.find(messageTag => messageTag.idTag.name === "in_error") !== undefined;
