@@ -1,6 +1,6 @@
 import {AfterViewInit, Component, ElementRef, EventEmitter, HostListener, OnDestroy, OnInit, Output, ViewChild} from "@angular/core";
 import {buildLazyEventFiltersAndSorts} from "@bds/primeng-plugin";
-import {Azienda, ENTITIES_STRUCTURE, Folder, FolderType, Message, MessageTag, MessageType, Note, Pec, Tag} from "@bds/ng-internauta-model";
+import {Azienda, ENTITIES_STRUCTURE, Folder, FolderType, Message, MessageTag, MessageType, Note, Pec, Tag, TagType} from "@bds/ng-internauta-model";
 import {MessageEvent, ShpeckMessageService} from "src/app/services/shpeck-message.service";
 import {BatchOperation, BatchOperationTypes, FILTER_TYPES, FilterDefinition, FiltersAndSorts, PagingConf, SortDefinition, AdditionalDataDefinition} from "@nfa/next-sdr";
 import {TagService} from "src/app/services/tag.service";
@@ -1635,16 +1635,31 @@ export class MailListComponent implements OnInit, OnDestroy, AfterViewInit {
    * In caso affermativo faccio partire la cancellazione spostamento nel cestino).
    */
   public deletingConfirmation(newMessage?: string) {
-    const message: string = newMessage ? newMessage : "Sei sicuro di voler eliminare i messaggi selezionati?";
-    this.confirmationService.confirm({
-      message: message,
-      header: "Conferma",
-      icon: "pi pi-exclamation-triangle",
-      accept: () => {
-        this.mailListService.moveMessagesToTrash();
-      },
-      reject: () => { }
-    });
+    setTimeout(() => {
+      const almenoUnoConTag = this.mailListService.selectedMessages
+        .some(m => m.messageTagList)
+        if(almenoUnoConTag){
+          var almenoUnoInErrore = this.mailListService.selectedMessages
+            .some(m => m.messageTagList
+              .some(mt => mt.idTag.name === "in_error"));
+        }else{
+          almenoUnoInErrore = false;
+        }
+      const defaultMessage = almenoUnoInErrore ? "Almeno uno dei messaggi selezionati è <b>in errore</b>, sei sicuro di volerli eliminare? Se eliminato verrà segnato come errore visto" : "Sei sicuro di voler eliminare i messaggi selezionati?"
+      if (almenoUnoInErrore) {
+        newMessage = "Almeno uno dei messaggi selezionati è <b>in errore</b>, sei sicuro di volerli eliminare? Se eliminato verrà segnato come errore visto"
+      }
+      var message: string = newMessage ? newMessage : defaultMessage;
+      this.confirmationService.confirm({
+        message: message,
+        header: "Conferma",
+        icon: "pi pi-exclamation-triangle",
+        accept: () => {
+          this.mailListService.moveMessagesToTrash();
+        },
+        reject: () => { }
+      });  
+    }, 0);
   }
 
   private showNotePopup() {

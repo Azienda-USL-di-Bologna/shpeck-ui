@@ -24,11 +24,11 @@
                 (completeMethod)="filterAddressMultiple($event)" 
                 (keyup.enter)="onKeyUp($event, 'to')"
                 (onSelect)="onSelect($event, 'to')" 
-                (onUnselect)="onUnselect($event, 'to')" 
-                (input)="inputValidator($event)" 
+                (onUnselect)="onUnselect($event, 'to')"
                 (onBlur)="onKeyUp($event, 'to')"
                 [minLength]="1" placeholder="Seleziona contatti..." 
-                [multiple]="true">
+                [multiple]="true"
+                >
                 <ng-template let-value pTemplate="selectedItem">
                   <span class="token-label" [ngClass]="emailRegex.test(value) ? null : 'alert-message-warn'">{{value}} </span>
                 </ng-template>
@@ -38,7 +38,7 @@
             <button pButton type="button" icon="fa fa-address-book" class="ui-button-raised custom-primary-button" (click)="onOpenRubricaPopup(); lastAddressBookUsed = 'to'"></button>
           </span>
         </li>
-        <li *ngIf="addressesTO?.dirty && addressesTO?.invalid && !addressesTO?.errors?.required" class="alert-message-warn">
+        <li *ngIf="addressesTO?.invalid && !addressesTO?.errors?.required || !isMailValid" class="alert-message-warn">
           Hai inserito un indirizzo mail sbagliato!
         </li>
         <!-- CC Addresses -->
@@ -55,8 +55,7 @@
               [suggestions]="filteredAddressMultiple"
               (completeMethod)="filterAddressMultiple($event)" 
               (keyup.enter)="onKeyUp($event, 'cc')"
-              (onSelect)="onSelect($event, 'cc')" 
-              (input)="inputValidator($event)" 
+              (onSelect)="onSelect($event, 'cc')"
               (onUnselect)="onUnselect($event, 'cc')" 
               (onBlur)="onKeyUp($event, 'cc')"
               [pTooltip]="mailForm.get('hideRecipients')?.value ? ccTooltip : ''" [disabled]="mailForm.get('hideRecipients')?.value"
@@ -71,7 +70,7 @@
             <button pButton type="button" icon="fa fa-address-book" class="ui-button-raised custom-primary-button" (click)="onOpenRubricaPopup(); lastAddressBookUsed = 'cc'"></button>
           </span>
         </li>
-        <li *ngIf="addressesCC?.invalid" class="alert-message-warn">
+        <li *ngIf="addressesCC?.invalid && !addressesCC?.errors?.required || !isMailValidCC" class="alert-message-warn">
           Hai inserito un indirizzo mail sbagliato!
         </li>
         <!-- Destinatari Privati -->

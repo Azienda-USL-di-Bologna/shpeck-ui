@@ -204,25 +204,25 @@ export class ToolBarService {
 
   public newMail(action) {
       if (this._selectedPec.attiva) {
-      const draftMessage = new Draft();
-      draftMessage.idPec = { id: this._selectedPec.id } as Pec;
-      if (action !== TOOLBAR_ACTIONS.NEW) {
-        if (!this.messageEvent || !this.messageEvent.downloadedMessage) {
-          this.messagePrimeService.add(
-            { severity: "error", summary: "Errore", detail: "Errore! Non è possibile agire sulla mail. Contattare BabelCare" });
-          return;
+        const draftMessage = new Draft();
+        draftMessage.idPec = { id: this._selectedPec.id } as Pec;
+        if (action !== TOOLBAR_ACTIONS.NEW) {
+          if (!this.messageEvent || !this.messageEvent.downloadedMessage) {
+            this.messagePrimeService.add(
+              { severity: "error", summary: "Errore", detail: "Errore! Non è possibile agire sulla mail. Contattare BabelCare" });
+            return;
+          }
         }
-      }
         this.draftService.postHttpCall(draftMessage).subscribe((draft: Draft) => {
           this.draftService.setIsMailFormSubmitted = false;
-        const ref = this.dialogService.open(NewMailComponent, {
-          data: {
-            fullMessage: this.messageEvent ? this.messageEvent.downloadedMessage : undefined,
-            idDraft: draft.id,
-            pec: this._selectedPec,
-            action: action,
-            reloadOnDelete: false
-          },
+          const ref = this.dialogService.open(NewMailComponent, {
+            data: {
+              fullMessage: this.messageEvent ? this.messageEvent.downloadedMessage : undefined,
+              idDraft: draft.id,
+              pec: this._selectedPec,
+              action: action,
+              reloadOnDelete: false
+            },
           header: "Nuova Mail",
           width: "80%",
           styleClass: "new-draft",
