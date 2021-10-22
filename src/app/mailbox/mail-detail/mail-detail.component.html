@@ -36,15 +36,24 @@
   <div *ngIf="fullMessage && message?.inOut === inOut?.IN" class="recepit-detail" aria-hidden="true">
     <div class="recepit-dates">
       <li class="recepit-date">
-        <span class="recepit-date-label">Ricevuto il:</span>
-        <span class="recepit-date-content">{{fullMessage?.message?.createTime | date:"EEEE d MMMM y, HH:mm" | titlecase}}</span>
-      </li>
-      <li class="recepit-date">
-        <span class="recepit-date-label">Consegnato il:</span>
-        <span class="recepit-date-content"> 
+        <span class="recepit-date-label" pTooltip='Data di creazione della email'>Scritta il:</span>
+        <span class="recepit-date-content">
           {{fullMessage && fullMessage.message && fullMessage.message['receiveTime'] ? 
-            (fullMessage.message['receiveTime'] | date:"EEEE d MMMM y, HH:mm" | titlecase) : null}}
+            (fullMessage.message['receiveTime'] | date:"EEEE d MMMM y, HH:mm:ss" | titlecase) : null}}
         </span>
+      </li>
+
+      <li class="recepit-date">
+        <span class="recepit-date-label"pTooltip='Data di ricezione della mail sui sitemi del provider'>Ricevuto il:</span>
+        <span class="recepit-date-content"> 
+          {{fullMessage && fullMessage.message && fullMessage.message['receiveDateProvider'] ? 
+            (fullMessage.message['receiveDateProvider'] | date:"EEEE d MMMM y, HH:mm:ss" | titlecase) : null}}
+        </span>
+      </li>
+
+      <li class="recepit-date">
+        <span class="recepit-date-label" pTooltip='Data di scaricamento sui sistemi Babel'>Scaricato in Babel il:</span>
+        <span class="recepit-date-content">{{fullMessage?.message?.createTime | date:"EEEE d MMMM y, HH:mm:ss" | titlecase}}</span>
       </li>
     </div>
   </div>
