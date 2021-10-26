@@ -44,7 +44,7 @@
       </li>
 
       <li class="recepit-date">
-        <span class="recepit-date-label"pTooltip='Data di ricezione della mail sui sitemi del provider'>Ricevuto il:</span>
+        <span class="recepit-date-label"pTooltip='Data di ricezione della mail sui sistemi del provider'>Ricevuto il:</span>
         <span class="recepit-date-content"> 
           {{fullMessage && fullMessage.message && fullMessage.message['receiveDateProvider'] ? 
             (fullMessage.message['receiveDateProvider'] | date:"EEEE d MMMM y, HH:mm:ss" | titlecase) : null}}
