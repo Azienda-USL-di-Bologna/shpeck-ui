@@ -1909,6 +1909,7 @@ export class MailListComponent implements OnInit, OnDestroy, AfterViewInit {
     }
   }
 
+  /*casellaPec è un campo degli additionaldata che hanno solo i messaggi che sono stati protocollati in un'altra casella */
   private buildSingleRegistrationAdditionaData(additionalDataElement: any, messageTag: MessageTag): any {
     let data = new Date(messageTag.inserted).toLocaleDateString("it-IT", { hour: "numeric", minute: "numeric" });
     if (additionalDataElement.idDocumento && additionalDataElement.idDocumento.dataProtocollo) {
@@ -1924,6 +1925,7 @@ export class MailListComponent implements OnInit, OnDestroy, AfterViewInit {
       codiceRegistro: additionalDataElement.idDocumento ? additionalDataElement.idDocumento.codiceRegistro : null,
       anno: additionalDataElement.idDocumento ? additionalDataElement.idDocumento.anno : null,
       descrizioneAzienda: additionalDataElement.idAzienda ? additionalDataElement.idAzienda.descrizione : "(informazione non disponibile)",
+      casellaPec: additionalDataElement.casellaPec? additionalDataElement.casellaPec : "",
       data: data
     };
   }
