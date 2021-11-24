@@ -1164,7 +1164,7 @@ export class MailListComponent implements OnInit, OnDestroy, AfterViewInit {
       )
     );
 
-    // quando effettuo una ricerca generica (avendo selezionato la casella) non vengano considerate le mail nel cestino
+    // quando effettuo una ricerca generica (avendo selezionato la casella) non vengano considerate le mail nel cestino a meno che non stia cercando solo numeri in quel caso potrebbe essere un id qundi guardo anche nel cestino
     if (tag === null && folder === null) {
       //const folderList = this._selectedPec.folderList;
       filtersAndSorts.addAdditionalData(new AdditionalDataDefinition("OperationRequested", "FiltraSuTuttiFolderTranneTrash"));
