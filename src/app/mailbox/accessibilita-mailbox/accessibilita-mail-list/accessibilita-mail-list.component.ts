@@ -1085,6 +1085,7 @@ export class AccessibilitaMailListComponent implements OnInit, OnDestroy {
           const newMessageTag = messageTag.entityBody as MessageTag;
           newMessageTag.idMessage = previousMessage;
           newMessageTag.idTag = newTag;
+          //accettabile perche l'eliminazione dell'etichetta (tag) è fisica e non virtuale
           newMessageTag.inserted = new Date();
           previousMessage.messageTagList.push(newMessageTag);
         } else if (messageTag && messageTag.operation === BatchOperationTypes.DELETE) {

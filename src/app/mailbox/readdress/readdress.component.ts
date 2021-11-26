@@ -124,6 +124,7 @@ export class ReaddressComponent implements OnInit, OnDestroy {
         newMessageTag.idMessage = message;
         newMessageTag.idTag = newTag;
         newMessageTag.additionalData = JSON.stringify(res);
+        //accettabile perche l'eliminazione dell'etichetta (tag) è fisica e non virtuale
         newMessageTag.inserted = new Date();
         if (!message.messageTagList) {
           message.messageTagList = [];

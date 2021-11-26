@@ -389,6 +389,7 @@
             <p *ngIf="!additionalData?.numeroProtocollo"><b>Il {{additionalData?.data}}</b>: {{additionalData?.descrizioneUtente}} ha iniziato la protocollazione del messaggio in {{additionalData?.descrizioneAzienda}}.</p>
             <p *ngIf="additionalData?.numeroProtocollo">{{additionalData?.codiceRegistro}}{{additionalData?.numeroProtocollo}}/{{additionalData?.anno}}: {{additionalData?.oggetto}}</p>
             <p *ngIf="!additionalData?.numeroProtocollo">Prop. {{additionalData?.numeroProposta}}: {{additionalData?.oggetto}}</p>
+            <p *ngIf="additionalData?.numeroProtocollo && additionalData?.casellaPec">Protocollata dalla casella: {{additionalData?.casellaPec}}</p>
         </li>
     </ul>
     <p-footer>
