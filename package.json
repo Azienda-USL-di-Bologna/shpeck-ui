@@ -10,7 +10,7 @@
     "e2e": "ng e2e"
   },
   "author": {
-    "name": "Francesco Longhitano"
+    "name": "Davide Bacca"
   },
   "private": true,
   "dependencies": {
