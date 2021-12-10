@@ -3,8 +3,8 @@ import { LazyLoadEvent, MenuItem } from "primeng/api";
 import { NtJwtLoginService, UtenteUtilities, UtilityFunctions } from "@bds/nt-jwt-login";
 import { MAILBOX_ROUTE, LOGIN_ROUTE, APPLICATION } from "src/environments/app-constants";
 import { IntimusClientService } from "@bds/nt-communicator";
-import { PopupMessaggiService } from "@bds/common-components";
-import { HeaderFeaturesConfig } from "@bds/primeng-plugin";
+import { PopupMessaggiService,HeaderFeaturesConfig } from "@bds/common-components";
+
 import { SettingsComponent } from "./settings/settings.component";
 import { ActivatedRoute, Router, Params } from "@angular/router";
 import { getInternautaUrl, BaseUrlType, ENTITIES_STRUCTURE } from "@bds/ng-internauta-model";

@@ -10,7 +10,7 @@
     "e2e": "ng e2e"
   },
   "author": {
-    "name": "Francesco Longhitano"
+    "name": "Davide Bacca"
   },
   "private": true,
   "dependencies": {
@@ -24,11 +24,11 @@
     "@angular/platform-browser": "12.1.0",
     "@angular/platform-browser-dynamic": "12.1.0",
     "@angular/router": "12.1.0",
-    "@bds/common-components": "2.1.10",
+    "@bds/common-components": "2.1.14",
     "@bds/nt-communicator": "2.0.0-alfa",
     "@bds/ng-internauta-model": "2.1.6",
     "@bds/nt-jwt-login": "2.0.0-alfa",
-    "@bds/primeng-plugin": "2.1.8",
+    "@bds/primeng-plugin": "2.1.9",
     "@nfa/core": "4.0.0-alfa",
     "@nfa/next-sdr": "4.0.0-alfa",
     "@nfa/ref": "4.0.0-alfa",
