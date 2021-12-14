@@ -9,7 +9,7 @@ import { FiltersAndSorts, FilterDefinition, FILTER_TYPES, BatchOperation, BatchO
 import { Router } from "@angular/router";
 import { UtenteUtilities, NtJwtLoginService } from "@bds/nt-jwt-login";
 import { Subscription } from "rxjs";
-import { CustomContactService, SelectedContact } from "@bds/common-components";
+import { CustomContactService, SelectedContact } from "@bds/rubrint";
 import { AutoComplete } from "primeng/autocomplete";
 import { DialogService, DynamicDialogConfig, DynamicDialogRef } from "primeng/dynamicdialog";
 
