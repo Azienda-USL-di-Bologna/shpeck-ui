@@ -4,7 +4,8 @@ import { NtJwtLoginComponent, LoggedOutPageComponent, NoLoginGuard, RefreshLogge
 import { MailboxComponent } from "./mailbox/mailbox.component";
 import { LOGGED_OUT_ROUTE, MAILBOX_ROUTE, LOGIN_ROUTE, ACCESSIBLE_MAILBOX_ROUTE, LANDING_ROUTE } from "src/environments/app-constants";
 import { RubricaComponent, ContactDetailStart, ContactEditingComponent, GroupEditingComponent,
-  ContactReadonlyComponent, PageNotFoundComponent, CanDeactivateContactEditingGuard, CanDeactivateGroupEditingGuard } from "@bds/common-components";
+  ContactReadonlyComponent, CanDeactivateContactEditingGuard, CanDeactivateGroupEditingGuard } from "@bds/rubrint";
+  import { PageNotFoundComponent} from "@bds/common-components";
 import { DoNotShowRubricaPopupOnRefreshGuard } from "./rubrica/do-not-show-rubrica-popup-on-refresh.guard";
 import { LandingRoutingComponent } from './landing-routing/landing-routing.component';
 
