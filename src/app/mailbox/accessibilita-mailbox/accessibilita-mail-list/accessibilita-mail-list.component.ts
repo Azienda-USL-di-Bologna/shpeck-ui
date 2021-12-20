@@ -560,7 +560,7 @@ export class AccessibilitaMailListComponent implements OnInit, OnDestroy {
     const folderSelected = this.pecFolderSelected;
 
     /* mi devo dissottoscrivere dalla precedente sottoscrizione di richiesta dei dati prima di sottoscrivermi alla nuova
-      * per farlo mi metto come tipo della sottocrizione "folder_message" in modo da rintracciarla nell'array delle sottoscrizioni e rimuoverla
+     * per farlo mi metto come tipo della sottocrizione "folder_message" in modo da rintracciarla nell'array delle sottoscrizioni e rimuoverla
     */
     const currentSubscription = this.subscriptions.findIndex(s => s.type === "folder_message");
     if (currentSubscription >= 0) {
@@ -570,16 +570,17 @@ export class AccessibilitaMailListComponent implements OnInit, OnDestroy {
       this.subscriptions.splice(currentSubscription, 1);
     }
     
+    /* ? */
+    const filtersAndSorts = this.mailListService.buildInitialFilterAndSort(folder, tag, this._selectedPecId);
     this.subscriptions.push({id: folderSelected.data.id, type: "folder_message", subscription: this.messageService
       .getData(
         this.mailListService.selectedProjection,
-        this.buildInitialFilterAndSort(folder, tag),
+        filtersAndSorts,
         lazyFilterAndSort,
         pageConf
       )
       .subscribe(data => {
         if (data && data.results) {
-          console.log("data", data);
           this.mailListService.totalRecords = data.page.totalElements;
           // mando l'evento con il numero di messaggi (serve a mailbox-component perché lo deve scrivere nella barra superiore)
           this.mailListService.refreshAndSendTotalMessagesNumber(0, folderSelected);
@@ -824,61 +825,6 @@ export class AccessibilitaMailListComponent implements OnInit, OnDestroy {
         }
       })});
     }
-  }
-
-  buildInitialFilterAndSort(folder: Folder, tag: Tag): FiltersAndSorts {
-    const filtersAndSorts: FiltersAndSorts = new FiltersAndSorts();
-    if (folder) {
-      filtersAndSorts.addFilter(
-        new FilterDefinition(
-          "messageFolderList.idFolder.id",
-          FILTER_TYPES.not_string.equals,
-          folder.id
-        )
-      );
-    }
-    if (tag) {
-      filtersAndSorts.addFilter(
-        new FilterDefinition(
-          "messageTagList.idTag.id",
-          FILTER_TYPES.not_string.equals,
-          tag.id
-        )
-      );
-    }
-    // escludo i messaggi cancellati logicamente
-    filtersAndSorts.addFilter(
-      new FilterDefinition(
-        "messageFolderList.deleted",
-        FILTER_TYPES.not_string.equals,
-        false
-      )
-    );
-
-    // quando effettuo una ricerca generica (avendo selezionato la casella) non vengano considerate le mail nel cestino
-    if (tag === null && folder === null) {
-      filtersAndSorts.addAdditionalData(new AdditionalDataDefinition("OperationRequested", "FiltraSuTuttiFolderTranneTrash"));
-    }
-    filtersAndSorts.addFilter(
-      new FilterDefinition(
-        "idPec.id",
-        FILTER_TYPES.not_string.equals,
-        this._selectedPecId
-      )
-    );
-    filtersAndSorts.addFilter(
-      new FilterDefinition(
-        "messageType",
-        FILTER_TYPES.not_string.equals,
-        MessageType.MAIL
-      )
-    );
-    // filtersAndSorts.addSort(new SortDefinition("receiveTime", SORT_MODES.desc));
-    // filtersAndSorts.addSort(new SortDefinition("createTime", SORT_MODES.desc));
-    filtersAndSorts.addSort(new SortDefinition(this.mailListService.sorting.field, this.mailListService.sorting.sortMode));
-
-    // filtersAndSorts.addSort(new SortDefinition("messageAddressList.address_role", SORT_MODES.desc));
-    return filtersAndSorts;
   }
 
   private setAccessibilityProperties(firstTime: boolean): void {

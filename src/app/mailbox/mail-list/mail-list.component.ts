@@ -79,7 +79,7 @@ export class MailListComponent implements OnInit, OnDestroy, AfterViewInit {
   // private tempSelectedMessages: Message[] = null;
 
   private pageConf: PagingConf = {
-    mode: "LIMIT_OFFSET",
+    mode: "LIMIT_OFFSET_NO_COUNT",
     conf: {
       limit: 0,
       offset: 0
@@ -246,7 +246,7 @@ export class MailListComponent implements OnInit, OnDestroy, AfterViewInit {
   // private MEDIUM_SIZE_VIRTUAL_ROW_HEIGHT = 83;
   // private LARGE_SIZE_VIRTUAL_ROW_HEIGHT = 89;
   public virtualRowHeight: number = this.VIRTUAL_ROW_HEIGHTS[FONTSIZE.BIG];
-  public rowsNmber = 50;
+  public rowsNmber = 30;
   public cols = [
     {
       field: "subject",
@@ -988,13 +988,20 @@ export class MailListComponent implements OnInit, OnDestroy, AfterViewInit {
       this.subscriptions.splice(currentSubscription, 1);
     }
     
-    this.subscriptions.push({id: folderSelected.data.id, type: "folder_message", subscription: this.messageService
+    /* ? */
+    //const filtersAndSorts = this.mailListService.buildInitialFilterAndSort(folder, tag, this._selectedPecId);
+
+    this.subscriptions.push({id: folderSelected.data.id, type: "folder_message", subscription: 
+      /* this.messageService
       .getData(
         this.mailListService.selectedProjection,
-        this.buildInitialFilterAndSort(folder, tag),
+        filtersAndSorts,
         lazyFilterAndSort,
         pageConf
-      )
+      ) */
+      this.mailListService.getSubscriptionReadyForLoadData(
+        folder, tag, this._selectedPecId, lazyFilterAndSort, pageConf
+        )
       .subscribe(data => {
         if (data && data.results) {
           this.mailListService.totalRecords = data.page.totalElements;
@@ -1133,71 +1140,6 @@ export class MailListComponent implements OnInit, OnDestroy, AfterViewInit {
     if (item) {
       return item.id;
     }
-  }
-
-  buildInitialFilterAndSort(folder: Folder, tag: Tag): FiltersAndSorts {
-    const filtersAndSorts: FiltersAndSorts = new FiltersAndSorts();
-    if (folder) {
-      filtersAndSorts.addFilter(
-        new FilterDefinition(
-          "messageFolderList.idFolder.id",
-          FILTER_TYPES.not_string.equals,
-          folder.id
-        )
-      );
-    }
-    if (tag) {
-      filtersAndSorts.addFilter(
-        new FilterDefinition(
-          "messageTagList.idTag.id",
-          FILTER_TYPES.not_string.equals,
-          tag.id
-        )
-      );
-    }
-    // escludo i messaggi cancellati logicamente
-    filtersAndSorts.addFilter(
-      new FilterDefinition(
-        "messageFolderList.deleted",
-        FILTER_TYPES.not_string.equals,
-        false
-      )
-    );
-
-    // quando effettuo una ricerca generica (avendo selezionato la casella) non vengano considerate le mail nel cestino a meno che non stia cercando solo numeri in quel caso potrebbe essere un id qundi guardo anche nel cestino
-    if (tag === null && folder === null) {
-      //const folderList = this._selectedPec.folderList;
-      filtersAndSorts.addAdditionalData(new AdditionalDataDefinition("OperationRequested", "FiltraSuTuttiFolderTranneTrash"));
-      //const cestino = folderList.find(f => f.type === "TRASH");
-      
-      /* folderList.forEach(f => {
-        if (f.type !== "TRASH") {
-          filtersAndSorts.addFilter(
-            new FilterDefinition("messageFolderList.idFolder.id", FILTER_TYPES.not_string.equals, f.id)
-          );
-        }
-      }); */
-    }
-    filtersAndSorts.addFilter(
-      new FilterDefinition(
-        "idPec.id",
-        FILTER_TYPES.not_string.equals,
-        this._selectedPecId
-      )
-    );
-    filtersAndSorts.addFilter(
-      new FilterDefinition(
-        "messageType",
-        FILTER_TYPES.not_string.equals,
-        MessageType.MAIL
-      )
-    );
-    // filtersAndSorts.addSort(new SortDefinition("receiveTime", SORT_MODES.desc));
-    // filtersAndSorts.addSort(new SortDefinition("createTime", SORT_MODES.desc));
-    filtersAndSorts.addSort(new SortDefinition(this.mailListService.sorting.field, this.mailListService.sorting.sortMode));
-
-    // filtersAndSorts.addSort(new SortDefinition("messageAddressList.address_role", SORT_MODES.desc));
-    return filtersAndSorts;
   }
 
   public handleEvent(name: string, event: any) {

@@ -22,9 +22,6 @@ export class ShpeckMessageService extends NextSDREntityProvider {
     return this._messageEvent.asObservable();
   }
 
-  
-
-  
   /**
    * Notifica un evento alla sottoscrizione di MessageEvent.
    * Almeno uno dei 2 parametri è obbligatorio
