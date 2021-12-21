@@ -1,7 +1,7 @@
 import { Component, OnInit, ViewChild, AfterViewInit, OnDestroy } from "@angular/core";
 import { FormGroup, FormControl, Validators, FormArray } from "@angular/forms";
 import { ConfirmationService, MessageService } from "primeng/api";
-import { Message, Pec, Draft, MessageRelatedType, InOut, ENTITIES_STRUCTURE, DettaglioContattoService, Utente, BaseUrls, BaseUrlType, Contatto } from "@bds/ng-internauta-model";
+import { Message, Pec, Draft, MessageRelatedType, InOut, ENTITIES_STRUCTURE, DettaglioContattoService, Utente, BaseUrls, BaseUrlType, Contatto, GruppiContatti, GroupContactsListTransient } from "@bds/ng-internauta-model";
 import { Editor } from "primeng/editor";
 import { TOOLBAR_ACTIONS, MAX_FILE_SIZE_UPLOAD } from "src/environments/app-constants";
 import { DraftService } from "src/app/services/draft.service";
@@ -906,7 +906,16 @@ export class NewMailComponent implements OnInit, AfterViewInit, OnDestroy {
     if (this.customContactService._callerData.selectedContactsLists.A && this.customContactService._callerData.selectedContactsLists.A.length > 0) {
       this.customContactService._callerData.selectedContactsLists.A.forEach((selectedContact: SelectedContact) => {
         // console.log("selectedContact: ", selectedContact);
-        this.onSelect(selectedContact.address.descrizione, "to");
+        /**Se è un gruppo ciclo tutto e aggiungo solo le mail */
+        if(selectedContact.contact.categoria === "GRUPPO"){
+          selectedContact.contact.contattiDelGruppoListTransient.forEach((element: GroupContactsListTransient) => {
+            if(element.address.descrizione && element.address.tipo === "EMAIL") {
+              this.onSelect(element.address.descrizione, "to");
+            }
+          });
+        } else {
+          this.onSelect(selectedContact.address.descrizione, "to");
+        }
       });
     }
   }
