@@ -928,7 +928,15 @@ export class NewMailComponent implements OnInit, AfterViewInit, OnDestroy {
     if (this.customContactService._callerData.selectedContactsLists.CC && this.customContactService._callerData.selectedContactsLists.CC.length > 0) {
       this.customContactService._callerData.selectedContactsLists.CC.forEach((selectedContact: SelectedContact) => {
         // console.log("selectedContact: ", selectedContact);
+        if(selectedContact.contact.categoria === "GRUPPO"){
+          selectedContact.contact.contattiDelGruppoListTransient.forEach((element: GroupContactsListTransient) => {
+            if(element.address.descrizione && element.address.tipo === "EMAIL") {
+              this.onSelect(element.address.descrizione, "cc");
+            }
+          });
+        } else {
         this.onSelect(selectedContact.address.descrizione, "cc");
+        }
       });
     }
   }
