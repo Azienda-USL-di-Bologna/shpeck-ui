@@ -820,6 +820,7 @@ export class NewMailComponent implements OnInit, AfterViewInit, OnDestroy {
     console.log("onOpenRubricaPopup");
     this.displayRubricaPopup = true;
     if (this.checkIfRubricaInternautaShouldBeEnabled()) {
+      this.customContactService.manageOnSelectContact(null);
       this.router.navigate(["", { outlets: { rubricaPopup: "rubrica" }}], {
         queryParams: {
           mode: "selection",

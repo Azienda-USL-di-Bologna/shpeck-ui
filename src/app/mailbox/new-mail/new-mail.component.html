@@ -192,8 +192,9 @@
     (closeRubricaPopup)="displayRubricaPopup = false">
   </app-search-contact>
 
-  <app-rubrica-container *ngIf="utenteConnesso.aziendaLogin.parametriAzienda?.rubricaInternauta"
-    (closeRubricaPopup)="displayRubricaPopup = false"></app-rubrica-container>
+  <app-rubrica-container *ngIf="utenteConnesso.aziendaLogin.parametriAzienda?.rubricaInternauta" 
+      (closeRubricaPopup)="displayRubricaPopup = false"></app-rubrica-container>
+
 
   <p-footer  *ngIf="utenteConnesso.aziendaLogin.parametriAzienda?.rubricaInternauta">
     <button type="button" 
