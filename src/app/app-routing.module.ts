@@ -4,7 +4,7 @@ import { NtJwtLoginComponent, LoggedOutPageComponent, NoLoginGuard, RefreshLogge
 import { MailboxComponent } from "./mailbox/mailbox.component";
 import { LOGGED_OUT_ROUTE, MAILBOX_ROUTE, LOGIN_ROUTE, ACCESSIBLE_MAILBOX_ROUTE, LANDING_ROUTE } from "src/environments/app-constants";
 import { RubricaComponent, ContactDetailStart, ContactEditingComponent, GroupEditingComponent,
-  ContactReadonlyComponent, CanDeactivateContactEditingGuard, CanDeactivateGroupEditingGuard } from "@bds/rubrint";
+  ContactReadonlyComponent, CanDeactivateContactEditingGuard, CanDeactivateGroupEditingGuard, GroupModifyContactsComponent } from "@bds/rubrint";
   import { PageNotFoundComponent} from "@bds/common-components";
 import { DoNotShowRubricaPopupOnRefreshGuard } from "./rubrica/do-not-show-rubrica-popup-on-refresh.guard";
 import { LandingRoutingComponent } from './landing-routing/landing-routing.component';
@@ -37,7 +37,8 @@ const routes: Routes = [
       { path: "list-start", component: ContactDetailStart },
       { path: "contact-editing", component: ContactEditingComponent , canDeactivate: [CanDeactivateContactEditingGuard]},
       { path: "group-editing", component: GroupEditingComponent, canDeactivate: [CanDeactivateGroupEditingGuard] },
-      { path: "detail", component: ContactReadonlyComponent }
+      { path: "detail", component: ContactReadonlyComponent },
+      { path:"rubricaPopupGruppi", component: GroupModifyContactsComponent}
       ]
   },
   {path: "pagina-non-trovata", component: PageNotFoundComponent },
