@@ -14,4 +14,4 @@ import { ToolBarService } from "./toolbar.service";
   providers: [ToolBarService],
   exports: [ToolbarComponent]
 })
-export class ToolbarModule { }
+export class ShpeckToolbarModule { }

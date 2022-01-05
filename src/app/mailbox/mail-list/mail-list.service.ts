@@ -1,13 +1,13 @@
 import { Injectable } from "@angular/core";
 import { Tag, Folder, Message, FolderType, InOut, ENTITIES_STRUCTURE, FluxPermission, PecPermission, Note, MessageTag,
-  Utente, Azienda, MessageType, MessageStatus, TagType, Pec, MessageFolder, AddresRoleType, MessageAddress, getInternautaUrl, BaseUrlType, BaseUrls, ItemMenu, CommandType } from "@bds/ng-internauta-model";
+  Utente, Azienda, MessageType, MessageStatus, TagType, Pec, MessageFolder, AddresRoleType, MessageAddress, getInternautaUrl, BaseUrlType, BaseUrls, ItemMenu, CommandType, MessageWithFolderViewService, MessageWithTagViewService } from "@bds/ng-internauta-model";
 import { ConfirmationService, MenuItem, MessageService } from "primeng/api";
 import { Utils } from "src/app/utils/utils";
 import { MessageFolderService } from "src/app/services/message-folder.service";
 import { Subscription, Observable, BehaviorSubject, Subject } from "rxjs";
 import { MailFoldersService, FoldersAndTags, PecFolderType, PecFolder } from "../mail-folders/mail-folders.service";
 import { NtJwtLoginService, UtenteUtilities } from "@bds/nt-jwt-login";
-import { BatchOperation, BatchOperationTypes, FILTER_TYPES, FiltersAndSorts, FilterDefinition, SORT_MODES } from "@nfa/next-sdr";
+import { BatchOperation, BatchOperationTypes, FILTER_TYPES, FiltersAndSorts, FilterDefinition, SORT_MODES, AdditionalDataDefinition, SortDefinition, NextSDREntityProvider } from "@nfa/next-sdr";
 import { CUSTOM_SERVER_METHODS } from "src/environments/app-constants";
 import { MessageEvent, ShpeckMessageService } from "src/app/services/shpeck-message.service";
 import { ReaddressComponent } from "../readdress/readdress.component";
@@ -39,6 +39,9 @@ export class MailListService {
     ENTITIES_STRUCTURE.shpeck.message.customProjections
       .CustomMessageForMailList;
 
+  public dynamicPrjectionForLoadData: string = this.selectedProjection;
+  public dynamicServiceForLoadData: NextSDREntityProvider;
+
   private subscriptions: Subscription[] = [];
   private selectedTag: Tag = null;
 
@@ -56,6 +59,8 @@ export class MailListService {
     private mailFoldersService: MailFoldersService,
     private loginService: NtJwtLoginService,
     private messageService: ShpeckMessageService,
+    private messageWithFolderViewService: MessageWithFolderViewService,
+    private messageWithTagViewService: MessageWithTagViewService,
     private mailboxService: MailboxService,
     private tagService: TagService,
     private httpClient: HttpClient,
@@ -1279,6 +1284,59 @@ export class MailListService {
   public fixMessageTagInRegistration(messageId: number): Observable<any> {
     const url = getInternautaUrl(BaseUrlType.Shpeck) + "/" + CUSTOM_SERVER_METHODS.fixMessageTagInRegistration + "/" + messageId;
       return this.httpClient.get(url);
+  }
+
+  
+  /**
+   * Questa funzione si preoccupa di creare gli opportuni filtri per la query.
+   * Di base si può cercare su un folder, su un tag oppure ovunque dentro al pec;
+   * in quest'ultimo caso viene tipicamente esclusa la folder TRASH
+   * @param folder 
+   * @param tag 
+   * @param selectedPecId 
+   * @returns 
+   */
+  public buildInitialFilterAndSort(folder: Folder, tag: Tag, selectedPecId: number): FiltersAndSorts {
+    const filtersAndSorts: FiltersAndSorts = new FiltersAndSorts();
+
+    // Innanzitutto i filtri standard:
+    filtersAndSorts.addFilter(new FilterDefinition("idPec.id", FILTER_TYPES.not_string.equals, selectedPecId));
+    filtersAndSorts.addFilter(new FilterDefinition("messageType",FILTER_TYPES.not_string.equals, MessageType.MAIL));
+
+    if (folder) {
+      // Uso la vista MessageWithFolderView
+      this.dynamicPrjectionForLoadData = "CustomMessageWithFolderViewForMailList";
+      this.dynamicServiceForLoadData = this.messageWithFolderViewService;
+      filtersAndSorts.addFilter(new FilterDefinition("idFolder.id", FILTER_TYPES.not_string.equals, folder.id));
+      filtersAndSorts.addFilter(new FilterDefinition("deleted", FILTER_TYPES.not_string.equals, false));
+    } else if (tag) {
+      this.dynamicPrjectionForLoadData = "CustomMessageWithTagViewForMailList";
+      this.dynamicServiceForLoadData = this.messageWithTagViewService;
+      filtersAndSorts.addFilter(new FilterDefinition("idTag.id",FILTER_TYPES.not_string.equals, tag.id));
+      filtersAndSorts.addFilter(new FilterDefinition("messageFolderList.deleted",FILTER_TYPES.not_string.equals, false));
+    } else if (tag === null && folder === null) {
+       // quando effettuo una ricerca generica (avendo selezionato la casella) non vengano considerate le mail nel cestino
+      this.dynamicPrjectionForLoadData = this.selectedProjection;
+      this.dynamicServiceForLoadData = this.messageService;
+      filtersAndSorts.addAdditionalData(new AdditionalDataDefinition("OperationRequested", "FiltraSuTuttiFolderTranneTrash"));
+      filtersAndSorts.addFilter(new FilterDefinition("messageFolderList.deleted",FILTER_TYPES.not_string.equals, false));
+    }
+    
+    // Aggiungo l'ordinamento
+    filtersAndSorts.addSort(new SortDefinition(this.sorting.field, this.sorting.sortMode));
+
+    return filtersAndSorts;
+  }
+
+  public getSubscriptionReadyForLoadData(folder, tag, _selectedPecId,lazyFilterAndSort, pageConf) {
+    const filtersAndSorts = this.buildInitialFilterAndSort(folder, tag, _selectedPecId);
+    return this.dynamicServiceForLoadData
+      .getData(
+        this.dynamicPrjectionForLoadData,
+        filtersAndSorts,
+        lazyFilterAndSort,
+        pageConf
+      )
   }
 
 }

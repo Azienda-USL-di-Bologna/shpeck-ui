@@ -29,8 +29,8 @@
         <div class="filter-box" aria-hidden="true">
           <div class="filter-box-left">
               {{_selectedFolder ? _selectedFolder.description : _selectedTag ? _selectedTag.description : _selectedPec?.indirizzo}}
-              {{totalMessageNumberDescriptor? '(' + totalMessageNumberDescriptor.messageNumber + ')': ''}}
-          </div>
+             
+          </div><!--  {{totalMessageNumberDescriptor? '(' + totalMessageNumberDescriptor.messageNumber + ')': ''}} -->
           <div class="filter-box-right"  (click)="sortingmenu.toggle($event)" [pTooltip]="tooltipSorting">Ordina</div>
         </div>
         <p-menu #sortingmenu appendTo="body" [showTransitionOptions]="'0ms'" [hideTransitionOptions]="'0ms'" [popup]="true" [model]="sortMenuItem"></p-menu>

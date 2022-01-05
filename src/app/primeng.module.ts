@@ -22,7 +22,6 @@ import { ConfirmDialogModule } from "primeng/confirmdialog";
 import { RadioButtonModule } from "primeng/radiobutton";
 import { MenubarModule } from "primeng/menubar";
 import { ProgressSpinnerModule } from "primeng/progressspinner";
-import { CommonComponentsModule } from "@bds/common-components";
 import { SliderModule } from "primeng/slider";
 import { ColorPickerModule } from "primeng/colorpicker";
 import { InplaceModule } from "primeng/inplace";
@@ -31,7 +30,6 @@ import { CalendarModule } from "primeng/calendar";
 import { TooltipModule } from "primeng/tooltip";
 import { DropdownModule } from "primeng/dropdown";
 import { OverlayPanelModule } from "primeng/overlaypanel";
-
 
 @NgModule({
     declarations: [],
@@ -64,7 +62,6 @@ import { OverlayPanelModule } from "primeng/overlaypanel";
         RadioButtonModule,
         MenubarModule,
         ProgressSpinnerModule,
-        CommonComponentsModule,
         SliderModule,
         ColorPickerModule,
         InplaceModule
@@ -98,7 +95,6 @@ import { OverlayPanelModule } from "primeng/overlaypanel";
         RadioButtonModule,
         MenubarModule,
         ProgressSpinnerModule,
-        CommonComponentsModule,
         SliderModule,
         ColorPickerModule,
         InplaceModule

@@ -35,3 +35,10 @@ export interface Sorting {
     field: string;
     sortMode: string;
 }
+
+export class FilteredContactMultiple {
+    id: number;
+    descrizione: string;
+    dettaglioContatto: string;
+    tipo: string;
+  }
