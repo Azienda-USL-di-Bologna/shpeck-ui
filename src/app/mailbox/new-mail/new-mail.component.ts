@@ -46,7 +46,6 @@ export class NewMailComponent implements OnInit, AfterViewInit, OnDestroy {
   public filteredAddressSingle: any[];
   public filteredAddressMultiple: FilteredContactMultiple[] = [];
   public lastAddressBookUsed = "";
-
   public displayRubricaPopup = false;
   public utenteConnesso: Utente;
   private subscriptions: Subscription[] = [];
@@ -507,7 +506,7 @@ export class NewMailComponent implements OnInit, AfterViewInit, OnDestroy {
         }
         if (formField === "to") { this.isMailValid = true; } else { this.isMailValidCC = true }
       } else {
-        this.ControlAreAllMailInGroup(item.id, formField);
+        this.ControlAreAllMailInGroup(item, formField);
         if (formField === "to") { this.isMailValid = true; } else { this.isMailValidCC = true }
       } 
     }
@@ -1127,15 +1126,21 @@ export class NewMailComponent implements OnInit, AfterViewInit, OnDestroy {
    * @param idGroup 
    * @param formField 
    */
-  private ControlAreAllMailInGroup(idGroup: number,formField: string){
+  private ControlAreAllMailInGroup(gruppoItem: any,formField: string){
+    const form = formField === "to" ? this.mailForm.get("to") as FormArray : this.mailForm.get("cc") as FormArray;
+    const autocomplete = formField === "to" ? this.toAutoComplete : this.ccAutoComplete;
     const projection = ENTITIES_STRUCTURE.rubrica.contatto.customProjections.CustomContattoGruppoDetail;
     const filtersAndSorts: FiltersAndSorts = new FiltersAndSorts();
-    filtersAndSorts.addFilter(new FilterDefinition("id", FILTER_TYPES.not_string.equals, idGroup));
+    filtersAndSorts.addFilter(new FilterDefinition("id", FILTER_TYPES.not_string.equals, gruppoItem.id));
     this.contattoService.getData(projection, filtersAndSorts, null, null).subscribe(res => {
           if(res){
             const gruppo = <Contatto>res.results[0];
-            if(gruppo.contattiDelGruppoList.some((elem: GruppiContatti) => elem.idDettaglioContatto.tipo !== 'EMAIL')) {
-              console.log("bibi")
+            if(!(gruppo.contattiDelGruppoList.some((elem: GruppiContatti) => elem.idDettaglioContatto.tipo === 'EMAIL'))) {
+              this.onUnselect(gruppoItem, formField);
+              autocomplete.writeValue(form.value);
+              this.messageService.add({severity: "warn", summary: "Attenzione", detail: "Il gruppo inserito non contiene nessun contatto di tipo mail"});
+            }
+            else if(gruppo.contattiDelGruppoList.some((elem: GruppiContatti) => elem.idDettaglioContatto.tipo !== 'EMAIL')) {
               this.confirmationService.confirm({
                 message: "Attenzione alcuni dei contatti del gruppo selezionato NON sono mail, se si continua essi verranno esclusi",
                 header: "Attenzione",
