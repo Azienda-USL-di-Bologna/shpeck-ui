@@ -1,12 +1,15 @@
 import { BrowserModule } from "@angular/platform-browser";
 import { BrowserAnimationsModule } from "@angular/platform-browser/animations";
 import { NgModule } from "@angular/core";
-import { DatePipe, CommonModule } from "@angular/common";
+import { DatePipe } from "@angular/common";
 import { FormsModule, ReactiveFormsModule } from "@angular/forms";
 
 import { AppRoutingModule } from "./app-routing.module";
 import { AppComponent } from "./app.component";
 import { PrimengModule } from "./primeng.module";
+import { CommonComponentsModule } from "@bds/common-components";
+import { RubrintModule } from "@bds/rubrint";
+
 import { MailboxComponent } from "./mailbox/mailbox.component";
 import { MailListComponent } from "./mailbox/mail-list/mail-list.component";
 
@@ -20,13 +23,11 @@ import { loginModuleConfig } from "./config/module-config";
 import { PrimengPluginModule } from "@bds/primeng-plugin";
 import { MessageService } from "primeng/api";
 import { TooltipModule } from "primeng/tooltip";
-import { SanitizeHtmlPipe } from "./utils/sanitize-html-pipe";
 import { SettingsComponent } from "./settings/settings.component";
 import { NewMailComponent } from "./mailbox/new-mail/new-mail.component";
 import { TagService } from "./services/tag.service";
 import { PecService } from "./services/pec.service";
 import { FolderService } from "./services/folder.service";
-import { RecepitsComponent } from "./mailbox/recepits/recepits.component";
 import { ShpeckMessageService } from "./services/shpeck-message.service";
 import { MessageFolderService } from "./services/message-folder.service";
 import { DraftService } from "./services/draft.service";
@@ -47,7 +48,6 @@ import { MailListService } from "./mailbox/mail-list/mail-list.service";
 import { MatIconModule } from "@angular/material/icon";
 import { RubricaContainerComponent } from "./rubrica/rubrica-container/rubrica-container.component";
 import { DialogService } from "primeng/dynamicdialog";
-import { ToolbarModule } from "./mailbox/toolbar/toolbar.module";
 import { MailFoldersModule } from "./mailbox/mail-folders/mail-folders.module";
 
 import { RouteReuseStrategy } from '@angular/router';
@@ -55,8 +55,7 @@ import { CustomReuseStrategy } from './custom-reuse-strategy';
 import { MailDetailModule } from './mailbox/mail-detail/mail-detail.module';
 import { LandingRoutingComponent } from './landing-routing/landing-routing.component';
 import { MatMenuModule } from "@angular/material/menu";
-
-
+import { ShpeckToolbarModule } from "./mailbox/toolbar/shpeck-toolbar.module";
 
 registerLocaleData(localeIt, "it-IT", localeItExtra);
 
@@ -81,17 +80,19 @@ registerLocaleData(localeIt, "it-IT", localeItExtra);
     BrowserModule,
     BrowserAnimationsModule,
     FormsModule,
-    AppRoutingModule,
-    PrimengModule,
-    PrimengPluginModule,
-    TooltipModule,
     ReactiveFormsModule,
-    NextSdrModule,
+    AppRoutingModule,
     MatIconModule,
     MatMenuModule,
-    ToolbarModule,
+    PrimengModule,
+    NextSdrModule,
+    PrimengPluginModule,
+    CommonComponentsModule,
+    RubrintModule,
+    ShpeckToolbarModule,
     MailFoldersModule,
-    MailDetailModule
+    MailDetailModule,
+    
   ],
   providers: [
     { provide: LOCALE_ID, useValue: "it-IT" },

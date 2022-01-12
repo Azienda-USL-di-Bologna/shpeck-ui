@@ -639,9 +639,8 @@ export class MailFoldersComponent implements OnInit, OnDestroy {
       tag.name = name.replace(/\s+/, "_").toLowerCase();
     }
     tag.type = TagType.CUSTOM;
-    const pec: Pec = new Pec();
-    pec.id = pecContainer.id;
-    tag.idPec = pec;
+    
+    tag.idPec = pecContainer;
     tag.visible = true;
     tag.firstLevel = false;
     return tag;

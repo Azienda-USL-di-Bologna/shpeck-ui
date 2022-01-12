@@ -10,7 +10,7 @@
     "e2e": "ng e2e"
   },
   "author": {
-    "name": "Francesco Longhitano"
+    "name": "Davide Bacca"
   },
   "private": true,
   "dependencies": {
@@ -24,13 +24,14 @@
     "@angular/platform-browser": "12.1.0",
     "@angular/platform-browser-dynamic": "12.1.0",
     "@angular/router": "12.1.0",
-    "@bds/common-components": "2.1.10",
-    "@bds/nt-communicator": "2.0.0-alfa",
-    "@bds/ng-internauta-model": "2.1.6",
+    "@bds/common-components": "2.1.26",
+    "@bds/rubrint": "0.0.4",
+    "@bds/ng-internauta-model": "2.1.12",
+    "@bds/nt-communicator": "2.0.1",
     "@bds/nt-jwt-login": "2.0.0-alfa",
-    "@bds/primeng-plugin": "2.1.8",
+    "@bds/primeng-plugin": "2.1.9",
     "@nfa/core": "4.0.0-alfa",
-    "@nfa/next-sdr": "4.0.0-alfa",
+    "@nfa/next-sdr": "4.0.3",
     "@nfa/ref": "4.0.0-alfa",
     "@ng-idle/core": "10.0.0-beta.1",
     "@ng-idle/keepalive": "10.0.0-beta.1",
@@ -49,9 +50,9 @@
     "zone.js": "0.11.4"
   },
   "devDependencies": {
-    "@angular-devkit/build-angular": "12.1.0",
-    "@angular/cli": "12.1.0",
-    "@angular/compiler-cli": "12.1.0",
+    "@angular-devkit/build-angular": "12.2.0-next.2",
+    "@angular/cli": "12.2.0-next.2",
+    "@angular/compiler-cli": "12.2.0-next.2",
     "@angular/language-service": "12.1.0",
     "@fortawesome/fontawesome-free": "5.15.2",
     "@types/jasmine": "3.6.3",
