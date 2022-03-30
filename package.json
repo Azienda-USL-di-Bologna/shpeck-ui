@@ -24,7 +24,7 @@
     "@angular/platform-browser": "12.1.0",
     "@angular/platform-browser-dynamic": "12.1.0",
     "@angular/router": "12.1.0",
-    "@bds/common-components": "2.1.45",
+    "@bds/common-components": "2.1.47",
     "@bds/rubrint": "0.0.6",
     "@bds/ng-internauta-model": "2.1.13",
     "@bds/nt-communicator": "2.0.1",
