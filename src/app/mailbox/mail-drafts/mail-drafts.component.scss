@@ -8,16 +8,31 @@
   flex-direction: column;
 }
 
-::ng-deep #draft-mail-list .p-datatable .p-datatable-tbody > tr > td {
+::ng-deep #draft-mail-list {
+  height: 100%;
+  .p-datatable .p-datatable-tbody {
+    > tr {
+      > td {
+        border: none !important;
+      }
+      &:nth-child(even) {
+        background-color: #f9f9f9;
+      }
+    }
+  }
+}
+/* ::ng-deep #draft-mail-list  > tr > td {
   border: none !important;
 }
 ::ng-deep #draft-mail-list .p-datatable .p-datatable-tbody > tr:nth-child(even) {
   background-color: #f9f9f9;
-}
+} */
 .mail-icons-container {
   display: flex;
   flex-direction: column;
   flex-wrap: nowrap;
+  
+    width: 100%;
 }
 .message-align {
   justify-content: center;
@@ -104,15 +119,13 @@
 ::ng-deep .general-font-size-big .delete-icon {
   font-size: 22px !important;
 }
-
 .visibility-hidden {
   visibility: hidden !important;
 }
-
 ::ng-deep .context-menu-mail-list {
   margin: -128px 0 0 -312px;
 }
-
 .column-checkbox {
   width: 32px;
+  max-width: 32px;
 }
