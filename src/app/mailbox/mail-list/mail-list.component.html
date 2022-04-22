@@ -6,7 +6,6 @@
     [(selection)]="mailListService.selectedMessages"
     dataKey="id" 
     [lazyLoadOnInit]="true"
-    scrollHeight="100%"
     [columns]="cols" 
     [paginator]="false" 
     [loading]="loading" 
@@ -20,6 +19,7 @@
     [rowTrackBy]="trackByFn" 
     [contextMenu]="cm" 
     [scrollable]="true"
+    scrollHeight="flex"
     [virtualScroll]="true" 
     [virtualScrollDelay]="150"
     (onRowSelect)="handleEvent('onRowSelect', $event)" 
@@ -27,7 +27,6 @@
     (mouseenter)="handleEvent('onMouseEnter', $event)"
     (onContextMenuSelect)="handleEvent('onContextMenuSelect', $event)"
     [ngClass]="mailListService?.totalRecords > 0 ? '' : 'no-records-found'">
-    <!-- [virtualRowHeight]="virtualRowHeight"  -->
     <ng-template pTemplate="body" let-rowData let-message let-rowIndex="rowIndex" let-columns="columns">
         <tr #selRow 
             [attr.name]="rowData.id"
@@ -55,7 +54,7 @@
             </td>
             <td *ngIf="message['moved']" class="column-checkbox" aria-hidden="true">
             </td>
-            <td role="cell">
+            <td class="row-main-content" role="cell">
                 <div class="mail-icons-container">
                     <span class="prima-riga-sinistra" aria-hidden="true">
                         <!-- ICONE AZIONE -->
