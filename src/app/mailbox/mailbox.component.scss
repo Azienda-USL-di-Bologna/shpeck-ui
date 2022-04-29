@@ -3,16 +3,19 @@
   flex-direction: column;
   flex: 1;
 }
+
 .box {
   background-color: #cce4f7;
   text-align: center;
   display: flex;
   flex: 1;
 }
+
 .buttons-bar {
   display: block;
   width: 100%;
 }
+
 .oldslider{
   position: absolute;
   left: 0;
@@ -23,6 +26,7 @@
   text-align: center;
   justify-content: center;
 }
+
 .oldslider > div{
   border: dotted 1px grey;
   width: 3px;
@@ -31,6 +35,7 @@
   height: 100%;
   display: inline-block;
 }
+
 .slider {
   position: relative;
   cursor: w-resize;
@@ -42,6 +47,7 @@
   display: inline-block;
   overflow: hidden;
 }
+
 .slider::before {
   content: "";
   border: dotted 2px grey;
@@ -52,9 +58,11 @@
   top: 50%;
   transform: translateY(-50%);
 }
+
 .hidden {
   display: none !important;
 }
+
 .content-left {
   display: block;
   width: 300px;
@@ -64,6 +72,7 @@
     border: 1px solid black;
   }
 }
+
 .content-right {
   position: relative;
   display: block;
@@ -72,9 +81,11 @@
     border: 1px solid black;
   }
 }
+
 .d-flex{
   display: flex;
 }
+
 .mail-container {
   display: flex;
   flex: 1;

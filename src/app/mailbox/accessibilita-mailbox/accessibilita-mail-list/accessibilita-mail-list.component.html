@@ -6,6 +6,8 @@
   [lazy]="true" 
   [lazyLoadOnInit]="true"
   [loading]="loading"
+  [scrollable]="true"
+  scrollHeight="flex"
   [(first)]="first" 
   [paginator]="true" 
   [rows]="rowsNmber" 
@@ -14,16 +16,6 @@
   currentPageReportTemplate="Visualizzate da {first} a {last} di {totalRecords} e-mail" 
   [rowsPerPageOptions]="[10,25,50]"
   class="shpeck-mail-list-accessibile">
-  <!-- 
-    [(selection)]="mailListService.selectedMessages" 
-    (onRowUnselect)="handleEvent('onRowUnselect', $event)"
-    dataKey="id"
-    selectionMode="single" 
-    [rowTrackBy]="trackByFn"
-    [metaKeySelection]="true"
-    [scrollable]="true"
-    scrollHeight="100%"
-  -->
   <ng-template pTemplate="header">
     <tr>
       <th *ngIf="_selectedFolder !== null && (_selectedFolder.type === folderTypeSent || _selectedFolder.type === folderTypeOutbox)">A</th>

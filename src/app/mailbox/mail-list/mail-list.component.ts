@@ -1759,7 +1759,6 @@ export class MailListComponent implements OnInit, OnDestroy, AfterViewInit {
    */
   public iconRegistrationClicked(event: any, message: Message, registrationStatus: string, openAlternativeMenu = false) {
     const messageTag = null;
-    debugger;
     if (message) {
       switch (registrationStatus) {
         case "REGISTERED":
@@ -2232,7 +2231,7 @@ export class MailListComponent implements OnInit, OnDestroy, AfterViewInit {
       (document.getElementsByClassName('cdk-virtual-scroll-content-wrapper') as any)[0].setAttribute("aria-label", "Lista email");
       //(document.getElementsByClassName('ui-table-scrollable-body-table') as any)[0].setAttribute("role", "treegrid");
       //(document.getElementsByClassName('ui-table-tbody') as any)[1].setAttribute("role", "rowgroup");
-      (document.getElementsByClassName('p-datatable-tbody') as any)[1].setAttribute("role", "listbox");
+      (document.getElementsByClassName('p-datatable-tbody') as any)[0].setAttribute("role", "listbox");
 
       // Setto le righe non raggiungibili col tab
       let rows = document.getElementsByClassName('riga-tabella') as any;

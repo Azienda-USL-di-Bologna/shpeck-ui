@@ -1,19 +1,14 @@
-.flex-1 {
-  display: flex;
-  flex: 1;
-  flex-direction: column;
-}
 :host {
   height: 100%;
   display: flex;
   flex-direction: column;
 }
-.d-flex {
+.flex-1 {
   display: flex;
+  flex: 1;
+  flex-direction: column;
 }
-
 ::ng-deep p-table > div > div > div div.ui-table-scrollable-body {
-
   overflow-x: auto;
 }
 ::ng-deep #pec-mail-list .p-datatable .p-datatable-tbody > tr:nth-child(even) {
@@ -21,6 +16,7 @@
 }
 .column-checkbox {
   width: 32px;
+  max-width: 32px;
 }
 ::ng-deep .column-checkbox p-tableCheckbox .ui-chkbox.p-component .ui-chkbox-box.p-component.ui-state-default {
   opacity: 0.5;
@@ -57,22 +53,27 @@
 .icon-used {
   cursor: help !important;
 }
-::ng-deep .no-records-found {
+/* ::ng-deep .no-records-found {
   .cdk-virtual-scroll-content-wrapper {
     height: 100%;
   }
 }
 ::ng-deep .cdk-virtual-scroll-content-wrapper {
-  
   table {
     height: 100%;
     .p-datatable-tbody {
       height: 100%;
     }
   }
-}
-::ng-deep #pec-mail-list .p-datatable .p-datatable-tbody > tr > td {
-  border: none !important;
+} */
+::ng-deep #pec-mail-list {
+  height: 100%;
+  .p-datatable {
+    //height: 100%;
+    .p-datatable-tbody > tr > td {
+      border: none !important;
+    }
+  }
 }
 .message-disabled {
   background-color: lightgrey !important;
@@ -96,6 +97,9 @@
 }
 .riga-tabella {
   height: 79px !important;
+  .row-main-content {
+    display: block;
+  }
 }
 .cella-no-elementi {
   height: 100%;
@@ -278,13 +282,16 @@
 .material-icons.mail-icons,  .material-icons-outlined.mail-icons {
   font-size: 18px;
 }
-::ng-deep .general-font-size-small .material-icons.mail-icons, ::ng-deep .general-font-size-small .material-icons-outlined.mail-icons {
+::ng-deep .general-font-size-small .material-icons.mail-icons, 
+::ng-deep .general-font-size-small .material-icons-outlined.mail-icons {
   font-size: 18px !important;
 }
-::ng-deep .general-font-size-medium .material-icons.mail-icons, ::ng-deep .general-font-size-medium .material-icons-outlined.mail-icons {
+::ng-deep .general-font-size-medium .material-icons.mail-icons, 
+::ng-deep .general-font-size-medium .material-icons-outlined.mail-icons {
   font-size: 19px !important;
 }
-::ng-deep .general-font-size-big .material-icons.mail-icons, ::ng-deep .general-font-size-big .material-icons-outlined.mail-icons {
+::ng-deep .general-font-size-big .material-icons.mail-icons, 
+::ng-deep .general-font-size-big .material-icons-outlined.mail-icons {
   font-size: 20px !important;
 }
 .mi-fist-line {

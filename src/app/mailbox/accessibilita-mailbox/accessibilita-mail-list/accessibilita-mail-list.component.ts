@@ -212,12 +212,10 @@ export class AccessibilitaMailListComponent implements OnInit, OnDestroy {
     this.subscriptions.push({id: null, type: "intimusClient.command", subscription: this.intimusClient.command$.subscribe((command: IntimusCommand) => {
       this.manageIntimusCommand(command);
     })});
-    console.log("GUSGUSGUSGUSGUS");
-    console.log(this.mailListService.messages);
    
     this.subscriptions.push({id: null, type: "router.events", subscription: this.router.events.subscribe(event => {      
-      if (event instanceof NavigationStart && event.url !== this.lastRoute && this.dt && this.dt.scrollableViewChild)  {
-        let dtToGetScrollTop = this.dt.scrollableViewChild.scrollBodyViewChild as ElementRef;
+      if (event instanceof NavigationStart && event.url !== this.lastRoute && this.dt && this.dt.virtualScrollBody/* scrollableViewChild */)  {
+        let dtToGetScrollTop = this.dt.virtualScrollBody.elementRef/* scrollableViewChild.scrollBodyViewChild */ as ElementRef;
         // console.log("DT", dtToGetScrollTop.nativeElement.scrollTop);
         this.lastRoute = this.router.url
         this.lastPosition = dtToGetScrollTop.nativeElement.scrollTop // get the scrollTop property
@@ -832,7 +830,7 @@ export class AccessibilitaMailListComponent implements OnInit, OnDestroy {
     // Uso questo if per assicurarmi che la tabella sia caricata nel DOM
     if ((document.getElementsByClassName('cdk-virtual-scroll-content-wrapper') as any)[0]) {
       (document.getElementsByClassName('cdk-virtual-scroll-content-wrapper') as any)[0].setAttribute("aria-label", "Lista email");
-      (document.getElementsByClassName('p-datatable-tbody') as any)[1].setAttribute("role", "listbox");
+      (document.getElementsByClassName('p-datatable-tbody') as any)[0].setAttribute("role", "listbox");
 
       // Setto le righe non raggiungibili col tab
       let rows = document.getElementsByClassName('riga-tabella') as any;
