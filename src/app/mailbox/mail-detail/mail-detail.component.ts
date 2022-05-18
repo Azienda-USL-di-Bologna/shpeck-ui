@@ -118,7 +118,7 @@ export class MailDetailComponent implements OnInit, OnDestroy {
         }
       }
     ));
-    
+
   }
 
   public ngOnDestroy(): void {
@@ -142,7 +142,7 @@ export class MailDetailComponent implements OnInit, OnDestroy {
           a.contentType = a.mimeType.substr(0, a.mimeType.indexOf(";"));
           a.simpleType = a.contentType.substr(0, a.contentType.indexOf("/"));
           if (a.fileName.length > 42) {
-            a.displayName = a.fileName.substr(0, 34) + ".." + a.fileName.substr(a.fileName.length - 6, a.fileName.length) ;
+            a.displayName = a.fileName.substr(0, 34) + ".." + a.fileName.substr(a.fileName.length - 6, a.fileName.length);
           } else {
             a.displayName = a.fileName;
           }
@@ -169,7 +169,7 @@ export class MailDetailComponent implements OnInit, OnDestroy {
               fullMessage.emlData.acceptanceDate = (fullMessage.message as Message).idRelatedList.find(
                 r =>
                   r.idRecepit.recepitType === RecepitType.ACCETTAZIONE
-              ).receiveTime;
+              )?.receiveTime;
               // Prendo le ricevute di consegna.
               const deliveryRecepits = (fullMessage.message as Message).idRelatedList.filter(
                 r =>
@@ -189,8 +189,8 @@ export class MailDetailComponent implements OnInit, OnDestroy {
             }
             this.fullMessage = fullMessage;
             this.setLook();
-        }
-      );
+          }
+        );
     } else {
       this.fullMessage = fullMessage;
       this.setLook();
@@ -217,7 +217,7 @@ export class MailDetailComponent implements OnInit, OnDestroy {
     if (this.fullMessage == null || this.fullMessage.emlData == null || this.fullMessage.emlData.attachments == null) {
       this.accordionAttachmentsSelected = false;
     }
-    else{
+    else {
       setTimeout(() => {
         if (this._versioneAccessibile) {
           this.subject.nativeElement.focus();
@@ -247,7 +247,7 @@ export class MailDetailComponent implements OnInit, OnDestroy {
         elements[len].target = "_blank";
       }
       /* Setto lo stile della scrollbar */
-      this.http.get("app/mailbox/mail-detail/mail-detail-iframe-custom-style.scss", { responseType: "text"}).subscribe(data => {
+      this.http.get("app/mailbox/mail-detail/mail-detail-iframe-custom-style.scss", { responseType: "text" }).subscribe(data => {
         const head = iframeContent.head || iframeContent.getElementsByTagName("head")[0];
         const style = iframeContent.createElement("style");
         head.appendChild(style);
@@ -266,10 +266,10 @@ export class MailDetailComponent implements OnInit, OnDestroy {
    * Controllo se l'accordion passato come paramentro sia aperto per restituire 0 in caso contrario ritorno -1
    * @param accordion 
    */
-  public getTabindexForAccordion(accordion: any){
-    if(accordion.selected != false){
+  public getTabindexForAccordion(accordion: any) {
+    if (accordion.selected != false) {
       return 0;
-    }else{
+    } else {
       return -1;
     }
   }
@@ -320,7 +320,7 @@ export class MailDetailComponent implements OnInit, OnDestroy {
         return (originalTotalSize * 0.72).toFixed(0) + "B";
       }
     }
-    const totalSizeMB = bytes / Math.pow(1000, 2) ;
+    const totalSizeMB = bytes / Math.pow(1000, 2);
     if (totalSizeMB < 1) {
       return totalSizeKB.toFixed(1) + "KB";
     }
