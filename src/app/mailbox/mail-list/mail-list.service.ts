@@ -1,6 +1,6 @@
 import { Injectable } from "@angular/core";
 import { Tag, Folder, Message, FolderType, InOut, ENTITIES_STRUCTURE, FluxPermission, PecPermission, Note, MessageTag,
-  Utente, Azienda, MessageType, MessageStatus, TagType, Pec, MessageFolder, AddresRoleType, MessageAddress, getInternautaUrl, BaseUrlType, BaseUrls, ItemMenu, CommandType, MessageWithFolderViewService, MessageWithTagViewService } from "@bds/ng-internauta-model";
+  Utente, Azienda, MessageType, MessageStatus, TagType, Pec, MessageFolder, AddresRoleType, MessageAddress, getInternautaUrl, BaseUrlType, BaseUrls, ItemMenu, CommandType, MessageWithFolderViewService, MessageWithTagViewService, ConfigurazioneService, ParametroAziende } from "@bds/ng-internauta-model";
 import { ConfirmationService, MenuItem, MessageService } from "primeng/api";
 import { Utils } from "src/app/utils/utils";
 import { MessageFolderService } from "src/app/services/message-folder.service";
@@ -50,6 +50,8 @@ export class MailListService {
   private idPec: number;
   public totalRecords: number = 0;
   private pecFolderSelected: PecFolder;
+  public displayArchivioRicerca: boolean = false;
+  public idAziendaFascicolazione: number;
 
 
   constructor(
@@ -64,7 +66,8 @@ export class MailListService {
     private mailboxService: MailboxService,
     private tagService: TagService,
     private httpClient: HttpClient,
-    private confirmationService: ConfirmationService) {
+    private confirmationService: ConfirmationService,
+    private configurazioneService: ConfigurazioneService ) {
     this.subscriptions.push(this.loginService.loggedUser$.subscribe((utente: UtenteUtilities) => {
       if (utente) {
         if (!this.loggedUser || utente.getUtente().id !== this.loggedUser.getUtente().id) {
@@ -994,18 +997,42 @@ export class MailListService {
     console.log("event", event);
     if (this.selectedMessages && this.selectedMessages.length === 1 && event && event.item && event.item) {
       const azienda: Azienda = this.loggedUser.getUtente().aziende.find(a => a.codice === event.item.queryParams.codiceAzienda);
-      let decodedUrl = "";
-      decodedUrl = decodeURI(azienda.urlCommands["ARCHIVE_MESSAGE"]);
-      decodedUrl = decodedUrl.replace("[id_message]", this.selectedMessages[0].id.toString());
-      decodedUrl = decodedUrl.replace("[richiesta]", Utils.genereateGuid());
-      console.log("command", decodedUrl);
+      
+      this.subscriptions.push(
+        this.configurazioneService.getParametriAziende("usaGediInternauta", null, [azienda.id]).subscribe(
+          (parametriAziende: ParametroAziende[]) => {
+            //console.log(parametriAziende);
+            const showArchivioRicercaDialog = JSON.parse(parametriAziende[0]?.valore || false);
+            if (showArchivioRicercaDialog) {
+              this.idAziendaFascicolazione=azienda.id;
+              this.displayArchivioRicerca = true;
 
-      const encodeParams = false;
-      const addRichiestaParam = true;
-      const addPassToken = true;
-      this.loginService.buildInterAppUrl(decodedUrl, encodeParams, addRichiestaParam, addPassToken, true).subscribe((url: string) => {
-        console.log("urlAperto:", url);
-      });
+
+            } else {
+              //this open the old 
+              let decodedUrl = "";
+              decodedUrl = decodeURI(azienda.urlCommands["ARCHIVE_MESSAGE"]);
+              decodedUrl = decodedUrl.replace("[id_message]", this.selectedMessages[0].id.toString());
+              decodedUrl = decodedUrl.replace("[richiesta]", Utils.genereateGuid());
+              console.log("command", decodedUrl);
+              const encodeParams = false;
+              const addRichiestaParam = true;
+              const addPassToken = true;
+              this.loginService.buildInterAppUrl(decodedUrl, encodeParams, addRichiestaParam, addPassToken, true).subscribe((url: string) => {
+                console.log("urlAperto:", url);
+              });
+            }
+           
+  
+            // Tolgo subito queste due sottoscrizioni che mi disturbano quando per qualche motivo riscattano.
+            this.subscriptions.forEach(
+              s => s.unsubscribe()
+            );
+            this.subscriptions = [];
+          }
+        )  
+      );
+
       // window.open(decodedUrl);
     }
   }
