@@ -26,7 +26,7 @@
     "@angular/router": "12.2.16",
     "@bds/common-components": "3.0.10",
     "@bds/rubrint": "3.0.6-alfa",
-    "@bds/ng-internauta-model": "3.0.8",
+    "@bds/ng-internauta-model": "3.0.22",
     "@bds/nt-communicator": "3.0.0-alfa",
     "@bds/nt-jwt-login": "3.0.0-alfa",
     "@bds/primeng-plugin": "3.0.0-alfa",
