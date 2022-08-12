@@ -69,6 +69,7 @@ export class MailDetailComponent implements OnInit, OnDestroy {
       (messageEvent: MessageEvent) => {
         this.messageTrueDraftFalse = true;
         this.numberOfMessageSelected = null;
+        this.showLogs = false;
         if (messageEvent && messageEvent.downloadedMessage) {
           if (messageEvent.downloadedMessage.message) {
             try {
