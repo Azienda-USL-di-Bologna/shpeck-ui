@@ -10,7 +10,7 @@
     {{fullMessage?.emlData?.subject}}
   </h3>
 
-  <div *ngIf="this.message?.version" pTooltip="Mostra cronologia" tooltipPosition="left" (click)="loadLogs()" class="ultima-modifica">Ultima modifica: {{removeZoneFromTime(this.message?.version?.toString()) | date: 'EE d MMM y, H:mm' | titlecase}}</div>
+  <div *ngIf="this.message?.version" pTooltip="Mostra cronologia" tooltipPosition="left" (click)="loadLogs()" class="ultima-azione">Ultima azione: {{removeZoneFromTime(this.message?.version?.toString()) | date: 'EE d MMM y, H:mm' | titlecase}}</div>
 
   <div class="log-container" [ngClass]="{'showLogs': showLogs}">
     <div class="header" (click)="showLogs = false">
