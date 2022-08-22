@@ -17,12 +17,11 @@ import { ReaddressComponent } from "./mailbox/readdress/readdress.component";
 import { SearchContactComponent } from "./search-contact/search-contact.component";
 
 /* Login */
-import { NtJwtLoginModule } from "@bds/nt-jwt-login";
+import { JwtLoginModule } from "@bds/jwt-login";
 import { loginModuleConfig } from "./config/module-config";
 
 import { PrimengPluginModule } from "@bds/primeng-plugin";
-import { MessageService } from "primeng/api";
-import { TooltipModule } from "primeng/tooltip";
+import { ConfirmationService, MessageService } from "primeng/api";
 import { SettingsComponent } from "./settings/settings.component";
 import { NewMailComponent } from "./mailbox/new-mail/new-mail.component";
 import { TagService } from "./services/tag.service";
@@ -32,7 +31,7 @@ import { ShpeckMessageService } from "./services/shpeck-message.service";
 import { MessageFolderService } from "./services/message-folder.service";
 import { DraftService } from "./services/draft.service";
 import { OutboxService } from "./services/outbox.service";
-import { NextSdrModule } from "@nfa/next-sdr";
+import { NextSdrModule } from "@bds/next-sdr";
 
 // add support to italian language in application when using pipeDate
 import { LOCALE_ID } from "@angular/core";
@@ -76,7 +75,7 @@ registerLocaleData(localeIt, "it-IT", localeItExtra);
     LandingRoutingComponent
   ],
   imports: [
-    NtJwtLoginModule.forRoot(loginModuleConfig),
+    JwtLoginModule.forRoot(loginModuleConfig),
     BrowserModule,
     BrowserAnimationsModule,
     FormsModule,
@@ -107,7 +106,8 @@ registerLocaleData(localeIt, "it-IT", localeItExtra);
     MessageService,
     ShpeckMessageService,
     MessageFolderService,
-    MailListService
+    MailListService,
+    ConfirmationService
   ],
   bootstrap: [AppComponent],
   entryComponents: [SettingsComponent, NewMailComponent, ReaddressComponent],

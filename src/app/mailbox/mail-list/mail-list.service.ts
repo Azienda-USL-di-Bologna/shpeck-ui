@@ -1,13 +1,13 @@
 import { Injectable } from "@angular/core";
 import { Tag, Folder, Message, FolderType, InOut, ENTITIES_STRUCTURE, FluxPermission, PecPermission, Note, MessageTag,
-  Utente, Azienda, MessageType, MessageStatus, TagType, Pec, MessageFolder, AddresRoleType, MessageAddress, getInternautaUrl, BaseUrlType, BaseUrls, ItemMenu, CommandType, MessageWithFolderViewService, MessageWithTagViewService, ConfigurazioneService, ParametroAziende } from "@bds/ng-internauta-model";
+  Utente, Azienda, MessageType, MessageStatus, TagType, Pec, MessageFolder, AddresRoleType, MessageAddress, getInternautaUrl, BaseUrlType, BaseUrls, ItemMenu, CommandType, MessageWithFolderViewService, MessageWithTagViewService, ConfigurazioneService, ParametroAziende } from "@bds/internauta-model";
 import { ConfirmationService, MenuItem, MessageService } from "primeng/api";
 import { Utils } from "src/app/utils/utils";
 import { MessageFolderService } from "src/app/services/message-folder.service";
 import { Subscription, Observable, BehaviorSubject, Subject } from "rxjs";
 import { MailFoldersService, FoldersAndTags, PecFolderType, PecFolder } from "../mail-folders/mail-folders.service";
-import { NtJwtLoginService, UtenteUtilities } from "@bds/nt-jwt-login";
-import { BatchOperation, BatchOperationTypes, FILTER_TYPES, FiltersAndSorts, FilterDefinition, SORT_MODES, AdditionalDataDefinition, SortDefinition, NextSDREntityProvider } from "@nfa/next-sdr";
+import { JwtLoginService, UtenteUtilities } from "@bds/jwt-login";
+import { BatchOperation, BatchOperationTypes, FILTER_TYPES, FiltersAndSorts, FilterDefinition, SORT_MODES, AdditionalDataDefinition, SortDefinition, NextSDREntityProvider } from "@bds/next-sdr";
 import { CUSTOM_SERVER_METHODS } from "src/environments/app-constants";
 import { MessageEvent, ShpeckMessageService } from "src/app/services/shpeck-message.service";
 import { ReaddressComponent } from "../readdress/readdress.component";
@@ -59,7 +59,7 @@ export class MailListService {
     private messagePrimeService: MessageService,
     private messageFolderService: MessageFolderService,
     private mailFoldersService: MailFoldersService,
-    private loginService: NtJwtLoginService,
+    private loginService: JwtLoginService,
     private messageService: ShpeckMessageService,
     private messageWithFolderViewService: MessageWithFolderViewService,
     private messageWithTagViewService: MessageWithTagViewService,

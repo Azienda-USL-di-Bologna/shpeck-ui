@@ -27,7 +27,6 @@ import { CommonComponentsModule } from "@bds/common-components";
     CommonComponentsModule
   ],
   providers: [
-   
   ]
 })
 export class AccessibilitaMailboxModule { }

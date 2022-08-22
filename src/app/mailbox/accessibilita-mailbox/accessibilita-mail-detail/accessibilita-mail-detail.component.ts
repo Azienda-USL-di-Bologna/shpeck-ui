@@ -2,8 +2,8 @@ import { Component, OnInit, ViewChild } from '@angular/core';
 import { Router, ActivatedRoute } from '@angular/router';
 import { CustomReuseStrategy } from 'src/app/custom-reuse-strategy';
 import { ShpeckMessageService, MessageEvent, MessageCommand } from 'src/app/services/shpeck-message.service';
-import { ItemMenu, Message, Pec } from "@bds/ng-internauta-model";
-import { NtJwtLoginService } from '@bds/nt-jwt-login';
+import { ItemMenu, Message, Pec } from "@bds/internauta-model";
+import { JwtLoginService } from '@bds/jwt-login';
 import { MailListService } from '../../mail-list/mail-list.service';
 import { MailFoldersService, PecFolder, PecFolderType } from '../../mail-folders/mail-folders.service';
 import { Menu } from 'primeng/menu';
@@ -27,7 +27,7 @@ export class AccessibilitaMailDetailComponent implements OnInit {
     private router: Router,
     private activatedRoute: ActivatedRoute,
     private messageService: ShpeckMessageService,
-    private loginService: NtJwtLoginService,
+    private loginService: JwtLoginService,
     private mailFoldersService: MailFoldersService,
     public mailListService: MailListService) {
       this.doAction = this.doAction.bind(this);

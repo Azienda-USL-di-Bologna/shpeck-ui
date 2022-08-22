@@ -1,7 +1,7 @@
-import { NTJWTModuleConfig, LogoutType } from "@bds/nt-jwt-login";
+import { JWTModuleConfig, LogoutType } from "@bds/jwt-login";
 import { LOGIN_ROUTE, LOCALHOST_PORT, APPLICATION, MAILBOX_ROUTE, LOGGED_OUT_ROUTE, LANDING_ROUTE } from "../../environments/app-constants";
 
-export const loginModuleConfig: NTJWTModuleConfig = {
+export const loginModuleConfig: JWTModuleConfig = {
     loginURL: "" /*getInternautaUrl(BaseUrlType.Login)*/,
     refreshSessionInternautaUrl: "",
     passTokenGeneratorURL: "",

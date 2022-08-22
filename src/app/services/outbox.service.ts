@@ -1,8 +1,8 @@
-import { NextSDREntityProvider } from "@nfa/next-sdr";
+import { NextSDREntityProvider } from "@bds/next-sdr";
 import { Injectable } from "@angular/core";
 import { BehaviorSubject, Observable } from "rxjs";
 import { FullMessage } from "./shpeck-message.service";
-import { Outbox, ENTITIES_STRUCTURE } from "@bds/ng-internauta-model";
+import { Outbox, ENTITIES_STRUCTURE } from "@bds/internauta-model";
 import { DatePipe } from "@angular/common";
 import { HttpClient } from "@angular/common/http";
 import { MessageService } from "primeng/api";

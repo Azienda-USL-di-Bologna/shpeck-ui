@@ -1,6 +1,6 @@
 import { NgModule } from "@angular/core";
 import { Routes, RouterModule } from "@angular/router";
-import { NtJwtLoginComponent, LoggedOutPageComponent, NoLoginGuard, RefreshLoggedUserGuard, LoginGuard } from "@bds/nt-jwt-login";
+import { JwtLoginComponent, LoggedOutPageComponent, NoLoginGuard, RefreshLoggedUserGuard, LoginGuard } from "@bds/jwt-login";
 import { MailboxComponent } from "./mailbox/mailbox.component";
 import { LOGGED_OUT_ROUTE, MAILBOX_ROUTE, LOGIN_ROUTE, ACCESSIBLE_MAILBOX_ROUTE, LANDING_ROUTE } from "src/environments/app-constants";
 import { RubricaComponent, ContactDetailStart, ContactEditingComponent, GroupEditingComponent,
@@ -10,7 +10,7 @@ import { DoNotShowRubricaPopupOnRefreshGuard } from "./rubrica/do-not-show-rubri
 import { LandingRoutingComponent } from './landing-routing/landing-routing.component';
 
 const routes: Routes = [
-  { path: LOGIN_ROUTE, component: NtJwtLoginComponent, canActivate: [NoLoginGuard], data: {} },
+  { path: LOGIN_ROUTE, component: JwtLoginComponent, canActivate: [NoLoginGuard], data: {} },
   { path: LANDING_ROUTE, component: LandingRoutingComponent, canActivate: [RefreshLoggedUserGuard, LoginGuard], data: {} },
   {
     path: MAILBOX_ROUTE,

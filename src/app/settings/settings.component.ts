@@ -1,5 +1,5 @@
 import { Component, OnInit, OnDestroy } from "@angular/core";
-import { NtJwtLoginService, UtenteUtilities } from "@bds/nt-jwt-login";
+import { JwtLoginService, UtenteUtilities } from "@bds/jwt-login";
 import { SettingsService } from "src/app/services/settings.service";
 import { Subscription } from "rxjs";
 import { FONTSIZE } from "src/environments/app-constants";
@@ -18,7 +18,7 @@ export class SettingsComponent implements OnInit, OnDestroy {
   private subscription: Subscription;
   public accessibilitaEnabled: boolean = false;
 
-  constructor(public ref: DynamicDialogRef, private loginService: NtJwtLoginService, private impostazioniService: SettingsService) { }
+  constructor(public ref: DynamicDialogRef, private loginService: JwtLoginService, private impostazioniService: SettingsService) { }
 
   ngOnInit() {
     this.loginService.loggedUser$.subscribe((utente: UtenteUtilities) => {

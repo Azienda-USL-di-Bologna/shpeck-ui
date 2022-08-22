@@ -1,13 +1,13 @@
 import { Component, OnInit, ViewChild, AfterViewInit, OnDestroy, SystemJsNgModuleLoaderConfig } from "@angular/core";
 import { FormGroup, FormControl, Validators, FormArray } from "@angular/forms";
 import { ConfirmationService, MessageService } from "primeng/api";
-import { Message, Pec, Draft, MessageRelatedType, InOut, ENTITIES_STRUCTURE, DettaglioContattoService, Utente, BaseUrls, BaseUrlType, Contatto, GruppiContatti, GroupContactsListTransient, ContattoService, CategoriaContatto } from "@bds/ng-internauta-model";
+import { Message, Pec, Draft, MessageRelatedType, InOut, ENTITIES_STRUCTURE, DettaglioContattoService, Utente, BaseUrls, BaseUrlType, Contatto, GruppiContatti, GroupContactsListTransient, ContattoService, CategoriaContatto } from "@bds/internauta-model";
 import { Editor } from "primeng/editor";
 import { TOOLBAR_ACTIONS, MAX_FILE_SIZE_UPLOAD } from "src/environments/app-constants";
 import { DraftService } from "src/app/services/draft.service";
-import { FiltersAndSorts, FilterDefinition, FILTER_TYPES, BatchOperation, BatchOperationTypes, NextSdrEntity, AdditionalDataDefinition } from "@nfa/next-sdr";
+import { FiltersAndSorts, FilterDefinition, FILTER_TYPES, BatchOperation, BatchOperationTypes, NextSdrEntity, AdditionalDataDefinition } from "@bds/next-sdr";
 import { ActivatedRoute, Router } from "@angular/router";
-import { UtenteUtilities, NtJwtLoginService } from "@bds/nt-jwt-login";
+import { UtenteUtilities, JwtLoginService } from "@bds/jwt-login";
 import { Subscription } from "rxjs";
 import { CustomContactService, GroupModifyContactsComponent, SelectedContact, SelectedContactType} from "@bds/rubrint";
 import { AutoComplete } from "primeng/autocomplete";
@@ -79,7 +79,7 @@ export class NewMailComponent implements OnInit, AfterViewInit, OnDestroy {
     private dettaglioContattoService: DettaglioContattoService,
     private messageService: MessageService,
     private router: Router,
-    private loginService: NtJwtLoginService,
+    private loginService: JwtLoginService,
     private customContactService: CustomContactService,
     private contattoService: ContattoService) { }
 

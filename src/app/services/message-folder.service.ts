@@ -1,8 +1,8 @@
 import { Injectable } from "@angular/core";
-import { NextSDREntityProvider, BatchOperation, BatchOperationTypes, NextSdrEntity } from "@nfa/next-sdr";
+import { NextSDREntityProvider, BatchOperation, BatchOperationTypes, NextSdrEntity } from "@bds/next-sdr";
 import { DatePipe } from "@angular/common";
 import { HttpClient } from "@angular/common/http";
-import { ENTITIES_STRUCTURE, Message, MessageFolder } from "@bds/ng-internauta-model";
+import { ENTITIES_STRUCTURE, Message, MessageFolder } from "@bds/internauta-model";
 import { getInternautaUrl, BaseUrlType, BaseUrls } from "src/environments/app-constants";
 import { Observable } from "rxjs";
 

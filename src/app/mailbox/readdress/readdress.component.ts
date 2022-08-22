@@ -4,9 +4,9 @@ import { ShpeckMessageService } from "src/app/services/shpeck-message.service";
 import { DialogService, DynamicDialogConfig, DynamicDialogRef } from "primeng/dynamicdialog";
 import { Subscription } from "rxjs";
 import { PecService } from "src/app/services/pec.service";
-import { Pec, ENTITIES_STRUCTURE, Tag, Message, MessageTag } from "@bds/ng-internauta-model";
-import { FiltersAndSorts, SortDefinition, SORT_MODES, FilterDefinition, FILTER_TYPES, PagingConf } from "@nfa/next-sdr";
-import { NtJwtLoginService, UtenteUtilities } from "@bds/nt-jwt-login";
+import { Pec, ENTITIES_STRUCTURE, Tag, Message, MessageTag } from "@bds/internauta-model";
+import { FiltersAndSorts, SortDefinition, SORT_MODES, FilterDefinition, FILTER_TYPES, PagingConf } from "@bds/next-sdr";
+import { JwtLoginService, UtenteUtilities } from "@bds/jwt-login";
 import { HttpClient } from "@angular/common/http";
 import { CUSTOM_SERVER_METHODS, BaseUrlType, getInternautaUrl } from "src/environments/app-constants";
 
@@ -34,7 +34,7 @@ export class ReaddressComponent implements OnInit, OnDestroy {
 
   constructor(
     protected http: HttpClient,
-    private loginService: NtJwtLoginService,
+    private loginService: JwtLoginService,
     private messageService: ShpeckMessageService,
     private pecService: PecService,
     public ref: DynamicDialogRef,

@@ -1,6 +1,6 @@
 import { Component, OnInit, Input, OnDestroy, ViewChild } from "@angular/core";
-import { FilterDefinition, FILTER_TYPES, PagingConf, SORT_MODES, FiltersAndSorts, SortDefinition } from "@nfa/next-sdr";
-import { ENTITIES_STRUCTURE, Outbox } from "@bds/ng-internauta-model";
+import { FilterDefinition, FILTER_TYPES, PagingConf, SORT_MODES, FiltersAndSorts, SortDefinition } from "@bds/next-sdr";
+import { ENTITIES_STRUCTURE, Outbox } from "@bds/internauta-model";
 import { Subscription } from "rxjs";
 import { Sorting, MailboxService, TotalMessageNumberDescriptor } from "../mailbox.service";
 import { Table } from "primeng/table";
@@ -12,7 +12,7 @@ import { FilterMetadata, LazyLoadEvent } from "primeng/api";
 import { buildLazyEventFiltersAndSorts } from "@bds/primeng-plugin";
 import { AppCustomization } from "src/environments/app-customization";
 import { PecFolder, MailFoldersService, PecFolderType } from "../mail-folders/mail-folders.service";
-import { IntimusClientService, IntimusCommand, IntimusCommands, RefreshMailsParams, RefreshMailsParamsOperations, RefreshMailsParamsEntities } from '@bds/nt-communicator';
+import { IntimusClientService, IntimusCommand, IntimusCommands, RefreshMailsParams, RefreshMailsParamsOperations, RefreshMailsParamsEntities } from '@bds/common-tools';
 
 @Component({
   selector: "app-mail-outbox",
