@@ -1,6 +1,6 @@
 import { Component, Input, ViewChild, ElementRef, OnInit, OnDestroy } from "@angular/core";
 import { ShpeckMessageService, MessageEvent, FullMessage } from "src/app/services/shpeck-message.service";
-import { Message, InOut, ENTITIES_STRUCTURE, MessageType, RecepitType, Draft } from "@bds/internauta-model";
+import { Message, InOut, ENTITIES_STRUCTURE, MessageType, RecepitType, KrintFilterOptions } from "@bds/ng-internauta-model";
 import { ContentTypeList } from "src/app/utils/styles-constants";
 import { EmlData } from "src/app/classes/eml-data";
 import { EmlAttachment } from "src/app/classes/eml-attachment";
@@ -18,6 +18,9 @@ import { OutboxService, OutboxEvent } from "src/app/services/outbox.service";
   styleUrls: ["./mail-detail.component.scss"]
 })
 export class MailDetailComponent implements OnInit, OnDestroy {
+
+  public showLogs = false;
+	public krintFilterOptions: KrintFilterOptions;
 
   private subscription: Subscription[] = [];
   private _versioneAccessibile = false;
@@ -66,6 +69,7 @@ export class MailDetailComponent implements OnInit, OnDestroy {
       (messageEvent: MessageEvent) => {
         this.messageTrueDraftFalse = true;
         this.numberOfMessageSelected = null;
+        this.showLogs = false;
         if (messageEvent && messageEvent.downloadedMessage) {
           if (messageEvent.downloadedMessage.message) {
             try {
@@ -365,5 +369,23 @@ export class MailDetailComponent implements OnInit, OnDestroy {
       }
     }
     return "fa-file-o"; // Classe FA di default
+  }
+
+  public removeZoneFromTime(date: string): string {
+		return date.replace(/\[\w+\/\w+\]$/, "");
+	}
+
+  public loadLogs() {    
+		this.krintFilterOptions = {
+			codiciOperazioni: null,
+			idOggetto: this.message?.id,
+			tipoOggetto: null,
+			idUtente: null,
+			idOggettoContenitore: this.message?.fk_idPec?.id,
+			tipoOggettoContenitore: null,
+			dataDa: null,
+			dataA: null
+		} as KrintFilterOptions;
+		this.showLogs = true;
   }
 }

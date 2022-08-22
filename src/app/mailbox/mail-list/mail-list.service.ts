@@ -1127,7 +1127,7 @@ export class MailListService {
       if (additionaDataInRegistration) {
         if (additionaDataInRegistration instanceof Array) {
           additionaDataInRegistration.forEach(element => {
-            additionalDataAziende.push(element.idAzienda.id);
+            additionalDataAziende.push(element.idAzienda?.id);
           });
         } else {
           if (additionaDataInRegistration && additionaDataInRegistration.idAzienda && additionaDataInRegistration.idAzienda.id) {
@@ -1239,7 +1239,7 @@ export class MailListService {
     if (additionalData) {
       if (Array.isArray(additionalData)) {
         additionalData.forEach(ad => {
-          if (idAziendePec.indexOf(ad.idAzienda.id) > -1 ) {
+          if (idAziendePec.indexOf(ad.idAzienda?.id) > -1 ) {
             contains = true;
           }
         });
