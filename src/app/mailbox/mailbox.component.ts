@@ -2,13 +2,13 @@ import { Component, OnInit, ViewChild, ElementRef, AfterViewInit, AfterViewCheck
 import { Subscription } from "rxjs";
 import { SettingsService } from "../services/settings.service";
 import { AppCustomization } from "src/environments/app-customization";
-import { Folder, Message, FolderType, Tag, Pec, Menu } from "@bds/ng-internauta-model";
-import { FilterDefinition, SORT_MODES } from "@nfa/next-sdr";
+import { Folder, Message, FolderType, Tag, Pec, Menu } from "@bds/internauta-model";
+import { FilterDefinition, SORT_MODES } from "@bds/next-sdr";
 import { MailFoldersService, PecFolder, PecFolderType } from "./mail-folders/mail-folders.service";
 import { MenuItem } from "primeng/api";
 import { MailboxService, Sorting, TotalMessageNumberDescriptor } from "./mailbox.service";
 import { FONTSIZE } from "src/environments/app-constants";
-import { NtJwtLoginService, UtenteUtilities } from "@bds/nt-jwt-login";
+import { JwtLoginService, UtenteUtilities } from "@bds/jwt-login";
 
 @Component({
   selector: "app-mailbox",
@@ -96,7 +96,7 @@ export class MailboxComponent implements OnInit, AfterViewInit, AfterViewChecked
   constructor(private settingsService: SettingsService,
     private mailFoldersService: MailFoldersService,
     private mailboxService: MailboxService,
-    private loginService: NtJwtLoginService) {
+    private loginService: JwtLoginService) {
 
     this.rightSideVisible = true;
   }

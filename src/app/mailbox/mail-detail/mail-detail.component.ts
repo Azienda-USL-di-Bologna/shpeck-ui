@@ -1,12 +1,12 @@
 import { Component, Input, ViewChild, ElementRef, OnInit, OnDestroy } from "@angular/core";
 import { ShpeckMessageService, MessageEvent, FullMessage } from "src/app/services/shpeck-message.service";
-import { Message, InOut, ENTITIES_STRUCTURE, MessageType, RecepitType, Draft } from "@bds/ng-internauta-model";
+import { Message, InOut, ENTITIES_STRUCTURE, MessageType, RecepitType, Draft } from "@bds/internauta-model";
 import { ContentTypeList } from "src/app/utils/styles-constants";
 import { EmlData } from "src/app/classes/eml-data";
 import { EmlAttachment } from "src/app/classes/eml-attachment";
 import { HttpClient } from "@angular/common/http";
 import { Subscription } from "rxjs";
-import { FiltersAndSorts, FilterDefinition, FILTER_TYPES, SortDefinition, SORT_MODES, PagingConf } from "@nfa/next-sdr";
+import { FiltersAndSorts, FilterDefinition, FILTER_TYPES, SortDefinition, SORT_MODES, PagingConf } from "@bds/next-sdr";
 import { Utils } from "src/app/utils/utils";
 import { DraftService, DraftEvent } from "src/app/services/draft.service";
 import { OutboxService, OutboxEvent } from "src/app/services/outbox.service";

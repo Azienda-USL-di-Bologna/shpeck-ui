@@ -1,7 +1,7 @@
 import { Injectable } from "@angular/core";
 import { BehaviorSubject, Observable, Subscription, Observer, of } from "rxjs";
-import { FilterDefinition } from "@nfa/next-sdr";
-import { Draft, Pec, Folder, Message, FolderType, Tag, PecPermission } from "@bds/ng-internauta-model";
+import { FilterDefinition } from "@bds/next-sdr";
+import { Draft, Pec, Folder, Message, FolderType, Tag, PecPermission } from "@bds/internauta-model";
 import { NewMailComponent } from "../new-mail/new-mail.component";
 import { MessageService, MenuItem } from "primeng/api";
 import { MessageEvent, ShpeckMessageService } from "src/app/services/shpeck-message.service";
@@ -10,7 +10,7 @@ import { TOOLBAR_ACTIONS } from "src/environments/app-constants";
 import { PecFolderType, MailFoldersService, PecFolder, FoldersAndTags } from "../mail-folders/mail-folders.service";
 import { PecService } from "src/app/services/pec.service";
 import { MailListService } from "../mail-list/mail-list.service";
-import { UtenteUtilities, NtJwtLoginService } from "@bds/nt-jwt-login";
+import { UtenteUtilities, JwtLoginService } from "@bds/jwt-login";
 import { DialogService } from "primeng/dynamicdialog";
 
 @Injectable({
@@ -55,7 +55,7 @@ export class ToolBarService {
     private mailFoldersService: MailFoldersService,
     private pecService: PecService,
     private mailListService: MailListService,
-    private loginService: NtJwtLoginService
+    private loginService: JwtLoginService
     ) {
       this.move = this.move.bind(this);
       // this.archive = this.archive.bind(this);

@@ -1,5 +1,5 @@
 import {Component, ElementRef, OnDestroy, OnInit, ViewChild} from "@angular/core";
-import { NtJwtLoginService, UtenteUtilities } from '@bds/nt-jwt-login';
+import { JwtLoginService, UtenteUtilities } from '@bds/jwt-login';
 import { Subscription } from 'rxjs';
 import { SettingsService } from 'src/app/services/settings.service';
 import { ShpeckMessageService, MessageEvent } from 'src/app/services/shpeck-message.service';
@@ -10,12 +10,12 @@ import { AppCustomization } from "src/environments/app-customization";
 import {BaseUrls, BaseUrlType, EMLSOURCE, FONTSIZE, TOOLBAR_ACTIONS} from "src/environments/app-constants";
 import { MailboxService, Sorting } from '../../mailbox.service';
 import { Table } from 'primeng/table';
-import {IntimusClientService, IntimusCommand, IntimusCommands, RefreshMailsParams, RefreshMailsParamsEntities, RefreshMailsParamsOperations} from "@bds/nt-communicator";
+import {IntimusClientService, IntimusCommand, IntimusCommands, RefreshMailsParams, RefreshMailsParamsEntities, RefreshMailsParamsOperations} from "@bds/common-tools";
 import {ConfirmationService, FilterMetadata, LazyLoadEvent, MenuItem, MessageService} from "primeng/api";
-import { BatchOperation, BatchOperationTypes, FILTER_TYPES, FilterDefinition, FiltersAndSorts, PagingConf, SortDefinition, AdditionalDataDefinition } from "@nfa/next-sdr";
+import { BatchOperation, BatchOperationTypes, FILTER_TYPES, FilterDefinition, FiltersAndSorts, PagingConf, SortDefinition, AdditionalDataDefinition } from "@bds/next-sdr";
 import { buildLazyEventFiltersAndSorts } from "@bds/primeng-plugin";
 import { DatePipe, Location } from "@angular/common";
-import {Azienda, ENTITIES_STRUCTURE, Folder, FolderType, Menu, Message, MessageTag, MessageType, Note, Pec, Tag} from "@bds/ng-internauta-model";
+import {Azienda, ENTITIES_STRUCTURE, Folder, FolderType, Menu, Message, MessageTag, MessageType, Note, Pec, Tag} from "@bds/internauta-model";
 import { ContextMenu } from "primeng/contextmenu";
 import { FormControl, FormGroup, Validators } from "@angular/forms";
 import { Utils } from "src/app/utils/utils"; 
@@ -111,7 +111,7 @@ export class AccessibilitaMailListComponent implements OnInit, OnDestroy {
     public mailListService: MailListService,
     private mailFoldersService: MailFoldersService,
     private toolBarService: ToolBarService,
-    private loginService: NtJwtLoginService,
+    private loginService: JwtLoginService,
     private mailboxService: MailboxService,
     private datepipe: DatePipe,
     private noteService: NoteService,

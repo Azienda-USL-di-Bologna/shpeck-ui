@@ -2,9 +2,9 @@ import { Component, OnDestroy, ViewChild, ElementRef, AfterViewInit} from "@angu
 import { ConfirmationService, MenuItem } from "primeng/api";
 import { Subscription, Observable } from "rxjs";
 import { TOOLBAR_ACTIONS } from "src/environments/app-constants";
-import { Pec, Folder, FolderType, Tag } from "@bds/ng-internauta-model";
+import { Pec, Folder, FolderType, Tag } from "@bds/internauta-model";
 import { PecService } from "src/app/services/pec.service";
-import { FilterDefinition, FILTER_TYPES } from "@nfa/next-sdr";
+import { FilterDefinition, FILTER_TYPES } from "@bds/next-sdr";
 import { ToolBarService } from "./toolbar.service";
 import { MailFoldersService, PecFolderType } from "../mail-folders/mail-folders.service";
 import { MailListService } from "../mail-list/mail-list.service";

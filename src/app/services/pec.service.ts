@@ -2,8 +2,8 @@ import { Injectable } from "@angular/core";
 import { HttpClient } from "@angular/common/http";
 import { DatePipe } from "@angular/common";
 import { getInternautaUrl, BaseUrlType } from "src/environments/app-constants";
-import { ENTITIES_STRUCTURE, Pec } from "@bds/ng-internauta-model";
-import { NextSDREntityProvider, FiltersAndSorts, SortDefinition, SORT_MODES, AdditionalDataDefinition } from "@nfa/next-sdr";
+import { ENTITIES_STRUCTURE, Pec } from "@bds/internauta-model";
+import { NextSDREntityProvider, FiltersAndSorts, SortDefinition, SORT_MODES, AdditionalDataDefinition } from "@bds/next-sdr";
 import { BehaviorSubject, Observable } from "rxjs";
 import { tap, map } from "rxjs/operators";
 
