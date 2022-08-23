@@ -153,6 +153,10 @@ export class MailListService {
                 subElementDisabled = true;
               }
               break;
+            case FolderType.CUSTOM:
+              if (this.selectedMessages.some((message: Message) => message.messageFolderList[0].fk_idFolder.id === f.id)) {
+                subElementDisabled = true;
+              }
           }
         }
         foldersSubCmItems.push(
@@ -474,20 +478,23 @@ export class MailListService {
                 });
                 this.messageService.getData(this.selectedProjection, filter, null, null).subscribe((data: any) => {
                   (data.results as Message[]).forEach(reloadedMessage => {
-                    this.messages = [...this.messages];
                     const messageIndex = this.messages.findIndex(m => m.id === reloadedMessage.id);
                     if (messageIndex >= 0) {
                       this.setMailTagVisibility([reloadedMessage]);
                       this.mailFoldersService.doReloadTag(this.tags.find(t => t.name === "in_error").id);
                       this.messages.splice(messageIndex, 1, reloadedMessage);
+                      if(idFolder === this.trashFolder.id) {
+                        this.messages = this.messages.filter(ab => ab.id != reloadedMessage.id);
+                      }
                     }
-                    this.selectedMessages = [];
+                  });
+                  this.messages = [...this.messages];
+                  this.selectedMessages = [];
                     this.messageService.manageMessageEvent(
                       null,
                       null,
                       this.selectedMessages
                     );
-                  });
                 });
               }
 

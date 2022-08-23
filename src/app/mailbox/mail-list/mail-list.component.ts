@@ -312,6 +312,8 @@ export class MailListComponent implements OnInit, OnDestroy, AfterViewInit {
             this.cmItems.map(element => {
               if (element.id === "MessageDelete" && selectedFolder.type === FolderType.TRASH) {
                 element.label = "Elimina definitivamente";
+              } else if (element.id === "MessageDelete" ){
+                element.label = "Elimina";
               }
           });
           }
@@ -1436,7 +1438,13 @@ export class MailListComponent implements OnInit, OnDestroy, AfterViewInit {
       case "MessageDelete":
           const selectedFolder: Folder = this.pecFolderSelected.data as Folder;
           if (selectedFolder.type === FolderType.TRASH) {
-            this.mailListService.deleteSelectedMessageFromTrash();
+            this.confirmationService.confirm({
+              message: "Il messaggio sta per essere cancellato definitivamente. Sei sicuro di volerlo eliminare?",
+              header: "Conferma",
+              icon:"pi pi-exclamation-triangle",
+              accept:() => { this.mailListService.deleteSelectedMessageFromTrash();},
+              reject:() => { }
+            })
           } else {
             this.deletingConfirmation();
           }
