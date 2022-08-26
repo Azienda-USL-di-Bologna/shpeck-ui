@@ -108,6 +108,12 @@
                 <span *ngFor="let c of fullMessage?.emlData?.cc" class="li-content indirizzo">{{c}}</span>
               </div>
             </li>
+            <li *ngIf="thereIsReplyToField() !== null">
+              <div [tabindex]="this.getTabindexForAccordion(dettagli)">
+                <span class="li-description">Rispondi a:</span>
+                <span class="li-content indirizzo">{{thereIsReplyToField()}}</span>
+              </div>
+            </li>
         </ul>
       </p-accordionTab>
       <p-accordionTab

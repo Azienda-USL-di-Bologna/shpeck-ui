@@ -388,4 +388,16 @@ export class MailDetailComponent implements OnInit, OnDestroy {
 		} as KrintFilterOptions;
 		this.showLogs = true;
   }
+
+  public thereIsReplyToField(){
+    var res = null;
+    if (this.fullMessage?.message['messageAddressList']){
+      this.fullMessage?.message['messageAddressList'].forEach( obj => {
+        if (obj.addressRole === "REPLY_TO"){
+          res = obj.idAddress.mailAddress;
+        }
+      });
+    }
+    return res;
+  }
 }
