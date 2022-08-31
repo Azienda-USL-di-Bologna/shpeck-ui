@@ -1,5 +1,5 @@
 import { Component, OnInit } from "@angular/core";
-import { LazyLoadEvent, MenuItem } from "primeng/api";
+import { MenuItem } from "primeng/api";
 import { JwtLoginService, UtenteUtilities, UtilityFunctions } from "@bds/jwt-login";
 import { MAILBOX_ROUTE, LOGIN_ROUTE, APPLICATION } from "src/environments/app-constants";
 import { IntimusClientService } from "@bds/common-tools";
@@ -7,10 +7,9 @@ import { PopupMessaggiService,HeaderFeaturesConfig } from "@bds/common-component
 
 import { SettingsComponent } from "./settings/settings.component";
 import { ActivatedRoute, Router, Params } from "@angular/router";
-import { getInternautaUrl, BaseUrlType, ENTITIES_STRUCTURE } from "@bds/internauta-model";
+import { getInternautaUrl, BaseUrlType } from "@bds/internauta-model";
 import Quill from "quill";
 import { DialogService } from "primeng/dynamicdialog";
-import { ShpeckMessageService } from "./services/shpeck-message.service";
 
 @Component({
   selector: "app-root",

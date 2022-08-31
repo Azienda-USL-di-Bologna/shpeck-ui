@@ -7,7 +7,7 @@ import { FormsModule, ReactiveFormsModule } from "@angular/forms";
 import { AppRoutingModule } from "./app-routing.module";
 import { AppComponent } from "./app.component";
 import { PrimengModule } from "./primeng.module";
-import { CommonComponentsModule } from "@bds/common-components";
+import { CommonComponentsModule, HeaderModule, HeaderFeaturesModule } from "@bds/common-components";
 import { RubrintModule } from "@bds/rubrint";
 
 import { MailboxComponent } from "./mailbox/mailbox.component";
@@ -87,6 +87,8 @@ registerLocaleData(localeIt, "it-IT", localeItExtra);
     NextSdrModule,
     PrimengPluginModule,
     CommonComponentsModule,
+    HeaderModule,
+    HeaderFeaturesModule,
     RubrintModule,
     ShpeckToolbarModule,
     MailFoldersModule,
