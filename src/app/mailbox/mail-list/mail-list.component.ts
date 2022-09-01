@@ -1,8 +1,8 @@
 import {AfterViewInit, Component, ElementRef, EventEmitter, HostListener, OnDestroy, OnInit, Output, ViewChild} from "@angular/core";
 import {buildLazyEventFiltersAndSorts} from "@bds/primeng-plugin";
-import {ArchivioDetailView, Azienda, ENTITIES_STRUCTURE, Folder, FolderType, Message, MessageTag, MessageType, Note, Pec, Tag, TagType} from "@bds/ng-internauta-model";
+import {ArchivioDetailView, Azienda, ENTITIES_STRUCTURE, Folder, FolderType, Message, MessageTag, MessageType, Note, Pec, Tag, TagType} from "@bds/internauta-model";
 import {MessageEvent, ShpeckMessageService} from "src/app/services/shpeck-message.service";
-import {BatchOperation, BatchOperationTypes, FILTER_TYPES, FilterDefinition, FiltersAndSorts, PagingConf, SortDefinition, AdditionalDataDefinition} from "@nfa/next-sdr";
+import {BatchOperation, BatchOperationTypes, FILTER_TYPES, FilterDefinition, FiltersAndSorts, PagingConf, SortDefinition, AdditionalDataDefinition} from "@bds/next-sdr";
 import {TagService} from "src/app/services/tag.service";
 import {Observable, Subscription} from "rxjs";
 import {DatePipe} from "@angular/common";
@@ -14,16 +14,15 @@ import {MailFoldersService, PecFolder, PecFolderType} from "../mail-folders/mail
 import {ToolBarService} from "../toolbar/toolbar.service";
 import {MailListService} from "./mail-list.service";
 import {NoteService} from "src/app/services/note.service";
-import {NtJwtLoginService, UtenteUtilities} from "@bds/nt-jwt-login";
+import {JwtLoginService, UtenteUtilities} from "@bds/jwt-login";
 import {Menu} from "primeng/menu";
 import {AppCustomization} from "src/environments/app-customization";
 import {SettingsService} from "src/app/services/settings.service";
 import {FormControl, FormGroup, Validators} from "@angular/forms";
 import {MailboxService, Sorting} from "../mailbox.service";
-import {IntimusClientService, IntimusCommand, IntimusCommands, RefreshMailsParams, RefreshMailsParamsEntities, RefreshMailsParamsOperations} from "@bds/nt-communicator";
+import {IntimusClientService, IntimusCommand, IntimusCommands, RefreshMailsParams, RefreshMailsParamsEntities, RefreshMailsParamsOperations} from "@bds/common-tools";
 import { ContextMenu } from "primeng/contextmenu";
 import { DialogService } from "primeng/dynamicdialog";
-import { ArchivioRicercaComponent } from "@bds/common-components/lib/archivio-ricerca/archivio-ricerca.component";
 
 
 @Component({
@@ -46,7 +45,7 @@ export class MailListComponent implements OnInit, OnDestroy, AfterViewInit {
     private messagePrimeService: MessageService,
     private noteService: NoteService,
     private settingsService: SettingsService,
-    private loginService: NtJwtLoginService,
+    private loginService: JwtLoginService,
     private mailboxService: MailboxService,
     private dialogService: DialogService,
     private intimusClient: IntimusClientService
@@ -313,6 +312,8 @@ export class MailListComponent implements OnInit, OnDestroy, AfterViewInit {
             this.cmItems.map(element => {
               if (element.id === "MessageDelete" && selectedFolder.type === FolderType.TRASH) {
                 element.label = "Elimina definitivamente";
+              } else if (element.id === "MessageDelete" ){
+                element.label = "Elimina";
               }
           });
           }
@@ -1437,7 +1438,13 @@ export class MailListComponent implements OnInit, OnDestroy, AfterViewInit {
       case "MessageDelete":
           const selectedFolder: Folder = this.pecFolderSelected.data as Folder;
           if (selectedFolder.type === FolderType.TRASH) {
-            this.mailListService.deleteSelectedMessageFromTrash();
+            this.confirmationService.confirm({
+              message: "Il messaggio sta per essere cancellato definitivamente. Sei sicuro di volerlo eliminare?",
+              header: "Conferma",
+              icon:"pi pi-exclamation-triangle",
+              accept:() => { this.mailListService.deleteSelectedMessageFromTrash();},
+              reject:() => { }
+            })
           } else {
             this.deletingConfirmation();
           }

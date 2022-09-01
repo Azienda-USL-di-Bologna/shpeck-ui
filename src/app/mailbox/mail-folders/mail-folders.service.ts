@@ -1,7 +1,7 @@
 import { Injectable } from "@angular/core";
 import { TreeNode } from "primeng/api";
 import { BehaviorSubject, Observable, Subject } from "rxjs";
-import { Pec, Folder, Tag, FolderType } from "@bds/ng-internauta-model";
+import { Pec, Folder, Tag, FolderType } from "@bds/internauta-model";
 import { HttpClient } from "@angular/common/http";
 import { getInternautaUrl, BaseUrlType, CUSTOM_SERVER_METHODS } from "src/environments/app-constants";
 

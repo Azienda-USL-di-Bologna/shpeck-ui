@@ -1,5 +1,5 @@
 import { Injectable } from "@angular/core";
-import { UtenteUtilities, NtJwtLoginService } from "@bds/nt-jwt-login";
+import { UtenteUtilities, JwtLoginService } from "@bds/jwt-login";
 import { AppCustomization } from "src/environments/app-customization";
 import { Subscription, Subject } from "rxjs";
 
@@ -12,7 +12,7 @@ export class SettingsService {
   subscription: Subscription;
   settingsChangedNotifier$ = new Subject<boolean>();
 
-  constructor(private loginService: NtJwtLoginService) {
+  constructor(private loginService: JwtLoginService) {
     this.subscription = this.loginService.loggedUser$.subscribe((utente: UtenteUtilities) => {
       if (utente) {
         console.log("SettingsService loggedUserSubscription - utente: ", utente, "this.loggedUser: ", this.loggedUser);

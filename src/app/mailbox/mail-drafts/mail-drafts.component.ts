@@ -1,6 +1,6 @@
 import { Component, OnInit, Input, OnDestroy, ViewChild } from "@angular/core";
-import { Draft, ENTITIES_STRUCTURE } from "@bds/ng-internauta-model";
-import { FILTER_TYPES, FilterDefinition, PagingConf, FiltersAndSorts, SortDefinition, SORT_MODES } from "@nfa/next-sdr";
+import { Draft, ENTITIES_STRUCTURE } from "@bds/internauta-model";
+import { FILTER_TYPES, FilterDefinition, PagingConf, FiltersAndSorts, SortDefinition, SORT_MODES } from "@bds/next-sdr";
 import { LazyLoadEvent, FilterMetadata, ConfirmationService } from "primeng/api";
 import { DatePipe } from "@angular/common";
 import { buildLazyEventFiltersAndSorts } from "@bds/primeng-plugin";
@@ -12,7 +12,7 @@ import { AppCustomization } from "src/environments/app-customization";
 import { MailboxService, Sorting, TotalMessageNumberDescriptor } from "../mailbox.service";
 import { Table } from "primeng/table";
 import { PecFolder, MailFoldersService, PecFolderType } from "../mail-folders/mail-folders.service";
-import { IntimusClientService, IntimusCommand, IntimusCommands, RefreshMailsParams, RefreshMailsParamsEntities, RefreshMailsParamsOperations } from '@bds/nt-communicator';
+import { IntimusClientService, IntimusCommand, IntimusCommands, RefreshMailsParams, RefreshMailsParamsEntities, RefreshMailsParamsOperations } from '@bds/common-tools';
 
 @Component({
   selector: "app-mail-drafts",

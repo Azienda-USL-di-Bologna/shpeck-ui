@@ -1,13 +1,13 @@
 import { Injectable } from "@angular/core";
 import { Tag, Folder, Message, FolderType, InOut, ENTITIES_STRUCTURE, FluxPermission, PecPermission, Note, MessageTag,
-  Utente, Azienda, MessageType, MessageStatus, TagType, Pec, MessageFolder, AddresRoleType, MessageAddress, getInternautaUrl, BaseUrlType, BaseUrls, ItemMenu, CommandType, MessageWithFolderViewService, MessageWithTagViewService, ConfigurazioneService, ParametroAziende } from "@bds/ng-internauta-model";
+  Utente, Azienda, MessageType, MessageStatus, TagType, Pec, MessageFolder, AddresRoleType, MessageAddress, getInternautaUrl, BaseUrlType, BaseUrls, ItemMenu, CommandType, MessageWithFolderViewService, MessageWithTagViewService, ConfigurazioneService, ParametroAziende } from "@bds/internauta-model";
 import { ConfirmationService, MenuItem, MessageService } from "primeng/api";
 import { Utils } from "src/app/utils/utils";
 import { MessageFolderService } from "src/app/services/message-folder.service";
 import { Subscription, Observable, BehaviorSubject, Subject } from "rxjs";
 import { MailFoldersService, FoldersAndTags, PecFolderType, PecFolder } from "../mail-folders/mail-folders.service";
-import { NtJwtLoginService, UtenteUtilities } from "@bds/nt-jwt-login";
-import { BatchOperation, BatchOperationTypes, FILTER_TYPES, FiltersAndSorts, FilterDefinition, SORT_MODES, AdditionalDataDefinition, SortDefinition, NextSDREntityProvider } from "@nfa/next-sdr";
+import { JwtLoginService, UtenteUtilities } from "@bds/jwt-login";
+import { BatchOperation, BatchOperationTypes, FILTER_TYPES, FiltersAndSorts, FilterDefinition, SORT_MODES, AdditionalDataDefinition, SortDefinition, NextSDREntityProvider } from "@bds/next-sdr";
 import { CUSTOM_SERVER_METHODS } from "src/environments/app-constants";
 import { MessageEvent, ShpeckMessageService } from "src/app/services/shpeck-message.service";
 import { ReaddressComponent } from "../readdress/readdress.component";
@@ -59,7 +59,7 @@ export class MailListService {
     private messagePrimeService: MessageService,
     private messageFolderService: MessageFolderService,
     private mailFoldersService: MailFoldersService,
-    private loginService: NtJwtLoginService,
+    private loginService: JwtLoginService,
     private messageService: ShpeckMessageService,
     private messageWithFolderViewService: MessageWithFolderViewService,
     private messageWithTagViewService: MessageWithTagViewService,
@@ -153,6 +153,10 @@ export class MailListService {
                 subElementDisabled = true;
               }
               break;
+            case FolderType.CUSTOM:
+              if (this.selectedMessages.some((message: Message) => message.messageFolderList[0].fk_idFolder.id === f.id)) {
+                subElementDisabled = true;
+              }
           }
         }
         foldersSubCmItems.push(
@@ -474,20 +478,23 @@ export class MailListService {
                 });
                 this.messageService.getData(this.selectedProjection, filter, null, null).subscribe((data: any) => {
                   (data.results as Message[]).forEach(reloadedMessage => {
-                    this.messages = [...this.messages];
                     const messageIndex = this.messages.findIndex(m => m.id === reloadedMessage.id);
                     if (messageIndex >= 0) {
                       this.setMailTagVisibility([reloadedMessage]);
                       this.mailFoldersService.doReloadTag(this.tags.find(t => t.name === "in_error").id);
                       this.messages.splice(messageIndex, 1, reloadedMessage);
+                      if(idFolder === this.trashFolder.id) {
+                        this.messages = this.messages.filter(ab => ab.id != reloadedMessage.id);
+                      }
                     }
-                    this.selectedMessages = [];
+                  });
+                  this.messages = [...this.messages];
+                  this.selectedMessages = [];
                     this.messageService.manageMessageEvent(
                       null,
                       null,
                       this.selectedMessages
                     );
-                  });
                 });
               }
 
@@ -1127,7 +1134,7 @@ export class MailListService {
       if (additionaDataInRegistration) {
         if (additionaDataInRegistration instanceof Array) {
           additionaDataInRegistration.forEach(element => {
-            additionalDataAziende.push(element.idAzienda.id);
+            additionalDataAziende.push(element.idAzienda?.id);
           });
         } else {
           if (additionaDataInRegistration && additionaDataInRegistration.idAzienda && additionaDataInRegistration.idAzienda.id) {
@@ -1239,7 +1246,7 @@ export class MailListService {
     if (additionalData) {
       if (Array.isArray(additionalData)) {
         additionalData.forEach(ad => {
-          if (idAziendePec.indexOf(ad.idAzienda.id) > -1 ) {
+          if (idAziendePec.indexOf(ad.idAzienda?.id) > -1 ) {
             contains = true;
           }
         });
