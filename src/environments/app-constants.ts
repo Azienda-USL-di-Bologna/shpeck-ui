@@ -31,7 +31,8 @@ export enum BaseUrlType {
     ConfigurazioneImpostazioniApplicazioni,
     Login,
     Intimus,
-    Rubrica
+    Rubrica,
+    Scripta
 }
 
 export const BaseUrls: Map<BaseUrlType, string> = new Map<BaseUrlType, string>([
@@ -42,7 +43,8 @@ export const BaseUrls: Map<BaseUrlType, string> = new Map<BaseUrlType, string>([
     [BaseUrlType.ConfigurazioneImpostazioniApplicazioni, "/internauta-api/resources/configurazione/custom/setImpostazioniApplicazioni"],
     [BaseUrlType.Login, "/internauta-api/login"],
     [BaseUrlType.Intimus, ""],
-    [BaseUrlType.Rubrica,  "/internauta-api/resources/rubrica"]
+    [BaseUrlType.Rubrica,  "/internauta-api/resources/rubrica"],
+    [BaseUrlType.Scripta,  "/internauta-api/resources/scripta"]
 ]);
 
 export const CUSTOM_SERVER_METHODS = {
