@@ -286,7 +286,7 @@
                     </i>
                     
                 </div>
-                <div class="display-block extra-margin" style="overflow-x: hidden">
+                <div class="display-block extra-margin" style="overflow-x: hidden; text-overflow: ellipsis;">
                     <!-- iconcina della mail -->
                     <span *ngIf="!message?.seen" class="fas fa-envelope envelope-icon icon-default-color"></span>
                     <span *ngIf="message?.seen" class="far fa-envelope-open envelope-icon icon-default-color"></span>
@@ -495,3 +495,21 @@ class="ui-button-raised ui-button-secondary button-styles custom-secondary-butto
         </p-footer>
     </form>
 </p-dialog>
+
+<!-- POPUP Fascicola il messaggio -->
+<p-dialog *ngIf="mailListService.displayArchivioRicerca" 
+    [(visible)]="mailListService.displayArchivioRicerca"
+    [modal]="true" [style]="{width: '50%'}" 
+    appendTo="body" header="Fascicolazione" 
+    [responsive]="false"
+    [focusOnShow]="false">
+    <!-- [styleClass]="'p-sm-10 p-md-4'" -->
+    <app-archivio-ricerca #archivioRicerca [idAzienda]="mailListService.idAziendaFascicolazione" (archivioSelectedEvent)="archivioSelectedEvent($event.arch)"></app-archivio-ricerca>
+    <div class="p-grid button-wrapper">
+        <button pButton icon="pi pi-check" class="button-styles" label="Conferma"
+            (click)="onArchcivioSelectionConfirmed()"></button>
+        <button pButton icon="pi pi-times" class="button-styles button-margin-left" label="Annulla"
+            (click)="mailListService.displayArchivioRicerca = false"></button>
+    </div>
+</p-dialog>
+

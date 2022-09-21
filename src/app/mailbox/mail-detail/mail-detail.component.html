@@ -9,6 +9,22 @@
     tabindex="0">
     {{fullMessage?.emlData?.subject}}
   </h3>
+
+  <div *ngIf="this.message?.version" pTooltip="Mostra cronologia" tooltipPosition="left" (click)="loadLogs()" class="ultima-azione">Ultima azione: {{removeZoneFromTime(this.message?.version?.toString()) | date: 'EE d MMM y, H:mm' | titlecase}}</div>
+
+  <div class="log-container" [ngClass]="{'showLogs': showLogs}">
+    <div class="header" (click)="showLogs = false">
+      <span>Chiudi cronologia</span>
+    </div>
+    <div class="content">
+      <log-viewer [krintFilterOptions]="krintFilterOptions"></log-viewer>
+    </div>
+  </div>
+
+
+
+
+
   <div *ngIf="message?.inOut === inOut?.OUT && fullMessage?.emlData?.displayBody" class="recepit-detail">
     <div class="recepit-dates">
       <li class="recepit-date">
@@ -90,6 +106,12 @@
               <div [tabindex]="this.getTabindexForAccordion(dettagli)">
                 <span class="li-description">CC:</span>
                 <span *ngFor="let c of fullMessage?.emlData?.cc" class="li-content indirizzo">{{c}}</span>
+              </div>
+            </li>
+            <li *ngIf="thereIsReplyToField() !== null">
+              <div [tabindex]="this.getTabindexForAccordion(dettagli)">
+                <span class="li-description">Rispondi a:</span>
+                <span class="li-content indirizzo">{{thereIsReplyToField()}}</span>
               </div>
             </li>
         </ul>

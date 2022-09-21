@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { NtJwtLoginService, UtenteUtilities } from '@bds/nt-jwt-login';
+import { JwtLoginService, UtenteUtilities } from '@bds/jwt-login';
 import { Router } from '@angular/router';
 import { ACCESSIBLE_MAILBOX_ROUTE, MAILBOX_ROUTE } from 'src/environments/app-constants';
 
@@ -10,7 +10,7 @@ import { ACCESSIBLE_MAILBOX_ROUTE, MAILBOX_ROUTE } from 'src/environments/app-co
 })
 export class LandingRoutingComponent implements OnInit {
 
-  constructor(private loginService: NtJwtLoginService, private router: Router) { }
+  constructor(private loginService: JwtLoginService, private router: Router) { }
 
   ngOnInit(): void {
     this.loginService.loggedUser$.subscribe(

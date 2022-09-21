@@ -1,5 +1,5 @@
 import { Component, OnInit, ViewEncapsulation, OnDestroy, ViewChild, ElementRef, ViewChildren } from "@angular/core";
-import { Pec, Folder, FolderType, Tag, TagType, Utente } from "@bds/ng-internauta-model";
+import { Pec, Folder, FolderType, Tag, TagType, Utente } from "@bds/internauta-model";
 import { PecService } from "src/app/services/pec.service";
 import { TreeNode, MenuItem, MessageService } from "primeng/api";
 import { MailFoldersService, PecFolder, PecFolderType } from "./mail-folders.service";
@@ -7,10 +7,10 @@ import { Subscription } from "rxjs";
 import { FolderService } from "src/app/services/folder.service";
 import { TagService } from "src/app/services/tag.service";
 import { MailListService } from "../mail-list/mail-list.service";
-import { UtenteUtilities, NtJwtLoginService } from "@bds/nt-jwt-login";
+import { UtenteUtilities, JwtLoginService } from "@bds/jwt-login";
 import { ShpeckMessageService } from "src/app/services/shpeck-message.service";
-import { IntimusClientService, IntimusCommand, IntimusCommands, RefreshMailsParams, RefreshMailsParamsOperations, RefreshMailsParamsEntities } from "@bds/nt-communicator";
-import { FilterDefinition, FiltersAndSorts, FILTER_TYPES } from "@nfa/next-sdr";
+import { IntimusClientService, IntimusCommand, IntimusCommands, RefreshMailsParams, RefreshMailsParamsOperations, RefreshMailsParamsEntities } from "@bds/common-tools";
+import { FilterDefinition, FiltersAndSorts, FILTER_TYPES } from "@bds/next-sdr";
 import { OutboxLiteService } from "src/app/services/outbox-lite.service";
 import { DraftLiteService } from "src/app/services/draft-lite.service";
 import { filter } from 'rxjs/operators';
@@ -132,7 +132,7 @@ export class MailFoldersComponent implements OnInit, OnDestroy {
       private shpeckMessageService: ShpeckMessageService,
       private outboxLiteService: OutboxLiteService,
       private draftLiteService: DraftLiteService,
-      private loginService: NtJwtLoginService,
+      private loginService: JwtLoginService,
       private tagService: TagService,
       private mailListService: MailListService,
       private intimusClient: IntimusClientService) {

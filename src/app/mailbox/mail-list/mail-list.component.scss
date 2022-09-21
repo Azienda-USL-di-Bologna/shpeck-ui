@@ -66,6 +66,12 @@
     }
   }
 } */
+::ng-deep .cdk-virtual-scroll-content-wrapper{
+  width:100% !important;
+  .p-datatable-table{
+    width: 100% !important;
+  }
+}
 ::ng-deep #pec-mail-list {
   height: 100%;
   .p-datatable {
@@ -99,6 +105,7 @@
   height: 79px !important;
   .row-main-content {
     display: block;
+    width: 90%;
   }
 }
 .cella-no-elementi {
@@ -232,7 +239,7 @@
   justify-content: space-between;
 }
 .display-text {
-  display: inline-block;
+  display: inline;
   position: relative;
 }
 .text-from-or-to {
@@ -420,4 +427,14 @@
     max-height: 50vh;
     overflow: hidden
   }
+}
+
+.button-wrapper {
+  justify-content: center;
+  padding-top: 10px;
+}
+
+.button-styles {
+  width: auto;
+  margin: 10px;
 }
