@@ -3,8 +3,8 @@ import { NextSDREntityProvider } from "@bds/next-sdr";
 import { HttpClient } from "@angular/common/http";
 import { DatePipe } from "@angular/common";
 import { getInternautaUrl, BaseUrlType, CUSTOM_SERVER_METHODS, EMLSOURCE } from "src/environments/app-constants";
-import { ENTITIES_STRUCTURE, Message, Draft, Outbox } from "@bds/internauta-model";
-import { Observable, BehaviorSubject, Subject } from "rxjs";
+import { ENTITIES_STRUCTURE, Message, Draft, Outbox, ArchivioDetailView } from "@bds/internauta-model";
+import { Observable, BehaviorSubject } from "rxjs";
 import { EmlAttachment } from "../classes/eml-attachment";
 import { EmlData } from "../classes/eml-data";
 
@@ -103,8 +103,8 @@ export class ShpeckMessageService extends NextSDREntityProvider {
     return this.http.get(url, {responseType: "blob"});
   }
 
-  public archiveMessage(message: Message): Observable<any> {
-    const url = getInternautaUrl(BaseUrlType.Shpeck) + "/" + CUSTOM_SERVER_METHODS.archiveMessage + "/" + message.id;
+  public archiveMessage(message: Message, archivio: ArchivioDetailView): Observable<any> {
+    const url = getInternautaUrl(BaseUrlType.Scripta) + "/" + CUSTOM_SERVER_METHODS.archiveMessage + "/" + message.id + "/" + archivio.id;
     return this.http.post(url, null);
   }
 

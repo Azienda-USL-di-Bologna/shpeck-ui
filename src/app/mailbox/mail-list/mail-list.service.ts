@@ -1,10 +1,10 @@
 import { Injectable } from "@angular/core";
 import { Tag, Folder, Message, FolderType, InOut, ENTITIES_STRUCTURE, FluxPermission, PecPermission, Note, MessageTag,
-  Utente, Azienda, MessageType, MessageStatus, TagType, Pec, MessageFolder, AddresRoleType, MessageAddress, getInternautaUrl, BaseUrlType, BaseUrls, ItemMenu, CommandType, MessageWithFolderViewService, MessageWithTagViewService, ConfigurazioneService, ParametroAziende } from "@bds/internauta-model";
-import { ConfirmationService, MenuItem, MessageService } from "primeng/api";
+  Utente, Azienda, MessageType, MessageStatus, TagType, Pec, MessageFolder, AddresRoleType, MessageAddress, getInternautaUrl, BaseUrlType, BaseUrls, ItemMenu, CommandType, MessageWithFolderViewService, MessageWithTagViewService, ConfigurazioneService, ParametroAziende, Archivio } from "@bds/internauta-model";
+import { MenuItem, MessageService } from "primeng/api";
 import { Utils } from "src/app/utils/utils";
 import { MessageFolderService } from "src/app/services/message-folder.service";
-import { Subscription, Observable, BehaviorSubject, Subject } from "rxjs";
+import { Subscription, Observable, BehaviorSubject } from "rxjs";
 import { MailFoldersService, FoldersAndTags, PecFolderType, PecFolder } from "../mail-folders/mail-folders.service";
 import { JwtLoginService, UtenteUtilities } from "@bds/jwt-login";
 import { BatchOperation, BatchOperationTypes, FILTER_TYPES, FiltersAndSorts, FilterDefinition, SORT_MODES, AdditionalDataDefinition, SortDefinition, NextSDREntityProvider } from "@bds/next-sdr";
@@ -15,7 +15,6 @@ import { TagService } from "src/app/services/tag.service";
 import { MailboxService, TotalMessageNumberDescriptor, Sorting } from "../mailbox.service";
 import { HttpClient } from "@angular/common/http";
 import { DialogService } from "primeng/dynamicdialog";
-import { find } from "rxjs/operators";
 
 @Injectable({
   providedIn: "root"
@@ -66,7 +65,6 @@ export class MailListService {
     private mailboxService: MailboxService,
     private tagService: TagService,
     private httpClient: HttpClient,
-    private confirmationService: ConfirmationService,
     private configurazioneService: ConfigurazioneService ) {
     this.subscriptions.push(this.loginService.loggedUser$.subscribe((utente: UtenteUtilities) => {
       if (utente) {
@@ -352,16 +350,7 @@ export class MailListService {
    */
   public checkCurrentStatusAndRegister(exe: any, codiceAzienda: string): void {
     if (this.selectedMessages && this.selectedMessages.length === 1) {
-      const filtersAndSorts: FiltersAndSorts = new FiltersAndSorts();
-      filtersAndSorts.addFilter(new FilterDefinition("id", FILTER_TYPES.not_string.equals, this.selectedMessages[0].id));
-      this.messageService
-      .getData(
-        ENTITIES_STRUCTURE.shpeck.message.customProjections.CustomMessageForMailList,
-        filtersAndSorts,
-        null,
-        null
-      )
-      .subscribe(data => {
+      this.getMessageById(this.selectedMessages[0].id).subscribe(data => {
         if (data && data.results && data.results.length === 1) {
           const message =  (data.results[0] as Message);
           if (this.isRegisterActive(message, codiceAzienda)) {
@@ -373,6 +362,18 @@ export class MailListService {
         }
       });
     }
+  }
+
+  public getMessageById(idMessage: number, projection = ENTITIES_STRUCTURE.shpeck.message.customProjections.CustomMessageForMailList, useSpecialService: boolean = false) {
+    const serviceToUse = useSpecialService ? this.messageWithFolderViewService : this.messageService;
+    const filtersAndSorts: FiltersAndSorts = new FiltersAndSorts();
+    filtersAndSorts.addFilter(new FilterDefinition("id", FILTER_TYPES.not_string.equals, idMessage));
+    return serviceToUse.getData(
+      projection,
+      filtersAndSorts,
+      null,
+      null
+    );
   }
 
   /* public checkCurrentStatusAndRegister(exe: any): void {
@@ -1011,7 +1012,7 @@ export class MailListService {
             //console.log(parametriAziende);
             const showArchivioRicercaDialog = JSON.parse(parametriAziende[0]?.valore || false);
             if (showArchivioRicercaDialog) {
-              this.idAziendaFascicolazione=azienda.id;
+              this.idAziendaFascicolazione = azienda.id;
               this.displayArchivioRicerca = true;
 
 
