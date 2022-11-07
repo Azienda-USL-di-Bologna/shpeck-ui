@@ -152,22 +152,30 @@
                                 <i  [pTooltip]="message['moved'] ? null :
                                                 archivedstatus === 'ARCHIVED' ? 'Vedi dettaglio fascicolazione' :
                                                 (archivedstatus === 'ARCHIVABLE' ? 'Fascicola il messaggio' : 
-                                                'Il messaggio non può essere fascicolato')"
+                                                (archivedstatus=== 'TEMPORARILY_NOT_ARCHIVABLE' ? 'Pec non ancora disponibile per la fasciolazione diretta, riprovare più tardi' : 
+                                                'Il messaggio non può essere fascicolato'))"
                                     tooltipPosition="top"
                                     class="fa fa-server fa-rotate-270 mail-icons icon-enabled"
                                     [ngClass]="{
-                                        'icon-disabled': archivedstatus === 'NOT_ARCHIVABLE' || message['moved'], 
+                                        'icon-disabled': archivedstatus === 'NOT_ARCHIVABLE' || archivedstatus === 'TEMPORARILY_NOT_ARCHIVABLE' || message['moved'], 
                                         'icon-used': archivedstatus === 'ARCHIVED'}"
                                     [ngStyle]="(archivedstatus === 'ARCHIVED'  && !message['moved']) && {'color': 'darkcyan'}"
                                     (click)="!message['moved'] ? iconArchiveClicked($event, message, archivedstatus): null"
                                     >
                                 </i>
-                                <p-contextMenu 
+                                <!-- <p-contextMenu 
                                     appendTo="body" 
                                     (onShow)="tagsMenuStatus('archiveMenuOpened')" 
                                     #archiviationMenu 
                                     [model]="aziendeFascicolabiliSubCmItems">
-                                </p-contextMenu>
+                                </p-contextMenu> -->
+                                <p-menu 
+                                    appendTo="body"
+                                    (onShow)="tagsMenuStatus('archiveMenuOpened')"
+                                    [popup]="true" 
+                                    #archiviationMenu
+                                    [model]="aziendeFascicolabiliSubCmItems">   
+                                </p-menu>
                             </ng-template>
                             <ng-template [ngTemplateOutlet]="archivedTemplate"
                                 [ngTemplateOutletContext]="{$implicit: getArchiviationStatus(message)}">
@@ -444,7 +452,12 @@ class="ui-button-raised ui-button-secondary button-styles custom-secondary-butto
     </p-header>
     <div *ngIf="archiviationDetail?.additionalData">
         <div *ngFor="let d of archiviationDetail.additionalData">
-            <li><b>{{d.dataArchiviazione | date: 'EE d MMM y, H:mm' | titlecase}}</b>: {{d.idUtente.descrizione}} ha fascicolato in {{d.idFascicolo.oggetto}} [{{d.idFascicolo.numerazioneGerarchica}}]</li>
+            <li>
+                <b>{{d.dataArchiviazione | date: 'EE d MMM y, H:mm' | titlecase}}</b>: 
+                {{d.idUtente.descrizione}} ha fascicolato in 
+                <span *ngIf="d.idFascicolo">{{d.idFascicolo.oggetto}} [{{d.idFascicolo.numerazioneGerarchica}}]</span>
+                <span *ngIf="d.idArchivio">{{d.idArchivio.oggetto}} [{{d.idArchivio.numerazioneGerarchica}}]</span>
+            </li>
         </div>
     </div>
     <p-footer>
@@ -499,17 +512,33 @@ class="ui-button-raised ui-button-secondary button-styles custom-secondary-butto
 <!-- POPUP Fascicola il messaggio -->
 <p-dialog *ngIf="mailListService.displayArchivioRicerca" 
     [(visible)]="mailListService.displayArchivioRicerca"
-    [modal]="true" [style]="{width: '50%'}" 
-    appendTo="body" header="Fascicolazione" 
+    [modal]="true" 
+    [style]="{width: '50%'}" 
+    appendTo="body" 
+    header="Fascicolazione" 
     [responsive]="false"
     [focusOnShow]="false">
     <!-- [styleClass]="'p-sm-10 p-md-4'" -->
-    <app-archivio-ricerca #archivioRicerca [idAzienda]="mailListService.idAziendaFascicolazione" (archivioSelectedEvent)="archivioSelectedEvent($event.arch)"></app-archivio-ricerca>
+    <app-archivio-ricerca 
+        #archivioRicerca 
+        [idAzienda]="mailListService.idAziendaFascicolazione" 
+        (archivioSelectedEvent)="archivioSelectedEvent($event.arch)">
+    </app-archivio-ricerca>
     <div class="p-grid button-wrapper">
-        <button pButton icon="pi pi-check" class="button-styles" label="Conferma"
-            (click)="onArchcivioSelectionConfirmed()"></button>
-        <button pButton icon="pi pi-times" class="button-styles button-margin-left" label="Annulla"
-            (click)="mailListService.displayArchivioRicerca = false"></button>
+        <button 
+            pButton 
+            icon="pi pi-check" 
+            class="button-styles" 
+            label="Conferma"
+            (click)="onArchivioSelectionConfirmed()">
+        </button>
+        <button 
+            pButton 
+            icon="pi pi-times" 
+            class="button-styles button-margin-left" 
+            label="Annulla"
+            (click)="mailListService.displayArchivioRicerca = false">
+        </button>
     </div>
 </p-dialog>
 

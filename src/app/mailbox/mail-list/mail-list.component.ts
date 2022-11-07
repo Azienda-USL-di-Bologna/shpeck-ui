@@ -1,8 +1,8 @@
 import {AfterViewInit, Component, ElementRef, EventEmitter, HostListener, OnDestroy, OnInit, Output, ViewChild} from "@angular/core";
 import {buildLazyEventFiltersAndSorts} from "@bds/primeng-plugin";
-import {ArchivioDetailView, Azienda, ENTITIES_STRUCTURE, Folder, FolderType, Message, MessageTag, MessageType, Note, Pec, Tag, TagType} from "@bds/internauta-model";
+import {ArchivioDetailView, Azienda, ENTITIES_STRUCTURE, Folder, FolderType, Message, MessageTag, Note, Pec, Tag} from "@bds/internauta-model";
 import {MessageEvent, ShpeckMessageService} from "src/app/services/shpeck-message.service";
-import {BatchOperation, BatchOperationTypes, FILTER_TYPES, FilterDefinition, FiltersAndSorts, PagingConf, SortDefinition, AdditionalDataDefinition} from "@bds/next-sdr";
+import {BatchOperation, BatchOperationTypes, FILTER_TYPES, FilterDefinition, FiltersAndSorts, PagingConf} from "@bds/next-sdr";
 import {TagService} from "src/app/services/tag.service";
 import {Observable, Subscription} from "rxjs";
 import {DatePipe} from "@angular/common";
@@ -22,8 +22,6 @@ import {FormControl, FormGroup, Validators} from "@angular/forms";
 import {MailboxService, Sorting} from "../mailbox.service";
 import {IntimusClientService, IntimusCommand, IntimusCommands, RefreshMailsParams, RefreshMailsParamsEntities, RefreshMailsParamsOperations} from "@bds/common-tools";
 import { ContextMenu } from "primeng/contextmenu";
-import { DialogService } from "primeng/dynamicdialog";
-
 
 @Component({
   selector: "app-mail-list",
@@ -47,7 +45,6 @@ export class MailListComponent implements OnInit, OnDestroy, AfterViewInit {
     private settingsService: SettingsService,
     private loginService: JwtLoginService,
     private mailboxService: MailboxService,
-    private dialogService: DialogService,
     private intimusClient: IntimusClientService
   ) {
     this.selectedContextMenuItem = this.selectedContextMenuItem.bind(this);
@@ -1974,11 +1971,19 @@ export class MailListComponent implements OnInit, OnDestroy, AfterViewInit {
   }
 
   public getArchiviationStatus(message: Message) {
-    if (!message.messageTagList) {
-      return this.mailListService.isArchiveActive(message) ? "ARCHIVABLE" : "NOT_ARCHIVABLE";
+    let status = "";
+    if (message.messageTagList && message.messageTagList.find(mt => mt.idTag.name === "archived")) {
+      status = "ARCHIVED";
+    } else if (this.mailListService.isArchiveActive(message)) {
+      if (message.uuidRepository) {
+        status = "ARCHIVABLE";
+      } else {
+        status = "TEMPORARILY_NOT_ARCHIVABLE";
+      }
+    } else {
+      status = "NOT_ARCHIVABLE";
     }
-    return message.messageTagList.find(mt => mt.idTag.name === "archived") ? "ARCHIVED" :
-      this.mailListService.isArchiveActive(message) ? "ARCHIVABLE" : "NOT_ARCHIVABLE";
+    return status;
   }
 
 
@@ -1994,10 +1999,12 @@ export class MailListComponent implements OnInit, OnDestroy, AfterViewInit {
         this.archiviationMenu.toggle(event);
         break;
       case "NOT_ARCHIVABLE":
+      case "TEMPORARILY_NOT_ARCHIVABLE":
         this.messagePrimeService.add({
           severity: "warn",
           summary: "Attenzione",
-          detail: "Questo messaggio non può essere fascicolato.", life: 3500
+          detail: "Questo messaggio non può essere fascicolato.", 
+          life: 3500
         });
         break;
     }
@@ -2274,18 +2281,45 @@ export class MailListComponent implements OnInit, OnDestroy, AfterViewInit {
   }
 
   
-  onArchcivioSelectionConfirmed() { 
-    console.log("Archivio Selected ",this.archivioRicercaSelected);
-    this.messagePrimeService.add({
-      severity: "warn",
-      summary: "Attenzione",
-      detail: "Fuznione non implementata!", life: 3500
+  /**
+   * Funzione chiamata alla conferma da parte dell'utente di voler fasciolare la/le pec
+   * sull'archivio selezionato
+   */
+  public onArchivioSelectionConfirmed() { 
+    console.log("Archivio Selected ", this.archivioRicercaSelected);
+    this.messageService.archiveMessage(this.mailListService.selectedMessages[0], this.archivioRicercaSelected).subscribe({
+      next: (data: any) => {
+        this.messagePrimeService.add({
+          severity: "success",
+          summary: "Ok",
+          detail: `La fascicolazione è andata a buon fine`
+        });
+        this.mailListService.displayArchivioRicerca = false;
+        this.mailListService.getMessageById(this.mailListService.selectedMessages[0].id, "CustomMessageWithFolderViewForMailList", true).subscribe(data => {
+          if (data && data.results && data.results.length === 1) {
+            const message =  (data.results[0] as Message); 
+            this.mailListService.setMailTagVisibility([message]);
+            this.mailListService.selectedMessages[0] = message;
+            this.mailListService.messages[this.mailListService.messages.findIndex(m => m.id === message.id)] = message;
+            this.mailListService.messages = [...this.mailListService.messages];
+          }
+        });
+      },
+      error: (err) => {
+        this.messagePrimeService.add({
+          severity: "error",
+          summary: "Errore",
+          detail: `La fascicolazione non è andata a buon fine, contattare Babelcare`
+        });
+      }
     });
   }
 
-  archivioSelectedEvent(arch){
-    this.archivioRicercaSelected=arch;
+  /**
+   * Dall'html è stato scelto un archivio su cui poi verrà archiviata la pec.
+   * @param arch 
+   */
+  public archivioSelectedEvent(arch) {
+    this.archivioRicercaSelected = arch;
   }
-
-
 }
