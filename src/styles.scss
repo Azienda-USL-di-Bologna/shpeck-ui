@@ -15,7 +15,9 @@ html, body {
 body, .p-component {
     font-family: "Open Sans", "Helvetica Neue", sans-serif !important;
 }
-
+body a {
+    color: deepskyblue;
+}
 // CLASSI NOSTRE
 body .custom-primary-button {
     border: 1px solid #203244 !important;
