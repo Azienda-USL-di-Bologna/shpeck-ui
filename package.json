@@ -26,7 +26,7 @@
     "@angular/router": "12.2.16",
     "@bds/common-components": "3.2.15",
     "@bds/common-tools": "3.2.0",
-    "@bds/internauta-model": "3.2.0",
+    "@bds/internauta-model": "3.2.10",
     "@bds/jwt-login": "3.2.0",
     "@bds/next-sdr": "6.0.0",
     "@bds/primeng-plugin": "3.2.0",
