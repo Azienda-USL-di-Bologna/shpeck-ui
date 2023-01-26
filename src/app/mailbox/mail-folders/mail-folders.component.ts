@@ -709,7 +709,7 @@ export class MailFoldersComponent implements OnInit, OnDestroy {
     this.mailFoldersService.getReloadFolder(folder.id).subscribe(res => {
       // prima rimuovo la parte "(numero messaggi)" dal label, poi se il numero dei messaggi non letti è > 0 lo reinserisco con il numero aggiornato
       folderNode.label = folderNode.label.replace(this.regexFindNumberBetweenP, "");
-      if (res > 0) {
+      if (res >= 0) {
         folderNode.unreadMessages = res;
         /* folderNode.label = folderNode.label + ` (${res})`;
         folderNode.numberOfMessages = res; */
