@@ -62,7 +62,15 @@
           [disabled]="!(toolBarService.buttonObs.get('archiveActive') | async)">
         </button>
         <p-menu #archiveMenu (mouseleave)="handleEvent($event, 'mouseout')" [popup]="true" [model]="archiveMenuItems"></p-menu>
-        
+        <!-- SPINNER GENERICO DA ATTIVARE ALL'OCCORRENZA-->
+        <span *ngIf="toolBarService.loadingSpinner">
+          <p-progressSpinner 
+            [style]="{width: '2rem', height: '2rem', marginRight: '7px'}"
+            strokeWidth="8" 
+            fill="#FFFFFF" 
+            animationDuration=".5s">
+          </p-progressSpinner>
+        </span>
         <!-- <i class="pi pi-bars a-items-center d-flex"></i> -->
     </div>
     <div class="d-flex toolbar-pec cerca-box">

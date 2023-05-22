@@ -32,7 +32,7 @@ export class ToolBarService {
   private loggedUser: UtenteUtilities;
   public isDialogOpen: boolean = false;
   public actualPecFolderTagSelected: PecFolder = null;
-
+  public loadingSpinner: boolean = false;
 
   public deleteLabel = new BehaviorSubject<string>("Elimina");
 

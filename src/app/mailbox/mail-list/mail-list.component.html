@@ -513,23 +513,33 @@ class="ui-button-raised ui-button-secondary button-styles custom-secondary-butto
 <p-dialog *ngIf="mailListService.displayArchivioRicerca" 
     [(visible)]="mailListService.displayArchivioRicerca"
     [modal]="true" 
-    [style]="{width: '50%'}" 
+    [style]="{ width: '50%'}"
+    [contentStyle]="{display: 'flex', 'flex-direction': 'column', 'align-items': 'center' }"
     appendTo="body" 
     header="Fascicolazione" 
     [responsive]="false"
     [focusOnShow]="false">
     <!-- [styleClass]="'p-sm-10 p-md-4'" -->
+    <p>Scegli il fascicolo/sottofascicolo:</p>
     <app-archivio-ricerca 
         #archivioRicerca 
+        style="width: 90% !important; margin-bottom: 1rem;"
         [idAzienda]="mailListService.idAziendaFascicolazione" 
         (archivioSelectedEvent)="archivioSelectedEvent($event.arch)">
     </app-archivio-ricerca>
+    <p>Scegli il nome della fascicolazione:</p>
+    <input 
+        type="text" 
+        [(ngModel)]="mailListService.nomeDocDaPec" 
+        pInputText 
+        style="width: 70% !important; margin-bottom: 1rem;">
     <div class="p-grid button-wrapper">
         <button 
             pButton 
             icon="pi pi-check" 
             class="button-styles" 
             label="Conferma"
+            [disabled]="mailListService.disabledArchivioRicercaButton"
             (click)="onArchivioSelectionConfirmed()">
         </button>
         <button 
@@ -537,6 +547,7 @@ class="ui-button-raised ui-button-secondary button-styles custom-secondary-butto
             icon="pi pi-times" 
             class="button-styles button-margin-left" 
             label="Annulla"
+            [disabled]="mailListService.disabledArchivioRicercaButton"
             (click)="mailListService.displayArchivioRicerca = false">
         </button>
     </div>

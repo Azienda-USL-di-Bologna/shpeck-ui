@@ -103,8 +103,8 @@ export class ShpeckMessageService extends NextSDREntityProvider {
     return this.http.get(url, {responseType: "blob"});
   }
 
-  public archiveMessage(message: Message, archivio: ArchivioDetailView): Observable<any> {
-    const url = getInternautaUrl(BaseUrlType.Scripta) + "/" + CUSTOM_SERVER_METHODS.archiveMessage + "/" + message.id + "/" + archivio.id;
+  public archiveMessage(message: Message, archivio: ArchivioDetailView, nomeDocDaPec: string): Observable<any> {
+    const url = getInternautaUrl(BaseUrlType.Scripta) + "/" + CUSTOM_SERVER_METHODS.archiveMessage + "/" + message.id + "/" + archivio.id + "/" + nomeDocDaPec;
     return this.http.post(url, null);
   }
 
