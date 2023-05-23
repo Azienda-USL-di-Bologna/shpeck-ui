@@ -50,6 +50,8 @@ export class MailListService {
   public totalRecords: number = 0;
   private pecFolderSelected: PecFolder;
   public displayArchivioRicerca: boolean = false;
+  public nomeDocDaPec = ""; 
+  public disabledArchivioRicercaButton: boolean = false; 
   public idAziendaFascicolazione: number;
 
 
@@ -1014,6 +1016,7 @@ export class MailListService {
             if (showArchivioRicercaDialog) {
               this.idAziendaFascicolazione = azienda.id;
               this.displayArchivioRicerca = true;
+              this.nomeDocDaPec = "Pec_" + this.selectedMessages[0].id.toString();
 
 
             } else {
