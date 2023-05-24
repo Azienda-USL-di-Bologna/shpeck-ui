@@ -4789,8 +4789,8 @@
   
       form.className = 'socketio';
       form.style.position = 'absolute';
-      form.style.top = '-1000px';
-      form.style.left = '-1000px';
+      form.style.top = '-62.5rem';
+      form.style.left = '-62.5rem';
       form.target = id;
       form.method = 'POST';
       form.setAttribute('accept-charset', 'utf-8');

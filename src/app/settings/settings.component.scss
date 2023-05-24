@@ -1,19 +1,19 @@
 /* ::ng-deep .switch-class {
   position: absolute;
   right: 10%;
-  margin-top: -2.3px;
+  margin-top: ;
 } */
 
 .settings-items {
   list-style: none;
-  padding: 10px;
+  padding: 0.6rem;
   margin: 0;
   display: inline;
   .item {
     display: flex;
     align-items: center;
     label {
-      width: 234px;
+      width: 14.625rem;
       text-align: right;
     }
     .right {
@@ -24,27 +24,27 @@
 }
 
 .button-styles {
-  width: 100px;
-  margin: 10px;
+  width: 6.25rem;
+  margin: 0.6rem;
 }
 
 .button-wrapper {
   position: absolute;
-  bottom: 5px;
+  bottom: 0.3rem;
   left: 21%;
 }
 
 .button-margin-left {
-  margin-left: 70px;
+  margin-left: 4.375rem;
 }
 
 
 
 li {
-  margin-top: 9px;
+  margin-top: 0.563rem;
 }
 .radio-button {
-  margin-right: 10px;
+  margin-right: 0.625rem;
 }
 /* .radio-button-group {
   position: absolute;

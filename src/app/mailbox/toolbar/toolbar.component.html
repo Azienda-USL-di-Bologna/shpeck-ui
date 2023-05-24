@@ -51,7 +51,7 @@
           icon="fa fa-folder" class="button-styles ui-button-raised ui-button-secondary custom-border"
           (click)="handleEvent($event, 'move')"
           [disabled]="!(toolBarService.buttonObs.get('moveActive') | async)">
-          <!-- <img class="images-pos" src="assets/images/icons/folder_export.png" width="24px" alt="Sposta in">     margin-l-15-->
+          <!-- <img class="images-pos" src="assets/images/icons/folder_export.png" width="" alt="Sposta in">     margin-l-15-->
         </button>
         <p-menu #moveMenu (mouseleave)="handleEvent($event, 'mouseout')" class="move-menu" [popup]="true" [model]="moveMenuItems"></p-menu>
         <!-- Fascicola -->
@@ -65,7 +65,7 @@
         <!-- SPINNER GENERICO DA ATTIVARE ALL'OCCORRENZA-->
         <span *ngIf="toolBarService.loadingSpinner">
           <p-progressSpinner 
-            [style]="{width: '2rem', height: '2rem', marginRight: '7px'}"
+            [style]="{width: '2rem', height: '2rem', marginRight: '0.438rem'}"
             strokeWidth="8" 
             fill="#FFFFFF" 
             animationDuration=".5s">

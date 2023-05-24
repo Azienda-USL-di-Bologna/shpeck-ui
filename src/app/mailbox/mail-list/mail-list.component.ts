@@ -249,8 +249,8 @@ export class MailListComponent implements OnInit, OnDestroy, AfterViewInit {
       field: "subject",
       header: "Oggetto",
       filterMatchMode: FILTER_TYPES.string.containsIgnoreCase,
-      width: "85px",
-      minWidth: "85px"
+      width: "5.313rem",
+      minWidth: "5.313rem"
     }
   ];
 
