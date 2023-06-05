@@ -348,8 +348,8 @@
 
 
 <p-dialog header="Nota messaggio" [(visible)]="displayNote" [modal]="true" [closable]="false" [responsive]="true"
-    [style]="{width: '350px', minWidth: '264px'}" [minY]="60" [baseZIndex]="10000">
-    <div class="flex-1" style="height: 100%; min-height: 80px;">
+    [style]="{width: '21.875rem', minWidth: '16.5rem'}" [minY]="60" [baseZIndex]="10000">
+    <div class="flex-1" style="height: 100%; min-height: 5rem;">
             <textarea #noteArea class="flex-1 note-area" pInputTextarea placeholder="Inserisci nota"
             [(ngModel)]="noteObject.memo"></textarea>
     </div>
@@ -369,7 +369,7 @@
     <p-header>
         Protocolla Pec
     </p-header>
-    <div style="height: 50px; padding-top: 10px;">
+    <div style="height: 3.125rem; padding-top: 0.625rem;">
         Vuoi creare un nuovo documento, oppure aggiungere ad una bozza già creata?
     </div>
     <p-footer>
@@ -487,10 +487,10 @@ class="ui-button-raised ui-button-secondary button-styles custom-secondary-butto
 </p-dialog>
 
 <!-- POPUP AGGIUNTA TAG -->
-<p-dialog *ngIf="displayNewTagPopup" [(visible)]="displayNewTagPopup" [modal]="true" [style]="{width: '420px'}">
+<p-dialog *ngIf="displayNewTagPopup" [(visible)]="displayNewTagPopup" [modal]="true" [style]="{width: '26.25rem'}">
     <p-header>Nuova Etichetta</p-header>
     <form [formGroup]="tagForm">
-        <span class="p-float-label" style="margin: 8px 0 8px 0px;">
+        <span class="p-float-label" style="margin: 0.5rem 0 0.5rem 0rem;">
             <input #idtag id="float-input" type="text" size="30" formControlName="tagName" pInputText style="width: 100% !important;">
             <label for="float-input">Inserisci un nome per la nuova etichetta</label>
         </span>
@@ -513,23 +513,33 @@ class="ui-button-raised ui-button-secondary button-styles custom-secondary-butto
 <p-dialog *ngIf="mailListService.displayArchivioRicerca" 
     [(visible)]="mailListService.displayArchivioRicerca"
     [modal]="true" 
-    [style]="{width: '50%'}" 
+    [style]="{ width: '50%'}"
+    [contentStyle]="{display: 'flex', 'flex-direction': 'column', 'align-items': 'center' }"
     appendTo="body" 
     header="Fascicolazione" 
     [responsive]="false"
     [focusOnShow]="false">
     <!-- [styleClass]="'p-sm-10 p-md-4'" -->
+    <p>Scegli il fascicolo/sottofascicolo:</p>
     <app-archivio-ricerca 
         #archivioRicerca 
+        style="width: 90% !important; margin-bottom: 1rem;"
         [idAzienda]="mailListService.idAziendaFascicolazione" 
         (archivioSelectedEvent)="archivioSelectedEvent($event.arch)">
     </app-archivio-ricerca>
+    <p>Scegli il nome della fascicolazione:</p>
+    <input 
+        type="text" 
+        [(ngModel)]="mailListService.nomeDocDaPec" 
+        pInputText 
+        style="width: 70% !important; margin-bottom: 1rem;">
     <div class="p-grid button-wrapper">
         <button 
             pButton 
             icon="pi pi-check" 
             class="button-styles" 
             label="Conferma"
+            [disabled]="mailListService.disabledArchivioRicercaButton"
             (click)="onArchivioSelectionConfirmed()">
         </button>
         <button 
@@ -537,6 +547,7 @@ class="ui-button-raised ui-button-secondary button-styles custom-secondary-butto
             icon="pi pi-times" 
             class="button-styles button-margin-left" 
             label="Annulla"
+            [disabled]="mailListService.disabledArchivioRicercaButton"
             (click)="mailListService.displayArchivioRicerca = false">
         </button>
     </div>

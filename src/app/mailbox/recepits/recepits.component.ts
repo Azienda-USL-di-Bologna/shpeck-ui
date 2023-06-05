@@ -31,7 +31,7 @@ export class RecepitsComponent implements OnInit {
         header: "Id",
         fieldType: "number",
         style: {
-          width: "50px",
+          width: "",
           textAlign: "center"
         }
       }, */
@@ -41,7 +41,7 @@ export class RecepitsComponent implements OnInit {
         fieldType: "DateTime",
         format: {viewFormat:'dd/MM/yyyy HH:mm'},
         style: {
-          width: "135px",
+          width: "8.438rem",
           textAlign: "center"
         }
       },
@@ -50,7 +50,7 @@ export class RecepitsComponent implements OnInit {
         fieldType: "object",
         header: "Tipo Ricevuta",
         style: {
-          width: "120px",
+          width: "7.5rem",
           textAlign: "center"
         }
       },
@@ -59,7 +59,7 @@ export class RecepitsComponent implements OnInit {
         header: "Destinatario",
         fieldType: "string",
         style: {
-          width: "260px"
+          width: "16.25rem"
         }
       },
       {
@@ -69,7 +69,7 @@ export class RecepitsComponent implements OnInit {
         icon: "pi pi-download",
         onClick: this.dowloadRecepit,
         style: {
-          width: "45px",
+          width: "2.813rem",
           textAlign: "center"
         }
       }

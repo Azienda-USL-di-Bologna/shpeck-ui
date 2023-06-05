@@ -27,11 +27,11 @@
 }
 
 .extra-margin {
-  margin-left: 11px;
+  margin-left: 0.688rem;
 }
 
 .mail-icon {
-  padding-left: 5px;
+  padding-left: 0.3rem;
 }
 
 .mail-date {
@@ -43,22 +43,22 @@
 }
 
 .envelope-icon {
-  padding-top: 3px;
+  padding-top: 0.19rem;
 }
 
 .display-body {
-  margin-left: 5px;
+  margin-left: 0.3rem;
   overflow: hidden;
   color: gray;
 
 }
 
 .pad-left-19 {
-  padding-left: 19px;
+  padding-left: 1.188rem;
 }
 
 .display-text {
-  margin-left: 20px;
+  margin-left: 1.25rem;
 }
 
 .display-bold {
@@ -68,34 +68,34 @@
 .loading-text {
   display: block;
   background-color: #f1f1f1;
-  min-height: 19px;
+  min-height: 1.188rem;
   animation: pulse 1s infinite ease-in-out;
-  text-indent: -99999px;
+  text-indent: -6249.938rem;
   overflow: hidden;
 }
 
 .message-row {
-  font-size: 12px !important;
+  font-size: 0.75rem !important;
   width: 100% !important;
-  height: 70px !important;
+  height: 4.375rem !important;
   white-space: nowrap;
 }
 ::ng-deep .general-font-size-small .message-row {
-  font-size: 12px !important;
+  font-size: 0.75rem !important;
 }
 ::ng-deep .general-font-size-medium .message-row {
-  font-size: 13px !important;
+  font-size: 0.813rem !important;
 }
 ::ng-deep .general-font-size-big .message-row {
-  font-size: 14px !important;
+  font-size: 0.875rem !important;
 }
 
 .material-icons.mail-icons {
-  font-size: 18px;
+  font-size: 1.125rem;
 }
 
 .second-line-icon {
-  font-size: 18px;
+  font-size: 1.125rem;
   display: block;
   float: right;
 }
@@ -105,11 +105,11 @@
 }
 
 ::ng-deep .context-menu-mail-list {
-  margin: -128px 0 0 -312px;
+  margin: -8rem 0 0 -19.5rem;
 }
 
 .column-checkbox {
-  width: 30px;
+  width: 1.875;
 }
 ::ng-deep .column-checkbox p-tableCheckbox .ui-chkbox.ui-widget .ui-chkbox-box.ui-widget.ui-state-default {
   opacity: 0.5;

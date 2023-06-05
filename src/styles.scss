@@ -20,7 +20,7 @@ body a {
 }
 // CLASSI NOSTRE
 body .custom-primary-button {
-    border: 1px solid #203244 !important;
+    border: 0.06rem solid #203244 !important;
     background-color: #2e4a65 !important;
 }
 body .custom-primary-button:hover {
@@ -30,9 +30,41 @@ body .custom-primary-button:hover {
 }
 body .custom-border, 
 body .custom-secondary-button {
-    border: 1px solid #a6a6a6 !important;
+    border: 0.06rem solid #a6a6a6 !important;
     white-space: nowrap;
     color: #333333;
     background-color: #f4f4f4;
 }
+
+// Responsive
+@media screen and (max-width: 1600px) {
+    html {
+      font-size: 95%;
+    }
+  }
+  @media screen and (max-width: 1500px) {
+    html {
+      font-size: 90%;
+    }
+  }
+  @media screen and (max-width: 1400px) {
+    html {
+      font-size: 85%;
+    }
+  }
+  @media screen and (max-width: 1300px) {
+    html {
+      font-size: 80%;
+    }
+  }
+  @media screen and (max-width: 1200px) {
+    html {
+      font-size: 75%;
+    }
+  }
+  @media screen and (max-width: 1100px) {
+    html {
+      font-size: 70%;
+    }
+  }
 

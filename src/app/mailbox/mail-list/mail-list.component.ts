@@ -249,8 +249,8 @@ export class MailListComponent implements OnInit, OnDestroy, AfterViewInit {
       field: "subject",
       header: "Oggetto",
       filterMatchMode: FILTER_TYPES.string.containsIgnoreCase,
-      width: "85px",
-      minWidth: "85px"
+      width: "5.313rem",
+      minWidth: "5.313rem"
     }
   ];
 
@@ -2287,14 +2287,18 @@ export class MailListComponent implements OnInit, OnDestroy, AfterViewInit {
    */
   public onArchivioSelectionConfirmed() { 
     console.log("Archivio Selected ", this.archivioRicercaSelected);
-    this.messageService.archiveMessage(this.mailListService.selectedMessages[0], this.archivioRicercaSelected).subscribe({
+    this.mailListService.disabledArchivioRicercaButton = true;
+    this.mailListService.displayArchivioRicerca = false;
+    this.toolBarService.loadingSpinner = true;
+    this.messageService.archiveMessage(this.mailListService.selectedMessages[0], this.archivioRicercaSelected, this.mailListService.nomeDocDaPec).subscribe({
       next: (data: any) => {
         this.messagePrimeService.add({
           severity: "success",
           summary: "Ok",
           detail: `La fascicolazione è andata a buon fine`
         });
-        this.mailListService.displayArchivioRicerca = false;
+        this.toolBarService.loadingSpinner = false;
+        this.mailListService.disabledArchivioRicercaButton = false;
         this.mailListService.getMessageById(this.mailListService.selectedMessages[0].id, "CustomMessageWithFolderViewForMailList", true).subscribe(data => {
           if (data && data.results && data.results.length === 1) {
             const message =  (data.results[0] as Message); 

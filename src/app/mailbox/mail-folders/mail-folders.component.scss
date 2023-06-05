@@ -20,19 +20,19 @@
 }
 ::ng-deep .general-style-icon {
   color: #2e4a65 !important;
-  font-size: 18px;
+  font-size: 1.125rem;
 }
 ::ng-deep .bigger-icon {
-  font-size: 20px !important;
-  margin-left: -2px !important;
-  margin-right: 2px !important;
+  font-size: 1.25rem !important;
+  margin-left: -0.13rem !important;
+  margin-right: 0.13rem !important;
 }
 ::ng-deep .smaller-icon {
-  font-size: 15px !important;
-  margin-right: 5px !important;
+  font-size: 0.938rem !important;
+  margin-right: 0.938rem !important;
 }
 ::ng-deep .error-icon {
-  margin-right: 4px !important;
+  margin-right: 0.3rem !important;
 }
 ::ng-deep .p-treenode-icon.material-icons-outlined {
   vertical-align: sub !important;
@@ -51,7 +51,7 @@
 }
 ::ng-deep .p-treenode-children p-treenode li,
 ::ng-deep .p-treenode-children p-treenode li .p-treenode-content{
-  height: 29px;
+  height: 1.813rem;
   white-space: nowrap;
 }
 ::ng-deep .p-treenode-children p-treenode .root-tree-node-style {
@@ -83,48 +83,48 @@
   border: none !important;
 }
 ::ng-deep .root-tree-node-style {
-  font-size: 12px !important;
+  font-size: 0.75rem !important;
   font-weight: normal !important;
 }
 ::ng-deep .general-font-size-small .root-tree-node-style {
-  font-size: 12px !important;
+  font-size: 0.75rem !important;
 }
 ::ng-deep .general-font-size-medium .root-tree-node-style {
-  font-size: 13px !important;
+  font-size: 0.813rem !important;
 }
 ::ng-deep .general-font-size-big .root-tree-node-style {
-  font-size: 14px !important;
+  font-size: 0.875rem !important;
 }
 ::ng-deep .root-tree-node-style-selected {
-  font-size: 12px !important;
+  font-size: 0.75rem !important;
   color: black !important;
   background-color: white;
   font-weight: bold;
 }
 ::ng-deep .general-font-size-small .root-tree-node-style-selected {
-  font-size: 12px !important;
+  font-size: 0.75rem !important;
 }
 ::ng-deep .general-font-size-medium .root-tree-node-style-selected {
-  font-size: 13px !important;
+  font-size: 0.813rem !important;
 }
 ::ng-deep .general-font-size-big .root-tree-node-style-selected {
-  font-size: 14px !important;
+  font-size: 0.875rem !important;
 }
 ::ng-deep .root-tree-node-style-selected .p-treenode-label {
   background-color: #eaeaea !important;
 }
 ::ng-deep .context-menu-mail-folders {
-  margin: -128px 0 0 -8px;
+  margin: -8rem 0 0 -0.5rem;
 }
 ::ng-deep .folder-dialog {
-  left: 10px;
+  left: 0.6rem;
 }
 ::ng-deep .fa-exclamation-triangle.tree-icon {
   color: #993366 !important;
 }
 ::ng-deep .tree-node-error span div {
   background: #993366 !important;
-  border-radius: 30px;
+  border-radius: 1.875rem;
   padding: 0 0.6em 0 0.6em;
   color: white;
 }
@@ -147,15 +147,15 @@
 ::ng-deep .restore-color {
   display: flex;
   justify-content: right;
-  margin-bottom: 10px;
+  margin-bottom: 0.625rem;
 }
 ::ng-deep .restore-color .button-restore {
   background-color:#2e4a65;
   height: 1em; 
   width: 1em;
   margin: auto 0;
-  margin-left: 4px;
-  border-radius: 3px;
+  margin-left: 0.3rem;
+  border-radius: 0.19rem;
   cursor: pointer;
 }
 
