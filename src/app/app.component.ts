@@ -74,7 +74,7 @@ export class AppComponent implements OnInit {
     this.addToMenu.push({
       label: "Impostazioni",
       icon: "pi pi-fw pi-cog slide-icon",
-      command: () => { this.showSettings(SettingsComponent, "Impostazioni utente", "480px", "200px", null); }
+      command: () => { this.showSettings(SettingsComponent, "Impostazioni utente", "30rem", "12.5rem", null); }
     });
     this.addToMenu = Object.assign([], this.addToMenu);
   }
@@ -85,7 +85,7 @@ export class AppComponent implements OnInit {
       header: header,
       width: width,
       styleClass: "dialog-class",
-      contentStyle: { "max-height": "450px", "min-height": "250px", "overflow": "auto", "height": height, }
+      contentStyle: { "max-height": "28.125rem", "min-height": "15.625rem", "overflow": "auto", "height": height, }
     });
   }
 }

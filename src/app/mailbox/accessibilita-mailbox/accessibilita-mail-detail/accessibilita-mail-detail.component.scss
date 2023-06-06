@@ -10,15 +10,15 @@
 ::ng-deep .toolbar-maildetail {
   display: flex;
   button {
-    margin-right: 10px;
-    border: 1px solid #203244 !important;
+    margin-right: 0.625rem;
+    border: 0.06rem solid #203244 !important;
     background-color: #2e4a65 !important;
     &:hover {
       color: white;
     }
   }
   bds-menu button {
-    border: 1px solid #203244 !important;
+    border: 0.06rem solid #203244 !important;
     background-color: #2e4a65 !important;
     color: white !important;
   }
