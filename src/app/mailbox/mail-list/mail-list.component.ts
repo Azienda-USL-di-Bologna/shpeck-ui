@@ -1741,9 +1741,9 @@ export class MailListComponent implements OnInit, OnDestroy, AfterViewInit {
   }
 
   private getIdAziendeFromAddtitionalData(additionalData: any, res: number[] = []): number[] {
-    if ((typeof additionalData) === "string") {
-      additionalData = JSON.parse(additionalData);
-    }
+    // if ((typeof additionalData) === "string") {
+    //   additionalData = JSON.parse(additionalData);
+    // }
     if (Array.isArray(additionalData)) {
       additionalData.forEach(a => this.getIdAziendeFromAddtitionalData(a, res));
     } else {
@@ -1827,7 +1827,7 @@ export class MailListComponent implements OnInit, OnDestroy, AfterViewInit {
       }
 
       messageTagsRegInReg.forEach(mt => {
-        const additionalData: any = JSON.parse(mt.additionalData);
+        const additionalData: any = mt.additionalData;
         if (additionalData) {
           if (additionalData instanceof Array) {
             additionalData.forEach(element => {
@@ -1951,7 +1951,7 @@ export class MailListComponent implements OnInit, OnDestroy, AfterViewInit {
     let testo = null;
     const messageTag = message.messageTagList.find(mt => mt.idTag.name === tagName);
     if (messageTag) {
-      const mtAdditionalData = JSON.parse(messageTag.additionalData);
+      const mtAdditionalData = messageTag.additionalData;
       if (tagName === "readdressed_in") {
         testo = `<b>${new Date(messageTag.inserted).toLocaleDateString("it-IT", { hour: "numeric", minute: "numeric" })}</b>: `
           + `reindirizzato da ${mtAdditionalData["idUtente"]["descrizione"]}`
@@ -1992,7 +1992,7 @@ export class MailListComponent implements OnInit, OnDestroy, AfterViewInit {
     switch (archivedstatus) {
       case "ARCHIVED":
         messageTag = message.messageTagList.find(mt => mt.idTag.name === "archived");
-        this.prepareAndOpenDialogArchiviationDetail(messageTag, JSON.parse(messageTag.additionalData), message);
+        this.prepareAndOpenDialogArchiviationDetail(messageTag, messageTag.additionalData, message);
         break;
       case "ARCHIVABLE":
         this.aziendeFascicolabiliSubCmItems = this.mailListService.buildAziendeUtenteMenuItems(this._selectedPec, this.selectedContextMenuItem);

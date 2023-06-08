@@ -1012,7 +1012,7 @@ export class MailListService {
         this.configurazioneService.getParametriAziende("usaGediInternauta", null, [azienda.id]).subscribe(
           (parametriAziende: ParametroAziende[]) => {
             //console.log(parametriAziende);
-            const showArchivioRicercaDialog = JSON.parse(parametriAziende[0]?.valore || false);
+            const showArchivioRicercaDialog = parametriAziende[0]?.valore || false;
             if (showArchivioRicercaDialog) {
               this.idAziendaFascicolazione = azienda.id;
               this.displayArchivioRicerca = true;
@@ -1117,12 +1117,12 @@ export class MailListService {
       const mtRegistered: MessageTag = message.messageTagList.find(mt => mt.idTag.name === "registered");
       let additionaDataRegistered: any;
       if (mtRegistered) {
-        additionaDataRegistered = JSON.parse(mtRegistered.additionalData);
+        additionaDataRegistered = mtRegistered.additionalData;
       }
       const mtInRegistration = message.messageTagList.find(mt => mt.idTag.name === "in_registration");
       let additionaDataInRegistration: any;
       if (mtInRegistration) {
-        additionaDataInRegistration = JSON.parse(mtInRegistration.additionalData);
+        additionaDataInRegistration = mtInRegistration.additionalData;
       }
       if (additionaDataRegistered) {
         if (additionaDataRegistered instanceof Array) {
@@ -1242,7 +1242,7 @@ export class MailListService {
 
   private messageTagAdditionalDataContainsAziendaOfPec(messageTag: MessageTag) {
     let contains = false;
-    const additionalData = JSON.parse(messageTag.additionalData);
+    const additionalData = messageTag.additionalData;
     const pec: Pec = (this.pecFolderSelected.type === PecFolderType.PEC ? this.pecFolderSelected.data : this.pecFolderSelected.pec) as Pec;
     const idAziendePec = pec.pecAziendaList.map(pa => {
       return pa.fk_idAzienda.id;
