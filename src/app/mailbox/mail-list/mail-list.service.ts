@@ -1,6 +1,6 @@
 import { Injectable } from "@angular/core";
 import { Tag, Folder, Message, FolderType, InOut, ENTITIES_STRUCTURE, FluxPermission, PecPermission, Note, MessageTag,
-  Utente, Azienda, MessageType, MessageStatus, TagType, Pec, MessageFolder, AddresRoleType, MessageAddress, getInternautaUrl, BaseUrlType, BaseUrls, ItemMenu, CommandType, MessageWithFolderViewService, MessageWithTagViewService, ConfigurazioneService, ParametroAziende, Archivio } from "@bds/internauta-model";
+  Utente, Azienda, MessageType, MessageStatus, TagType, Pec, MessageFolder, AddresRoleType, MessageAddress, getInternautaUrl, BaseUrlType, BaseUrls, ItemMenu, CommandType, MessageWithFolderViewService, MessageWithTagViewService, ConfigurazioneService, ParametroAziende, Archivio, MessageDoc } from "@bds/internauta-model";
 import { MenuItem, MessageService } from "primeng/api";
 import { Utils } from "src/app/utils/utils";
 import { MessageFolderService } from "src/app/services/message-folder.service";
@@ -51,8 +51,8 @@ export class MailListService {
   private pecFolderSelected: PecFolder;
   public displayArchivioRicerca: boolean = false;
   public nomeDocDaPec = ""; 
-  public disabledArchivioRicercaButton: boolean = false; 
   public idAziendaFascicolazione: number;
+  public isDisabledNomeDocDaPec: boolean = false;
 
 
   constructor(
@@ -1016,9 +1016,17 @@ export class MailListService {
             if (showArchivioRicercaDialog) {
               this.idAziendaFascicolazione = azienda.id;
               this.displayArchivioRicerca = true;
-              this.nomeDocDaPec = "Pec_" + this.selectedMessages[0].id.toString();
-
-
+              const message = this.selectedMessages[0];
+              const doc: MessageDoc = message.messageDocList.find(m => m.scope === 'ARCHIVIAZIONE');
+              if (doc) {
+                this.nomeDocDaPec = doc.idDoc.oggetto;
+                this.isDisabledNomeDocDaPec = true;
+              } else {
+                // È possibile cambiare il nome soltanto alla prima fascicolazione 
+                // in quanto viene usato sempre lo stesso Doc sul DB
+                this.nomeDocDaPec = "Pec_" + message.id.toString();
+                this.isDisabledNomeDocDaPec = false;
+              }
             } else {
               //this open the old 
               let decodedUrl = "";

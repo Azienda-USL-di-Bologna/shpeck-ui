@@ -22,6 +22,7 @@ import {FormControl, FormGroup, Validators} from "@angular/forms";
 import {MailboxService, Sorting} from "../mailbox.service";
 import {IntimusClientService, IntimusCommand, IntimusCommands, RefreshMailsParams, RefreshMailsParamsEntities, RefreshMailsParamsOperations} from "@bds/common-tools";
 import { ContextMenu } from "primeng/contextmenu";
+import { HttpErrorResponse } from '@angular/common/http';
 
 @Component({
   selector: "app-mail-list",
@@ -85,12 +86,13 @@ export class MailListComponent implements OnInit, OnDestroy, AfterViewInit {
   private subscriptions: {id: number, type: string, subscription: Subscription}[] = [];
   private previousFilter: FilterDefinition[] = [];
   private foldersSubCmItems: MenuItem[] = null;
-  public aziendeProtocollabiliSubCmItems: MenuItem[] = null;
-  public aziendeFascicolabiliSubCmItems: MenuItem[] = null;
   private registerMessageEvent: any = null;
   private loggedUser: UtenteUtilities;
   private timeoutOnFocusEvent = null; 
-  private archivioRicercaSelected: ArchivioDetailView;
+  
+  public aziendeProtocollabiliSubCmItems: MenuItem[] = null;
+  public aziendeFascicolabiliSubCmItems: MenuItem[] = null;
+  public archivioRicercaSelected: ArchivioDetailView;
 
   public tagMenuItems:  MenuItem[] = null;
   public cmItems: MenuItem[] = [
@@ -2287,7 +2289,6 @@ export class MailListComponent implements OnInit, OnDestroy, AfterViewInit {
    */
   public onArchivioSelectionConfirmed() { 
     console.log("Archivio Selected ", this.archivioRicercaSelected);
-    this.mailListService.disabledArchivioRicercaButton = true;
     this.mailListService.displayArchivioRicerca = false;
     this.toolBarService.loadingSpinner = true;
     this.messageService.archiveMessage(this.mailListService.selectedMessages[0], this.archivioRicercaSelected, this.mailListService.nomeDocDaPec).subscribe({
@@ -2298,7 +2299,7 @@ export class MailListComponent implements OnInit, OnDestroy, AfterViewInit {
           detail: `La fascicolazione è andata a buon fine`
         });
         this.toolBarService.loadingSpinner = false;
-        this.mailListService.disabledArchivioRicercaButton = false;
+        this.archivioRicercaSelected = null;
         this.mailListService.getMessageById(this.mailListService.selectedMessages[0].id, "CustomMessageWithFolderViewForMailList", true).subscribe(data => {
           if (data && data.results && data.results.length === 1) {
             const message =  (data.results[0] as Message); 
@@ -2310,11 +2311,21 @@ export class MailListComponent implements OnInit, OnDestroy, AfterViewInit {
         });
       },
       error: (err) => {
+        let severity = "error";
+        let summary = "Errore";
+        let detail = `La fascicolazione non è andata a buon fine, contattare Babelcare`;
+        if (err.error && err.error.code === "409") {
+          severity = "warn";
+          summary = "Operazione annullata."
+          detail = err.error.message;
+        }
         this.messagePrimeService.add({
-          severity: "error",
-          summary: "Errore",
-          detail: `La fascicolazione non è andata a buon fine, contattare Babelcare`
+          severity,
+          summary,
+          detail
         });
+        this.toolBarService.loadingSpinner = false;
+        this.archivioRicercaSelected = null;
       }
     });
   }

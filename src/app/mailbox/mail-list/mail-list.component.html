@@ -520,26 +520,36 @@ class="ui-button-raised ui-button-secondary button-styles custom-secondary-butto
     [responsive]="false"
     [focusOnShow]="false">
     <!-- [styleClass]="'p-sm-10 p-md-4'" -->
-    <p>Scegli il fascicolo/sottofascicolo:</p>
-    <app-archivio-ricerca 
-        #archivioRicerca 
-        style="width: 90% !important; margin-bottom: 1rem;"
-        [idAzienda]="mailListService.idAziendaFascicolazione" 
-        (archivioSelectedEvent)="archivioSelectedEvent($event.arch)">
-    </app-archivio-ricerca>
-    <p>Scegli il nome della fascicolazione:</p>
-    <input 
-        type="text" 
-        [(ngModel)]="mailListService.nomeDocDaPec" 
-        pInputText 
-        style="width: 70% !important; margin-bottom: 1rem;">
+    <div style="width: 90% !important; margin-bottom: 1rem;">
+        <p>Seleziona il fascicolo/sottofascicolo:</p>
+        <app-archivio-ricerca 
+            #archivioRicerca 
+            [idAzienda]="mailListService.idAziendaFascicolazione" 
+            (archivioSelectedEvent)="archivioSelectedEvent($event.arch)">
+        </app-archivio-ricerca>
+    </div>
+    <div style="width: 90% !important; margin-bottom: 1rem;">
+        <span style="display: flex; align-items: center;">
+            <p>Nome della fascicolazione:</p>
+            <em *ngIf="mailListService.isDisabledNomeDocDaPec" 
+                pTooltip="Non è possibile modificare il nome se la Pec è stata già fascicolata."
+                class="pi pi-info-circle" style="font-size: 1.3em;  margin-left: 0.2em;">
+            </em>
+        </span>
+            <input 
+                type="text"
+                [disabled]="mailListService.isDisabledNomeDocDaPec"
+                [(ngModel)]="mailListService.nomeDocDaPec" 
+                pInputText>
+            
+    </div>
     <div class="p-grid button-wrapper">
         <button 
             pButton 
             icon="pi pi-check" 
             class="button-styles" 
             label="Conferma"
-            [disabled]="mailListService.disabledArchivioRicercaButton"
+            [disabled]="!archivioRicercaSelected"
             (click)="onArchivioSelectionConfirmed()">
         </button>
         <button 
@@ -547,9 +557,8 @@ class="ui-button-raised ui-button-secondary button-styles custom-secondary-butto
             icon="pi pi-times" 
             class="button-styles button-margin-left" 
             label="Annulla"
-            [disabled]="mailListService.disabledArchivioRicercaButton"
             (click)="mailListService.displayArchivioRicerca = false">
         </button>
-    </div>
+    </div>  
 </p-dialog>
 
