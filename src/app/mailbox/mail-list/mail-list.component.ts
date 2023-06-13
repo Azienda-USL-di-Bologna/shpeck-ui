@@ -1495,6 +1495,7 @@ export class MailListComponent implements OnInit, OnDestroy, AfterViewInit {
         }
         break;
       case "MessageArchive":
+        if (menuItem.label === 'Fascicola') return; // Gestiamo il click diretto sulla prima voce di menu
         this.archiviationDetail.displayArchiviationDetail = false;
         this.askConfirmationBeforeArchiviation(event);
         break;
