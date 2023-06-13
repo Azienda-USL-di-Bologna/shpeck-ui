@@ -516,12 +516,12 @@ class="ui-button-raised ui-button-secondary button-styles custom-secondary-butto
     [style]="{ width: '50%'}"
     [contentStyle]="{display: 'flex', 'flex-direction': 'column', 'align-items': 'center' }"
     appendTo="body" 
-    header="Fascicolazione" 
+    header="Fascicola PEC" 
     [responsive]="false"
     [focusOnShow]="false">
     <!-- [styleClass]="'p-sm-10 p-md-4'" -->
     <div style="width: 90% !important; margin-bottom: 1rem;">
-        <p>Seleziona il fascicolo/sottofascicolo:</p>
+        <p>Seleziona il fascicolo:</p>
         <app-archivio-ricerca 
             #archivioRicerca 
             [idAzienda]="mailListService.idAziendaFascicolazione" 
@@ -547,7 +547,7 @@ class="ui-button-raised ui-button-secondary button-styles custom-secondary-butto
         <button 
             pButton 
             icon="pi pi-check" 
-            class="button-styles" 
+            class="button-styles ui-button-raised ui-button-primary custom-primary-button" 
             label="Conferma"
             [disabled]="!archivioRicercaSelected"
             (click)="onArchivioSelectionConfirmed()">
@@ -555,7 +555,7 @@ class="ui-button-raised ui-button-secondary button-styles custom-secondary-butto
         <button 
             pButton 
             icon="pi pi-times" 
-            class="button-styles button-margin-left" 
+            class="button-styles button-margin-left ui-button-raised ui-button-primary custom-primary-button" 
             label="Annulla"
             (click)="mailListService.displayArchivioRicerca = false">
         </button>
