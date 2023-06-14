@@ -1017,7 +1017,7 @@ export class MailListService {
               this.idAziendaFascicolazione = azienda.id;
               this.displayArchivioRicerca = true;
               const message = this.selectedMessages[0];
-              const doc: MessageDoc = message.messageDocList.find(m => m.scope === 'ARCHIVIAZIONE');
+              const doc: MessageDoc = message.messageDocList?.find(m => m.scope === 'ARCHIVIAZIONE');
               if (doc) {
                 this.nomeDocDaPec = doc.idDoc.oggetto;
                 this.isDisabledNomeDocDaPec = true;
