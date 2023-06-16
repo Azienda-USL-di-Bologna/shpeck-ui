@@ -1,6 +1,6 @@
 import { Injectable } from "@angular/core";
 import { Tag, Folder, Message, FolderType, InOut, ENTITIES_STRUCTURE, FluxPermission, PecPermission, Note, MessageTag,
-  Utente, Azienda, MessageType, MessageStatus, TagType, Pec, MessageFolder, AddresRoleType, MessageAddress, getInternautaUrl, BaseUrlType, BaseUrls, ItemMenu, CommandType, MessageWithFolderViewService, MessageWithTagViewService, ConfigurazioneService, ParametroAziende, Archivio } from "@bds/internauta-model";
+  Utente, Azienda, MessageType, MessageStatus, TagType, Pec, MessageFolder, AddresRoleType, MessageAddress, getInternautaUrl, BaseUrlType, BaseUrls, ItemMenu, CommandType, MessageWithFolderViewService, MessageWithTagViewService, ConfigurazioneService, ParametroAziende, Archivio, MessageDoc } from "@bds/internauta-model";
 import { MenuItem, MessageService } from "primeng/api";
 import { Utils } from "src/app/utils/utils";
 import { MessageFolderService } from "src/app/services/message-folder.service";
@@ -51,8 +51,8 @@ export class MailListService {
   private pecFolderSelected: PecFolder;
   public displayArchivioRicerca: boolean = false;
   public nomeDocDaPec = ""; 
-  public disabledArchivioRicercaButton: boolean = false; 
   public idAziendaFascicolazione: number;
+  public isDisabledNomeDocDaPec: boolean = false;
 
 
   constructor(
@@ -1012,13 +1012,21 @@ export class MailListService {
         this.configurazioneService.getParametriAziende("usaGediInternauta", null, [azienda.id]).subscribe(
           (parametriAziende: ParametroAziende[]) => {
             //console.log(parametriAziende);
-            const showArchivioRicercaDialog = JSON.parse(parametriAziende[0]?.valore || false);
+            const showArchivioRicercaDialog = parametriAziende[0]?.valore || false;
             if (showArchivioRicercaDialog) {
               this.idAziendaFascicolazione = azienda.id;
               this.displayArchivioRicerca = true;
-              this.nomeDocDaPec = "Pec_" + this.selectedMessages[0].id.toString();
-
-
+              const message = this.selectedMessages[0];
+              const doc: MessageDoc = message.messageDocList?.find(m => m.scope === 'ARCHIVIAZIONE');
+              if (doc) {
+                this.nomeDocDaPec = doc.idDoc.oggetto;
+                this.isDisabledNomeDocDaPec = true;
+              } else {
+                // È possibile cambiare il nome soltanto alla prima fascicolazione 
+                // in quanto viene usato sempre lo stesso Doc sul DB
+                this.nomeDocDaPec = "Pec_" + message.id.toString();
+                this.isDisabledNomeDocDaPec = false;
+              }
             } else {
               //this open the old 
               let decodedUrl = "";
@@ -1117,12 +1125,12 @@ export class MailListService {
       const mtRegistered: MessageTag = message.messageTagList.find(mt => mt.idTag.name === "registered");
       let additionaDataRegistered: any;
       if (mtRegistered) {
-        additionaDataRegistered = JSON.parse(mtRegistered.additionalData);
+        additionaDataRegistered = mtRegistered.additionalData;
       }
       const mtInRegistration = message.messageTagList.find(mt => mt.idTag.name === "in_registration");
       let additionaDataInRegistration: any;
       if (mtInRegistration) {
-        additionaDataInRegistration = JSON.parse(mtInRegistration.additionalData);
+        additionaDataInRegistration = mtInRegistration.additionalData;
       }
       if (additionaDataRegistered) {
         if (additionaDataRegistered instanceof Array) {
@@ -1242,7 +1250,7 @@ export class MailListService {
 
   private messageTagAdditionalDataContainsAziendaOfPec(messageTag: MessageTag) {
     let contains = false;
-    const additionalData = JSON.parse(messageTag.additionalData);
+    const additionalData = messageTag.additionalData;
     const pec: Pec = (this.pecFolderSelected.type === PecFolderType.PEC ? this.pecFolderSelected.data : this.pecFolderSelected.pec) as Pec;
     const idAziendePec = pec.pecAziendaList.map(pa => {
       return pa.fk_idAzienda.id;

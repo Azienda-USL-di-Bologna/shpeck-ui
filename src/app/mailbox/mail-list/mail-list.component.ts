@@ -22,6 +22,7 @@ import {FormControl, FormGroup, Validators} from "@angular/forms";
 import {MailboxService, Sorting} from "../mailbox.service";
 import {IntimusClientService, IntimusCommand, IntimusCommands, RefreshMailsParams, RefreshMailsParamsEntities, RefreshMailsParamsOperations} from "@bds/common-tools";
 import { ContextMenu } from "primeng/contextmenu";
+import { HttpErrorResponse } from '@angular/common/http';
 
 @Component({
   selector: "app-mail-list",
@@ -85,12 +86,13 @@ export class MailListComponent implements OnInit, OnDestroy, AfterViewInit {
   private subscriptions: {id: number, type: string, subscription: Subscription}[] = [];
   private previousFilter: FilterDefinition[] = [];
   private foldersSubCmItems: MenuItem[] = null;
-  public aziendeProtocollabiliSubCmItems: MenuItem[] = null;
-  public aziendeFascicolabiliSubCmItems: MenuItem[] = null;
   private registerMessageEvent: any = null;
   private loggedUser: UtenteUtilities;
   private timeoutOnFocusEvent = null; 
-  private archivioRicercaSelected: ArchivioDetailView;
+  
+  public aziendeProtocollabiliSubCmItems: MenuItem[] = null;
+  public aziendeFascicolabiliSubCmItems: MenuItem[] = null;
+  public archivioRicercaSelected: ArchivioDetailView;
 
   public tagMenuItems:  MenuItem[] = null;
   public cmItems: MenuItem[] = [
@@ -1493,6 +1495,7 @@ export class MailListComponent implements OnInit, OnDestroy, AfterViewInit {
         }
         break;
       case "MessageArchive":
+        if (menuItem.label === 'Fascicola') return; // Gestiamo il click diretto sulla prima voce di menu
         this.archiviationDetail.displayArchiviationDetail = false;
         this.askConfirmationBeforeArchiviation(event);
         break;
@@ -1741,9 +1744,9 @@ export class MailListComponent implements OnInit, OnDestroy, AfterViewInit {
   }
 
   private getIdAziendeFromAddtitionalData(additionalData: any, res: number[] = []): number[] {
-    if ((typeof additionalData) === "string") {
-      additionalData = JSON.parse(additionalData);
-    }
+    // if ((typeof additionalData) === "string") {
+    //   additionalData = JSON.parse(additionalData);
+    // }
     if (Array.isArray(additionalData)) {
       additionalData.forEach(a => this.getIdAziendeFromAddtitionalData(a, res));
     } else {
@@ -1827,7 +1830,7 @@ export class MailListComponent implements OnInit, OnDestroy, AfterViewInit {
       }
 
       messageTagsRegInReg.forEach(mt => {
-        const additionalData: any = JSON.parse(mt.additionalData);
+        const additionalData: any = mt.additionalData;
         if (additionalData) {
           if (additionalData instanceof Array) {
             additionalData.forEach(element => {
@@ -1951,7 +1954,7 @@ export class MailListComponent implements OnInit, OnDestroy, AfterViewInit {
     let testo = null;
     const messageTag = message.messageTagList.find(mt => mt.idTag.name === tagName);
     if (messageTag) {
-      const mtAdditionalData = JSON.parse(messageTag.additionalData);
+      const mtAdditionalData = messageTag.additionalData;
       if (tagName === "readdressed_in") {
         testo = `<b>${new Date(messageTag.inserted).toLocaleDateString("it-IT", { hour: "numeric", minute: "numeric" })}</b>: `
           + `reindirizzato da ${mtAdditionalData["idUtente"]["descrizione"]}`
@@ -1992,7 +1995,7 @@ export class MailListComponent implements OnInit, OnDestroy, AfterViewInit {
     switch (archivedstatus) {
       case "ARCHIVED":
         messageTag = message.messageTagList.find(mt => mt.idTag.name === "archived");
-        this.prepareAndOpenDialogArchiviationDetail(messageTag, JSON.parse(messageTag.additionalData), message);
+        this.prepareAndOpenDialogArchiviationDetail(messageTag, messageTag.additionalData, message);
         break;
       case "ARCHIVABLE":
         this.aziendeFascicolabiliSubCmItems = this.mailListService.buildAziendeUtenteMenuItems(this._selectedPec, this.selectedContextMenuItem);
@@ -2287,7 +2290,6 @@ export class MailListComponent implements OnInit, OnDestroy, AfterViewInit {
    */
   public onArchivioSelectionConfirmed() { 
     console.log("Archivio Selected ", this.archivioRicercaSelected);
-    this.mailListService.disabledArchivioRicercaButton = true;
     this.mailListService.displayArchivioRicerca = false;
     this.toolBarService.loadingSpinner = true;
     this.messageService.archiveMessage(this.mailListService.selectedMessages[0], this.archivioRicercaSelected, this.mailListService.nomeDocDaPec).subscribe({
@@ -2298,7 +2300,7 @@ export class MailListComponent implements OnInit, OnDestroy, AfterViewInit {
           detail: `La fascicolazione è andata a buon fine`
         });
         this.toolBarService.loadingSpinner = false;
-        this.mailListService.disabledArchivioRicercaButton = false;
+        this.archivioRicercaSelected = null;
         this.mailListService.getMessageById(this.mailListService.selectedMessages[0].id, "CustomMessageWithFolderViewForMailList", true).subscribe(data => {
           if (data && data.results && data.results.length === 1) {
             const message =  (data.results[0] as Message); 
@@ -2310,11 +2312,21 @@ export class MailListComponent implements OnInit, OnDestroy, AfterViewInit {
         });
       },
       error: (err) => {
+        let severity = "error";
+        let summary = "Errore";
+        let detail = `La fascicolazione non è andata a buon fine, contattare Babelcare`;
+        if (err.error && err.error.code === "409") {
+          severity = "warn";
+          summary = "Operazione annullata."
+          detail = err.error.message;
+        }
         this.messagePrimeService.add({
-          severity: "error",
-          summary: "Errore",
-          detail: `La fascicolazione non è andata a buon fine, contattare Babelcare`
+          severity,
+          summary,
+          detail
         });
+        this.toolBarService.loadingSpinner = false;
+        this.archivioRicercaSelected = null;
       }
     });
   }

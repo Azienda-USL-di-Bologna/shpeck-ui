@@ -564,7 +564,7 @@ export class MailFoldersComponent implements OnInit, OnDestroy {
           this.color = "#2e4a65";
           this.initialColor = "#2e4a65";
           if (this.elementSelected.node.data.data.additionalData) {
-            const a =  JSON.parse(this.elementSelected.node.data.data.additionalData);
+            const a =  this.elementSelected.node.data.data.additionalData;
             if (a.color) {
               this.color = a.color;
               this.initialColor = a.color;
@@ -700,7 +700,7 @@ export class MailFoldersComponent implements OnInit, OnDestroy {
     };
 
     if (folder.additionalData) {
-      const a = JSON.parse(folder.additionalData);
+      const a = folder.additionalData;
       if (a.color) {
         this.setColorToNode(folderNode, a.color);
       }
@@ -740,7 +740,7 @@ export class MailFoldersComponent implements OnInit, OnDestroy {
     };
 
     if (tag.additionalData) {
-      const a = JSON.parse(tag.additionalData);
+      const a = tag.additionalData;
       if (a.color) {
         this.setColorToNode(treeNode, a.color);
       }
@@ -1222,7 +1222,7 @@ export class MailFoldersComponent implements OnInit, OnDestroy {
       const folder = this.selectedNode.data.data as Folder;
       let a: any = {};
       if (folder.additionalData) {
-        a = JSON.parse(folder.additionalData);
+        a = folder.additionalData;
       }
       a.color = this.color;
       folder.additionalData = JSON.stringify(a);
@@ -1231,7 +1231,7 @@ export class MailFoldersComponent implements OnInit, OnDestroy {
       const tag = this.selectedNode.data.data as Tag;
       let a: any = {};
       if (tag.additionalData) {
-        a = JSON.parse(tag.additionalData);
+        a = tag.additionalData;
       }
       a.color = this.color;
       tag.additionalData = JSON.stringify(a);
