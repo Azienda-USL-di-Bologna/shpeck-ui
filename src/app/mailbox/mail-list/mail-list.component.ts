@@ -1951,19 +1951,45 @@ export class MailListComponent implements OnInit, OnDestroy, AfterViewInit {
   }
 
   private buildMessageReaddres(message, tagName): string {
-    let testo = null;
+    let testo = "";
     const messageTag = message.messageTagList.find(mt => mt.idTag.name === tagName);
     if (messageTag) {
-      const mtAdditionalData = messageTag.additionalData;
-      if (tagName === "readdressed_in") {
-        testo = `<b>${new Date(messageTag.inserted).toLocaleDateString("it-IT", { hour: "numeric", minute: "numeric" })}</b>: `
-          + `reindirizzato da ${mtAdditionalData["idUtente"]["descrizione"]}`
-          + ` (${mtAdditionalData["idPec"]["indirizzo"]}).`;
-      } else if (tagName === "readdressed_out") {
-        testo = `<b>${new Date(messageTag.inserted).toLocaleDateString("it-IT", { hour: "numeric", minute: "numeric" })}</b>: `
-          + ` ${mtAdditionalData["idUtente"]["descrizione"]} ha reindirizzato a `
-          + `${mtAdditionalData["idPec"]["indirizzo"]}.`;
+      
+      for (const mtAdditionalData of messageTag.additionalData) {
+        
+        if (tagName === "readdressed_in") {
+          testo += `<b>${new Date(messageTag.inserted).toLocaleDateString("it-IT", { hour: "numeric", minute: "numeric" })}</b>: `
+            + `reindirizzato da ${mtAdditionalData["idUtente"]["descrizione"]}`
+            + ` (${mtAdditionalData["idPec"]["indirizzo"]}).`;
+        } else if (tagName === "readdressed_out") {
+          testo += `<b>${new Date(messageTag.inserted).toLocaleDateString("it-IT", { hour: "numeric", minute: "numeric" })}</b>: `
+            + ` ${mtAdditionalData["idUtente"]["descrizione"]} ha reindirizzato a `
+            + `${mtAdditionalData["idPec"]["indirizzo"]}.`;
+        }
+        
       }
+      // (messageTag.additionalData as any).forEach(mtAdditionalData => {
+      //       if (tagName === "readdressed_in") {
+      //         testo += `<b>${new Date(messageTag.inserted).toLocaleDateString("it-IT", { hour: "numeric", minute: "numeric" })}</b>: `
+      //           + `reindirizzato da ${mtAdditionalData["idUtente"]["descrizione"]}`
+      //           + ` (${mtAdditionalData["idPec"]["indirizzo"]}).`;
+      //       } else if (tagName === "readdressed_out") {
+      //         testo += `<b>${new Date(messageTag.inserted).toLocaleDateString("it-IT", { hour: "numeric", minute: "numeric" })}</b>: `
+      //           + ` ${mtAdditionalData["idUtente"]["descrizione"]} ha reindirizzato a `
+      //           + `${mtAdditionalData["idPec"]["indirizzo"]}.`;
+      //       }
+      //     }
+      //   )
+      // const mtAdditionalData = messageTag.additionalData[0];
+      // if (tagName === "readdressed_in") {
+      //   testo = `<b>${new Date(messageTag.inserted).toLocaleDateString("it-IT", { hour: "numeric", minute: "numeric" })}</b>: `
+      //     + `reindirizzato da ${mtAdditionalData["idUtente"]["descrizione"]}`
+      //     + ` (${mtAdditionalData["idPec"]["indirizzo"]}).`;
+      // } else if (tagName === "readdressed_out") {
+      //   testo = `<b>${new Date(messageTag.inserted).toLocaleDateString("it-IT", { hour: "numeric", minute: "numeric" })}</b>: `
+      //     + ` ${mtAdditionalData["idUtente"]["descrizione"]} ha reindirizzato a `
+      //     + `${mtAdditionalData["idPec"]["indirizzo"]}.`;
+      // }
     }
     return testo;
   }
