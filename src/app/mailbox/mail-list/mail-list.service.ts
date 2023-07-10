@@ -1012,7 +1012,7 @@ export class MailListService {
         this.configurazioneService.getParametriAziende("usaGediInternauta", null, [azienda.id]).subscribe(
           (parametriAziende: ParametroAziende[]) => {
             //console.log(parametriAziende);
-            const showArchivioRicercaDialog = parametriAziende[0]?.valore || false;
+            const showArchivioRicercaDialog = JSON.parse(parametriAziende[0]?.valore) || false;
             if (showArchivioRicercaDialog) {
               this.idAziendaFascicolazione = azienda.id;
               this.displayArchivioRicerca = true;
