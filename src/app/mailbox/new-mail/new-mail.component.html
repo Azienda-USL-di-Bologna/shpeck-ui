@@ -214,7 +214,7 @@
       pButton 
       icon="pi pi-check" 
       label="Conferma Destinatari Selezionati" (click)="onConfermaDestinatari()"
-      [disabled]="disableButtonsConfermaDestinatariSelezionati"
+      [disabled]="checkIfExistDestinatariSelezionati()"
       class="ui-button-raised ui-button-secondary custom-secondary-button">
     </button>
     <button type="button" 
