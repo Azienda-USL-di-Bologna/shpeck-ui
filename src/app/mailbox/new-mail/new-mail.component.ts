@@ -67,9 +67,6 @@ export class NewMailComponent implements OnInit, AfterViewInit, OnDestroy {
     return this.mailForm.get("cc");
   }
 
-
-  
-
   constructor(
     public config: DynamicDialogConfig,
     public dialogService: DialogService,
@@ -108,8 +105,6 @@ export class NewMailComponent implements OnInit, AfterViewInit, OnDestroy {
 
 
   }
-
-  
 
   private prepareMessageOrDraft() {
     // console.log("DATA PASSED = ", this.config.data);
@@ -966,6 +961,10 @@ export class NewMailComponent implements OnInit, AfterViewInit, OnDestroy {
 
   private checkIfRubricaInternautaShouldBeEnabled() {
     return this.utenteConnesso.aziendaLogin.parametriAzienda && this.utenteConnesso.aziendaLogin.parametriAzienda.rubricaInternauta;
+  }
+
+  public checkIfExistDestinatariSelezionati(): boolean {
+    return !this.customContactService.allSelectedContact.length;
   }
 
   /**
