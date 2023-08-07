@@ -13,7 +13,7 @@ ul {
   height: 94%;
 }
 li {
-  margin: 0 0 10px;
+  margin: 0 0 0.625rem;
 }
 .oggetto {
   input {
@@ -31,8 +31,8 @@ li {
 ::ng-deep #attachments .p-chips {
   > ul.p-inputtext,
   > ul.p-inputtext:focus {
-    min-height: 33px;
-    max-height: 100px;
+    min-height: 2.063rem;
+    max-height: 6.25rem;
     overflow-y: auto;
   }
   .p-chips-input-token {
@@ -42,8 +42,8 @@ li {
 
 /******* Buttons *******/
 .button-styles {
-  margin: 8px 0 5px 5px;
-  min-width: 135px;
+  margin: 0.5rem 0 0.3rem 0.3rem;
+  min-width: 8.438rem;
 }
 
 .ui-fileupload-choose:not(.p-state-disabled):hover {
@@ -56,7 +56,7 @@ li {
   margin: 0;
   opacity: 0;
   min-height: 100%;
-  font-size: 100px;
+  font-size: 6.25rem;
   text-align: right;
   filter: alpha(opacity=0);
   direction: ltr;
@@ -68,7 +68,7 @@ li {
 .footer-class {
   display: flex;
   justify-content: flex-end;
-  margin-bottom: -7px;
+  margin-bottom: -0.438rem;
 }
 
 ::ng-deep body .p-autocomplete {
@@ -79,13 +79,13 @@ li {
 ::ng-deep body .p-chips > ul.p-inputtext .p-chips-token,
 ::ng-deep body .p-autocomplete.p-autocomplete-multiple .p-autocomplete-multiple-container .p-autocomplete-token {
   background-color: rgb(235, 235, 235);
-  border-radius: 5px;
-  padding: 2px 5px;
-  margin: 1px;
+  border-radius: 0.3rem;
+  padding: 0.13rem 0.3rem;
+  margin: 0.06rem;
   color: black;
 }
 ::ng-deep body .p-autocomplete.p-autocomplete-multiple .p-autocomplete-multiple-container {
-  max-height: 81px;
+  max-height: 5.063rem;
   overflow: auto;
   width: 100%;
 }
@@ -113,11 +113,11 @@ li {
 }
 
 .margin-l-5, .margin-lr-5 {
-  margin-left: 5px;
+  margin-left: 0.3rem;
 }
 
 .margin-r-5, .margin-lr-5 {
-  margin-right: 5px;
+  margin-right: 0.3rem;
 }
 
 .height-100 {
@@ -141,7 +141,7 @@ input:focus {
 /******* Editor *******/
 ::ng-deep .p-editor-content.ql-container.ql-snow {
 
-  min-height: 20px;
+  min-height: 1.25rem;
 }
 ::ng-deep .ql-align.ql-picker.ql-icon-picker.ql-expanded .ql-picker-options .ql-picker-item {
   padding: 0 !important;
@@ -157,8 +157,8 @@ input:focus {
 /******* Close button *******/
 .close-button {
   position: absolute;
-  top: 16px;
-  right: 24px;
+  top: 1rem;
+  right: 1.5rem;
   color: white;
 }
 /******* Dialog classes ******/

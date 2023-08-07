@@ -2,7 +2,7 @@
   [value]="recepits"
   [columns]="cols"
   [scrollable]="true"
-  scrollHeight="300px"
+  scrollHeight="18.75rem"
   appendTo="body">
   <ng-template pTemplate="header" let-columns>
     <tr>
@@ -28,16 +28,16 @@
             class="download-button">
           </button>
         </td> -->
-        <td style="width: 135px;" class="align-center">
+        <td style="width: 8.438rem;" class="align-center">
           {{rowData.receiveTime | date: 'EE d MMM y, H:mm' | titlecase}}
         </td>
-        <td style="width: 120px;" class="align-center">
+        <td style="width: 7.5rem;" class="align-center">
           {{rowData.idRecepit.recepitType}}
         </td>
-        <td style="width: 260px;">
+        <td style="width: 16.25rem;">
           {{calculateAddress(rowData)}}
         </td>
-        <td style="width: 45px;" class="align-center">
+        <td style="width: 2.813rem;" class="align-center">
           <button pButton
             icon="pi pi-download" 
             (click)="dowloadRecepit(rowData)"

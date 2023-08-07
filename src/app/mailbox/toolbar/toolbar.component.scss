@@ -32,7 +32,7 @@
         white-space: nowrap;
         &:focus{
             ::ng-deep .ui-button-text {
-                border: 1px solid black !important;
+                border: 0.06rem solid black !important;
             }
         }
     }
@@ -45,35 +45,35 @@
         position: absolute;
         top: 15%;
         left: 5%;
-        width: 21px;
+        width: 1.313rem;
     }
     .input-find {
         width: 100%;
         margin-left: auto;
         margin-right: 0;
-        border: 0px;
+        border: 0rem;
         background-color: #f4f4f4;
     }
 }
 ::ng-deep .margin-l-15 > span {
-    margin-left: 15px;
+    margin-left: 0.938rem;
 }
 ::ng-deep .move-menu > div {
-    max-height: 330px;
+    max-height: 20.625rem;
     overflow-y: auto;
     width: fit-content !important;
     width: -moz-fit-content;
-    min-width: 224px;
-    max-width: 300px;
+    min-width: 14rem;
+    max-width: 18.75rem;
     overflow-x: hidden;
 }
 .buttons {
-    width: 62px !important;
+    width: 3.875rem !important;
 }
 .close-icon {
     align-self: center;
-    font-size: 15px;
-	border:1px solid transparent;
+    font-size: 0.938rem;
+	border:0.063rem solid transparent;
 	background-color: #f4f4f4;
 	display: inline-block;
 	vertical-align: middle;
@@ -81,19 +81,19 @@
     cursor: pointer;
     &:after {
         display: block;
-        width: 15px;
-        height: 15px;
+        width: 0.938rem;
+        height: 0.938rem;
         position: absolute;
         z-index:1;
-        right: 35px;
+        right: 2.188rem;
         top: 0;
         bottom: 0;
         margin: auto;
-        padding: 2px;
+        padding: 0.13rem;
         text-align: center;
         color: #203142;
         font-weight: normal;
-        font-size: 12px;
+        font-size: 0.75rem;
         cursor: pointer;
     }
 }
@@ -114,23 +114,23 @@
     line-height: 1;
     display: inline-block;
     font-size: 1.25em;
-    border: 0px;
+    border: 0rem;
 }
 .search-wrapper{
     display: flex;
     box-sizing: border-box;
     flex-grow: 3;
     background-color: #f4f4f4;
-    border-bottom: 1px solid #223446;
-    border-top: 1px solid transparent;
-    border-left: 1px solid transparent;
-    border-right: 1px solid transparent;
+    border-bottom: 0.06rem solid #223446;
+    border-top: 0.06rem solid transparent;
+    border-left: 0.06rem solid transparent;
+    border-right: 0.06rem solid transparent;
     transition: border 0.3s ease-out;
     &:hover {
-        border: 1px solid #223446 !important;
+        border: 0.06rem solid #223446 !important;
     }
     
 }
 .cerca-box{
-    width: 340px;
+    width: 21.25rem;
 }

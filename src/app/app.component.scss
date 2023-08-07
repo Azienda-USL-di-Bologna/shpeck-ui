@@ -23,8 +23,8 @@
 ::ng-deep body .p-dialog .p-dialog-header {
   background-color: #993366;
   color: white;
-  height: 48px;
-  font-size: 14px;
+  height: 3rem;
+  font-size: 0.875rem;
 }
 
 ::ng-deep body .p-dialog .p-dialog-titlebar .p-dialog-titlebar-icon,
@@ -54,7 +54,7 @@
   background-color: transparent !important;
   border: none !important;
   color: black !important;
-  font-size: 15px !important;
+  font-size: 0.938rem !important;
 }
 ::ng-deep .download-button:hover {
   background-color: #c8c8c8 !important;
@@ -65,8 +65,8 @@
 /* CHROME */
 
 ::ng-deep ::-webkit-scrollbar {
-  width: 10px;
-  height: 10px;
+  width: 0.625rem;
+  height: 0.625rem;
 }
 ::ng-deep  ::-webkit-scrollbar-track {
   background: #f1f1f1;
@@ -87,7 +87,7 @@
   scrollbar-color: #8888889c #f1f1f1;
 }
 
-@media only screen and (max-height: 801px) { /* For low resolutions */
+@media only screen and (max-height: 50.063rem) { /* For low resolutions */
   ::ng-deep .new-draft .p-dialog-content.p-widget-content {
     height: 91vh !important;
   }

@@ -39,8 +39,8 @@ export class AccessibilitaMailListComponent implements OnInit, OnDestroy {
       field: "subject",
       header: "Oggetto",
       filterMatchMode: FILTER_TYPES.string.containsIgnoreCase,
-      width: "85px",
-      minWidth: "85px"
+      width: "5.313rem",
+      minWidth: "5.313rem"
     }
   ];
 
