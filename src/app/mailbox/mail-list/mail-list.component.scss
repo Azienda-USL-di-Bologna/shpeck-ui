@@ -141,6 +141,14 @@
   padding-left: 0.3rem;
   color: #2e4a65;
 }
+.update-registration-info-icon {
+  margin-left: 3px;
+  font-size: 0.95rem !important;
+  margin-top: 2px;
+  &:hover {
+    color:#993366;
+  }
+}
 .first-icon-left {
   display: flex;
   padding-left: 0; 

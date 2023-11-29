@@ -1166,8 +1166,6 @@ export class MailListComponent implements OnInit, OnDestroy, AfterViewInit {
           console.log("this.tempSelectedMessages", this.tempSelectedMessages);
           console.log("this.mailListService.selectedMessages", this.mailListService.selectedMessages); */
           // selezione di un singolo messaggio (o come click singolo oppure come click del primo messaggio con il ctrl)
-          //debugger;
-            //debugger;
           if (this.mailListService.selectedMessages.length === 1 /* && !this.mailListService.selectedMessages.some(m => m.id === event.data.id) */) {
             const selectedMessage: Message = this.mailListService.selectedMessages[0];
             /* if (event.type === "row") {
@@ -2111,17 +2109,14 @@ export class MailListComponent implements OnInit, OnDestroy, AfterViewInit {
     }
   }
 
-  onFixMessageTagInRegistration(event: any, message: Message) {
 
+  public aggiornaTagDiProtocollazione(event: any, message: Message): void {
     this.subscriptions.push({
-                      id: message.id,
-                      type: "null",
-                      subscription: this.mailListService.fixMessageTagInRegistration(message.id).subscribe(res => {
-        if (res && res.Response === "Tutto ok") {
-          // console.log("onFixMessageTagInRegistration response: ", res);
-          this.messagePrimeService.add(
-            { severity: "success", summary: "Successo", detail: "Fix fatto correttamente" });
-        }
+      id: message.id,
+      type: "null",
+      subscription: this.mailListService.fixMessageTagInRegistration(message.id).subscribe(res => {
+        this.messagePrimeService.add({ severity: "success", summary: "Successo", detail: "Aggiornamento dati di protocollazione avvenuto con successo" });
+
         // fai reload message
         const messageIndex = this.mailListService.messages.findIndex(m => m.id === message.id);
 
@@ -2132,38 +2127,44 @@ export class MailListComponent implements OnInit, OnDestroy, AfterViewInit {
         const filter: FiltersAndSorts = new FiltersAndSorts();
         filter.addFilter(filterDefinition);
         this.subscriptions.push({
-                          id: message.id,
-                          type: "AutoRefresh",
-                          subscription: this.messageService.getData(this.mailListService.selectedProjection,
-                                                            filter,
-                                                            null,
-                                                            null).subscribe((data: any) => {
-          if (data && data.results) {
-            const newMessage = data.results[0];
-            // ricarico le icome relative ai tag
-            this.mailListService.setMailTagVisibility([newMessage]);
+          id: message.id,
+          type: "AutoRefresh",
+          subscription: this.messageService.getData(
+            this.mailListService.selectedProjection, 
+            filter,
+            null,
+            null
+          ).subscribe(
+            (data: any) => {
+              if (data && data.results) {
+                const newMessage = data.results[0];
+                // ricarico le icome relative ai tag
+                this.mailListService.setMailTagVisibility([newMessage]);
 
-            // aggiorno il messaggio nella lista inserendo quello ricaricato
-            this.mailListService.messages[messageIndex] = newMessage;
+                // aggiorno il messaggio nella lista inserendo quello ricaricato
+                this.mailListService.messages[messageIndex] = newMessage;
+                this.mailListService.messages = [...this.mailListService.messages];
 
-            // se il messaggio è anche presente nei messaggi selezioni, lo sostituisco anche lì
-            const smIndex = this.mailListService.selectedMessages.findIndex(sm => sm.id === newMessage.id);
-            if (smIndex >= 0) {
-              this.mailListService.selectedMessages[smIndex] = newMessage;
+                // se il messaggio è anche presente nei messaggi selezioni, lo sostituisco anche lì
+                const smIndex = this.mailListService.selectedMessages.findIndex(sm => sm.id === newMessage.id);
+                if (smIndex >= 0) {
+                  this.mailListService.selectedMessages[smIndex] = newMessage;
+                  this.mailListService.selectedMessages = [...this.mailListService.selectedMessages];
+                }
+              }
+            },
+            err => {
+              // show error message
+              this.messagePrimeService.add(
+                { severity: "error", summary: "Errore", detail: "Errore durante il ricaricamento della mail"});
             }
-          }
-        },
-        err => {
-          // show error message
-          this.messagePrimeService.add(
-            { severity: "error", summary: "Errore", detail: "Errore durante il ricaricamento della mail"});
-        }
-        )});
+          )
+        });
       },
         err => {
           // show error message
           this.messagePrimeService.add(
-            { severity: "error", summary: "Errore", detail: "Errore durante il fix del tag", life: 3500 });
+            { severity: "error", summary: "Errore", detail: "Errore durante l'aggiornamento dei dati di protocollazione", life: 3500 });
         })
     });
   }
@@ -2240,7 +2241,6 @@ export class MailListComponent implements OnInit, OnDestroy, AfterViewInit {
   }
 
   private manageMessageSelection(rowData) {
-    //debugger;
     clearTimeout(this.timeoutOnFocusEvent);
     this.contextMenu.hide();
     const emlSource: string = this.getEmlSource(rowData);
