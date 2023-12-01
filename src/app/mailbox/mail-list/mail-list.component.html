@@ -70,8 +70,8 @@
                                     tooltipPosition="top"
                                     class="material-icons-outlined mail-icons icon-enabled"
                                     [ngClass]="
-                                    {'icon-disabled': registrationstatus === 'NOT_REGISTRABLE' || message['moved'] , 
-                                    'icon-used': (registrationstatus === 'REGISTERED' || registrationstatus === 'IN_REGISTRATION') && !message['moved']}"
+                                        {'icon-disabled': registrationstatus === 'NOT_REGISTRABLE' || message['moved'] , 
+                                        'icon-used': (registrationstatus === 'REGISTERED' || registrationstatus === 'IN_REGISTRATION') && !message['moved']}"
                                     [ngStyle]="!message['moved'] && (registrationstatus === 'REGISTERED' && {'color': 'darkcyan'} || registrationstatus === 'IN_REGISTRATION' && {'color': 'orange'})"
                                     (click)="!message['moved'] ? iconRegistrationClicked($event, message, registrationstatus): null"
                                     >
@@ -79,15 +79,15 @@
                                         <!-- (registrationstatus === "REGISTRABLE" ? "assignment_returned" : "assignment_returned")}} -->
                                 </i>
                                 <!-- fix in_registration tag -->
-                                <i *ngIf="registrationstatus === 'IN_REGISTRATION' && loggedUserIsSuperD"
-                                    [pTooltip]="'Fix bug in_registration tag'"
+                                <i 
+                                    pTooltip="Aggiorna le informazioni di protocollazione"
                                     tooltipPosition="top"
-                                    class="material-icons mail-icons icon-enabled mi-fist-line"
-                                    (click)="onFixMessageTagInRegistration($event, message)">adjust
+                                    class="pi pi-sync mail-icons icon-enabled mi-fist-line update-registration-info-icon"
+                                    (click)="aggiornaTagDiProtocollazione($event, message)">
                                 </i>
-                                
                             </ng-template>
-                            <ng-template [ngTemplateOutlet]="registrationTemplate"
+                            <ng-template 
+                                [ngTemplateOutlet]="registrationTemplate"
                                 [ngTemplateOutletContext]="{$implicit: getRegistrationStatus(message)}">
                             </ng-template>
                             <p-contextMenu
