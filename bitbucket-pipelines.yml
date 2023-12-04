@@ -1,0 +1,141 @@
+#INFO | Le variabili d'ambiente AWS_ROLE_ARN, AWS_ACCOUNT_ID, AWS_OIDC_ROLE_NAME, AWS_OIDC_ROLE_ARN, AWS_CODEARTIFACT_DOMAIN e AWS_DEFAULT_REGION
+#INFO | L'id del worker varia in funzione dell'environment ed è stato inserito come variabile d'ambiente
+#INFO | INSTANCE_ID per ciascun deployment del repository.
+
+
+# options:
+#   max-time: 30
+#   docker: true
+#   size: 2x
+
+clone:
+  # lfs: true     # See the lfs property documentation prior to enabling
+  # skip-ssl-verify: true
+  enabled: false
+  depth: 1
+
+# image:
+#   name: <aws_account_id>.dkr.ecr.<region>.amazonaws.com/bash:latest
+#   aws:
+#     oidc-role: arn:aws:iam::<aws_account_id>:role/<your_role_name>
+
+################################
+### DEFINITIONS
+################################
+
+definitions:
+  steps:
+    - step: &start_runner
+        # Questo job viene eseguito nell'infrastruttura di Atlassian e si paga l'esecuzione
+        # Dura pochi secondi, poi il resto viene eseguito sui runners in AWS
+        name: Start Runner
+        oidc: true
+        image: public.ecr.aws/aws-cli/aws-cli:2.11.21
+        script:
+          # Le altre variabili d'ambiente necessarie sono definite nel workspace e nel deployment
+          - export AWS_WEB_IDENTITY_TOKEN_FILE=$(pwd)/web-identity-token
+          - echo $BITBUCKET_STEP_OIDC_TOKEN > $(pwd)/web-identity-token
+          - INSTANCE_ID=$(aws ec2 describe-instances --filter "Name=tag:RunnerName,Values=*${AWS_ENV}*" --query 'Reservations[].Instances[].InstanceId' --output text)
+          - ([[ -n "${INSTANCE_ID}" ]])
+          - INSTANCE_STATE=$(aws ec2 describe-instances --instance-ids ${INSTANCE_ID} --query 'Reservations[].Instances[].State.Name' --output text)
+          - ([[ "${INSTANCE_STATE}" != "running" ]] && aws ec2 start-instances --instance-ids ${INSTANCE_ID} --region ${AWS_DEFAULT_REGION}) || true
+          - ([[ "${INSTANCE_STATE}" != "running" ]] && aws ec2 wait instance-running --instance-ids ${INSTANCE_ID} --region ${AWS_DEFAULT_REGION}) || true
+          - ([[ "${INSTANCE_STATE}" != "running" ]] && sleep 15) || true
+    - step: &stop_runner
+        name: Stop Runner
+        oidc: true
+        image: public.ecr.aws/aws-cli/aws-cli:2.11.21
+        script:
+          # Le altre variabili d'ambiente necessarie sono definite nel workspace e nel deployment
+          - export AWS_WEB_IDENTITY_TOKEN_FILE=$(pwd)/web-identity-token
+          - echo ${BITBUCKET_STEP_OIDC_TOKEN} > $(pwd)/web-identity-token
+          - aws ec2 stop-instances --instance-ids ${INSTANCE_ID} --region ${AWS_DEFAULT_REGION}
+    - step: &build_app
+        name: Build App
+        image: public.ecr.aws/docker/library/node:14.21.3-bullseye
+        clone:
+          enabled: true
+        cache:
+          - node
+        script:
+          - npm install
+          - npm run build -- --base-href /shpeck/
+        artifacts:
+          - "dist/**"
+    - step: &codeartifact_login
+        name: CodeArtifact Login
+        image: public.ecr.aws/aws-cli/aws-cli:2.11.21
+        script:
+          - CODEARTIFACT_AUTH_TOKEN=`aws codeartifact get-authorization-token --domain ${AWS_CODEARTIFACT_DOMAIN} --domain-owner ${AWS_ACCOUNT_ID} --query authorizationToken --output text`
+          - CODEARTIFACT_ENDPOINT="//${AWS_CODEARTIFACT_DOMAIN}-$AWS_ACCOUNT_ID.d.codeartifact.${AWS_DEFAULT_REGION}.amazonaws.com/npm/${AWS_ENV}/"
+          - echo "@bds:registry=https:${CODEARTIFACT_ENDPOINT}" > .npmrc
+          - echo "${CODEARTIFACT_ENDPOINT}:_authToken=${CODEARTIFACT_AUTH_TOKEN}" >> .npmrc
+          - echo "${CODEARTIFACT_ENDPOINT}:always-auth=true" >> .npmrc
+        artifacts:
+          - .npmrc
+    - step: &deploy
+        name: Deploy
+        # oidc: true
+        image: public.ecr.aws/aws-cli/aws-cli:2.11.21
+        script:
+          - aws s3 sync dist/Babel-internauta s3://babel-cloud-dev-spa-shpeck/shpeck
+          # - pipe: atlassian/aws-s3-deploy:1.2.0
+          #   variables:
+          #     S3_BUCKET: "babel-cloud-dev-spa-shpeck/shpeck"
+          #     LOCAL_PATH: "dist/Babel-internauta"
+
+################################
+### PIPELINES
+################################
+
+pipelines:
+  branches:
+    ### TEST
+    sviluppo:
+      - stage:
+          deployment: test
+          steps:
+            - step: *start_runner
+            - step:
+                <<: *codeartifact_login
+                runs-on: &run_on_dev
+                  - "self.hosted"
+                  - "dev"
+            - step:
+                <<: *build_app
+                runs-on: *run_on_dev
+            - step:
+                <<: *deploy
+                runs-on: *run_on_dev
+    ### STAGING
+    stage:
+      - stage:
+          deployment: staging
+          steps:
+            - step: *start_runner
+            - step:
+                <<: *build_app
+                runs-on: &run_on_stag
+                  - "self.hosted"
+                  - "staging"
+            - step:
+                <<: *codeartifact_login
+                runs-on: *run_on_stag
+            - step: *stop_runner
+  tags:
+    ### !TAG
+    ### PRODUCTION
+    "v*":
+      - stage:
+        deployment: production
+        steps:
+          - step: *start_runner
+          - step:
+              <<: *build_app
+              runs-on: &run_on_prod
+                - "self.hosted"
+                - "prod"
+          - step:
+              <<: *codeartifact_login
+              runs-on: *run_on_prod
+          - step: *stop_runner
