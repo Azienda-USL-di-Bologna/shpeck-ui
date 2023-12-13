@@ -1,192 +1,355 @@
 <section class="height-100">
-  <a [ngClass]="'ui-dialog-titlebar-icon ui-dialog-titlebar-close ui-corner-all close-button'"
-    tabindex="0" role="button" (click)="checkAndClose()">
-      <span class="pi pi-times"></span>
+  <a
+    [ngClass]="
+      'ui-dialog-titlebar-icon ui-dialog-titlebar-close ui-corner-all close-button'
+    "
+    tabindex="0"
+    role="button"
+    (click)="checkAndClose()">
+    <span class="pi pi-times"></span>
   </a>
   <!-- <div class="height-100"> -->
-    <!-- Prevent default on form to avoid auto submit -->
-    <form class="height-100 d-flex flex-dir-col" [formGroup]="mailForm">
-      <ul class="list-items">
-        <!-- A Addresses -->
-        <li>
-          <label for="to" style="padding-right: 0.563rem">A: </label>
-          <span class="ui-fluid flex-1 margin-lr-5">
-              <p-autoComplete #toAutoComplete
-                [required]="true" 
-                [autofocus]="true"
-                field="descrizione"
-                [delay]="500" 
-                inputId="toInputId"
-                type="email"
-                id="to" 
-                formControlArray="to" 
-                [suggestions]="filteredAddressMultiple"
-                (completeMethod)="filterAddressMultiple($event)" 
-                (keyup.enter)="onKeyUpNew($event, 'to')"
-                (onSelect)="onSelectNew($event, 'to')" 
-                (onUnselect)="onUnselect($event, 'to')"
-                (onBlur)="onKeyUpNew($event, 'to')"
-                [minLength]="1" 
-                placeholder="Seleziona contatti..." 
-                [multiple]="true">
-                <ng-template let-value pTemplate="selectedItem">
-                  <span class="token-label" *ngIf="value.tipo !== 'GRUPPO'" [ngClass]="emailRegex.test(value) ? null : 'alert-message-warn'">{{value}} </span>
-                  <span class="token-label" *ngIf="value.tipo === 'GRUPPO'">Inserimento gruppo ..</span>
-                </ng-template>
-              </p-autoComplete>
-          </span>
-          <span>
-            <button pButton type="button" icon="fa fa-address-book" class="ui-button-raised custom-primary-button" (click)="onOpenRubricaPopup(); lastAddressBookUsed = 'to'"></button>
-          </span>
-        </li>
-        <li *ngIf="addressesTO?.invalid && !addressesTO?.errors?.required || !isMailValid" class="alert-message-warn">
-          Hai inserito un indirizzo mail sbagliato!
-        </li>
-        <!-- CC Addresses -->
-        <li>
-          <label for="cc">CC: </label>
-          <span class="ui-fluid flex-1 margin-lr-5">
-            <p-autoComplete #ccAutoComplete
-              type="email"
-              field="descrizione"
-              [delay]="500" 
-              inputId="ccInputId"
-              id="cc" 
-              formControlArray="cc" 
-              [suggestions]="filteredAddressMultiple"
-              (completeMethod)="filterAddressMultiple($event)" 
-              (keyup.enter)="onKeyUpNew($event, 'cc')"
-              (onSelect)="onSelectNew($event, 'cc')"
-              (onUnselect)="onUnselect($event, 'cc')" 
-              (onBlur)="onKeyUpNew($event, 'cc')"
-              [pTooltip]="mailForm.get('hideRecipients')?.value ? ccTooltip : ''" [disabled]="mailForm.get('hideRecipients')?.value"
-              [minLength]="1" 
-              [multiple]="true">
-              <ng-template let-value pTemplate="selectedItem">
-                <span class="token-label" *ngIf="value.tipo !== 'GRUPPO'" [ngClass]="emailRegex.test(value) ? null : 'alert-message-warn'">{{value}} </span>
-                <span class="token-label" *ngIf="value.tipo === 'GRUPPO'">Inserimento gruppo ..</span>
-              </ng-template>
-            </p-autoComplete>
-          </span>
-          <span>
-            <button pButton type="button" icon="fa fa-address-book" class="ui-button-raised custom-primary-button" (click)="onOpenRubricaPopup(); lastAddressBookUsed = 'cc'"></button>
-          </span>
-        </li>
-        <li *ngIf="addressesCC?.invalid && !addressesCC?.errors?.required || !isMailValidCC" class="alert-message-warn">
-          Hai inserito un indirizzo mail sbagliato!
-        </li>
-        <!-- Destinatari Privati -->
-        <li>
-          <label for="hideRecipients">Destinatari privati: </label>
-          <span class="ui-fluid margin-lr-5">
-            <p-checkbox id="hideRecipients" formControlName="hideRecipients" [binary]="true"
-              [pTooltip]="mailForm.get('cc')?.value.length > 0 ? hideRecipientsTooltip : ''" >
-            </p-checkbox>
-          </span>
-        </li>
-        <!-- Oggetto -->
-        <li class="oggetto">
-          <label for="subject">Oggetto: </label>
-          <span class="ui-fluid flex-1 margin-l-5">
-              <input id="subject" type="text" pInputText formControlName="subject">
-          </span>
-        </li>
-        <!-- Allegati -->
-        <li>
-          <span
-            class="ui-fileupload-choose ui-button-secondary custom-border" style="height:2.063rem; min-width: 5.204rem;"
-            label="Allega" icon="pi pi-paperclip" pButton>
-              <input #fileinput class="inputfile" type="file" (change)="onFileChange($event, fileinput)" multiple="multiple">
-          </span>
-          <span class="ui-fluid flex-1 margin-lr-5">
-            <p-chips id="attachments" formControlName="attachments">
-              <ng-template let-item pTemplate="item">
-                {{ item.name ? item.name : item.displayName }} ({{item.id ? formatSize(item.size) :  formatSize(item.size, true)}}) <i style="margin-right:1.5em"></i>
-              </ng-template>
-            </p-chips>
-          </span>
-          <span>
-            <button
-              pButton type="button" icon="pi pi-times" class="ui-button-raised custom-primary-button"
-              (click)="clearAttachmentsField()" pTooltip="Svuota allegati">
-            </button>
-          </span>
-        </li>
-        <!-- Testo Mail -->
-        <li class="flex-1 flex-dir-col min-height-0" style="margin: 0">
-          <!-- <label for="body">Testo: </label> -->
-          <span class="height-100 d-flex flex-1 min-height-0">
-            <p-editor #editor id="body" formControlName="body"  (onInit)="editorInit($event)">
-            </p-editor>
-          </span>
-        </li>
-      </ul>
-      <!-- Footer -->
-      <p-footer class="footer-class">
-        <button
-          type="button" pButton icon="pi pi-save"
-          class="ui-button-raised ui-button-secondary button-styles custom-secondary-button"
-          label="Salva e chiudi" (click)="onSaveDraft()">
-        </button>
-        <button
-          type="button" pButton icon="pi pi-trash"
-          class="ui-button-raised ui-button-secondary button-styles custom-secondary-button"
-          label="Elimina" (click)="onDelete(true)">
-        </button>
-        <button
-          type="button" pButton icon="fa fa-paper-plane"
-          class="ui-button-raised ui-button-secondary button-styles custom-secondary-button"
-          label="Invia" 
-          (click)="onSubmit()" 
-          [disabled]="mailForm.invalid || this.draftService.isMailFormSubmitted">
-        </button>
-      </p-footer>
-    </form>
+  <!-- Prevent default on form to avoid auto submit -->
+  <form
+    class="height-100 d-flex flex-dir-col"
+    [formGroup]="mailForm">
+    <ul class="list-items">
+      <!-- A Addresses -->
+      <li>
+        <label
+          for="to"
+          style="padding-right: 0.563rem"
+          >A:
+        </label>
+        <span class="ui-fluid flex-1 margin-lr-5">
+          <p-autoComplete
+            #toAutoComplete
+            [required]="true"
+            [autofocus]="true"
+            [delay]="500"
+            inputId="toInputId"
+            type="email"
+            id="to"
+            formControlArray="to"
+            [suggestions]="filteredAddressMultiple"
+            (completeMethod)="filterAddressMultiple($event)"
+            (keyup.enter)="onKeyUpNew($event, 'to')"
+            (onSelect)="onSelectNew($event, 'to')"
+            (onUnselect)="onUnselect($event, 'to')"
+            (onBlur)="onKeyUpNew($event, 'to')"
+            [minLength]="1"
+            placeholder="Seleziona contatti..."
+            [multiple]="true">
+            <ng-template
+              let-value
+              pTemplate="selectedItem">
+              <span
+                class="token-label"
+                *ngIf="value.tipo !== 'GRUPPO'"
+                [ngClass]="emailRegex.test(value) ? null : 'alert-message-warn'"
+                >{{ value }}
+              </span>
+              <span
+                class="token-label"
+                *ngIf="value.tipo === 'GRUPPO'"
+                >Inserimento gruppo ..
+              </span>
+            </ng-template>
+            <ng-template
+              let-value
+              pTemplate="item">
+              <span class="token-label item-contatto"
+                ><i
+                  pTooltip="kdhwkiehj"
+                  tooltipPosition="top"
+                  *ngIf="value.domicilioDigitale"
+                  class="tooltip pi pi-id-card icon-item-contatto"></i
+                ><span
+                  >{{ value.descrizioneContatto }} -
+                  {{ value.descrizioneDettaglioContatto }}</span
+                >
+              </span>
+            </ng-template>
+          </p-autoComplete>
+        </span>
+        <span>
+          <button
+            pButton
+            type="button"
+            icon="fa fa-address-book"
+            class="ui-button-raised custom-primary-button"
+            (click)="onOpenRubricaPopup(); lastAddressBookUsed = 'to'"></button>
+        </span>
+      </li>
+      <li
+        *ngIf="
+          (addressesTO?.invalid && !addressesTO?.errors?.required) ||
+          !isMailValid
+        "
+        class="alert-message-warn">
+        Hai inserito un indirizzo mail sbagliato!
+      </li>
+      <!-- CC Addresses -->
+      <li>
+        <label for="cc">CC: </label>
+        <span class="ui-fluid flex-1 margin-lr-5">
+          <p-autoComplete
+            #ccAutoComplete
+            type="email"
+            field="descrizione"
+            [delay]="500"
+            inputId="ccInputId"
+            id="cc"
+            formControlArray="cc"
+            [suggestions]="filteredAddressMultiple"
+            (completeMethod)="filterAddressMultiple($event)"
+            (keyup.enter)="onKeyUpNew($event, 'cc')"
+            (onSelect)="onSelectNew($event, 'cc')"
+            (onUnselect)="onUnselect($event, 'cc')"
+            (onBlur)="onKeyUpNew($event, 'cc')"
+            [pTooltip]="mailForm.get('hideRecipients')?.value ? ccTooltip : ''"
+            [disabled]="mailForm.get('hideRecipients')?.value"
+            [minLength]="1"
+            [multiple]="true">
+            <ng-template
+              let-value
+              pTemplate="selectedItem">
+              <span
+                class="token-label"
+                *ngIf="value.tipo !== 'GRUPPO'"
+                [ngClass]="emailRegex.test(value) ? null : 'alert-message-warn'"
+                >{{ value }}
+              </span>
+              <span
+                class="token-label"
+                *ngIf="value.tipo === 'GRUPPO'"
+                >Inserimento gruppo ..</span
+              >
+            </ng-template>
+            <ng-template
+              let-value
+              pTemplate="item">
+              <span class="token-label item-contatto"
+                ><i
+                  pTooltip="kdhwkiehj"
+                  tooltipPosition="top"
+                  *ngIf="value.domicilioDigitale"
+                  class="tooltip pi pi-id-card icon-item-contatto"></i
+                ><span
+                  >{{ value.descrizioneContatto }} -
+                  {{ value.descrizioneDettaglioContatto }}</span
+                >
+              </span>
+            </ng-template>
+          </p-autoComplete>
+        </span>
+        <span>
+          <button
+            pButton
+            type="button"
+            icon="fa fa-address-book"
+            class="ui-button-raised custom-primary-button"
+            (click)="onOpenRubricaPopup(); lastAddressBookUsed = 'cc'"></button>
+        </span>
+      </li>
+      <li
+        *ngIf="
+          (addressesCC?.invalid && !addressesCC?.errors?.required) ||
+          !isMailValidCC
+        "
+        class="alert-message-warn">
+        Hai inserito un indirizzo mail sbagliato!
+      </li>
+      <!-- Destinatari Privati -->
+      <li>
+        <label for="hideRecipients">Destinatari privati: </label>
+        <span class="ui-fluid margin-lr-5">
+          <p-checkbox
+            id="hideRecipients"
+            formControlName="hideRecipients"
+            [binary]="true"
+            [pTooltip]="
+              mailForm.get('cc')?.value.length > 0 ? hideRecipientsTooltip : ''
+            ">
+          </p-checkbox>
+        </span>
+      </li>
+      <!-- Oggetto -->
+      <li class="oggetto">
+        <label for="subject">Oggetto: </label>
+        <span class="ui-fluid flex-1 margin-l-5">
+          <input
+            id="subject"
+            type="text"
+            pInputText
+            formControlName="subject" />
+        </span>
+      </li>
+      <!-- Allegati -->
+      <li>
+        <span
+          class="ui-fileupload-choose ui-button-secondary custom-border"
+          style="height: 2.063rem; min-width: 5.204rem"
+          label="Allega"
+          icon="pi pi-paperclip"
+          pButton>
+          <input
+            #fileinput
+            class="inputfile"
+            type="file"
+            (change)="onFileChange($event, fileinput)"
+            multiple="multiple" />
+        </span>
+        <span class="ui-fluid flex-1 margin-lr-5">
+          <p-chips
+            id="attachments"
+            formControlName="attachments">
+            <ng-template
+              let-item
+              pTemplate="item">
+              {{ item.name ? item.name : item.displayName }} ({{
+                item.id ? formatSize(item.size) : formatSize(item.size, true)
+              }}) <i style="margin-right: 1.5em"></i>
+            </ng-template>
+          </p-chips>
+        </span>
+        <span>
+          <button
+            pButton
+            type="button"
+            icon="pi pi-times"
+            class="ui-button-raised custom-primary-button"
+            (click)="clearAttachmentsField()"
+            pTooltip="Svuota allegati"></button>
+        </span>
+      </li>
+      <!-- Testo Mail -->
+      <li
+        class="flex-1 flex-dir-col min-height-0"
+        style="margin: 0">
+        <!-- <label for="body">Testo: </label> -->
+        <span class="height-100 d-flex flex-1 min-height-0">
+          <p-editor
+            #editor
+            id="body"
+            formControlName="body"
+            (onInit)="editorInit($event)">
+          </p-editor>
+        </span>
+      </li>
+    </ul>
+    <!-- Footer -->
+    <p-footer class="footer-class">
+      <button
+        type="button"
+        pButton
+        icon="pi pi-save"
+        class="ui-button-raised ui-button-secondary button-styles custom-secondary-button"
+        label="Salva e chiudi"
+        (click)="onSaveDraft()"></button>
+      <button
+        type="button"
+        pButton
+        icon="pi pi-trash"
+        class="ui-button-raised ui-button-secondary button-styles custom-secondary-button"
+        label="Elimina"
+        (click)="onDelete(true)"></button>
+      <button
+        type="button"
+        pButton
+        icon="fa fa-paper-plane"
+        class="ui-button-raised ui-button-secondary button-styles custom-secondary-button"
+        label="Invia"
+        (click)="onSubmit()"
+        [disabled]="
+          mailForm.invalid || this.draftService.isMailFormSubmitted
+        "></button>
+    </p-footer>
+  </form>
   <!-- </div> -->
 </section>
 <p-dialog
-  header="Conferma" [(visible)]="display" [modal]="true" [responsive]="true"
-  [style]="{width: '20vw !important'}" appendTo="body">
-    <i class="fas fa-exclamation-triangle warn-class"></i>
-    <p class="d-inline-block">Vuoi salvare il messaggio corrente?</p>
-    <p-footer class="d-flex justify-c-c">
-      <button
-        type="button"
-        class="confirm-buttons ui-button-raised ui-button-secondary custom-secondary-button"
-        pButton icon="fas fa-check" (click)="onSaveDraft()" label="Sì">
-      </button>
-      <button
-        type="button"
-        class="confirm-buttons ui-button-raised ui-button-secondary custom-secondary-button"
-        pButton icon="fas fa-times" (click)="onClose()" label="No"></button>
-      <button
-        type="button"
-        class="confirm-buttons ui-button-raised ui-button-secondary custom-secondary-button"
-        pButton icon="fas fa-undo-alt" (click)="display=false" label="Annulla">
-      </button>
-    </p-footer>
+  header="Conferma"
+  [(visible)]="display"
+  [modal]="true"
+  [responsive]="true"
+  [style]="{ width: '20vw !important' }"
+  appendTo="body">
+  <i class="fas fa-exclamation-triangle warn-class"></i>
+  <p class="d-inline-block">Vuoi salvare il messaggio corrente?</p>
+  <p-footer class="d-flex justify-c-c">
+    <button
+      type="button"
+      class="confirm-buttons ui-button-raised ui-button-secondary custom-secondary-button"
+      pButton
+      icon="fas fa-check"
+      (click)="onSaveDraft()"
+      label="Sì"></button>
+    <button
+      type="button"
+      class="confirm-buttons ui-button-raised ui-button-secondary custom-secondary-button"
+      pButton
+      icon="fas fa-times"
+      (click)="onClose()"
+      label="No"></button>
+    <button
+      type="button"
+      class="confirm-buttons ui-button-raised ui-button-secondary custom-secondary-button"
+      pButton
+      icon="fas fa-undo-alt"
+      (click)="display = false"
+      label="Annulla"></button>
+  </p-footer>
 </p-dialog>
 
-<p-confirmDialog #cd2 key = "cd2" acceptLabel="Continua" rejectLabel="Modifica Gruppo" appendTo="body" [style]="{width: '50vw'}">
+<p-confirmDialog
+  #cd2
+  key="cd2"
+  acceptLabel="Continua"
+  rejectLabel="Modifica Gruppo"
+  appendTo="body"
+  [style]="{ width: '50vw' }">
   <p-footer>
-    <button type="button" pButton icon="pi pi-check" label="Continua" (click)="cd2.accept()"
-      class="confirm-buttons ui-button-raised ui-button-secondary custom-secondary-button">
-    </button>
-    <button type="button" pButton icon="pi pi-pencil " label="Modifica Gruppo" (click)="cd2.reject()"
-      class="confirm-buttons ui-button-raised ui-button-secondary custom-secondary-button">
-    </button>
+    <button
+      type="button"
+      pButton
+      icon="pi pi-check"
+      label="Continua"
+      (click)="cd2.accept()"
+      class="confirm-buttons ui-button-raised ui-button-secondary custom-secondary-button"></button>
+    <button
+      type="button"
+      pButton
+      icon="pi pi-pencil "
+      label="Modifica Gruppo"
+      (click)="cd2.reject()"
+      class="confirm-buttons ui-button-raised ui-button-secondary custom-secondary-button"></button>
   </p-footer>
 </p-confirmDialog>
 
-<p-confirmDialog #cd key="cd" acceptLabel="Sì" rejectLabel="No" appendTo="body" [style]="{width: '20vw', top: '40%'}">
-    <p-footer>
-      <button type="button" pButton icon="pi pi-check" label="Sì" (click)="cd.accept()"
-        class="confirm-buttons ui-button-raised ui-button-secondary custom-secondary-button">
-      </button>
-      <button type="button" pButton icon="pi pi-times " label="No" (click)="cd.reject()"
-        class="confirm-buttons ui-button-raised ui-button-secondary custom-secondary-button">
-      </button>
-    </p-footer>
+<p-confirmDialog
+  #cd
+  key="cd"
+  acceptLabel="Sì"
+  rejectLabel="No"
+  appendTo="body"
+  [style]="{ width: '20vw', top: '40%' }">
+  <p-footer>
+    <button
+      type="button"
+      pButton
+      icon="pi pi-check"
+      label="Sì"
+      (click)="cd.accept()"
+      class="confirm-buttons ui-button-raised ui-button-secondary custom-secondary-button"></button>
+    <button
+      type="button"
+      pButton
+      icon="pi pi-times "
+      label="No"
+      (click)="cd.reject()"
+      class="confirm-buttons ui-button-raised ui-button-secondary custom-secondary-button"></button>
+  </p-footer>
 </p-confirmDialog>
 
 <p-dialog
@@ -195,37 +358,40 @@
   [modal]="true"
   (onHide)="handleOnHideRubricaPopup($event)"
   class="popup-rubrica"
-  [contentStyle]="utenteConnesso.aziendaLogin.parametriAzienda?.rubricaInternauta ? {'height':'70vh','max-height':'70vh', 'width':'92vw'} : null">
-  <p-header>
-    Aggiungi destinatario
-  </p-header>
+  [contentStyle]="
+    utenteConnesso.aziendaLogin.parametriAzienda?.rubricaInternauta
+      ? { height: '70vh', 'max-height': '70vh', width: '92vw' }
+      : null
+  ">
+  <p-header> Aggiungi destinatario </p-header>
 
-  <app-search-contact *ngIf="!utenteConnesso.aziendaLogin.parametriAzienda?.rubricaInternauta"
+  <app-search-contact
+    *ngIf="!utenteConnesso.aziendaLogin.parametriAzienda?.rubricaInternauta"
     (addressChosedByBook)="onAddressChosedByBook($event)"
     (closeRubricaPopup)="displayRubricaPopup = false">
   </app-search-contact>
 
-  <app-rubrica-container *ngIf="utenteConnesso.aziendaLogin.parametriAzienda?.rubricaInternauta" 
-      (closeRubricaPopup)="displayRubricaPopup = false"></app-rubrica-container>
+  <app-rubrica-container
+    *ngIf="utenteConnesso.aziendaLogin.parametriAzienda?.rubricaInternauta"
+    (closeRubricaPopup)="displayRubricaPopup = false"></app-rubrica-container>
 
-
-  <p-footer  *ngIf="utenteConnesso.aziendaLogin.parametriAzienda?.rubricaInternauta">
-    <button type="button" 
-      pButton 
-      icon="pi pi-check" 
-      label="Conferma Destinatari Selezionati" (click)="onConfermaDestinatari()"
-      [disabled]="disableButtonsConfermaDestinatariSelezionati"
-      class="ui-button-raised ui-button-secondary custom-secondary-button">
-    </button>
-    <button type="button" 
-      pButton 
-      icon="pi pi-times" 
+  <p-footer
+    *ngIf="utenteConnesso.aziendaLogin.parametriAzienda?.rubricaInternauta">
+    <button
+      type="button"
+      pButton
+      icon="pi pi-check"
+      label="Conferma Destinatari Selezionati"
+      (click)="onConfermaDestinatari()"
+      [disabled]="checkIfExistDestinatariSelezionati()"
+      class="ui-button-raised ui-button-secondary custom-secondary-button"></button>
+    <button
+      type="button"
+      pButton
+      icon="pi pi-times"
       label="Annulla"
       (click)="onCloseRubricaPopup()"
       [disabled]="disableButtonsConfermaDestinatariSelezionati"
-      class="confirm-buttons ui-button-raised ui-button-secondary custom-secondary-button">
-    </button>
+      class="confirm-buttons ui-button-raised ui-button-secondary custom-secondary-button"></button>
   </p-footer>
 </p-dialog>
-
-

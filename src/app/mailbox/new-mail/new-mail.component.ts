@@ -1,30 +1,77 @@
-import { Component, OnInit, ViewChild, AfterViewInit, OnDestroy, SystemJsNgModuleLoaderConfig } from "@angular/core";
-import { FormGroup, FormControl, Validators, FormArray } from "@angular/forms";
+import {
+  Component,
+  OnInit,
+  ViewChild,
+  AfterViewInit,
+  OnDestroy,
+  SystemJsNgModuleLoaderConfig,
+} from "@angular/core";
+import {
+  FormGroup,
+  FormControl,
+  FormBuilder,
+  Validators,
+  FormArray,
+} from "@angular/forms";
 import { ConfirmationService, MessageService } from "primeng/api";
-import { Message, Pec, Draft, MessageRelatedType, InOut, ENTITIES_STRUCTURE, DettaglioContattoService, Utente, BaseUrls, BaseUrlType, Contatto, GruppiContatti, GroupContactsListTransient, ContattoService, CategoriaContatto } from "@bds/internauta-model";
+import {
+  Message,
+  Pec,
+  Draft,
+  MessageRelatedType,
+  InOut,
+  ENTITIES_STRUCTURE,
+  DettaglioContattoService,
+  Utente,
+  BaseUrls,
+  BaseUrlType,
+  Contatto,
+  GruppiContatti,
+  GroupContactsListTransient,
+  ContattoService,
+  CategoriaContatto,
+  DettaglioContatto,
+} from "@bds/internauta-model";
 import { Editor } from "primeng/editor";
-import { TOOLBAR_ACTIONS, MAX_FILE_SIZE_UPLOAD } from "src/environments/app-constants";
+import {
+  TOOLBAR_ACTIONS,
+  MAX_FILE_SIZE_UPLOAD,
+} from "src/environments/app-constants";
 import { DraftService } from "src/app/services/draft.service";
-import { FiltersAndSorts, FilterDefinition, FILTER_TYPES, BatchOperation, BatchOperationTypes, NextSdrEntity, AdditionalDataDefinition } from "@bds/next-sdr";
+import {
+  FiltersAndSorts,
+  FilterDefinition,
+  FILTER_TYPES,
+  BatchOperation,
+  BatchOperationTypes,
+  NextSdrEntity,
+  AdditionalDataDefinition,
+} from "@bds/next-sdr";
 import { ActivatedRoute, Router } from "@angular/router";
 import { UtenteUtilities, JwtLoginService } from "@bds/jwt-login";
 import { Subscription } from "rxjs";
-import { CustomContactService, GroupModifyContactsComponent, SelectedContact, SelectedContactType} from "@bds/rubrint";
+import {
+  CustomContactService,
+  GroupModifyContactsComponent,
+  SelectedContact,
+  SelectedContactType,
+} from "@bds/rubrint";
 import { AutoComplete } from "primeng/autocomplete";
-import { DialogService, DynamicDialogConfig, DynamicDialogRef } from "primeng/dynamicdialog";
+import {
+  DialogService,
+  DynamicDialogConfig,
+  DynamicDialogRef,
+} from "primeng/dynamicdialog";
 import { FilteredContactMultiple } from "../mailbox.service";
-
-
 
 @Component({
   selector: "app-new-mail",
   templateUrl: "./new-mail.component.html",
-  styleUrls: ["./new-mail.component.scss"]
+  styleUrls: ["./new-mail.component.scss"],
 })
 export class NewMailComponent implements OnInit, AfterViewInit, OnDestroy {
-
-  @ViewChild("toAutoComplete", {static: true}) toAutoComplete: AutoComplete;
-  @ViewChild("ccAutoComplete", {static: true}) ccAutoComplete: AutoComplete;
+  @ViewChild("toAutoComplete", { static: true }) toAutoComplete: AutoComplete;
+  @ViewChild("ccAutoComplete", { static: true }) ccAutoComplete: AutoComplete;
   @ViewChild("editor", {}) editor: Editor;
   private fromAddress: string = ""; // Indirizzo che ha inviato la mail in caso di Rispondi e Rispondi a tutti
   private replyAddress: string = ""; // Indirizzo che ha inviato la mail in caso di Rispondi e Rispondi a tutti
@@ -41,7 +88,9 @@ export class NewMailComponent implements OnInit, AfterViewInit, OnDestroy {
   public selectedPec: Pec;
   public display = false;
   // emailRegex = new RegExp(/^([\w])+([\w-_\.]+)+([\w])@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.)|(([\w-]+\.)+))([a-zA-Z]{2,4}|[0-9]{1,3})(\]?)$/);
-  emailRegex = new RegExp(/^(([^&#!?'òùàèéì%+*§$£<>()\[\]\.,;:\s@\"]+(\.[^<>&#!?'òùàèéì%+*§$£()\[\]\.,;:\s@\"]+)*)|(\".+\"))@(([^<>()&#!?'%òùàèéì+*§$£[\]\.,;:'\s@\"]+\.)+[^<>&#!?%'òùàèéì+*§$£()[\]\.,;:'\s@\"]{2,})$/);
+  emailRegex = new RegExp(
+    /^(([^&#!?'òùàèéì%+*§$£<>()\[\]\.,;:\s@\"]+(\.[^<>&#!?'òùàèéì%+*§$£()\[\]\.,;:\s@\"]+)*)|(\".+\"))@(([^<>()&#!?'%òùàèéì+*§$£[\]\.,;:'\s@\"]+\.)+[^<>&#!?%'òùàèéì+*§$£()[\]\.,;:'\s@\"]{2,})$/
+  );
   /* Questi andranno rinominati */
   public filteredAddressSingle: any[];
   public filteredAddressMultiple: FilteredContactMultiple[] = [];
@@ -53,11 +102,11 @@ export class NewMailComponent implements OnInit, AfterViewInit, OnDestroy {
   public isMailValid: boolean = true;
   public isMailValidCC: boolean = true;
   public displayErrorGroup: boolean = false;
-  public indirizziTest = [
-    "l.salomone@nsi.it"
-  ];
-  public ccTooltip = "Non puoi inserire destinatari CC se è attiva la funzione Destinatari privati";
-  public hideRecipientsTooltip = "Non puoi utilizzare la funzione Destinatari privati con destinatari CC: cancellali o rendili destinatari A";
+  public indirizziTest = ["l.salomone@nsi.it"];
+  public ccTooltip =
+    "Non puoi inserire destinatari CC se è attiva la funzione Destinatari privati";
+  public hideRecipientsTooltip =
+    "Non puoi utilizzare la funzione Destinatari privati con destinatari CC: cancellali o rendili destinatari A";
 
   get addressesTO() {
     return this.mailForm.get("to");
@@ -66,9 +115,6 @@ export class NewMailComponent implements OnInit, AfterViewInit, OnDestroy {
   get addressesCC() {
     return this.mailForm.get("cc");
   }
-
-
-  
 
   constructor(
     public config: DynamicDialogConfig,
@@ -81,7 +127,8 @@ export class NewMailComponent implements OnInit, AfterViewInit, OnDestroy {
     private router: Router,
     private loginService: JwtLoginService,
     private customContactService: CustomContactService,
-    private contattoService: ContattoService) { }
+    private contattoService: ContattoService
+  ) {}
 
   ngOnInit() {
     this.subscriptions.push(
@@ -96,20 +143,19 @@ export class NewMailComponent implements OnInit, AfterViewInit, OnDestroy {
     this.prepareMessageOrDraft();
 
     if (this.checkIfRubricaInternautaShouldBeEnabled()) {
-      const fakeDestinatariforAppPEC = "{\"mode\":\"DESTINATARI\",\"app\":\"pec\",\"codiceAzienda\":\"\",\"guid\":\"\"}";
-      this.customContactService._callerData = JSON.parse(fakeDestinatariforAppPEC);
+      const fakeDestinatariforAppPEC =
+        '{"mode":"DESTINATARI","app":"pec","codiceAzienda":"","guid":""}';
+      this.customContactService._callerData = JSON.parse(
+        fakeDestinatariforAppPEC
+      );
       this.customContactService._callerData.selectedContactsLists = {
-        "A": [],
-        "CC": [],
-        "MITTENTE": []
+        A: [],
+        CC: [],
+        MITTENTE: [],
       };
       this.customContactService.manageCallerApp(Apps.PEC);
     }
-
-
   }
-
-  
 
   private prepareMessageOrDraft() {
     // console.log("DATA PASSED = ", this.config.data);
@@ -117,7 +163,9 @@ export class NewMailComponent implements OnInit, AfterViewInit, OnDestroy {
     let messageRelatedType = "";
     const hideRecipients = { value: false, disabled: false };
     // Variabile per il messaggio in caso di azioni reply e inoltra
-    let message: Message | Draft = this.config.data.fullMessage ? this.config.data.fullMessage.message as Message : null;
+    let message: Message | Draft = this.config.data.fullMessage
+      ? (this.config.data.fullMessage.message as Message)
+      : null;
     this.selectedPec = this.config.data.pec;
     const action = this.config.data.action;
 
@@ -126,18 +174,22 @@ export class NewMailComponent implements OnInit, AfterViewInit, OnDestroy {
       case TOOLBAR_ACTIONS.NEW:
         message = null; // Nel caso di NEW_MAIL non ho bisogno del message che resta comunque nel messageEvent
         break;
-      case TOOLBAR_ACTIONS.EDIT:   // EDIT
+      case TOOLBAR_ACTIONS.EDIT: // EDIT
         message = this.config.data.fullMessage.message as Draft;
         subject = message.subject ? message.subject : "";
         this.fillAddressesArray(null, message, null, null);
         hideRecipients.value = message.hiddenRecipients;
-        hideRecipients.disabled = this.ccAddresses && this.ccAddresses.length > 0;
+        hideRecipients.disabled =
+          this.ccAddresses && this.ccAddresses.length > 0;
         /* Può esserci l'emlData null nel caso di una draft creata e non salvata correttamente */
         if (this.config.data.fullMessage.emlData) {
-          Object.assign(this.attachments, this.config.data.fullMessage.emlData.attachments);
+          Object.assign(
+            this.attachments,
+            this.config.data.fullMessage.emlData.attachments
+          );
         }
         break;
-      case TOOLBAR_ACTIONS.REPLY:   // REPLY
+      case TOOLBAR_ACTIONS.REPLY: // REPLY
         subject = "Re: ".concat(message.subject);
         messageRelatedType = MessageRelatedType.REPLIED;
         this.fillAddressesArray(message, null, false, action);
@@ -151,15 +203,22 @@ export class NewMailComponent implements OnInit, AfterViewInit, OnDestroy {
         subject = "Fwd: ".concat(message.subject);
         messageRelatedType = MessageRelatedType.FORWARDED;
         this.fillAddressesArray(message, null, false, action);
-        Object.assign(this.attachments, this.config.data.fullMessage.emlData.attachments);
+        Object.assign(
+          this.attachments,
+          this.config.data.fullMessage.emlData.attachments
+        );
         break;
     }
     /* Inizializzazione della form, funziona per tutte le actions ed é l'oggetto che contiene tutti i campi
      * che saranno inviati al server */
-    this.mailFormInit(hideRecipients, subject, message, action, messageRelatedType);
+    this.mailFormInit(
+      hideRecipients,
+      subject,
+      message,
+      action,
+      messageRelatedType
+    );
   }
-
-
 
   /**
    * Inizializzazione della form, funziona per tutte le actions ed é l'oggetto che contiene tutti i campi
@@ -169,17 +228,31 @@ export class NewMailComponent implements OnInit, AfterViewInit, OnDestroy {
    * @param action
    * @param messageRelatedType
    */
-  private mailFormInit(hideRecipients: { value: boolean; disabled: boolean; }, subject: string, message: Message | Draft, action: any, messageRelatedType: string) {
+  private mailFormInit(
+    hideRecipients: { value: boolean; disabled: boolean },
+    subject: string,
+    message: Message | Draft,
+    action: any,
+    messageRelatedType: string
+  ) {
     if (this.toAddresses && this.toAddresses.length > 0) {
       //console.log("qui ci entro", this.toAddresses);
-      this.toAddresses.forEach(el => this.toFormControl.push(new FormControl(el, Validators.pattern(this.emailRegex))));
+      this.toAddresses.forEach((el) =>
+        this.toFormControl.push(
+          new FormControl(el, Validators.pattern(this.emailRegex))
+        )
+      );
       this.toFormControl = [...this.toFormControl];
       // this.mailForm.get("to").setValue([...this.toFormControl]);
       this.toAutoComplete.writeValue(this.toAddresses);
     }
 
     if (this.ccAddresses && this.ccAddresses.length > 0) {
-      this.ccAddresses.forEach(el => this.ccFormControl.push(new FormControl(el, Validators.pattern(this.emailRegex))));
+      this.ccAddresses.forEach((el) =>
+        this.ccFormControl.push(
+          new FormControl(el, Validators.pattern(this.emailRegex))
+        )
+      );
       this.ccFormControl = [...this.ccFormControl];
       // this.mailForm.get("cc").setValue([...this.ccFormControl]);
       this.ccAutoComplete.writeValue(this.ccAddresses);
@@ -193,9 +266,11 @@ export class NewMailComponent implements OnInit, AfterViewInit, OnDestroy {
       hideRecipients: new FormControl(hideRecipients),
       subject: new FormControl(subject),
       attachments: new FormControl(this.attachments),
-      body: new FormControl(""),  // Il body viene inizializzato nell'afterViewInit perché l'editor non è ancora istanziato
-      idMessageRelated: new FormControl(message && action !== TOOLBAR_ACTIONS.EDIT ? message.id : ""),
-      messageRelatedType: new FormControl(messageRelatedType)
+      body: new FormControl(""), // Il body viene inizializzato nell'afterViewInit perché l'editor non è ancora istanziato
+      idMessageRelated: new FormControl(
+        message && action !== TOOLBAR_ACTIONS.EDIT ? message.id : ""
+      ),
+      messageRelatedType: new FormControl(messageRelatedType),
       // idMessageRelatedAttachments: new FormControl(this.attachments)
     });
     // if it is a draft update input state
@@ -207,13 +282,10 @@ export class NewMailComponent implements OnInit, AfterViewInit, OnDestroy {
       this.addressesCC.markAsDirty();
       this.addressesCC.updateValueAndValidity();
     }
-
   }
 
   ngAfterViewInit() {
-
-
-  /* Inizializzazione del body per le risposte e l'inoltra */
+    /* Inizializzazione del body per le risposte e l'inoltra */
 
     if (this.config.data.action !== TOOLBAR_ACTIONS.NEW) {
       let body = "";
@@ -229,7 +301,7 @@ export class NewMailComponent implements OnInit, AfterViewInit, OnDestroy {
         this.buildBody(message, body);
       }
       this.mailForm.patchValue({
-        body: this.editor.quill.root["innerHTML"]
+        body: this.editor.quill.root["innerHTML"],
       });
     }
     /* Disabilito la compilazione automatica degli indirizzi */
@@ -244,11 +316,19 @@ export class NewMailComponent implements OnInit, AfterViewInit, OnDestroy {
    * @param draft Il draft che si sta modificando
    * @param allAddresses Se True viene popolato l'array dei CC con tutti gli indirizzi
    * @param action L'azione che è stata effettuata (REPLY, FORWARD, ETC)
-  */
-  fillAddressesArray(message?: Message, draft?: Draft, allAddresses?: boolean, action?: string) {
-    if (message && message.messageAddressList && message.messageAddressList.length > 0) {
-      message.messageAddressList.forEach(
-        obj => {
+   */
+  fillAddressesArray(
+    message?: Message,
+    draft?: Draft,
+    allAddresses?: boolean,
+    action?: string
+  ) {
+    if (
+      message &&
+      message.messageAddressList &&
+      message.messageAddressList.length > 0
+    ) {
+      message.messageAddressList.forEach((obj) => {
         switch (obj.addressRole) {
           case "REPLY_TO":
             this.replyAddress = obj.idAddress.mailAddress;
@@ -267,13 +347,19 @@ export class NewMailComponent implements OnInit, AfterViewInit, OnDestroy {
               if (message.inOut === InOut.OUT) {
                 this.toAddresses.push(obj.idAddress.mailAddress);
               }
-            } else if (allAddresses && obj.idAddress.mailAddress !== this.selectedPec.indirizzo) {
+            } else if (
+              allAddresses &&
+              obj.idAddress.mailAddress !== this.selectedPec.indirizzo
+            ) {
               this.ccAddresses.push(obj.idAddress.mailAddress);
             }
             break;
           case "CC":
             this.ccAddressesForLabel.push(obj.idAddress.mailAddress);
-            if (allAddresses && obj.idAddress.mailAddress !== this.selectedPec.indirizzo) {
+            if (
+              allAddresses &&
+              obj.idAddress.mailAddress !== this.selectedPec.indirizzo
+            ) {
               this.ccAddresses.push(obj.idAddress.mailAddress);
             }
             break;
@@ -281,7 +367,9 @@ export class NewMailComponent implements OnInit, AfterViewInit, OnDestroy {
       });
       if (action !== TOOLBAR_ACTIONS.FORWARD) {
         if (message.inOut === InOut.IN) {
-          const toWhom = this.replyAddress ? this.replyAddress : this.fromAddress;
+          const toWhom = this.replyAddress
+            ? this.replyAddress
+            : this.fromAddress;
           this.toAddresses.push(toWhom);
         }
       }
@@ -338,7 +426,7 @@ export class NewMailComponent implements OnInit, AfterViewInit, OnDestroy {
   //         }
   //       }
   //       tokenInput.value = "";
-        
+
   //     }
   //     else if(event.type === "blur" && tokenInput.value && !tokenInput.validity.valid){
   //       if(formField){
@@ -371,58 +459,58 @@ export class NewMailComponent implements OnInit, AfterViewInit, OnDestroy {
   //  * Se viene selezionato un gruppo, vengono controllati i contatti al suo interno
   // */
   // onSelect(item: any, formField: string) {
-    // if (item) {
-    //    console.log("item: ", item);
-    //   if (item.dettaglioContatto && this.checkIfRubricaInternautaShouldBeEnabled() && item.tipo === "CONTATTO") {
-    //     item = item.dettaglioContatto.trim();
-    //   } else if( item.tipo !== "GRUPPO") {
-    //     item = item.trim();
-    //   }
-    //   if(item.tipo === "CONTATTO") {
-        
-    //     if (formField === "to") {
-    //       const toForm = this.mailForm.get("to") as FormArray;
-    //       if (toForm.value.indexOf(item) === -1) {
-    //         toForm.push(new FormControl(item, {validators: Validators.pattern(this.emailRegex), updateOn: 'blur'}));
-    //         if (this.mailForm.pristine) {
-    //           this.mailForm.markAsDirty();
-    //         }
-    //       } else {
-    //         this.messageService.add({severity: "warn", summary: "Attenzione", detail: "La mail è stata già inserita."});
-    //       }
-    //       debugger;
-    //       this.toAutoComplete.writeValue(toForm.value);
-    //       this.isMailValid= true;
-    //     } else if (formField === "cc") {
-    //       const ccForm = this.mailForm.get("cc") as FormArray;
-    //       if (ccForm.value.indexOf(item) === -1) {
-    //         ccForm.push(new FormControl(item, {validators: Validators.pattern(this.emailRegex), updateOn: 'blur'}));
-    //         if (ccForm.value && ccForm.value.length > 0) {
-    //           const hideRecipients = this.mailForm.get("hideRecipients");
-    //           hideRecipients.disable();
-    //         }
-    //         if (this.mailForm.pristine) {
-    //           this.mailForm.markAsDirty();
-    //         }
-    //       } else {
-    //         this.messageService.add({severity: "warn", summary: "Attenzione", detail: "La mail è stata già inserita."});
-    //       }
-    //       this.ccAutoComplete.writeValue(ccForm.value);
-    //       this.isMailValidCC= true;
-    //     }
-    //   } else if (item.tipo === 'GRUPPO') {
-    //     if (formField === "to") {
-    //       const toForm = this.mailForm.get("to") as FormArray;
-    //       if (toForm.value.indexOf(item.descrizione) === -1) {
-    //         toForm.push(new FormControl(item.descrizione));
-    //         if (this.mailForm.pristine) {
-    //           this.mailForm.markAsDirty();
-    //         }
-    //       this.AreAllMailInGroup(item.id);
-    //       }
-    //     }
-    //   }
-    // }
+  // if (item) {
+  //    console.log("item: ", item);
+  //   if (item.dettaglioContatto && this.checkIfRubricaInternautaShouldBeEnabled() && item.tipo === "CONTATTO") {
+  //     item = item.dettaglioContatto.trim();
+  //   } else if( item.tipo !== "GRUPPO") {
+  //     item = item.trim();
+  //   }
+  //   if(item.tipo === "CONTATTO") {
+
+  //     if (formField === "to") {
+  //       const toForm = this.mailForm.get("to") as FormArray;
+  //       if (toForm.value.indexOf(item) === -1) {
+  //         toForm.push(new FormControl(item, {validators: Validators.pattern(this.emailRegex), updateOn: 'blur'}));
+  //         if (this.mailForm.pristine) {
+  //           this.mailForm.markAsDirty();
+  //         }
+  //       } else {
+  //         this.messageService.add({severity: "warn", summary: "Attenzione", detail: "La mail è stata già inserita."});
+  //       }
+  //       debugger;
+  //       this.toAutoComplete.writeValue(toForm.value);
+  //       this.isMailValid= true;
+  //     } else if (formField === "cc") {
+  //       const ccForm = this.mailForm.get("cc") as FormArray;
+  //       if (ccForm.value.indexOf(item) === -1) {
+  //         ccForm.push(new FormControl(item, {validators: Validators.pattern(this.emailRegex), updateOn: 'blur'}));
+  //         if (ccForm.value && ccForm.value.length > 0) {
+  //           const hideRecipients = this.mailForm.get("hideRecipients");
+  //           hideRecipients.disable();
+  //         }
+  //         if (this.mailForm.pristine) {
+  //           this.mailForm.markAsDirty();
+  //         }
+  //       } else {
+  //         this.messageService.add({severity: "warn", summary: "Attenzione", detail: "La mail è stata già inserita."});
+  //       }
+  //       this.ccAutoComplete.writeValue(ccForm.value);
+  //       this.isMailValidCC= true;
+  //     }
+  //   } else if (item.tipo === 'GRUPPO') {
+  //     if (formField === "to") {
+  //       const toForm = this.mailForm.get("to") as FormArray;
+  //       if (toForm.value.indexOf(item.descrizione) === -1) {
+  //         toForm.push(new FormControl(item.descrizione));
+  //         if (this.mailForm.pristine) {
+  //           this.mailForm.markAsDirty();
+  //         }
+  //       this.AreAllMailInGroup(item.id);
+  //       }
+  //     }
+  //   }
+  // }
   // }
 
   public onSelectNew(item: any, formField: string) {
@@ -431,7 +519,7 @@ export class NewMailComponent implements OnInit, AfterViewInit, OnDestroy {
       const itemFilterContactMultiple = {
         tipo: "ESTEMPORANEO",
         descrizione: item,
-        dettaglioContatto: item
+        descrizioneDettaglioContatto: item,
       } as FilteredContactMultiple;
       this.onSelectOrOnEnter(itemFilterContactMultiple, formField);
     } else {
@@ -441,8 +529,8 @@ export class NewMailComponent implements OnInit, AfterViewInit, OnDestroy {
 
   /**
    * Viene usato per aggiungere i destinatari estemporanei e controllare che siano correttamente delle mail
-   * @param e 
-   * @param formField 
+   * @param e
+   * @param formField
    */
   public onKeyUpNew(e: Event, formField: string) {
     // console.log("keyup")
@@ -450,16 +538,27 @@ export class NewMailComponent implements OnInit, AfterViewInit, OnDestroy {
     if (event.key === "Enter" || event.type === "blur") {
       const tokenInput = event.target as any;
       tokenInput.value = tokenInput.value.trim();
-      if (tokenInput.value && tokenInput.value !== "" && this.emailRegex.test(tokenInput.value)) {
+      if (
+        tokenInput.value &&
+        tokenInput.value !== "" &&
+        this.emailRegex.test(tokenInput.value)
+      ) {
         const itemFilterContactMultiple = {
           tipo: "ESTEMPORANEO",
           descrizione: tokenInput.value,
-          dettaglioContatto: tokenInput.value
+          descrizioneDettaglioContatto: tokenInput.value,
         } as FilteredContactMultiple;
         this.onSelectOrOnEnter(itemFilterContactMultiple, formField);
         tokenInput.value = "";
-        this.filteredAddressMultiple.splice(0, this.filteredAddressMultiple.length);
-      } else if (event.type === "blur" && tokenInput.value && !(this.emailRegex.test(tokenInput.value))) {
+        this.filteredAddressMultiple.splice(
+          0,
+          this.filteredAddressMultiple.length
+        );
+      } else if (
+        event.type === "blur" &&
+        tokenInput.value &&
+        !this.emailRegex.test(tokenInput.value)
+      ) {
         if (formField) {
           if (formField === "to") {
             this.isMailValid = false;
@@ -481,18 +580,32 @@ export class NewMailComponent implements OnInit, AfterViewInit, OnDestroy {
 
   /**
    * Gestisce sia l'evento di onselect che di keyup, in modo che vengano aggiunti sia i contatti provenienti dalla rubrica che estemporanei
-   * @param item 
-   * @param formField 
+   * @param item
+   * @param formField
    */
-  private onSelectOrOnEnter(item: FilteredContactMultiple, formField: string): void {
-    const form = formField === "to" ? this.mailForm.get("to") as FormArray : this.mailForm.get("cc") as FormArray;
-    const autocomplete = formField === "to" ? this.toAutoComplete : this.ccAutoComplete;
+  private onSelectOrOnEnter(
+    item: FilteredContactMultiple,
+    formField: string
+  ): void {
+    const form =
+      formField === "to"
+        ? (this.mailForm.get("to") as FormArray)
+        : (this.mailForm.get("cc") as FormArray);
+    const autocomplete =
+      formField === "to" ? this.toAutoComplete : this.ccAutoComplete;
     if (item) {
       if (item.tipo !== "GRUPPO") {
-        item.dettaglioContatto = item.dettaglioContatto.trim();
+        item.descrizioneDettaglioContatto =
+          item.descrizioneDettaglioContatto.trim();
         //item.descrizione = item.descrizione.trim();
-        if (form.value.indexOf(item.dettaglioContatto) === -1) {
-          form.push(new FormControl(item.dettaglioContatto, { validators: Validators.pattern(this.emailRegex), updateOn: 'blur'}));
+        if (form.value.indexOf(item.descrizioneDettaglioContatto) === -1) {
+          form.push(
+            new FormControl(item.descrizioneDettaglioContatto, {
+              validators: Validators.pattern(this.emailRegex),
+              updateOn: "blur",
+            })
+          );
+
           autocomplete.writeValue(form.value);
           if (formField === "cc" && form.value && form.value.length > 0) {
             const hideRecipients = this.mailForm.get("hideRecipients");
@@ -502,13 +615,25 @@ export class NewMailComponent implements OnInit, AfterViewInit, OnDestroy {
             this.mailForm.markAsDirty();
           }
         } else {
-          this.messageService.add({severity: "warn", summary: "Attenzione", detail: "La mail è stata già inserita."});
+          this.messageService.add({
+            severity: "warn",
+            summary: "Attenzione",
+            detail: "La mail è stata già inserita.",
+          });
         }
-        if (formField === "to") { this.isMailValid = true; } else { this.isMailValidCC = true }
+        if (formField === "to") {
+          this.isMailValid = true;
+        } else {
+          this.isMailValidCC = true;
+        }
       } else {
         this.ControlAreAllMailInGroup(item, formField);
-        if (formField === "to") { this.isMailValid = true; } else { this.isMailValidCC = true }
-      } 
+        if (formField === "to") {
+          this.isMailValid = true;
+        } else {
+          this.isMailValidCC = true;
+        }
+      }
     }
   }
 
@@ -517,7 +642,7 @@ export class NewMailComponent implements OnInit, AfterViewInit, OnDestroy {
    * Aggiorna i campi della form e verifica se il campo cc è popolato per disattivare
    * il check dei destinatari privati
    * @param item L'oggetto rimosso
-  */
+   */
   onUnselect(item, formField) {
     if (item && formField === "to") {
       const toForm = this.mailForm.get("to") as FormArray;
@@ -538,7 +663,7 @@ export class NewMailComponent implements OnInit, AfterViewInit, OnDestroy {
    * Metodo chiamato quando cambia il valore della checkbox destinatari privati (HiddenRecipients)
    * Verifica se il valore è true ed in tal caso disabilita il campo CC
    * @param checkBoxValue Il valore della checkBox
-  */
+   */
   /* Con il FormArray non serve più, l'abilitazione è gestita sulla proprietà disabled e non dal formcontrol
   onChange(checkBoxValue) {
     const ccForm = this.mailForm.get("cc") as FormArray;
@@ -550,18 +675,28 @@ export class NewMailComponent implements OnInit, AfterViewInit, OnDestroy {
     const fileForm = this.mailForm.get("attachments");
     for (const file of event.target.files) {
       if (!fileForm.value.find((element) => element.name === file.name)) {
-        const maxFilesSize = fileForm.value.reduce((tot, element) =>
-          element.id ? tot + element.size * 0.71 : tot + element.size, 0);
-        if (file.size && (maxFilesSize + file.size) <= MAX_FILE_SIZE_UPLOAD) {
+        const maxFilesSize = fileForm.value.reduce(
+          (tot, element) =>
+            element.id ? tot + element.size * 0.71 : tot + element.size,
+          0
+        );
+        if (file.size && maxFilesSize + file.size <= MAX_FILE_SIZE_UPLOAD) {
           fileForm.value.push(file);
           fileForm.setValue([...fileForm.value]);
           if (this.mailForm.pristine) {
             this.mailForm.markAsDirty();
           }
         } else {
-          this.draftService.messagePrimeService.add(
-            { severity: "warn", summary: "Attenzione", detail: "Il file " + file.name + " non è stato caricato. La "
-              + "dimensione massima degli allegati supera quella consentita (50 Mb).", life: 10000 });
+          this.draftService.messagePrimeService.add({
+            severity: "warn",
+            summary: "Attenzione",
+            detail:
+              "Il file " +
+              file.name +
+              " non è stato caricato. La " +
+              "dimensione massima degli allegati supera quella consentita (50 Mb).",
+            life: 10000,
+          });
         }
       }
     }
@@ -574,7 +709,7 @@ export class NewMailComponent implements OnInit, AfterViewInit, OnDestroy {
       this.confirmationService.confirm({
         message: "Vuoi rimuovere tutti gli allegati?",
         header: "Conferma",
-        key:"cd",
+        key: "cd",
         icon: "pi pi-exclamation-triangle",
         accept: () => {
           this.mailForm.get("attachments").setValue([]);
@@ -582,7 +717,7 @@ export class NewMailComponent implements OnInit, AfterViewInit, OnDestroy {
             this.mailForm.markAsDirty();
           }
         },
-        reject: () => { }
+        reject: () => {},
       });
     }
   }
@@ -594,16 +729,24 @@ export class NewMailComponent implements OnInit, AfterViewInit, OnDestroy {
    */
   buildBody(message: Message, body: string) {
     // console.log("EDITOR = ", this.editor);
-    const to = this.toAddressesForLabel.length > 0 ? this.toAddressesForLabel.join(", ") : "";
-    const cc = this.ccAddressesForLabel.length > 0 ? this.ccAddressesForLabel.join(", ") : "";
-    const inviato = new Date(message.receiveTime).toLocaleDateString("it-IT", {
-      weekday: "long",
-      year: "numeric",
-      month: "long",
-      day: "numeric",
-      hour: "numeric",
-      minute: "numeric"
-    }).replace(",", " ");
+    const to =
+      this.toAddressesForLabel.length > 0
+        ? this.toAddressesForLabel.join(", ")
+        : "";
+    const cc =
+      this.ccAddressesForLabel.length > 0
+        ? this.ccAddressesForLabel.join(", ")
+        : "";
+    const inviato = new Date(message.receiveTime)
+      .toLocaleDateString("it-IT", {
+        weekday: "long",
+        year: "numeric",
+        month: "long",
+        day: "numeric",
+        hour: "numeric",
+        minute: "numeric",
+      })
+      .replace(",", " ");
 
     const editorContent = [
       { insert: "\n\n" },
@@ -614,35 +757,48 @@ export class NewMailComponent implements OnInit, AfterViewInit, OnDestroy {
       { insert: "\n" },
       { insert: "A: ", attributes: { bold: true } },
       { insert: to },
-      { insert: "\n" }];
+      { insert: "\n" },
+    ];
     if (cc !== "") {
-      editorContent.push({ insert: "Cc: ", attributes: { bold: true } },
+      editorContent.push(
+        { insert: "Cc: ", attributes: { bold: true } },
         { insert: cc },
-        { insert: "\n" });
+        { insert: "\n" }
+      );
     }
-    editorContent.push({ insert: "Inviato: ", attributes: { bold: true } },
+    editorContent.push(
+      { insert: "Inviato: ", attributes: { bold: true } },
       { insert: inviato },
       { insert: "\n" },
       { insert: "Oggetto: ", attributes: { bold: true } },
       { insert: message.subject },
-      { insert: "\n\n" });
+      { insert: "\n\n" }
+    );
     this.editor.quill.setContents(editorContent);
     /* Mi vergogno di questa cosa ma per adesso devo fare per forza così
      * in attesa del supporto alle table dell'editor Quill nella versione 2.0 */
-    const bodyTableClean = body.replace(/<table.[^]*?<tbody>/, "").replace(/<\/tbody.[^]*?<\/table>/, "").replace(/<tr>/g, "<br>");
-    this.editor.quill.clipboard.dangerouslyPasteHTML(this.editor.quill.getLength(), bodyTableClean);
+    const bodyTableClean = body
+      .replace(/<table.[^]*?<tbody>/, "")
+      .replace(/<\/tbody.[^]*?<\/table>/, "")
+      .replace(/<tr>/g, "<br>");
+    this.editor.quill.clipboard.dangerouslyPasteHTML(
+      this.editor.quill.getLength(),
+      bodyTableClean
+    );
   }
 
   buildFormToSend(): FormData {
     const formToSend = new FormData();
-    Object.keys(this.mailForm.controls).forEach(key => {
-      if (key === "attachments") {  // Gli allegati vanno aggiunti singolarmente
+    Object.keys(this.mailForm.controls).forEach((key) => {
+      if (key === "attachments") {
+        // Gli allegati vanno aggiunti singolarmente
         const files = this.mailForm.get(key).value;
-        files.forEach(file => {
-          if (file.id || file.id === 0) { // I file che hanno l'id sono presi dall'eml già salvato sul DB
-          formToSend.append("idMessageRelatedAttachments", file.id);
-        } else {
-          formToSend.append(key, file);
+        files.forEach((file) => {
+          if (file.id || file.id === 0) {
+            // I file che hanno l'id sono presi dall'eml già salvato sul DB
+            formToSend.append("idMessageRelatedAttachments", file.id);
+          } else {
+            formToSend.append(key, file);
           }
         });
       } else {
@@ -657,8 +813,11 @@ export class NewMailComponent implements OnInit, AfterViewInit, OnDestroy {
 
   checkMaxPostSize() {
     const fileForm = this.mailForm.get("attachments");
-    const maxFilesSize = fileForm.value.reduce((tot, element) =>
-      element.id ? tot +  element.size * 0.71 : tot + element.size, 0);
+    const maxFilesSize = fileForm.value.reduce(
+      (tot, element) =>
+        element.id ? tot + element.size * 0.71 : tot + element.size,
+      0
+    );
     const bodyForm = this.mailForm.get("body");
     return maxFilesSize + bodyForm.value.length <= MAX_FILE_SIZE_UPLOAD;
   }
@@ -666,7 +825,8 @@ export class NewMailComponent implements OnInit, AfterViewInit, OnDestroy {
   checkAndClose() {
     if (!this.mailForm.pristine) {
       this.display = true;
-    } else if (this.config.data.action !== "edit") { // In caso di mail futile elimina la bozza
+    } else if (this.config.data.action !== "edit") {
+      // In caso di mail futile elimina la bozza
       this.onDelete(false);
     } else {
       this.onClose();
@@ -687,18 +847,30 @@ export class NewMailComponent implements OnInit, AfterViewInit, OnDestroy {
     // console.log("FORM = ", this.mailForm.value);
     if (this.checkMaxPostSize()) {
       const formToSend: FormData = this.buildFormToSend();
-      this.draftService.saveDraftMessage(formToSend, this.mailForm.get("idDraftMessage").value);
+      this.draftService.saveDraftMessage(
+        formToSend,
+        this.mailForm.get("idDraftMessage").value
+      );
       this.onClose();
     } else {
-      this.draftService.messagePrimeService.add(
-        { severity: "warn", summary: "Attenzione", detail: "La mail supera la dimensione massima consentita (50 Mb). "
-          + "Rimuovere degli allegati per continuare.", life: 4000 });
+      this.draftService.messagePrimeService.add({
+        severity: "warn",
+        summary: "Attenzione",
+        detail:
+          "La mail supera la dimensione massima consentita (50 Mb). " +
+          "Rimuovere degli allegati per continuare.",
+        life: 4000,
+      });
     }
   }
 
   onDelete(showMessage: boolean) {
     const reload: boolean = this.config.data.reloadOnDelete;
-    this.draftService.deleteDraftMessage(this.mailForm.get("idDraftMessage").value, showMessage, reload);
+    this.draftService.deleteDraftMessage(
+      this.mailForm.get("idDraftMessage").value,
+      showMessage,
+      reload
+    );
     this.onClose();
   }
 
@@ -713,14 +885,20 @@ export class NewMailComponent implements OnInit, AfterViewInit, OnDestroy {
     }
     const totalSizeKB = bytes / Math.pow(1000, 1);
     if (totalSizeKB < 1) {
-      const byte = originalBytes ? originalTotalSize : (originalTotalSize * 0.72).toFixed(0);
+      const byte = originalBytes
+        ? originalTotalSize
+        : (originalTotalSize * 0.72).toFixed(0);
       if (+byte < 1) {
         return "1B";
       } else {
-        return (originalBytes ? originalTotalSize : (originalTotalSize * 0.72).toFixed(0)) + "B";
+        return (
+          (originalBytes
+            ? originalTotalSize
+            : (originalTotalSize * 0.72).toFixed(0)) + "B"
+        );
       }
     }
-    const totalSizeMB = bytes / Math.pow(1000, 2) ;
+    const totalSizeMB = bytes / Math.pow(1000, 2);
     if (totalSizeMB < 1) {
       return totalSizeKB.toFixed(1) + "KB";
     }
@@ -736,11 +914,17 @@ export class NewMailComponent implements OnInit, AfterViewInit, OnDestroy {
   public filterAddressMultiple(event): void {
     const query = event.query;
     if (this.checkIfRubricaInternautaShouldBeEnabled()) {
-      this.filteredAddressMultiple.splice(0,this.filteredAddressMultiple.length);
-      this.loadEmailsFromDettaglioContatto(query); 
+      this.filteredAddressMultiple.splice(
+        0,
+        this.filteredAddressMultiple.length
+      );
+      this.loadEmailsFromDettaglioContatto(query);
       this.loadGruppo(query);
     } else {
-      this.filteredAddressMultiple = this.filterAddress(query, this.indirizziTest);
+      this.filteredAddressMultiple = this.filterAddress(
+        query,
+        this.indirizziTest
+      );
     }
   }
 
@@ -749,94 +933,159 @@ export class NewMailComponent implements OnInit, AfterViewInit, OnDestroy {
    * @param query
    */
   private loadEmailsFromDettaglioContatto(query: any) {
-    const projection = ENTITIES_STRUCTURE.rubrica.dettagliocontatto.standardProjections.DettaglioContattoWithIdContatto;
+    const projection =
+      ENTITIES_STRUCTURE.rubrica.dettagliocontatto.standardProjections
+        .DettaglioContattoWithIdContatto;
     const filtersAndSorts: FiltersAndSorts = new FiltersAndSorts();
-    filtersAndSorts.addAdditionalData(new AdditionalDataDefinition("CercaAncheInContattoNoTScol", query));
-    filtersAndSorts.addAdditionalData(new AdditionalDataDefinition("OperationRequested", "CercaAncheInContattoNoTScol"));
-    filtersAndSorts.addFilter(new FilterDefinition("idContatto.eliminato", FILTER_TYPES.not_string.equals, false));
-    filtersAndSorts.addFilter(new FilterDefinition("idContatto.protocontatto", FILTER_TYPES.not_string.equals, false));
-    filtersAndSorts.addFilter(new FilterDefinition("eliminato", FILTER_TYPES.not_string.equals, false));
-    filtersAndSorts.addFilter(new FilterDefinition("tipo", FILTER_TYPES.not_string.equals, "EMAIL"));
+    filtersAndSorts.addAdditionalData(
+      new AdditionalDataDefinition("CercaAncheInContattoNoTScol", query)
+    );
+    filtersAndSorts.addAdditionalData(
+      new AdditionalDataDefinition(
+        "OperationRequested",
+        "CercaAncheInContattoNoTScol"
+      )
+    );
+    filtersAndSorts.addFilter(
+      new FilterDefinition(
+        "idContatto.eliminato",
+        FILTER_TYPES.not_string.equals,
+        false
+      )
+    );
+    filtersAndSorts.addFilter(
+      new FilterDefinition(
+        "idContatto.protocontatto",
+        FILTER_TYPES.not_string.equals,
+        false
+      )
+    );
+    filtersAndSorts.addFilter(
+      new FilterDefinition("eliminato", FILTER_TYPES.not_string.equals, false)
+    );
+    filtersAndSorts.addFilter(
+      new FilterDefinition("tipo", FILTER_TYPES.not_string.equals, "EMAIL")
+    );
 
     // filtersAndSorts.addFilter(new FilterDefinition("tscol", FILTER_TYPES.not_string.equals, query));
     this.subscriptions.push(
-      this.dettaglioContattoService.getData(projection, filtersAndSorts).subscribe(res => {
-          res.results.forEach(dettaglioContatto => {
-          dettaglioContatto["descrizioneCustom"] = dettaglioContatto.descrizione + " [ " + dettaglioContatto.idContatto.descrizione + " ]";
-          const contattoMail = new FilteredContactMultiple();
-          contattoMail.descrizione =  dettaglioContatto["descrizioneCustom"];
-          contattoMail.dettaglioContatto = dettaglioContatto.descrizione;
-          contattoMail.id = dettaglioContatto.idContatto.id;
-          contattoMail.tipo = 'CONTATTO'
-          this.filteredAddressMultiple.push(contattoMail);
-        }); 
-        // this.filteredAddressMultiple = [{descrizione: "ciao"}];
-         this.filteredAddressMultiple = [...this.filteredAddressMultiple];
-        //this.filteredAddressMultiple = res.results;
-        // console.log("filteredAddressMultiple: ", this.filteredAddressMultiple);
-      }, err => {
-        console.log("error");
-        this.messageService.add({
-          severity: "error",
-          summary: "Errore",
-          detail: "Non è stato possibile fare la ricerca."
-        });
-      })
+      this.dettaglioContattoService
+        .getData(projection, filtersAndSorts)
+        .subscribe(
+          (res) => {
+            res.results.forEach((dettaglioContatto: DettaglioContatto) => {
+              // dettaglioContatto["descrizioneCustom"] =
+              //   dettaglioContatto.descrizione +
+              //   " [ " +
+              //   dettaglioContatto.idContatto.descrizione +
+              //   " ]";
+              const dettaglioContattoMail = new FilteredContactMultiple();
+              // dettaglioContattoMail.descrizione =
+              //   dettaglioContatto.descrizione +
+              //   " - " +
+              //   dettaglioContatto.idContatto.descrizione +
+              //   (dettaglioContatto.domicilioDigitale === true
+              //     ? " (Domicilio Digitale)"
+              //     : "");
+              dettaglioContattoMail.tipo = "CONTATTO";
+              dettaglioContattoMail.descrizioneContatto =
+                dettaglioContatto.idContatto.descrizione;
+              dettaglioContattoMail.descrizioneDettaglioContatto =
+                dettaglioContatto.descrizione;
+              dettaglioContattoMail.id = dettaglioContatto.idContatto.id;
+              dettaglioContattoMail.domicilioDigitale =
+                dettaglioContatto.domicilioDigitale;
+              this.filteredAddressMultiple.push(dettaglioContattoMail);
+            });
+            // this.filteredAddressMultiple = [{descrizione: "ciao"}];
+            this.filteredAddressMultiple = [...this.filteredAddressMultiple];
+            //this.filteredAddressMultiple = res.results;
+            // console.log("filteredAddressMultiple: ", this.filteredAddressMultiple);
+          },
+          (err) => {
+            console.log("error");
+            this.messageService.add({
+              severity: "error",
+              summary: "Errore",
+              detail: "Non è stato possibile fare la ricerca.",
+            });
+          }
+        )
     );
   }
 
   private loadGruppo(query: any) {
-    const projection = ENTITIES_STRUCTURE.rubrica.contatto.standardProjections.ContattoWithPlainFields;
+    const projection =
+      ENTITIES_STRUCTURE.rubrica.contatto.standardProjections
+        .ContattoWithPlainFields;
     const filtersAndSorts: FiltersAndSorts = new FiltersAndSorts();
     // filtersAndSorts.addAdditionalData(new AdditionalDataDefinition("CercaContattiGruppo", query));
     // filtersAndSorts.addAdditionalData(new AdditionalDataDefinition("OperationRequested", "CercaContattiGruppo"));
-    filtersAndSorts.addFilter(new FilterDefinition("tscol", FILTER_TYPES.not_string.equals, query));
-    filtersAndSorts.addFilter(new FilterDefinition("categoria", FILTER_TYPES.not_string.equals, CategoriaContatto.GRUPPO));
-    filtersAndSorts.addFilter(new FilterDefinition("eliminato", FILTER_TYPES.not_string.equals, false));
-    filtersAndSorts.addFilter(new FilterDefinition("protocontatto", FILTER_TYPES.not_string.equals, false));
-    this.subscriptions.push(
-      this.contattoService.getData(projection, filtersAndSorts).subscribe(res => {
-        if (res.results.length > 0) {
-          res.results.forEach(contattoGruppo => {
-            const groupContact = new FilteredContactMultiple();
-            groupContact.descrizione = contattoGruppo.descrizione + " [ GRUPPO ] ";
-            groupContact.dettaglioContatto = contattoGruppo.descrizione;
-            groupContact.id = contattoGruppo.id;
-            groupContact.tipo = 'GRUPPO'
-            this.filteredAddressMultiple.push(groupContact);
-          }); 
-          //this.filteredAddressMultiple.push({descrizione: "ciao"} as FilteredContactMultiple);
-          this.filteredAddressMultiple = [...this.filteredAddressMultiple];
-        }
-      }, err => {
-        console.log("error");
-        this.messageService.add({
-          severity: "error",
-          summary: "Errore",
-          detail: "Non è stato possibile fare la ricerca."
-        });
-      })
+    filtersAndSorts.addFilter(
+      new FilterDefinition("tscol", FILTER_TYPES.not_string.equals, query)
     );
-
+    filtersAndSorts.addFilter(
+      new FilterDefinition(
+        "categoria",
+        FILTER_TYPES.not_string.equals,
+        CategoriaContatto.GRUPPO
+      )
+    );
+    filtersAndSorts.addFilter(
+      new FilterDefinition("eliminato", FILTER_TYPES.not_string.equals, false)
+    );
+    filtersAndSorts.addFilter(
+      new FilterDefinition(
+        "protocontatto",
+        FILTER_TYPES.not_string.equals,
+        false
+      )
+    );
+    this.subscriptions.push(
+      this.contattoService.getData(projection, filtersAndSorts).subscribe(
+        (res) => {
+          if (res.results.length > 0) {
+            res.results.forEach((contattoGruppo) => {
+              const groupContact = new FilteredContactMultiple();
+              groupContact.descrizione =
+                contattoGruppo.descrizione + " [ GRUPPO ] ";
+              groupContact.descrizioneDettaglioContatto =
+                contattoGruppo.descrizione;
+              groupContact.id = contattoGruppo.id;
+              groupContact.tipo = "GRUPPO";
+              this.filteredAddressMultiple.push(groupContact);
+            });
+            //this.filteredAddressMultiple.push({descrizione: "ciao"} as FilteredContactMultiple);
+            this.filteredAddressMultiple = [...this.filteredAddressMultiple];
+          }
+        },
+        (err) => {
+          console.log("error");
+          this.messageService.add({
+            severity: "error",
+            summary: "Errore",
+            detail: "Non è stato possibile fare la ricerca.",
+          });
+        }
+      )
+    );
   }
 
   filterAddress(query, addresses: any[]): any[] {
-      const filtered: any[] = [];
-      for (let i = 0; i < addresses.length; i++) {
-          const address = addresses[i];
-          if (address.toLowerCase().indexOf(query.toLowerCase()) === 0) {
-              filtered.push(address);
-          }
+    const filtered: any[] = [];
+    for (let i = 0; i < addresses.length; i++) {
+      const address = addresses[i];
+      if (address.toLowerCase().indexOf(query.toLowerCase()) === 0) {
+        filtered.push(address);
       }
-      return filtered;
+    }
+    return filtered;
   }
 
   private setAttribute(feild, attribute, value): void {
     const field = document.getElementById(feild);
     field.setAttribute(attribute, value);
   }
-
-
 
   public onAddressChosedByBook(event: any): void {
     // console.log(event, event);
@@ -900,7 +1149,7 @@ export class NewMailComponent implements OnInit, AfterViewInit, OnDestroy {
       link: "Inserisci collegamento ipertestuale (CTRL+K)",
       image: "Inserisci immagini incorporate",
       "code-block": "Blocco di codice",
-      clean : "Rimuovi formattazione"
+      clean: "Rimuovi formattazione",
     };
 
     const showTooltip = (el) => {
@@ -965,7 +1214,14 @@ export class NewMailComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   private checkIfRubricaInternautaShouldBeEnabled() {
-    return this.utenteConnesso.aziendaLogin.parametriAzienda && this.utenteConnesso.aziendaLogin.parametriAzienda.rubricaInternauta;
+    return (
+      this.utenteConnesso.aziendaLogin.parametriAzienda &&
+      this.utenteConnesso.aziendaLogin.parametriAzienda.rubricaInternauta
+    );
+  }
+
+  public checkIfExistDestinatariSelezionati(): boolean {
+    return !this.customContactService.allSelectedContact.length;
   }
 
   /**
@@ -976,21 +1232,29 @@ export class NewMailComponent implements OnInit, AfterViewInit, OnDestroy {
     this.displayRubricaPopup = true;
     if (this.checkIfRubricaInternautaShouldBeEnabled()) {
       this.customContactService.manageOnSelectContact(null);
-      this.router.navigate(["", { outlets: { rubricaPopup: "rubrica" }}], {
+      this.router.navigate(["", { outlets: { rubricaPopup: "rubrica" } }], {
         queryParams: {
           mode: "selection",
-          from: "pec"
-        }
+          from: "pec",
+        },
       });
-      this.customContactService._callerData.selectedContactsLists.A = this.createSelectedContactEstemporaneo(this.toAutoComplete.value);
-      this.customContactService._callerData.selectedContactsLists.CC = this.createSelectedContactEstemporaneo(this.ccAutoComplete.value);
+      this.customContactService._callerData.selectedContactsLists.A =
+        this.createSelectedContactEstemporaneo(this.toAutoComplete.value);
+      this.customContactService._callerData.selectedContactsLists.CC =
+        this.createSelectedContactEstemporaneo(this.ccAutoComplete.value);
     }
   }
 
   createSelectedContactEstemporaneo(emails: string[]): SelectedContact[] {
     let selectedContacts: SelectedContact[] = [];
     if (!!emails && emails.length > 0) {
-      selectedContacts = emails.filter(emailAsString => this.emailRegex.test(emailAsString)).map(emailAsString => this.customContactService.createSelectedContactFromEmail(emailAsString));
+      selectedContacts = emails
+        .filter((emailAsString) => this.emailRegex.test(emailAsString))
+        .map((emailAsString) =>
+          this.customContactService.createSelectedContactFromEmail(
+            emailAsString
+          )
+        );
     }
     return selectedContacts;
   }
@@ -1012,10 +1276,17 @@ export class NewMailComponent implements OnInit, AfterViewInit, OnDestroy {
     const url = this.router.url;
     if (url.includes("editing") && url.includes("selection")) {
       // console.log("Can not send selected contacts");
-      this.messageService.add({severity: "warn", summary: "Attenzione", detail: "Stai ancora facendo delle modifiche. Annulla o Salva/Conferma per poter proseguire."});
+      this.messageService.add({
+        severity: "warn",
+        summary: "Attenzione",
+        detail:
+          "Stai ancora facendo delle modifiche. Annulla o Salva/Conferma per poter proseguire.",
+      });
     } else {
-
-      const estemporaneiToAddToRubricaAsContatto: Contatto[] = this.customContactService.createEstemporaneiContactsList(this.customContactService.allSelectedContact);
+      const estemporaneiToAddToRubricaAsContatto: Contatto[] =
+        this.customContactService.createEstemporaneiContactsList(
+          this.customContactService.allSelectedContact
+        );
 
       // save estemporanei as Protocontatti sul DB.
       if (estemporaneiToAddToRubricaAsContatto.length > 0) {
@@ -1024,8 +1295,11 @@ export class NewMailComponent implements OnInit, AfterViewInit, OnDestroy {
         estemporaneiToAddToRubricaAsContatto.forEach((contact: Contatto) => {
           batchOperation.push({
             operation: BatchOperationTypes.INSERT,
-            entityPath: BaseUrls.get(BaseUrlType.Rubrica) + "/" + ENTITIES_STRUCTURE.rubrica.contatto.path,
-            entityBody: contact as NextSdrEntity
+            entityPath:
+              BaseUrls.get(BaseUrlType.Rubrica) +
+              "/" +
+              ENTITIES_STRUCTURE.rubrica.contatto.path,
+            entityBody: contact as NextSdrEntity,
           } as BatchOperation);
         });
 
@@ -1036,193 +1310,272 @@ export class NewMailComponent implements OnInit, AfterViewInit, OnDestroy {
         this.onCloseRubricaPopup();
         this.disableButtonsConfermaDestinatariSelezionati = false;
       }
-
     }
-
   }
 
-  private protocontattiBatchSaveAndHandleConferma(batchOperation: BatchOperation[]) {
-    this.subscriptions.push(this.customContactService.batchHttpCall(batchOperation).subscribe((res: BatchOperation[]) => {
-      this.messageService.add({ severity: "success", summary: "Successo", detail: `Salvataggio avvenuto con successo.` });
-      this.handleConfermaAddToAddressTO();
-      this.handleConfermaAddToAddressCC();
-      this.onCloseRubricaPopup();
-      this.disableButtonsConfermaDestinatariSelezionati = false;
-    }, err => {
-      this.messageService.add({ severity: "error", summary: "Errore nel backend", detail: `Non è stato possibile fare il salvataggio dei protocontatti.` });
-      this.disableButtonsConfermaDestinatariSelezionati = false;
-    }));
+  private protocontattiBatchSaveAndHandleConferma(
+    batchOperation: BatchOperation[]
+  ) {
+    this.subscriptions.push(
+      this.customContactService.batchHttpCall(batchOperation).subscribe(
+        (res: BatchOperation[]) => {
+          this.messageService.add({
+            severity: "success",
+            summary: "Successo",
+            detail: `Salvataggio avvenuto con successo.`,
+          });
+          this.handleConfermaAddToAddressTO();
+          this.handleConfermaAddToAddressCC();
+          this.onCloseRubricaPopup();
+          this.disableButtonsConfermaDestinatariSelezionati = false;
+        },
+        (err) => {
+          this.messageService.add({
+            severity: "error",
+            summary: "Errore nel backend",
+            detail: `Non è stato possibile fare il salvataggio dei protocontatti.`,
+          });
+          this.disableButtonsConfermaDestinatariSelezionati = false;
+        }
+      )
+    );
   }
 
   private handleConfermaAddToAddressTO() {
     if (this.toAutoComplete.value && this.toAutoComplete.value.length > 0) {
-      this.toAutoComplete.value.forEach(email => this.onUnselect(email, "to"));
+      this.toAutoComplete.value.forEach((email) =>
+        this.onUnselect(email, "to")
+      );
     }
     this.toAutoComplete.value = [];
-    if (this.customContactService._callerData.selectedContactsLists.A && this.customContactService._callerData.selectedContactsLists.A.length > 0) {
-      this.customContactService._callerData.selectedContactsLists.A.forEach((selectedContact: SelectedContact) => {
-        // console.log("selectedContact: ", selectedContact);
-        /**Se è un gruppo ciclo tutto e aggiungo solo le mail */
-        if(selectedContact.contact.categoria === "GRUPPO"){
-          selectedContact.contact.contattiDelGruppoListTransient.forEach((element: GroupContactsListTransient) => {
-            if(element.address.descrizione && element.address.tipo === "EMAIL") {
-              // this.onSelect(element.address.descrizione, "to");
-              const elementoGruppo = new FilteredContactMultiple;
-              elementoGruppo.descrizione = element.address.descrizione;
-              elementoGruppo.id = null
-              elementoGruppo.dettaglioContatto = element.address.descrizione;
-              elementoGruppo.tipo = "ESTEMPORANEO";
-              this.onSelectNew(elementoGruppo, "to")
-            }
-          });
-        } else {
-          const elementoGruppo = new FilteredContactMultiple;
-          elementoGruppo.descrizione = selectedContact.address.descrizione;
-          elementoGruppo.id = null
-          elementoGruppo.dettaglioContatto = selectedContact.address.descrizione;
-          elementoGruppo.tipo = "ESTEMPORANEO";
-          this.onSelectNew(elementoGruppo, "to")
-          // this.onSelect(selectedContact.address.descrizione, "to");
+    if (
+      this.customContactService._callerData.selectedContactsLists.A &&
+      this.customContactService._callerData.selectedContactsLists.A.length > 0
+    ) {
+      this.customContactService._callerData.selectedContactsLists.A.forEach(
+        (selectedContact: SelectedContact) => {
+          // console.log("selectedContact: ", selectedContact);
+          /**Se è un gruppo ciclo tutto e aggiungo solo le mail */
+          if (selectedContact.contact.categoria === "GRUPPO") {
+            selectedContact.contact.contattiDelGruppoListTransient.forEach(
+              (element: GroupContactsListTransient) => {
+                if (
+                  element.address.descrizione &&
+                  element.address.tipo === "EMAIL"
+                ) {
+                  // this.onSelect(element.address.descrizione, "to");
+                  const elementoGruppo = new FilteredContactMultiple();
+                  elementoGruppo.descrizione = element.address.descrizione;
+                  elementoGruppo.id = null;
+                  elementoGruppo.descrizioneDettaglioContatto =
+                    element.address.descrizione;
+                  elementoGruppo.tipo = "ESTEMPORANEO";
+                  this.onSelectNew(elementoGruppo, "to");
+                }
+              }
+            );
+          } else {
+            const elementoGruppo = new FilteredContactMultiple();
+            elementoGruppo.descrizione = selectedContact.address.descrizione;
+            elementoGruppo.id = null;
+            elementoGruppo.descrizioneDettaglioContatto =
+              selectedContact.address.descrizione;
+            elementoGruppo.tipo = "ESTEMPORANEO";
+            this.onSelectNew(elementoGruppo, "to");
+            // this.onSelect(selectedContact.address.descrizione, "to");
+          }
         }
-      });
+      );
     }
   }
 
   private handleConfermaAddToAddressCC() {
     if (this.ccAutoComplete.value && this.ccAutoComplete.value.length > 0) {
-      this.ccAutoComplete.value.forEach(email => this.onUnselect(email, "cc"));
+      this.ccAutoComplete.value.forEach((email) =>
+        this.onUnselect(email, "cc")
+      );
     }
     this.ccAutoComplete.value = [];
-    if (this.customContactService._callerData.selectedContactsLists.CC && this.customContactService._callerData.selectedContactsLists.CC.length > 0) {
-      this.customContactService._callerData.selectedContactsLists.CC.forEach((selectedContact: SelectedContact) => {
-        // console.log("selectedContact: ", selectedContact);
-        if(selectedContact.contact.categoria === "GRUPPO"){
-          selectedContact.contact.contattiDelGruppoListTransient.forEach((element: GroupContactsListTransient) => {
-            if(element.address.descrizione && element.address.tipo === "EMAIL") {
-              //this.onSelect(element.address.descrizione, "cc");
-              const elementoGruppo = new FilteredContactMultiple;
-              elementoGruppo.descrizione = element.address.descrizione;
-              elementoGruppo.id = null
-              elementoGruppo.dettaglioContatto = element.address.descrizione;
-              elementoGruppo.tipo = "ESTEMPORANEO";
-              this.onSelectNew(elementoGruppo, "cc")
-            }
-          });
-        } else {
-          const elementoGruppo = new FilteredContactMultiple;
-          elementoGruppo.descrizione = selectedContact.address.descrizione;
-          elementoGruppo.id = null
-          elementoGruppo.dettaglioContatto = selectedContact.address.descrizione;
-          elementoGruppo.tipo = "ESTEMPORANEO";
-          this.onSelectNew(elementoGruppo, "cc")
-        // this.onSelect(selectedContact.address.descrizione, "cc");
+    if (
+      this.customContactService._callerData.selectedContactsLists.CC &&
+      this.customContactService._callerData.selectedContactsLists.CC.length > 0
+    ) {
+      this.customContactService._callerData.selectedContactsLists.CC.forEach(
+        (selectedContact: SelectedContact) => {
+          // console.log("selectedContact: ", selectedContact);
+          if (selectedContact.contact.categoria === "GRUPPO") {
+            selectedContact.contact.contattiDelGruppoListTransient.forEach(
+              (element: GroupContactsListTransient) => {
+                if (
+                  element.address.descrizione &&
+                  element.address.tipo === "EMAIL"
+                ) {
+                  //this.onSelect(element.address.descrizione, "cc");
+                  const elementoGruppo = new FilteredContactMultiple();
+                  elementoGruppo.descrizione = element.address.descrizione;
+                  elementoGruppo.id = null;
+                  elementoGruppo.descrizioneDettaglioContatto =
+                    element.address.descrizione;
+                  elementoGruppo.tipo = "ESTEMPORANEO";
+                  this.onSelectNew(elementoGruppo, "cc");
+                }
+              }
+            );
+          } else {
+            const elementoGruppo = new FilteredContactMultiple();
+            elementoGruppo.descrizione = selectedContact.address.descrizione;
+            elementoGruppo.id = null;
+            elementoGruppo.descrizioneDettaglioContatto =
+              selectedContact.address.descrizione;
+            elementoGruppo.tipo = "ESTEMPORANEO";
+            this.onSelectNew(elementoGruppo, "cc");
+            // this.onSelect(selectedContact.address.descrizione, "cc");
+          }
         }
-      });
+      );
     }
   }
-  
+
   /**
    * Serve per verificare se un gruppo aggiunto da look-up ha solo contatti di tipo mail, in caso ci siano dei contatti non mai permette di modificarli
-   * @param idGroup 
-   * @param formField 
+   * @param idGroup
+   * @param formField
    */
-  private ControlAreAllMailInGroup(gruppoItem: any,formField: string){
-    const form = formField === "to" ? this.mailForm.get("to") as FormArray : this.mailForm.get("cc") as FormArray;
-    const autocomplete = formField === "to" ? this.toAutoComplete : this.ccAutoComplete;
-    const projection = ENTITIES_STRUCTURE.rubrica.contatto.customProjections.CustomContattoGruppoDetail;
+  private ControlAreAllMailInGroup(gruppoItem: any, formField: string) {
+    const form =
+      formField === "to"
+        ? (this.mailForm.get("to") as FormArray)
+        : (this.mailForm.get("cc") as FormArray);
+    const autocomplete =
+      formField === "to" ? this.toAutoComplete : this.ccAutoComplete;
+    const projection =
+      ENTITIES_STRUCTURE.rubrica.contatto.customProjections
+        .CustomContattoGruppoDetail;
     const filtersAndSorts: FiltersAndSorts = new FiltersAndSorts();
-    filtersAndSorts.addFilter(new FilterDefinition("id", FILTER_TYPES.not_string.equals, gruppoItem.id));
-    this.contattoService.getData(projection, filtersAndSorts, null, null).subscribe(res => {
-          if(res){
-            const gruppo = <Contatto>res.results[0];
-            if(!(gruppo.contattiDelGruppoList.some((elem: GruppiContatti) => elem.idDettaglioContatto.tipo === 'EMAIL'))) {
-              this.onUnselect(gruppoItem, formField);
-              autocomplete.writeValue(form.value);
-              this.messageService.add({severity: "warn", summary: "Attenzione", detail: "Il gruppo inserito non contiene nessun contatto di tipo mail"});
-            }
-            else if(gruppo.contattiDelGruppoList.some((elem: GruppiContatti) => elem.idDettaglioContatto.tipo !== 'EMAIL')) {
-              this.confirmationService.confirm({
-                message: "Attenzione alcuni dei contatti del gruppo selezionato NON sono mail, se si continua essi verranno esclusi",
-                header: "Attenzione",
-                key: "cd2",
-                icon: "pi pi-exclamation-triangle",
-                accept: () => {
-                  this.addGroupContacts(gruppo,formField);
-                },
-                reject: () => {
-                  this.modifyGroup(gruppo,formField);
-                  }
-              });
-            } else {
-              this.addGroupContacts(gruppo,formField);
-            }
-      }
-    });
+    filtersAndSorts.addFilter(
+      new FilterDefinition("id", FILTER_TYPES.not_string.equals, gruppoItem.id)
+    );
+    this.contattoService
+      .getData(projection, filtersAndSorts, null, null)
+      .subscribe((res) => {
+        if (res) {
+          const gruppo = <Contatto>res.results[0];
+          if (
+            !gruppo.contattiDelGruppoList.some(
+              (elem: GruppiContatti) =>
+                elem.idDettaglioContatto.tipo === "EMAIL"
+            )
+          ) {
+            this.onUnselect(gruppoItem, formField);
+            autocomplete.writeValue(form.value);
+            this.messageService.add({
+              severity: "warn",
+              summary: "Attenzione",
+              detail:
+                "Il gruppo inserito non contiene nessun contatto di tipo mail",
+            });
+          } else if (
+            gruppo.contattiDelGruppoList.some(
+              (elem: GruppiContatti) =>
+                elem.idDettaglioContatto.tipo !== "EMAIL"
+            )
+          ) {
+            this.confirmationService.confirm({
+              message:
+                "Attenzione alcuni dei contatti del gruppo selezionato NON sono mail, se si continua essi verranno esclusi",
+              header: "Attenzione",
+              key: "cd2",
+              icon: "pi pi-exclamation-triangle",
+              accept: () => {
+                this.addGroupContacts(gruppo, formField);
+              },
+              reject: () => {
+                this.modifyGroup(gruppo, formField);
+              },
+            });
+          } else {
+            this.addGroupContacts(gruppo, formField);
+          }
+        }
+      });
   }
 
   /**
    * Serve ad aggiungere i contatti detro a un gruppo come mail singole, il modified è per i gruppi che l'utente ha modificato
-   * @param gruppo 
-   * @param formField 
+   * @param gruppo
+   * @param formField
    */
   private addGroupContacts(gruppo: Contatto, formField: string) {
     gruppo.contattiDelGruppoList.forEach((elem: GruppiContatti) => {
-      if(elem.idDettaglioContatto.tipo === 'EMAIL') {
-        const elementoGruppo = new FilteredContactMultiple;
+      if (elem.idDettaglioContatto.tipo === "EMAIL") {
+        const elementoGruppo = new FilteredContactMultiple();
         elementoGruppo.descrizione = elem.idDettaglioContatto.descrizione;
-        elementoGruppo.id = null
-        elementoGruppo.dettaglioContatto = elem.idDettaglioContatto.descrizione;
+        elementoGruppo.id = null;
+        elementoGruppo.descrizioneDettaglioContatto =
+          elem.idDettaglioContatto.descrizione;
         elementoGruppo.tipo = "ESTEMPORANEO";
         this.onSelectNew(elementoGruppo, formField);
-      } 
-  })
+      }
+    });
   }
   private addGroupContactsModified(gruppo: Contatto, formField: string) {
-    gruppo.contattiDelGruppoListTransient.forEach((elem: GroupContactsListTransient) => {
-      if(elem.address.tipo === 'EMAIL') {
-        const elementoGruppo = new FilteredContactMultiple;
-        elementoGruppo.descrizione = elem.address.descrizione;
-        elementoGruppo.id = null
-        elementoGruppo.dettaglioContatto = elem.address.descrizione;
-        elementoGruppo.tipo = "ESTEMPORANEO";
-        this.onSelectNew(elementoGruppo, formField);
-      } 
-  })
+    gruppo.contattiDelGruppoListTransient.forEach(
+      (elem: GroupContactsListTransient) => {
+        if (elem.address.tipo === "EMAIL") {
+          const elementoGruppo = new FilteredContactMultiple();
+          elementoGruppo.descrizione = elem.address.descrizione;
+          elementoGruppo.id = null;
+          elementoGruppo.descrizioneDettaglioContatto =
+            elem.address.descrizione;
+          elementoGruppo.tipo = "ESTEMPORANEO";
+          this.onSelectNew(elementoGruppo, formField);
+        }
+      }
+    );
   }
   /**
-   * Serve a far modificare all'utente i contatti all'interno di un gruppo aggiunto da look-up 
-   * @param gruppo 
-   * @param formField 
+   * Serve a far modificare all'utente i contatti all'interno di un gruppo aggiunto da look-up
+   * @param gruppo
+   * @param formField
    */
-  private modifyGroup(gruppo: Contatto,formField: string) {
+  private modifyGroup(gruppo: Contatto, formField: string) {
     // console.log(gruppo.contattiDelGruppoList);
     gruppo.contattiDelGruppoListTransient = [];
-    gruppo.contattiDelGruppoList.forEach((elem:GruppiContatti)=>{
-      const contattoTransient = {idGroup: gruppo.id, address: elem.idDettaglioContatto, contact: elem.idContatto} as GroupContactsListTransient;
+    gruppo.contattiDelGruppoList.forEach((elem: GruppiContatti) => {
+      const contattoTransient = {
+        idGroup: gruppo.id,
+        address: elem.idDettaglioContatto,
+        contact: elem.idContatto,
+      } as GroupContactsListTransient;
       // console.log(contattoTransient);
       gruppo.contattiDelGruppoListTransient.push(contattoTransient);
-     })
-    const selectedGroup = {contact : gruppo} as SelectedContact;
-    this.customContactService.manageSelectedContact(selectedGroup, SelectedContactType.A , "INSERT");
+    });
+    const selectedGroup = { contact: gruppo } as SelectedContact;
+    this.customContactService.manageSelectedContact(
+      selectedGroup,
+      SelectedContactType.A,
+      "INSERT"
+    );
     this.displayRubricaPopup = true;
     if (this.checkIfRubricaInternautaShouldBeEnabled()) {
       const ref = this.dialogService.open(GroupModifyContactsComponent, {
         data: {
-          contact: selectedGroup
+          contact: selectedGroup,
         },
         header: "Modifica Contatti",
-        width: '70%',
-        dismissableMask: true
-      })
-      ref.onClose.subscribe((res: SelectedContact) => {
-        gruppo.contattiDelGruppoListTransient = res.contact.contattiDelGruppoListTransient;
-        this.displayRubricaPopup = false;
-        this.addGroupContactsModified(gruppo,formField);
+        width: "70%",
+        dismissableMask: true,
       });
-    } 
+      ref.onClose.subscribe((res: SelectedContact) => {
+        gruppo.contattiDelGruppoListTransient =
+          res.contact.contattiDelGruppoListTransient;
+        this.displayRubricaPopup = false;
+        this.addGroupContactsModified(gruppo, formField);
+      });
+    }
   }
 
-/* Nasceva dalla necessità di non far più digitare agli utenti i caratteri speciali per il momento lo rimuoviamo, anche (input)="inputValidator($event)" 
+  /* Nasceva dalla necessità di non far più digitare agli utenti i caratteri speciali per il momento lo rimuoviamo, anche (input)="inputValidator($event)" 
   public inputValidator(event: any) {
     const pattern = this.emailRegex;
     if (!pattern.test(event.target.value)) {
@@ -1231,20 +1584,12 @@ export class NewMailComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 */
 
-
-
   public ngOnDestroy(): void {
-    this.subscriptions.forEach(s => s.unsubscribe());
+    this.subscriptions.forEach((s) => s.unsubscribe());
     this.subscriptions = [];
   }
-
 }
-
-
 
 enum Apps {
   PEC = "pec",
 }
-
-
-
