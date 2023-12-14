@@ -77,7 +77,7 @@ definitions:
         # oidc: true
         image: public.ecr.aws/aws-cli/aws-cli:2.11.21
         script:
-          - aws s3 sync dist/shpeck-ui s3://babel-cloud-dev-spa-shpeck/shpeck
+          - aws s3 sync dist/shpeck-ui s3://babel-cloud-dev-shpeck-spa/shpeck
           # - pipe: atlassian/aws-s3-deploy:1.2.0
           #   variables:
           #     S3_BUCKET: "babel-cloud-dev-spa-shpeck/shpeck"
