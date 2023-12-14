@@ -58,7 +58,7 @@ definitions:
           - node
         script:
           - npm install
-          - npm run build -- --base-href /shpeck/
+          - npm run build -- --configuration=stage --base-href /pec/
         artifacts:
           - "dist/**"
     - step: &codeartifact_login
