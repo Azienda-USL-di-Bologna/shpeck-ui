@@ -18,13 +18,26 @@
   width: 2rem;
   max-width: 2rem;
 }
-::ng-deep .column-checkbox p-tableCheckbox .ui-chkbox.p-component .ui-chkbox-box.p-component.ui-state-default {
+::ng-deep
+  .column-checkbox
+  p-tableCheckbox
+  .ui-chkbox.p-component
+  .ui-chkbox-box.p-component.ui-state-default {
   opacity: 0.5;
 }
-::ng-deep .message-row:hover .column-checkbox p-tableCheckbox .ui-chkbox.p-component .ui-chkbox-box.p-component.ui-state-default {
+::ng-deep
+  .message-row:hover
+  .column-checkbox
+  p-tableCheckbox
+  .ui-chkbox.p-component
+  .ui-chkbox-box.p-component.ui-state-default {
   opacity: 1;
 }
-::ng-deep .column-checkbox p-tableCheckbox .p-checkbox .p-checkbox-box.p-highlight {
+::ng-deep
+  .column-checkbox
+  p-tableCheckbox
+  .p-checkbox
+  .p-checkbox-box.p-highlight {
   opacity: 1;
   border-color: #848484;
   background-color: #848484;
@@ -66,9 +79,9 @@
     }
   }
 } */
-::ng-deep .cdk-virtual-scroll-content-wrapper{
-  width:100% !important;
-  .p-datatable-table{
+::ng-deep .cdk-virtual-scroll-content-wrapper {
+  width: 100% !important;
+  .p-datatable-table {
     width: 100% !important;
   }
 }
@@ -83,7 +96,7 @@
 }
 .message-disabled {
   background-color: lightgrey !important;
-  color: grey!important;
+  color: grey !important;
   font-style: italic;
 }
 .display-block {
@@ -146,12 +159,12 @@
   font-size: 0.95rem !important;
   margin-top: 2px;
   &:hover {
-    color:#993366;
+    color: #993366;
   }
 }
 .first-icon-left {
   display: flex;
-  padding-left: 0; 
+  padding-left: 0;
 }
 .fa-icon {
   vertical-align: super;
@@ -294,18 +307,19 @@
 .button-centopx button {
   width: 6.25rem;
 }
-.material-icons.mail-icons,  .material-icons-outlined.mail-icons {
+.material-icons.mail-icons,
+.material-icons-outlined.mail-icons {
   font-size: 1.125rem;
 }
-::ng-deep .general-font-size-small .material-icons.mail-icons, 
+::ng-deep .general-font-size-small .material-icons.mail-icons,
 ::ng-deep .general-font-size-small .material-icons-outlined.mail-icons {
   font-size: 1.125rem !important;
 }
-::ng-deep .general-font-size-medium .material-icons.mail-icons, 
+::ng-deep .general-font-size-medium .material-icons.mail-icons,
 ::ng-deep .general-font-size-medium .material-icons-outlined.mail-icons {
   font-size: 1.188rem !important;
 }
-::ng-deep .general-font-size-big .material-icons.mail-icons, 
+::ng-deep .general-font-size-big .material-icons.mail-icons,
 ::ng-deep .general-font-size-big .material-icons-outlined.mail-icons {
   font-size: 1.25rem !important;
 }
@@ -314,10 +328,10 @@
 }
 .material-icons.fa-icons {
   font-size: 1rem;
-  color: #393939
+  color: #393939;
 }
 ::ng-deep .local-offer-icon::before {
-  content: 'local_offer';
+  content: "local_offer";
 }
 ::ng-deep .material-icons.color-green {
   color: darkcyan !important;
@@ -332,7 +346,7 @@
   font-size: 3.3em !important;
 }
 ::ng-deep .context-menu-mail-list {
-  margin: -8rem 0 0 -19.5rem;
+  margin: -6rem 0 0 -19.5rem;
   width: 14.125rem;
 }
 .warn-color {
@@ -400,8 +414,14 @@
 ::ng-deep .message-labels + p-contextmenusub .ui-menuitem-icon.fas.fa-square,
 ::ng-deep .message-labels + p-contextmenusub .ui-menuitem-icon.fas.fa-check,
 ::ng-deep .message-labels + p-contextmenusub .ui-menuitem-icon.fas.fa-tag,
-::ng-deep .message-labels + p-contextmenusub .ui-menuitem-icon.fas.fa-check-square,
-::ng-deep .message-labels + p-contextmenusub .ui-menuitem-icon.fas.fa-minus-square,
+::ng-deep
+  .message-labels
+  + p-contextmenusub
+  .ui-menuitem-icon.fas.fa-check-square,
+::ng-deep
+  .message-labels
+  + p-contextmenusub
+  .ui-menuitem-icon.fas.fa-minus-square,
 ::ng-deep .message-labels-icon-action .ui-menuitem-icon.fas.fa-square,
 ::ng-deep .message-labels-icon-action .ui-menuitem-icon.fas.fa-check,
 ::ng-deep .message-labels-icon-action .ui-menuitem-icon.fas.fa-tag,
@@ -425,7 +445,7 @@
 ::ng-deep .popup-mail-detail > div .ui-dialog-content {
   height: 90%;
 }
-::ng-deep .popup-mail-detail  app-mail-detail {
+::ng-deep .popup-mail-detail app-mail-detail {
   height: 100%;
 }
 ::ng-deep .tooltip-oggetto-mail {
@@ -433,7 +453,7 @@
   max-width: 20vw;
   .ui-tooltip-text {
     max-height: 50vh;
-    overflow: hidden
+    overflow: hidden;
   }
 }
 
@@ -445,4 +465,9 @@
 .button-styles {
   width: auto;
   margin: 0.6rem;
+}
+
+::ng-deep .p-contextmenu .p-submenu-list {
+  max-height: 1000%;
+  overflow: auto;
 }
