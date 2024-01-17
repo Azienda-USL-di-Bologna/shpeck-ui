@@ -65,44 +65,45 @@ export class ToolBarService {
             this.loggedUser = utente;
           }
         }
+        this.subscriptions.push(this.mailFoldersService.pecFolderSelected.subscribe((pecFolderSelected: PecFolder) => {
+          this.actualPecFolderTagSelected = pecFolderSelected;
+          if (pecFolderSelected && this.myPecs && this.myPecs.length > 0) {
+            let idPec: number;
+            if (pecFolderSelected.type === PecFolderType.FOLDER) {
+              this.selectedFolder = pecFolderSelected.data as Folder;
+              idPec = this.selectedFolder.fk_idPec.id;
+              this.buttonsObservables.get("buttonsActive").next(false);
+              this.buttonsObservables.get("archiveActive").next(false);
+              this.buttonsObservables.get("editVisible").next(false);
+              this.buttonsObservables.get("deleteActive").next(false);
+            } else if (pecFolderSelected.type === PecFolderType.TAG) {
+              idPec = ((pecFolderSelected.data) as Tag).fk_idPec.id;
+            } else {
+              idPec = ((pecFolderSelected.data) as Pec).id;
+            }
+            this.buttonsObservables.get("moveActive").next(false);
+            this._selectedPec = this.myPecs.filter(p => p.id === idPec)[0];
+  
+            const puoInviareMail = this.mailListService.isNewMailActive(this._selectedPec);
+            if (puoInviareMail) {
+              this.buttonsObservables.get("newMailActive").next(true);
+            } else {
+              this.buttonsObservables.get("newMailActive").next(false);
+            }
+  
+            // La ricerca è attiva ovunque purché non sia dentro a bozze o posta in uscita
+            if ((pecFolderSelected.type === PecFolderType.FOLDER && this.selectedFolder.type !== FolderType.OUTBOX && this.selectedFolder.type !== FolderType.DRAFT) ||
+                  pecFolderSelected.type === PecFolderType.TAG ||
+                  pecFolderSelected.type === PecFolderType.PEC) {
+              this.buttonsObservables.get("searchActive").next(true);
+            } else {
+              this.buttonsObservables.get("searchActive").next(false);
+            }
+            this.deleteLabel.next("Elimina");
+          }
+        }));
       }));
-      this.subscriptions.push(this.mailFoldersService.pecFolderSelected.subscribe((pecFolderSelected: PecFolder) => {
-        this.actualPecFolderTagSelected = pecFolderSelected;
-        if (pecFolderSelected && this.myPecs && this.myPecs.length > 0) {
-          let idPec: number;
-          if (pecFolderSelected.type === PecFolderType.FOLDER) {
-            this.selectedFolder = pecFolderSelected.data as Folder;
-            idPec = this.selectedFolder.fk_idPec.id;
-            this.buttonsObservables.get("buttonsActive").next(false);
-            this.buttonsObservables.get("archiveActive").next(false);
-            this.buttonsObservables.get("editVisible").next(false);
-            this.buttonsObservables.get("deleteActive").next(false);
-          } else if (pecFolderSelected.type === PecFolderType.TAG) {
-            idPec = ((pecFolderSelected.data) as Tag).fk_idPec.id;
-          } else {
-            idPec = ((pecFolderSelected.data) as Pec).id;
-          }
-          this.buttonsObservables.get("moveActive").next(false);
-          this._selectedPec = this.myPecs.filter(p => p.id === idPec)[0];
-
-          const puoInviareMail = this.mailListService.isNewMailActive(this._selectedPec);
-          if (puoInviareMail) {
-            this.buttonsObservables.get("newMailActive").next(true);
-          } else {
-            this.buttonsObservables.get("newMailActive").next(false);
-          }
-
-          // La ricerca è attiva ovunque purché non sia dentro a bozze o posta in uscita
-          if ((pecFolderSelected.type === PecFolderType.FOLDER && this.selectedFolder.type !== FolderType.OUTBOX && this.selectedFolder.type !== FolderType.DRAFT) ||
-                pecFolderSelected.type === PecFolderType.TAG ||
-                pecFolderSelected.type === PecFolderType.PEC) {
-            this.buttonsObservables.get("searchActive").next(true);
-          } else {
-            this.buttonsObservables.get("searchActive").next(false);
-          }
-          this.deleteLabel.next("Elimina");
-        }
-      }));
+      
       this.subscriptions.push(this.pecService.myPecs.subscribe((pecs: Pec[]) => {
         if (pecs) {
           console.log("pecs = ", pecs);

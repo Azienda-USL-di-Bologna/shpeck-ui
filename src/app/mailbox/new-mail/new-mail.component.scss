@@ -5,7 +5,7 @@
   margin: 0;
 }
 label {
-  font-size:medium;
+  font-size: medium;
   font-weight: bold;
 }
 ul {
@@ -20,10 +20,13 @@ li {
     width: 100%;
   }
 }
-.d-flex, ul, li {
+.d-flex,
+ul,
+li {
   display: flex;
 }
-.flex-dir-col, ul {
+.flex-dir-col,
+ul {
   flex-direction: column;
 }
 
@@ -36,7 +39,7 @@ li {
     overflow-y: auto;
   }
   .p-chips-input-token {
-    display: none;  
+    display: none;
   }
 }
 
@@ -77,14 +80,21 @@ li {
 
 /******* Attachments and Address chips *******/
 ::ng-deep body .p-chips > ul.p-inputtext .p-chips-token,
-::ng-deep body .p-autocomplete.p-autocomplete-multiple .p-autocomplete-multiple-container .p-autocomplete-token {
+::ng-deep
+  body
+  .p-autocomplete.p-autocomplete-multiple
+  .p-autocomplete-multiple-container
+  .p-autocomplete-token {
   background-color: rgb(235, 235, 235);
   border-radius: 0.3rem;
   padding: 0.13rem 0.3rem;
   margin: 0.06rem;
   color: black;
 }
-::ng-deep body .p-autocomplete.p-autocomplete-multiple .p-autocomplete-multiple-container {
+::ng-deep
+  body
+  .p-autocomplete.p-autocomplete-multiple
+  .p-autocomplete-multiple-container {
   max-height: 5.063rem;
   overflow: auto;
   width: 100%;
@@ -112,11 +122,13 @@ li {
   display: inline-block;
 }
 
-.margin-l-5, .margin-lr-5 {
+.margin-l-5,
+.margin-lr-5 {
   margin-left: 0.3rem;
 }
 
-.margin-r-5, .margin-lr-5 {
+.margin-r-5,
+.margin-lr-5 {
   margin-right: 0.3rem;
 }
 
@@ -128,10 +140,12 @@ li {
   justify-content: center;
 }
 
-::ng-deep body .p-autocomplete.p-autocomplete-multiple .p-autocomplete-multiple-container:not(.p-state-disabled).p-state-focus,
+::ng-deep
+  body
+  .p-autocomplete.p-autocomplete-multiple
+  .p-autocomplete-multiple-container:not(.p-state-disabled).p-state-focus,
 input:focus {
   border-color: #2e4a65 !important;
-  
 }
 
 ::ng-deep .p-tooltip {
@@ -140,14 +154,16 @@ input:focus {
 
 /******* Editor *******/
 ::ng-deep .p-editor-content.ql-container.ql-snow {
-
   min-height: 1.25rem;
 }
-::ng-deep .ql-align.ql-picker.ql-icon-picker.ql-expanded .ql-picker-options .ql-picker-item {
+::ng-deep
+  .ql-align.ql-picker.ql-icon-picker.ql-expanded
+  .ql-picker-options
+  .ql-picker-item {
   padding: 0 !important;
 }
 .min-height-0 {
-  min-height: 0;  
+  min-height: 0;
 }
 ::ng-deep p-editor > div {
   height: 100%;
@@ -166,7 +182,7 @@ input:focus {
   margin: 0 0.25em 0 0.25em !important;
 }
 .warn-class {
-  margin: 0 .5em 0 .5em;
+  margin: 0 0.5em 0 0.5em;
 }
 
 .alert-message-error {
@@ -181,3 +197,12 @@ input:focus {
   background-color: #ffe399;
 }
 
+.item-contatto {
+  align-items: center;
+  display: flex;
+}
+
+.icon-item-contatto {
+  padding-right: 1rem;
+  padding-left: 0.2rem;
+}

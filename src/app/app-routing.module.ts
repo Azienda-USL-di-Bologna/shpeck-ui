@@ -4,7 +4,7 @@ import { JwtLoginComponent, LoggedOutPageComponent, NoLoginGuard, RefreshLoggedU
 import { MailboxComponent } from "./mailbox/mailbox.component";
 import { LOGGED_OUT_ROUTE, MAILBOX_ROUTE, LOGIN_ROUTE, ACCESSIBLE_MAILBOX_ROUTE, LANDING_ROUTE } from "src/environments/app-constants";
 import { RubricaComponent, ContactDetailStart, ContactEditingComponent, GroupEditingComponent,
-  ContactReadonlyComponent, CanDeactivateContactEditingGuard, CanDeactivateGroupEditingGuard, GroupModifyContactsComponent } from "@bds/rubrint";
+  ContactReadonlyComponent, CanDeactivateContactEditingGuard, CanDeactivateGroupEditingGuard, GroupModifyContactsComponent, ContactImportedCsv } from "@bds/rubrint";
   import { PageNotFoundComponent} from "@bds/common-components";
 import { DoNotShowRubricaPopupOnRefreshGuard } from "./rubrica/do-not-show-rubrica-popup-on-refresh.guard";
 import { LandingRoutingComponent } from './landing-routing/landing-routing.component';
@@ -26,6 +26,7 @@ const routes: Routes = [
   },
   { path: LOGGED_OUT_ROUTE, component: LoggedOutPageComponent },
   { path: "", redirectTo:  LANDING_ROUTE, pathMatch: "full" },
+
   {
     path: "rubrica",
     component: RubricaComponent,
@@ -38,7 +39,8 @@ const routes: Routes = [
       { path: "contact-editing", component: ContactEditingComponent , canDeactivate: [CanDeactivateContactEditingGuard]},
       { path: "group-editing", component: GroupEditingComponent, canDeactivate: [CanDeactivateGroupEditingGuard] },
       { path: "detail", component: ContactReadonlyComponent },
-      { path:"rubricaPopupGruppi", component: GroupModifyContactsComponent}
+      { path: "import-csv", component: ContactImportedCsv },
+      { path: "rubricaPopupGruppi", component: GroupModifyContactsComponent}
       ]
   },
   {path: "pagina-non-trovata", component: PageNotFoundComponent },
