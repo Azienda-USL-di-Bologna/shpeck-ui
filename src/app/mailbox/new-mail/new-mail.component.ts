@@ -5,6 +5,9 @@ import {
   AfterViewInit,
   OnDestroy,
   SystemJsNgModuleLoaderConfig,
+  Input,
+  Renderer2,
+  ElementRef,
 } from "@angular/core";
 import {
   FormGroup,
@@ -31,6 +34,9 @@ import {
   ContattoService,
   CategoriaContatto,
   DettaglioContatto,
+  ConfigurazioneService,
+  ParametroAziende,
+  Email,
 } from "@bds/internauta-model";
 import { Editor } from "primeng/editor";
 import {
@@ -53,6 +59,7 @@ import { Subscription } from "rxjs";
 import {
   CustomContactService,
   GroupModifyContactsComponent,
+  ProgressBarEvent,
   SelectedContact,
   SelectedContactType,
 } from "@bds/rubrint";
@@ -107,6 +114,8 @@ export class NewMailComponent implements OnInit, AfterViewInit, OnDestroy {
     "Non puoi inserire destinatari CC se è attiva la funzione Destinatari privati";
   public hideRecipientsTooltip =
     "Non puoi utilizzare la funzione Destinatari privati con destinatari CC: cancellali o rendili destinatari A";
+  public item1 = FilteredContactMultiple;
+  public isInserimentoInCorso: boolean = false;
 
   get addressesTO() {
     return this.mailForm.get("to");
@@ -127,8 +136,14 @@ export class NewMailComponent implements OnInit, AfterViewInit, OnDestroy {
     private router: Router,
     private loginService: JwtLoginService,
     private customContactService: CustomContactService,
-    private contattoService: ContattoService
-  ) {}
+    private contattoService: ContattoService,
+    private configurazioneService: ConfigurazioneService,
+    private renderer: Renderer2
+  ) {
+    // vincolo la funzione che customizza l'azione della dialog del domicilio digitale a questa istanza del componente, così quando viene usata 'this' non è undefined
+    this.responseDialogPresenteDomicilioDigitaleCustom =
+      this.responseDialogPresenteDomicilioDigitaleCustom.bind(this);
+  }
 
   ngOnInit() {
     this.subscriptions.push(
@@ -515,16 +530,98 @@ export class NewMailComponent implements OnInit, AfterViewInit, OnDestroy {
 
   public onSelectNew(item: any, formField: string) {
     // console.log("onselect")
-    if (!!!item.tipo) {
+    if (!item.tipo) {
+      //se non esiste il tipo vuol dire che è un contatto estemporaneo, quindi creo l'oggetto
       const itemFilterContactMultiple = {
         tipo: "ESTEMPORANEO",
         descrizione: item,
         descrizioneDettaglioContatto: item,
       } as FilteredContactMultiple;
       this.onSelectOrOnEnter(itemFilterContactMultiple, formField);
+    } else if (item.tipo && item.tipo != "GRUPPO") {
+      //se item non è un gruppo bensì un contatto singolo, passo dal controllo del domicilio digitale
+      //purtroppo devo fare anche la distinzione sul tipo perchè questa funzione viene richiamata anche quando viene
+      //inserito ciascun contatto di un gruppo (i contatti hanno tipo ESTEMPORANEO), in questo caso non devo fare scattare
+      //il popup/controllo del domicilio digitale altrimenti verrebbe fuori mille volte
+      //forse andrebbe rifattorizzato il giro
+      if (item.tipo != "ESTEMPORANEO") {
+        // se sono qui vuol dire che sto inserendo un contatto singolo non proveniente da un gruppo
+        this.isInserimentoInCorso = true;
+        this.checkDomicilioDigitale(item, formField);
+      } else {
+        //se sono qui è un contatto all'interno di un gruppo
+        this.onSelectOrOnEnter(item, formField);
+      }
     } else {
+      //se è un gruppo vado direttamente alla onSelectOrOnEnter()
       this.onSelectOrOnEnter(item, formField);
     }
+  }
+
+  /**
+   *Se i parametri dell'azienda lo prevedono, controllo se esiste un domicilio digitale del contatto selezionato, se esiste chiamo la funzione che
+   *mostra la popup di scelta (la risposta dell'utente verrà gestita invece nella funzione 'responseDialogPresenteDomicilioDigitaleCustom()')
+   * @param item oggetto selezionato
+   * @param formField indica se si tratta di "to" o di "cc"
+   */
+  public checkDomicilioDigitale(
+    item: FilteredContactMultiple,
+    formField: string
+  ) {
+    let obj = {
+      formField: formField,
+      item: item,
+    };
+    //guardo se l'aziende prevede il controllo su domicilio digitale
+    this.subscriptions.push(
+      this.configurazioneService
+        .getParametriAziende(
+          "recuperaDomicilioDigitaleInad",
+          null,
+          item.idAziendeContatto
+        )
+        .subscribe((parametriAziende: ParametroAziende[]) => {
+          console.log("parametriAziende", parametriAziende);
+          if (
+            parametriAziende &&
+            parametriAziende[0] &&
+            parametriAziende[0].valore === "true"
+          ) {
+            //chiamo la funzione che sta nel contact_service, la quale farà il controllo vero e proprio sul domicilio, gestendo anche 'a eventuale comparsa della popup ( asincrona).
+            //la risposta dell'utente verrà invece gestita nella funzione responseDialogPresenteDomicilioDigitaleCustom presente in questa classe
+            this.customContactService.checkAndAskSostituzioneConDomicilioDigitale(
+              item.descrizioneDettaglioContatto,
+              item.isDomicilioDigitale,
+              item.idContatto,
+              this.confirmationService,
+              this.responseDialogPresenteDomicilioDigitaleCustom,
+              "proponiDomicilioDigitaleOnContactSelection",
+              obj
+            );
+          }
+        })
+    );
+  }
+
+  /**
+   * Getisco la risposta del popup che chiede se voglio usare l'eventuale domicilio digitale del contatto
+   * @param emailDomicilioDigitale email dell'eventuale domicilio digitale trovato
+   * @param obj oggetto che trasporta le info del contatto selezionato in origine e il formField
+   */
+  public responseDialogPresenteDomicilioDigitaleCustom(
+    emailDomicilioDigitale: Email,
+    obj: any
+  ) {
+    //spengo isInserimentoInCorso in modo che le validazioni regex possano riattivarsi
+    this.isInserimentoInCorso = false;
+
+    // sostituisco la mail con quella del domicilio digitale
+    if (emailDomicilioDigitale) {
+      obj.item.descrizioneDettaglioContatto = emailDomicilioDigitale.email;
+    }
+
+    //proseguo
+    this.onSelectOrOnEnter(obj.item, obj.formField);
   }
 
   /**
@@ -579,7 +676,8 @@ export class NewMailComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   /**
-   * Gestisce sia l'evento di onselect che di keyup, in modo che vengano aggiunti sia i contatti provenienti dalla rubrica che estemporanei
+   * Gestisce sia l'evento di onselect che di keyup,
+   * in modo che vengano aggiunti sia i contatti provenienti dalla rubrica che estemporanei
    * @param item
    * @param formField
    */
@@ -599,13 +697,13 @@ export class NewMailComponent implements OnInit, AfterViewInit, OnDestroy {
           item.descrizioneDettaglioContatto.trim();
         //item.descrizione = item.descrizione.trim();
         if (form.value.indexOf(item.descrizioneDettaglioContatto) === -1) {
+          // INSERISCO L'ELEMENTO NEL FORM
           form.push(
             new FormControl(item.descrizioneDettaglioContatto, {
               validators: Validators.pattern(this.emailRegex),
               updateOn: "blur",
             })
           );
-
           autocomplete.writeValue(form.value);
           if (formField === "cc" && form.value && form.value.length > 0) {
             const hideRecipients = this.mailForm.get("hideRecipients");
@@ -615,6 +713,22 @@ export class NewMailComponent implements OnInit, AfterViewInit, OnDestroy {
             this.mailForm.markAsDirty();
           }
         } else {
+          // SE SONO QUI L'INDIRIZZO INSERITO è UN DOPPIONE
+
+          //commento, sostituisco con le righe seguenti
+          //this.addressesTO.value.splice(this.addressesTO.value.lenght - 1, 1);
+
+          // se non è estemporaneo devo togliere l'ultimo oggetto, perchè è stato aggiunto
+          //automaticamente dal componente al click
+          if (item.tipo != "ESTEMPORANEO") {
+            this.toAutoComplete.value.splice(
+              this.toAutoComplete.value.length - 1,
+              1
+            );
+            // aggiorno l'autocomplete all'attuale value del form
+            autocomplete.writeValue(this.toAutoComplete.value);
+          }
+
           this.messageService.add({
             severity: "warn",
             summary: "Attenzione",
@@ -627,6 +741,7 @@ export class NewMailComponent implements OnInit, AfterViewInit, OnDestroy {
           this.isMailValidCC = true;
         }
       } else {
+        //E' UN GRUPPO
         this.ControlAreAllMailInGroup(item, formField);
         if (formField === "to") {
           this.isMailValid = true;
@@ -637,6 +752,7 @@ export class NewMailComponent implements OnInit, AfterViewInit, OnDestroy {
     }
   }
 
+  private inserisciContattoSelezionato() {}
   /**
    * Metodo chiamato quando viene eliminato un indirizzo da to o cc
    * Aggiorna i campi della form e verifica se il campo cc è popolato per disattivare
@@ -988,12 +1104,15 @@ export class NewMailComponent implements OnInit, AfterViewInit, OnDestroy {
               //     ? " (Domicilio Digitale)"
               //     : "");
               dettaglioContattoMail.tipo = "CONTATTO";
+              dettaglioContattoMail.idAziendeContatto =
+                dettaglioContatto.idContatto.idAziende;
               dettaglioContattoMail.descrizioneContatto =
                 dettaglioContatto.idContatto.descrizione;
               dettaglioContattoMail.descrizioneDettaglioContatto =
                 dettaglioContatto.descrizione;
-              dettaglioContattoMail.id = dettaglioContatto.idContatto.id;
-              dettaglioContattoMail.domicilioDigitale =
+              dettaglioContattoMail.idContatto =
+                dettaglioContatto.idContatto.id;
+              dettaglioContattoMail.isDomicilioDigitale =
                 dettaglioContatto.domicilioDigitale;
               this.filteredAddressMultiple.push(dettaglioContattoMail);
             });
@@ -1051,7 +1170,7 @@ export class NewMailComponent implements OnInit, AfterViewInit, OnDestroy {
                 contattoGruppo.descrizione + " [ GRUPPO ] ";
               groupContact.descrizioneDettaglioContatto =
                 contattoGruppo.descrizione;
-              groupContact.id = contattoGruppo.id;
+              groupContact.idContatto = contattoGruppo.id;
               groupContact.tipo = "GRUPPO";
               this.filteredAddressMultiple.push(groupContact);
             });
@@ -1366,7 +1485,7 @@ export class NewMailComponent implements OnInit, AfterViewInit, OnDestroy {
                   // this.onSelect(element.address.descrizione, "to");
                   const elementoGruppo = new FilteredContactMultiple();
                   elementoGruppo.descrizione = element.address.descrizione;
-                  elementoGruppo.id = null;
+                  elementoGruppo.idContatto = null;
                   elementoGruppo.descrizioneDettaglioContatto =
                     element.address.descrizione;
                   elementoGruppo.tipo = "ESTEMPORANEO";
@@ -1377,7 +1496,7 @@ export class NewMailComponent implements OnInit, AfterViewInit, OnDestroy {
           } else {
             const elementoGruppo = new FilteredContactMultiple();
             elementoGruppo.descrizione = selectedContact.address.descrizione;
-            elementoGruppo.id = null;
+            elementoGruppo.idContatto = null;
             elementoGruppo.descrizioneDettaglioContatto =
               selectedContact.address.descrizione;
             elementoGruppo.tipo = "ESTEMPORANEO";
@@ -1413,7 +1532,7 @@ export class NewMailComponent implements OnInit, AfterViewInit, OnDestroy {
                   //this.onSelect(element.address.descrizione, "cc");
                   const elementoGruppo = new FilteredContactMultiple();
                   elementoGruppo.descrizione = element.address.descrizione;
-                  elementoGruppo.id = null;
+                  elementoGruppo.idContatto = null;
                   elementoGruppo.descrizioneDettaglioContatto =
                     element.address.descrizione;
                   elementoGruppo.tipo = "ESTEMPORANEO";
@@ -1424,7 +1543,7 @@ export class NewMailComponent implements OnInit, AfterViewInit, OnDestroy {
           } else {
             const elementoGruppo = new FilteredContactMultiple();
             elementoGruppo.descrizione = selectedContact.address.descrizione;
-            elementoGruppo.id = null;
+            elementoGruppo.idContatto = null;
             elementoGruppo.descrizioneDettaglioContatto =
               selectedContact.address.descrizione;
             elementoGruppo.tipo = "ESTEMPORANEO";
@@ -1453,7 +1572,11 @@ export class NewMailComponent implements OnInit, AfterViewInit, OnDestroy {
         .CustomContattoGruppoDetail;
     const filtersAndSorts: FiltersAndSorts = new FiltersAndSorts();
     filtersAndSorts.addFilter(
-      new FilterDefinition("id", FILTER_TYPES.not_string.equals, gruppoItem.id)
+      new FilterDefinition(
+        "id",
+        FILTER_TYPES.not_string.equals,
+        gruppoItem.idContatto
+      )
     );
     this.contattoService
       .getData(projection, filtersAndSorts, null, null)
@@ -1510,7 +1633,7 @@ export class NewMailComponent implements OnInit, AfterViewInit, OnDestroy {
       if (elem.idDettaglioContatto.tipo === "EMAIL") {
         const elementoGruppo = new FilteredContactMultiple();
         elementoGruppo.descrizione = elem.idDettaglioContatto.descrizione;
-        elementoGruppo.id = null;
+        elementoGruppo.idContatto = null;
         elementoGruppo.descrizioneDettaglioContatto =
           elem.idDettaglioContatto.descrizione;
         elementoGruppo.tipo = "ESTEMPORANEO";
@@ -1518,13 +1641,14 @@ export class NewMailComponent implements OnInit, AfterViewInit, OnDestroy {
       }
     });
   }
+
   private addGroupContactsModified(gruppo: Contatto, formField: string) {
     gruppo.contattiDelGruppoListTransient.forEach(
       (elem: GroupContactsListTransient) => {
         if (elem.address.tipo === "EMAIL") {
           const elementoGruppo = new FilteredContactMultiple();
           elementoGruppo.descrizione = elem.address.descrizione;
-          elementoGruppo.id = null;
+          elementoGruppo.idContatto = null;
           elementoGruppo.descrizioneDettaglioContatto =
             elem.address.descrizione;
           elementoGruppo.tipo = "ESTEMPORANEO";
