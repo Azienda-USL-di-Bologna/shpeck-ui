@@ -116,6 +116,7 @@ export class NewMailComponent implements OnInit, AfterViewInit, OnDestroy {
     "Non puoi utilizzare la funzione Destinatari privati con destinatari CC: cancellali o rendili destinatari A";
   public item1 = FilteredContactMultiple;
   public isInserimentoInCorso: boolean = false;
+  private idAziendeConRecuperaDomicilioDigitaleInadAttivo: number[] = [];
 
   get addressesTO() {
     return this.mailForm.get("to");
@@ -137,9 +138,12 @@ export class NewMailComponent implements OnInit, AfterViewInit, OnDestroy {
     private loginService: JwtLoginService,
     private customContactService: CustomContactService,
     private contattoService: ContattoService,
-    private configurazioneService: ConfigurazioneService,
-    private renderer: Renderer2
+    private configurazioneService: ConfigurazioneService
   ) {
+    // Mi salvo l'elenco di aziende che vogliono la funzionalità "recuperaDomicilioDigitaleInad"
+    this.idAziendeConRecuperaDomicilioDigitaleInadAttivo =
+      customContactService.getIdAziendeConRecuperaDomicilioDigitaleInadAttivo();
+
     // vincolo la funzione che customizza l'azione della dialog del domicilio digitale a questa istanza del componente, così quando viene usata 'this' non è undefined
     this.responseDialogPresenteDomicilioDigitaleCustom =
       this.responseDialogPresenteDomicilioDigitaleCustom.bind(this);
@@ -588,20 +592,19 @@ export class NewMailComponent implements OnInit, AfterViewInit, OnDestroy {
         .subscribe((parametriAziende: ParametroAziende[]) => {
           console.log("parametriAziende", parametriAziende);
           if (
-            parametriAziende &&
-            parametriAziende[0] &&
-            parametriAziende[0].valore === "true"
+            item.idAziendeContatto.some((r) =>
+              this.idAziendeConRecuperaDomicilioDigitaleInadAttivo.includes(r)
+            )
           ) {
             // chiamo la funzione che sta nel contact_service, la quale farà il controllo vero e proprio sul domicilio,
             // gestendo anche la eventuale comparsa della popup ( asincrona).
             // la risposta dell'utente verrà invece gestita nella funzione responseDialogPresenteDomicilioDigitaleCustom presente in questa classe
             this.customContactService.checkAndAskSostituzioneConDomicilioDigitale(
-              item.descrizioneDettaglioContatto,
-              item.isDomicilioDigitale,
               item.idContatto,
+              item.descrizioneDettaglioContatto,
               this.confirmationService,
-              this.responseDialogPresenteDomicilioDigitaleCustom,
               "proponiDomicilioDigitaleOnContactSelection",
+              this.responseDialogPresenteDomicilioDigitaleCustom,
               obj
             );
           }
