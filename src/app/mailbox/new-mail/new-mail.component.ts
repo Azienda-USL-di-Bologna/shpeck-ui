@@ -528,6 +528,11 @@ export class NewMailComponent implements OnInit, AfterViewInit, OnDestroy {
   // }
   // }
 
+  /**
+   * Funzione chiamata dall'html quando viene scelto un contatto dalla tendina che si apre dopo la ricerca
+   * @param item
+   * @param formField
+   */
   public onSelectNew(item: any, formField: string) {
     // console.log("onselect")
     if (!item.tipo) {
@@ -539,11 +544,11 @@ export class NewMailComponent implements OnInit, AfterViewInit, OnDestroy {
       } as FilteredContactMultiple;
       this.onSelectOrOnEnter(itemFilterContactMultiple, formField);
     } else if (item.tipo && item.tipo != "GRUPPO") {
-      //se item non è un gruppo bensì un contatto singolo, passo dal controllo del domicilio digitale
-      //purtroppo devo fare anche la distinzione sul tipo perchè questa funzione viene richiamata anche quando viene
-      //inserito ciascun contatto di un gruppo (i contatti hanno tipo ESTEMPORANEO), in questo caso non devo fare scattare
-      //il popup/controllo del domicilio digitale altrimenti verrebbe fuori mille volte
-      //forse andrebbe rifattorizzato il giro
+      // se item non è un gruppo bensì un contatto singolo, passo dal controllo del domicilio digitale
+      // purtroppo devo fare anche la distinzione sul tipo perchè questa funzione viene richiamata anche quando viene
+      // inserito ciascun contatto di un gruppo (i contatti hanno tipo ESTEMPORANEO), in questo caso non devo fare scattare
+      // il popup/controllo del domicilio digitale altrimenti verrebbe fuori mille volte
+      // forse andrebbe rifattorizzato il giro
       if (item.tipo != "ESTEMPORANEO") {
         // se sono qui vuol dire che sto inserendo un contatto singolo non proveniente da un gruppo
         this.isInserimentoInCorso = true;
@@ -553,14 +558,14 @@ export class NewMailComponent implements OnInit, AfterViewInit, OnDestroy {
         this.onSelectOrOnEnter(item, formField);
       }
     } else {
-      //se è un gruppo vado direttamente alla onSelectOrOnEnter()
+      // se è un gruppo vado direttamente alla onSelectOrOnEnter()
       this.onSelectOrOnEnter(item, formField);
     }
   }
 
   /**
-   *Se i parametri dell'azienda lo prevedono, controllo se esiste un domicilio digitale del contatto selezionato, se esiste chiamo la funzione che
-   *mostra la popup di scelta (la risposta dell'utente verrà gestita invece nella funzione 'responseDialogPresenteDomicilioDigitaleCustom()')
+   * Se i parametri dell'azienda lo prevedono, controllo se esiste un domicilio digitale del contatto selezionato, se esiste chiamo la funzione che
+   * mostra la popup di scelta (la risposta dell'utente verrà gestita invece nella funzione 'responseDialogPresenteDomicilioDigitaleCustom()')
    * @param item oggetto selezionato
    * @param formField indica se si tratta di "to" o di "cc"
    */
@@ -568,7 +573,7 @@ export class NewMailComponent implements OnInit, AfterViewInit, OnDestroy {
     item: FilteredContactMultiple,
     formField: string
   ) {
-    let obj = {
+    const obj = {
       formField: formField,
       item: item,
     };
@@ -587,8 +592,9 @@ export class NewMailComponent implements OnInit, AfterViewInit, OnDestroy {
             parametriAziende[0] &&
             parametriAziende[0].valore === "true"
           ) {
-            //chiamo la funzione che sta nel contact_service, la quale farà il controllo vero e proprio sul domicilio, gestendo anche 'a eventuale comparsa della popup ( asincrona).
-            //la risposta dell'utente verrà invece gestita nella funzione responseDialogPresenteDomicilioDigitaleCustom presente in questa classe
+            // chiamo la funzione che sta nel contact_service, la quale farà il controllo vero e proprio sul domicilio,
+            // gestendo anche la eventuale comparsa della popup ( asincrona).
+            // la risposta dell'utente verrà invece gestita nella funzione responseDialogPresenteDomicilioDigitaleCustom presente in questa classe
             this.customContactService.checkAndAskSostituzioneConDomicilioDigitale(
               item.descrizioneDettaglioContatto,
               item.isDomicilioDigitale,
