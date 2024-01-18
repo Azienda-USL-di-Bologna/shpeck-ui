@@ -30,7 +30,7 @@
     "@bds/jwt-login": "3.2.10",
     "@bds/next-sdr": "6.1.3",
     "@bds/primeng-plugin": "3.2.2",
-    "@bds/rubrint": "3.3.7",
+    "@bds/rubrint": "3.3.8",
     "@ng-idle/core": "11.1.0",
     "@ng-idle/keepalive": "11.0.3",
     "angular-font-awesome": "3.1.2",
