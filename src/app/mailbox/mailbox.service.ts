@@ -42,10 +42,11 @@ export interface Sorting {
 }
 
 export class FilteredContactMultiple {
-  id: number;
   descrizione: string;
+  idContatto: number;
+  idAziendeContatto: number[];
   descrizioneDettaglioContatto: string;
   descrizioneContatto: string;
   tipo: string;
-  domicilioDigitale: boolean;
+  isDomicilioDigitale: boolean;
 }

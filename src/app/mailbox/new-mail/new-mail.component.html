@@ -46,8 +46,16 @@
               <span
                 class="token-label"
                 *ngIf="value.tipo !== 'GRUPPO'"
-                [ngClass]="emailRegex.test(value) ? null : 'alert-message-warn'"
-                >{{ value }}
+                [ngClass]="
+                  isInserimentoInCorso || emailRegex.test(value)
+                    ? null
+                    : 'alert-message-warn'
+                "
+                >{{
+                  value.descrizioneDettaglioContatto
+                    ? "Inserimento contatto..."
+                    : value
+                }}
               </span>
               <span
                 class="token-label"
@@ -60,12 +68,13 @@
               pTemplate="item">
               <span class="token-label item-contatto"
                 ><i
-                  pTooltip="kdhwkiehj"
+                  pTooltip=""
                   tooltipPosition="top"
-                  *ngIf="value.domicilioDigitale"
+                  *ngIf="value.isDomicilioDigitale"
                   class="tooltip pi pi-id-card icon-item-contatto"></i
                 ><span
-                  >{{ value.descrizioneContatto }} -
+                  >{{ value.tipo == "GRUPPO" ? "[GRUPPO] " : ""
+                  }}{{ value.descrizioneContatto }} -
                   {{ value.descrizioneDettaglioContatto }}</span
                 >
               </span>
@@ -83,8 +92,9 @@
       </li>
       <li
         *ngIf="
-          (addressesTO?.invalid && !addressesTO?.errors?.required) ||
-          !isMailValid
+          ((addressesTO?.invalid && !addressesTO?.errors?.required) ||
+            !isMailValid) &&
+          !isInserimentoInCorso
         "
         class="alert-message-warn">
         Hai inserito un indirizzo mail sbagliato!
@@ -117,8 +127,16 @@
               <span
                 class="token-label"
                 *ngIf="value.tipo !== 'GRUPPO'"
-                [ngClass]="emailRegex.test(value) ? null : 'alert-message-warn'"
-                >{{ value }}
+                [ngClass]="
+                  isInserimentoInCorso || emailRegex.test(value)
+                    ? null
+                    : 'alert-message-warn'
+                "
+                >{{
+                  value.descrizioneDettaglioContatto
+                    ? "Inserimento contatto..."
+                    : value
+                }}
               </span>
               <span
                 class="token-label"
@@ -131,12 +149,13 @@
               pTemplate="item">
               <span class="token-label item-contatto"
                 ><i
-                  pTooltip="kdhwkiehj"
+                  pTooltip=""
                   tooltipPosition="top"
-                  *ngIf="value.domicilioDigitale"
+                  *ngIf="value.isDomicilioDigitale"
                   class="tooltip pi pi-id-card icon-item-contatto"></i
                 ><span
-                  >{{ value.descrizioneContatto }} -
+                  >{{ value.tipo == "GRUPPO" ? "[GRUPPO] " : ""
+                  }}{{ value.descrizioneContatto }} -
                   {{ value.descrizioneDettaglioContatto }}</span
                 >
               </span>
@@ -154,8 +173,9 @@
       </li>
       <li
         *ngIf="
-          (addressesCC?.invalid && !addressesCC?.errors?.required) ||
-          !isMailValidCC
+          ((addressesTO?.invalid && !addressesTO?.errors?.required) ||
+            !isMailValidCC) &&
+          !isInserimentoInCorso
         "
         class="alert-message-warn">
         Hai inserito un indirizzo mail sbagliato!
@@ -324,6 +344,29 @@
       label="Modifica Gruppo"
       (click)="cd2.reject()"
       class="confirm-buttons ui-button-raised ui-button-secondary custom-secondary-button"></button>
+  </p-footer>
+</p-confirmDialog>
+
+<p-confirmDialog
+  #cd3
+  key="proponiDomicilioDigitaleOnContactSelection"
+  acceptLabel="Sì"
+  rejectLabel="No"
+  appendTo="body"
+  [style]="{ width: '20vw' }">
+  <p-footer>
+    <button
+      type="button"
+      pButton
+      icon="pi pi-check"
+      label="Sì"
+      (click)="cd3.accept()"></button>
+    <button
+      type="button"
+      pButton
+      icon="pi pi-times "
+      label="No"
+      (click)="cd3.reject()"></button>
   </p-footer>
 </p-confirmDialog>
 
