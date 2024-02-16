@@ -224,7 +224,7 @@ export class ToolBarService {
               action: action,
               reloadOnDelete: false
             },
-          header: "Nuova Mail",
+          header: "Nuova Mail Inviata da <" + this._selectedPec.indirizzo + ">",
           width: "80%",
           styleClass: "new-draft",
           contentStyle: { "overflow": "visible", "height": "85vh" },
