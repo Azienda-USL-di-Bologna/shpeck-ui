@@ -144,7 +144,8 @@ export class NewMailComponent implements OnInit, AfterViewInit, OnDestroy {
   ) {
     // Mi salvo l'elenco di aziende che vogliono la funzionalità "recuperaDomicilioDigitaleInad"
     this.idAziendeConRecuperaDomicilioDigitaleInadAttivo =
-      customContactService.getIdAziendeConRecuperaDomicilioDigitaleInadAttivo();
+      customContactService.getIdAziendeConRecuperaDomicilioDigitaleInadAttivo() ||
+      [];
 
     // vincolo la funzione che customizza l'azione della dialog del domicilio digitale a questa istanza del componente, così quando viene usata 'this' non è undefined
     this.responseDialogPresenteDomicilioDigitaleCustom =
@@ -558,7 +559,25 @@ export class NewMailComponent implements OnInit, AfterViewInit, OnDestroy {
       if (item.tipo != "ESTEMPORANEO") {
         // se sono qui vuol dire che sto inserendo un contatto singolo non proveniente da un gruppo
         this.isInserimentoInCorso = true;
-        this.checkDomicilioDigitale(item, formField);
+        if (this.checkDomicilioDigitale(item)) {
+          // chiamo la funzione che sta nel contact_service, la quale farà il controllo vero e proprio sul domicilio,
+          // gestendo anche la eventuale comparsa della popup ( asincrona).
+          // la risposta dell'utente verrà invece gestita nella funzione responseDialogPresenteDomicilioDigitaleCustom presente in questa classe
+          this.customContactService.checkAndAskSostituzioneConDomicilioDigitale(
+            item.idContatto,
+            item.descrizioneDettaglioContatto,
+            this.confirmationService,
+            "proponiDomicilioDigitaleOnContactSelection",
+            this.responseDialogPresenteDomicilioDigitaleCustom,
+            {
+              formField: formField,
+              item: item,
+            }
+          );
+        } else {
+          // non mi interessa dei domicili digitali, vado avanti con la selezione
+          this.onSelectOrOnEnter(item, formField);
+        }
       } else {
         //se sono qui è un contatto all'interno di un gruppo
         this.onSelectOrOnEnter(item, formField);
@@ -575,43 +594,17 @@ export class NewMailComponent implements OnInit, AfterViewInit, OnDestroy {
    * @param item oggetto selezionato
    * @param formField indica se si tratta di "to" o di "cc"
    */
-  public checkDomicilioDigitale(
-    item: FilteredContactMultiple,
-    formField: string
-  ) {
-    const obj = {
-      formField: formField,
-      item: item,
-    };
-    //guardo se l'aziende prevede il controllo su domicilio digitale
-    this.subscriptions.push(
-      this.configurazioneService
-        .getParametriAziende(
-          "recuperaDomicilioDigitaleInad",
-          null,
-          item.idAziendeContatto
-        )
-        .subscribe((parametriAziende: ParametroAziende[]) => {
-          console.log("parametriAziende", parametriAziende);
-          if (
-            item.idAziendeContatto.some((r) =>
-              this.idAziendeConRecuperaDomicilioDigitaleInadAttivo.includes(r)
-            )
-          ) {
-            // chiamo la funzione che sta nel contact_service, la quale farà il controllo vero e proprio sul domicilio,
-            // gestendo anche la eventuale comparsa della popup ( asincrona).
-            // la risposta dell'utente verrà invece gestita nella funzione responseDialogPresenteDomicilioDigitaleCustom presente in questa classe
-            this.customContactService.checkAndAskSostituzioneConDomicilioDigitale(
-              item.idContatto,
-              item.descrizioneDettaglioContatto,
-              this.confirmationService,
-              "proponiDomicilioDigitaleOnContactSelection",
-              this.responseDialogPresenteDomicilioDigitaleCustom,
-              obj
-            );
-          }
-        })
-    );
+  public checkDomicilioDigitale(item: FilteredContactMultiple): boolean {
+    return false;
+    /* TODO: Va verificato se il contatto appartiene a delle aziende, Se è ipa/gaac, appartiene a tutte le aziende pur avendo
+    l'idaziende a null.
+    Inotlre vogliamo sapere non solo se l'acienda usa il domicnilio digitale ma anche se è interessata
+    nello specifico a che venga controllato qui nelle mail. quindi sono due parametri diversi
+
+    */
+    /* return item.idAziendeContatto.some((r) =>
+      this.idAziendeConRecuperaDomicilioDigitaleInadAttivo.includes(r)
+    ); */
   }
 
   /**
