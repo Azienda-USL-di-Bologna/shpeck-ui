@@ -52,6 +52,8 @@ import {
   BatchOperationTypes,
   NextSdrEntity,
   AdditionalDataDefinition,
+  SORT_MODES,
+  SortDefinition,
 } from "@bds/next-sdr";
 import { ActivatedRoute, Router } from "@angular/router";
 import { UtenteUtilities, JwtLoginService } from "@bds/jwt-login";
@@ -1078,11 +1080,21 @@ export class NewMailComponent implements OnInit, AfterViewInit, OnDestroy {
         false
       )
     );
+    filtersAndSorts.addSort(
+      new SortDefinition("idContatto.ranking", SORT_MODES.desc)
+    );
     filtersAndSorts.addFilter(
       new FilterDefinition("eliminato", FILTER_TYPES.not_string.equals, false)
     );
     filtersAndSorts.addFilter(
       new FilterDefinition("tipo", FILTER_TYPES.not_string.equals, "EMAIL")
+    );
+    filtersAndSorts.addFilter(
+      new FilterDefinition(
+        "idContatto.tscol",
+        FILTER_TYPES.not_string.equals,
+        query
+      )
     );
 
     // filtersAndSorts.addFilter(new FilterDefinition("tscol", FILTER_TYPES.not_string.equals, query));
