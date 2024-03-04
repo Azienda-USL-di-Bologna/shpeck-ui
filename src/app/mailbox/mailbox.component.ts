@@ -1,4 +1,14 @@
-import { Component, OnInit, ViewChild, ElementRef, AfterViewInit, AfterViewChecked, OnChanges, HostListener, OnDestroy } from "@angular/core";
+import {
+  Component,
+  OnInit,
+  ViewChild,
+  ElementRef,
+  AfterViewInit,
+  AfterViewChecked,
+  OnChanges,
+  HostListener,
+  OnDestroy,
+} from "@angular/core";
 import { Subscription } from "rxjs";
 import { SettingsService } from "../services/settings.service";
 import { AppCustomization } from "src/environments/app-customization";
@@ -16,7 +26,6 @@ import { JwtLoginService, UtenteUtilities } from "@bds/jwt-login";
   styleUrls: ["./mailbox.component.scss"],
 })
 export class MailboxComponent implements OnInit, AfterViewInit, AfterViewChecked, OnChanges, OnDestroy {
-
   public pecFolderSelected: PecFolder;
   public _selectedPec: Pec;
   public _selectedTag: Tag;
@@ -40,7 +49,7 @@ export class MailboxComponent implements OnInit, AfterViewInit, AfterViewChecked
   public hideDetail = false;
   public fontSize = FONTSIZE.BIG;
   public componentToLoad: string = "mail-list";
-  public accessibilita:boolean = false;
+  public accessibilita: boolean = false;
   public totalMessageNumberDescriptor: TotalMessageNumberDescriptor;
 
   public tooltipSorting = "L'ordinamento è impostato su data discendente";
@@ -53,9 +62,9 @@ export class MailboxComponent implements OnInit, AfterViewInit, AfterViewChecked
       disabled: false,
       queryParams: {
         sort: SORT_MODES.desc,
-        field: "receiveTime"
+        field: "receiveTime",
       },
-      command: event => this.changeSorting(event)
+      command: (event) => this.changeSorting(event),
     },
     {
       label: "Mittente",
@@ -65,9 +74,9 @@ export class MailboxComponent implements OnInit, AfterViewInit, AfterViewChecked
       disabled: false,
       queryParams: {
         sort: null,
-        field: "messageExtensionList.addressFrom"
+        field: "messageExtensionList.addressFrom",
       },
-      command: event => this.changeSorting(event)
+      command: (event) => this.changeSorting(event),
     },
     {
       label: "Da leggere",
@@ -77,10 +86,10 @@ export class MailboxComponent implements OnInit, AfterViewInit, AfterViewChecked
       disabled: false,
       queryParams: {
         sort: null,
-        field: "seen"
+        field: "seen",
       },
-      command: event => this.changeSorting(event)
-    }
+      command: (event) => this.changeSorting(event),
+    },
   ];
 
   private enableSetLookCall = false;
@@ -90,111 +99,123 @@ export class MailboxComponent implements OnInit, AfterViewInit, AfterViewChecked
   private MAX_X_RIGHTSIDE: number = 70;
   private subscriptions: Subscription[] = [];
   private loggedUser: UtenteUtilities;
-  private regexFindP = new RegExp(/[)()]+/, "gm"); // find  symbols ) or ( 
+  private regexFindP = new RegExp(/[)()]+/, "gm"); // find  symbols ) or (
   public loggedUserIsSuperD: boolean = false;
 
-  constructor(private settingsService: SettingsService,
+  constructor(
+    private settingsService: SettingsService,
     private mailFoldersService: MailFoldersService,
     private mailboxService: MailboxService,
-    private loginService: JwtLoginService) {
-
+    private loginService: JwtLoginService
+  ) {
     this.rightSideVisible = true;
   }
 
   ngOnDestroy(): void {
-    this.subscriptions.forEach(sub => sub.unsubscribe);
+    this.subscriptions.forEach((sub) => sub.unsubscribe);
     this.subscriptions = [];
   }
 
-
   ngOnInit() {
-    this.subscriptions.push(this.loginService.loggedUser$.subscribe((utente: UtenteUtilities) => {
-      if (utente) {
-        if (!this.loggedUser || utente.getUtente().id !== this.loggedUser.getUtente().id) {
-          this.loggedUser = utente;
-          this.loggedUserIsSuperD = this.loggedUser.isSD();
-          this.accessibilita = this.loggedUser.getUtente().idPersona.accessibilita;
+    this.subscriptions.push(
+      this.loginService.loggedUser$.subscribe((utente: UtenteUtilities) => {
+        if (utente) {
+          if (!this.loggedUser || utente.getUtente().id !== this.loggedUser.getUtente().id) {
+            this.loggedUser = utente;
+            this.loggedUserIsSuperD = this.loggedUser.isSD();
+            this.accessibilita = this.loggedUser.getUtente().idPersona.accessibilita;
+          }
         }
-      }
-    }));
-    this.subscriptions.push(this.settingsService.settingsChangedNotifier$.subscribe(newSettings => {
-      this.hideDetail = newSettings[AppCustomization.shpeck.hideDetail] === "true";
-      this.fontSize = newSettings[AppCustomization.shpeck.fontSize] ? newSettings[AppCustomization.shpeck.fontSize] : FONTSIZE.BIG;
-      if (this.hideDetail) {
-        this.mailList.nativeElement.style.flex = "1";
-      }
-    }));
-    this.subscriptions.push(this.mailFoldersService.pecFolderSelected.subscribe((pecFolderSelected: PecFolder) => {
-      // al cambio di cartella/tag setto a null il numero di messaggi in modo che sparisca e ricompaia poi dopo che i nuovi messaggi sono stati caricati
-      this.totalMessageNumberDescriptor = null;
-      this.pecFolderSelected = pecFolderSelected;
-      if (pecFolderSelected) {
-        if (pecFolderSelected.type === PecFolderType.FOLDER) {
-          const selectedFolder: Folder = pecFolderSelected.data as Folder;
-          this._selectedFolder = pecFolderSelected.data as Folder;
-          this._selectedFolder.description  = this._selectedFolder.description.replace(this.regexFindP, "_");
-          this._selectedPecId = selectedFolder.fk_idPec.id;
-          if (selectedFolder.type === FolderType.DRAFT) {
-            this.componentToLoad = "mail-draft";
-          } else if (selectedFolder.type === FolderType.OUTBOX) {
-            this.componentToLoad = "mail-outbox";
-          } else {
-            this.componentToLoad = "mail-list";
-            /* if (this.accessibilita) {
+      })
+    );
+    this.subscriptions.push(
+      this.settingsService.settingsChangedNotifier$.subscribe((newSettings) => {
+        this.hideDetail = newSettings[AppCustomization.shpeck.hideDetail] === "true";
+        this.fontSize = newSettings[AppCustomization.shpeck.fontSize]
+          ? newSettings[AppCustomization.shpeck.fontSize]
+          : FONTSIZE.BIG;
+        if (this.hideDetail) {
+          this.mailList.nativeElement.style.flex = "1";
+        }
+      })
+    );
+    this.subscriptions.push(
+      this.mailFoldersService.pecFolderSelected.subscribe((pecFolderSelected: PecFolder) => {
+        // al cambio di cartella/tag setto a null il numero di messaggi in modo che sparisca e ricompaia poi dopo che i nuovi messaggi sono stati caricati
+        this.totalMessageNumberDescriptor = null;
+        this.pecFolderSelected = pecFolderSelected;
+        if (pecFolderSelected) {
+          if (pecFolderSelected.type === PecFolderType.FOLDER) {
+            const selectedFolder: Folder = pecFolderSelected.data as Folder;
+            this._selectedFolder = pecFolderSelected.data as Folder;
+            this._selectedFolder.description = this._selectedFolder.description.replace(this.regexFindP, "_");
+            this._selectedPecId = selectedFolder.fk_idPec.id;
+            if (selectedFolder.type === FolderType.DRAFT) {
+              this.componentToLoad = "mail-draft";
+            } else if (selectedFolder.type === FolderType.OUTBOX) {
+              this.componentToLoad = "mail-outbox";
+            } else {
+              this.componentToLoad = "mail-list";
+              /* if (this.accessibilita) {
               this.componentToLoad = "accessibilita-mail-list";
             } else {
               this.componentToLoad = "mail-list";
             } */
-          }
-          this._selectedTag = null;
-        } else if (pecFolderSelected.type === PecFolderType.TAG) {
-          this.componentToLoad = "mail-list";
-          /* if (this.accessibilita) {
+            }
+            this._selectedTag = null;
+          } else if (pecFolderSelected.type === PecFolderType.TAG) {
+            this.componentToLoad = "mail-list";
+            /* if (this.accessibilita) {
             this.componentToLoad = "accessibilita-mail-list";
           } else {
             this.componentToLoad = "mail-list";
           } */
-          this._selectedFolder = null;
-          this._selectedTag = pecFolderSelected.data as Tag;
-          this._selectedTag.description = this._selectedTag.description.replace(this.regexFindP, "_");
-          this._selectedPecId = this._selectedTag.fk_idPec.id;
-          this._selectedPec = pecFolderSelected.pec;
-        } else {
-          this.componentToLoad = "mail-list";
-          /* if (this.accessibilita) {
+            this._selectedFolder = null;
+            this._selectedTag = pecFolderSelected.data as Tag;
+            this._selectedTag.description = this._selectedTag.description.replace(this.regexFindP, "_");
+            this._selectedPecId = this._selectedTag.fk_idPec.id;
+            this._selectedPec = pecFolderSelected.pec;
+          } else {
+            this.componentToLoad = "mail-list";
+            /* if (this.accessibilita) {
             this.componentToLoad = "accessibilita-mail-list";
           } else {
             this.componentToLoad = "mail-list";
           } */
-          this._selectedPec = pecFolderSelected.data as Pec;
-          this._selectedPecId = this._selectedPec.id;
-          this._selectedFolder = null;
-          this._selectedTag = null;
-        }
-      }
-    }));
-    this.subscriptions.push(this.mailboxService.totalMessageNumberDescriptor$.subscribe((totalMessageNumberDescriptor: TotalMessageNumberDescriptor) => {
-      if (totalMessageNumberDescriptor) {
-        if (this.pecFolderSelected.type === totalMessageNumberDescriptor.pecFolder.type) {
-          switch (totalMessageNumberDescriptor.pecFolder.type) {
-            case PecFolderType.FOLDER:
-              const receivedSelectedFolder: Folder = totalMessageNumberDescriptor.pecFolder.data as Folder;
-              const folderSelected: Folder = this.pecFolderSelected.data as Folder;
-              if (receivedSelectedFolder.id === folderSelected.id) {
-                this.totalMessageNumberDescriptor = totalMessageNumberDescriptor;
-              }
-            break;
-            case PecFolderType.TAG:
-              const tagSelected: Tag = this.pecFolderSelected.data as Tag;
-              const receivedSelectedTag: Tag = totalMessageNumberDescriptor.pecFolder.data as Tag;
-              if (receivedSelectedTag.id === tagSelected.id) {
-                this.totalMessageNumberDescriptor = totalMessageNumberDescriptor;
-              }
-            break;
+            this._selectedPec = pecFolderSelected.data as Pec;
+            this._selectedPecId = this._selectedPec.id;
+            this._selectedFolder = null;
+            this._selectedTag = null;
           }
         }
-      }
-    }));
+      })
+    );
+    this.subscriptions.push(
+      this.mailboxService.totalMessageNumberDescriptor$.subscribe(
+        (totalMessageNumberDescriptor: TotalMessageNumberDescriptor) => {
+          if (totalMessageNumberDescriptor) {
+            if (this.pecFolderSelected.type === totalMessageNumberDescriptor.pecFolder.type) {
+              switch (totalMessageNumberDescriptor.pecFolder.type) {
+                case PecFolderType.FOLDER:
+                  const receivedSelectedFolder: Folder = totalMessageNumberDescriptor.pecFolder.data as Folder;
+                  const folderSelected: Folder = this.pecFolderSelected.data as Folder;
+                  if (receivedSelectedFolder.id === folderSelected.id) {
+                    this.totalMessageNumberDescriptor = totalMessageNumberDescriptor;
+                  }
+                  break;
+                case PecFolderType.TAG:
+                  const tagSelected: Tag = this.pecFolderSelected.data as Tag;
+                  const receivedSelectedTag: Tag = totalMessageNumberDescriptor.pecFolder.data as Tag;
+                  if (receivedSelectedTag.id === tagSelected.id) {
+                    this.totalMessageNumberDescriptor = totalMessageNumberDescriptor;
+                  }
+                  break;
+              }
+            }
+          }
+        }
+      )
+    );
   }
 
   /**
@@ -202,13 +223,14 @@ export class MailboxComponent implements OnInit, AfterViewInit, AfterViewChecked
    */
   public changeSorting(event) {
     console.log(event);
-    this.sortMenuItem.forEach(sortItem => {
+    this.sortMenuItem.forEach((sortItem) => {
       if (sortItem.id === event.item.id) {
-        sortItem.queryParams.sort = sortItem.queryParams.sort === null || sortItem.queryParams.sort === SORT_MODES.desc ? SORT_MODES.asc :  SORT_MODES.desc;
+        sortItem.queryParams.sort =
+          sortItem.queryParams.sort === null || sortItem.queryParams.sort === SORT_MODES.desc ? SORT_MODES.asc : SORT_MODES.desc;
         sortItem.icon = sortItem.queryParams.sort === SORT_MODES.desc ? "pi pi-chevron-down" : "pi pi-chevron-up";
         const sort: Sorting = {
           field: sortItem.queryParams.field,
-          sortMode: sortItem.queryParams.sort
+          sortMode: sortItem.queryParams.sort,
         };
         this.mailboxService.setSorting(sort);
         this.tooltipSorting = `L'ordinamento è impostato su ${sortItem.title} ${sortItem.queryParams.sort === SORT_MODES.desc ? "discendente" : "ascendente"}`;
@@ -235,7 +257,6 @@ export class MailboxComponent implements OnInit, AfterViewInit, AfterViewChecked
   //     this.folderSelected = null;
   //   }
   // }
-
 
   ngAfterViewInit() {
     this.setLook();
@@ -285,18 +306,18 @@ export class MailboxComponent implements OnInit, AfterViewInit, AfterViewChecked
       event.preventDefault();
       const totalX = that.rightSide.nativeElement.offsetWidth;
       const offsetLeftSide = event.clientX - that.mailList.nativeElement.offsetWidth;
-      document.onmouseup = function() {
+      document.onmouseup = function () {
         that.sliding = false;
         document.onmousemove = null;
         document.onmouseup = null;
       };
 
-      document.onmousemove = function(e: MouseEvent) {
+      document.onmousemove = function (e: MouseEvent) {
         e.preventDefault();
         const xLeft = e.clientX - offsetLeftSide;
-        const mailListWidth = xLeft * 100 / totalX;
+        const mailListWidth = (xLeft * 100) / totalX;
         if (mailListWidth >= that.MIN_X_RIGHTSIDE && mailListWidth < that.MAX_X_RIGHTSIDE) {
-          that.mailList.nativeElement.style.width =  mailListWidth + "%";
+          that.mailList.nativeElement.style.width = mailListWidth + "%";
           that.mailList.nativeElement.style.flex = "none";
         }
       };
@@ -306,16 +327,16 @@ export class MailboxComponent implements OnInit, AfterViewInit, AfterViewChecked
       event.preventDefault();
       const totalX = that.mailContainer.nativeElement.offsetWidth;
       const offsetLeftSide = event.clientX - that.mailFolder.nativeElement.offsetWidth;
-      document.onmouseup = function() {
+      document.onmouseup = function () {
         document.onmousemove = null;
         document.onmouseup = null;
       };
-      document.onmousemove = function(e: MouseEvent) {
+      document.onmousemove = function (e: MouseEvent) {
         e.preventDefault();
         const xLeft = e.clientX - offsetLeftSide;
-        const mailFolderWidth = xLeft * 100 / totalX;
+        const mailFolderWidth = (xLeft * 100) / totalX;
         if (mailFolderWidth >= that.MIN_X_MAIL_FOLDER && mailFolderWidth < that.MAX_X_MAIL_FOLDER) {
-          that.mailFolder.nativeElement.style.width =  mailFolderWidth + "%";
+          that.mailFolder.nativeElement.style.width = mailFolderWidth + "%";
         }
       };
     };
@@ -330,7 +351,7 @@ export class MailboxComponent implements OnInit, AfterViewInit, AfterViewChecked
     const mailDetailContainer: HTMLElement = document.querySelector(".mail-detail");
     const searchBar: HTMLElement = document.querySelector(".input-find");
     const divWithTotalNumber: HTMLElement = document.querySelector(".filter-box-left");
-    
+
     if (pecContainer && document.activeElement === pecContainer) {
       if (!!listContainer) listContainer.focus();
     } else if (!!listContainer && document.activeElement === listContainer) {
@@ -344,7 +365,11 @@ export class MailboxComponent implements OnInit, AfterViewInit, AfterViewChecked
       if (!!searchBar) searchBar.focus();
     } else if (!!divWithTotalNumber && document.activeElement === divWithTotalNumber) {
       if (!!mailDetailContainer) mailDetailContainer.focus();
-    } else if (document.activeElement !== pecContainer && document.activeElement !== listContainer && document.activeElement !== searchBar) {
+    } else if (
+      document.activeElement !== pecContainer &&
+      document.activeElement !== listContainer &&
+      document.activeElement !== searchBar
+    ) {
       if (!!searchBar) searchBar.focus();
     }
   }

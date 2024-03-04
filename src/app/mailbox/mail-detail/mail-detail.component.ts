@@ -11,25 +11,23 @@ import { Utils } from "src/app/utils/utils";
 import { DraftService, DraftEvent } from "src/app/services/draft.service";
 import { OutboxService, OutboxEvent } from "src/app/services/outbox.service";
 
-
 @Component({
   selector: "app-mail-detail",
   templateUrl: "./mail-detail.component.html",
-  styleUrls: ["./mail-detail.component.scss"]
+  styleUrls: ["./mail-detail.component.scss"],
 })
 export class MailDetailComponent implements OnInit, OnDestroy {
-
   public showLogs = false;
-	public krintFilterOptions: KrintFilterOptions;
+  public krintFilterOptions: KrintFilterOptions;
 
   private subscription: Subscription[] = [];
   private _versioneAccessibile = false;
   private pageConfNoLimit: PagingConf = {
     conf: {
       page: 0,
-      size: 999999
+      size: 999999,
     },
-    mode: "PAGE"
+    mode: "PAGE",
   };
 
   @Input("message")
@@ -51,22 +49,26 @@ export class MailDetailComponent implements OnInit, OnDestroy {
   public accordionAttachmentsSelected: boolean = false;
   public recepitsVisible: boolean = false;
   public getAllEmlAttachmentInProgress: boolean = false;
-  get inOut() { return InOut; }
+  get inOut() {
+    return InOut;
+  }
 
   @ViewChild("subject") private subject;
   @ViewChild("emliframe", {}) private emliframe: ElementRef;
   @ViewChild("dettagli") private dettagli;
   @ViewChild("allegati") private allegati;
 
-  constructor(private messageService: ShpeckMessageService,
+  constructor(
+    private messageService: ShpeckMessageService,
     private draftService: DraftService,
     private http: HttpClient,
-    private outboxService: OutboxService) { }
+    private outboxService: OutboxService
+  ) {}
 
   public ngOnInit(): void {
     /* Mi sottoscrivo al messageEvent */
-    this.subscription.push(this.messageService.messageEvent.subscribe(
-      (messageEvent: MessageEvent) => {
+    this.subscription.push(
+      this.messageService.messageEvent.subscribe((messageEvent: MessageEvent) => {
         this.messageTrueDraftFalse = true;
         this.numberOfMessageSelected = null;
         this.showLogs = false;
@@ -83,15 +85,15 @@ export class MailDetailComponent implements OnInit, OnDestroy {
         } else if (!messageEvent || !messageEvent.selectedMessages || !(messageEvent.selectedMessages.length > 1)) {
           this.fullMessage = null;
           this.setLook();
-        } else if (messageEvent && messageEvent.selectedMessages && (messageEvent.selectedMessages.length > 1)) {
+        } else if (messageEvent && messageEvent.selectedMessages && messageEvent.selectedMessages.length > 1) {
           this.numberOfMessageSelected = messageEvent.selectedMessages.length;
           this.fullMessage = null;
           this.setLook();
         }
-      }
-    ));
-    this.subscription.push(this.draftService.draftEvent.subscribe(
-      (draftEvent: DraftEvent) => {
+      })
+    );
+    this.subscription.push(
+      this.draftService.draftEvent.subscribe((draftEvent: DraftEvent) => {
         this.messageTrueDraftFalse = false;
         this.numberOfMessageSelected = null;
         if (draftEvent && draftEvent.fullDraft) {
@@ -99,15 +101,15 @@ export class MailDetailComponent implements OnInit, OnDestroy {
         } else if (!draftEvent || !draftEvent.selectedDrafts || !(draftEvent.selectedDrafts.length > 1)) {
           this.fullMessage = null;
           this.setLook();
-        } else if (draftEvent && draftEvent.selectedDrafts && (draftEvent.selectedDrafts.length > 1)) {
+        } else if (draftEvent && draftEvent.selectedDrafts && draftEvent.selectedDrafts.length > 1) {
           this.numberOfMessageSelected = draftEvent.selectedDrafts.length;
           this.fullMessage = null;
           this.setLook();
         }
-      }
-    ));
-    this.subscription.push(this.outboxService.outboxEvent.subscribe(
-      (outboxEvent: OutboxEvent) => {
+      })
+    );
+    this.subscription.push(
+      this.outboxService.outboxEvent.subscribe((outboxEvent: OutboxEvent) => {
         this.messageTrueDraftFalse = true;
         this.numberOfMessageSelected = null;
         if (outboxEvent && outboxEvent.fullOutboxMail) {
@@ -115,19 +117,18 @@ export class MailDetailComponent implements OnInit, OnDestroy {
         } else if (!outboxEvent || !outboxEvent.selectedOutboxMails || !(outboxEvent.selectedOutboxMails.length > 1)) {
           this.fullMessage = null;
           this.setLook();
-        } else if (outboxEvent && outboxEvent.selectedOutboxMails && (outboxEvent.selectedOutboxMails.length > 1)) {
+        } else if (outboxEvent && outboxEvent.selectedOutboxMails && outboxEvent.selectedOutboxMails.length > 1) {
           this.numberOfMessageSelected = null;
           this.fullMessage = null;
           this.setLook();
         }
-      }
-    ));
-
+      })
+    );
   }
 
   public ngOnDestroy(): void {
     /* Mi desottoscrivo da tutto */
-    this.subscription.forEach(s => s.unsubscribe());
+    this.subscription.forEach((s) => s.unsubscribe());
   }
 
   /**
@@ -142,7 +143,7 @@ export class MailDetailComponent implements OnInit, OnDestroy {
       const data: EmlData = fullMessage.emlData;
       /* Setto il conentType degli allegati e setto il nome a max 42 caratteri */
       if (data.attachments && data.attachments.length > 0) {
-        data.attachments.forEach(a => {
+        data.attachments.forEach((a) => {
           a.contentType = a.mimeType.substr(0, a.mimeType.indexOf(";"));
           a.simpleType = a.contentType.substr(0, a.contentType.indexOf("/"));
           if (a.fileName.length > 42) {
@@ -153,9 +154,14 @@ export class MailDetailComponent implements OnInit, OnDestroy {
         });
       }
       /* Sostituisco le newline con dei <br/> */
-      data.displayBody = data.htmlTextImgEmbedded != null ? data.htmlTextImgEmbedded : (
-        data.htmlText != null ? data.htmlText : data.plainText != null ? data.plainText.replace(/\n/g, "<br/>") : null
-      );
+      data.displayBody =
+        data.htmlTextImgEmbedded != null
+          ? data.htmlTextImgEmbedded
+          : data.htmlText != null
+            ? data.htmlText
+            : data.plainText != null
+              ? data.plainText.replace(/\n/g, "<br/>")
+              : null;
 
       data.displayBody = "<div tabindex='0'>" + data.displayBody + "</div>";
     }
@@ -163,38 +169,39 @@ export class MailDetailComponent implements OnInit, OnDestroy {
     /* Per la posta inviata carico le ricevute */
     /* TODO: La chiamata deve essere senza paginazione senza limite */ /* <============================================================== */
     if (fullMessage.message && (fullMessage.message as Message).inOut === InOut.OUT) {
-      this.messageService.getData(
-        ENTITIES_STRUCTURE.shpeck.message.customProjections.CustomRecepitWithAddressList,
-        this.buildFilterAndSortRecepits(fullMessage), null, this.pageConfNoLimit).subscribe(
-          res => {
-            if (res && res.results && res.results.length > 0) {
-              (fullMessage.message as Message).idRelatedList = res.results;
-              // Prendo la data di accetazione. La ricevuta di accetazione è al massimo una
-              fullMessage.emlData.acceptanceDate = (fullMessage.message as Message).idRelatedList.find(
-                r =>
-                  r.idRecepit.recepitType === RecepitType.ACCETTAZIONE
-              )?.receiveTime;
-              // Prendo le ricevute di consegna.
-              const deliveryRecepits = (fullMessage.message as Message).idRelatedList.filter(
-                r =>
-                  r.idRecepit.recepitType === RecepitType.CONSEGNA
-              );
-              // Se ho alemno una ricevuta di consegna prendo la data della più recente
-              if (deliveryRecepits.length > 0) {
-                if (deliveryRecepits.length === 1) {
-                  fullMessage.emlData.deliveryDate = deliveryRecepits[0].receiveTime;
-                  /* Questo pezzo di codice serve a tirare fuori la data più ricente tra le ricevute.
+      this.messageService
+        .getData(
+          ENTITIES_STRUCTURE.shpeck.message.customProjections.CustomRecepitWithAddressList,
+          this.buildFilterAndSortRecepits(fullMessage),
+          null,
+          this.pageConfNoLimit
+        )
+        .subscribe((res) => {
+          if (res && res.results && res.results.length > 0) {
+            (fullMessage.message as Message).idRelatedList = res.results;
+            // Prendo la data di accetazione. La ricevuta di accetazione è al massimo una
+            fullMessage.emlData.acceptanceDate = (fullMessage.message as Message).idRelatedList.find(
+              (r) => r.idRecepit.recepitType === RecepitType.ACCETTAZIONE
+            )?.receiveTime;
+            // Prendo le ricevute di consegna.
+            const deliveryRecepits = (fullMessage.message as Message).idRelatedList.filter(
+              (r) => r.idRecepit.recepitType === RecepitType.CONSEGNA
+            );
+            // Se ho alemno una ricevuta di consegna prendo la data della più recente
+            if (deliveryRecepits.length > 0) {
+              if (deliveryRecepits.length === 1) {
+                fullMessage.emlData.deliveryDate = deliveryRecepits[0].receiveTime;
+                /* Questo pezzo di codice serve a tirare fuori la data più ricente tra le ricevute.
                     fullMessage.emlData.lastDeliveryDate = deliveryRecepits.reduce(
                     (max, p) => p.receiveTime > max ? p.receiveTime : max, deliveryRecepits[0].receiveTime); */
-                } else {
-                  fullMessage.emlData.deliveryInfo = "Varie. Guardare il dettaglio per maggiori informazioni.";
-                }
+              } else {
+                fullMessage.emlData.deliveryInfo = "Varie. Guardare il dettaglio per maggiori informazioni.";
               }
             }
-            this.fullMessage = fullMessage;
-            this.setLook();
           }
-        );
+          this.fullMessage = fullMessage;
+          this.setLook();
+        });
     } else {
       this.fullMessage = fullMessage;
       this.setLook();
@@ -220,8 +227,7 @@ export class MailDetailComponent implements OnInit, OnDestroy {
   private setLook(): void {
     if (this.fullMessage == null || this.fullMessage.emlData == null || this.fullMessage.emlData.attachments == null) {
       this.accordionAttachmentsSelected = false;
-    }
-    else {
+    } else {
       setTimeout(() => {
         if (this._versioneAccessibile) {
           this.subject.nativeElement.focus();
@@ -251,24 +257,26 @@ export class MailDetailComponent implements OnInit, OnDestroy {
         elements[len].target = "_blank";
       }
       /* Setto lo stile della scrollbar */
-      this.http.get("app/mailbox/mail-detail/mail-detail-iframe-custom-style.scss", { responseType: "text" }).subscribe(data => {
-        const head = iframeContent.head || iframeContent.getElementsByTagName("head")[0];
-        const style = iframeContent.createElement("style");
-        head.appendChild(style);
-        style.type = "text/css";
-        if (style.styleSheet) {
-          // This is required for IE8 and below.
-          style.styleSheet.cssText = data;
-        } else {
-          style.appendChild(document.createTextNode(data));
-        }
-      });
+      this.http
+        .get("app/mailbox/mail-detail/mail-detail-iframe-custom-style.scss", { responseType: "text" })
+        .subscribe((data) => {
+          const head = iframeContent.head || iframeContent.getElementsByTagName("head")[0];
+          const style = iframeContent.createElement("style");
+          head.appendChild(style);
+          style.type = "text/css";
+          if (style.styleSheet) {
+            // This is required for IE8 and below.
+            style.styleSheet.cssText = data;
+          } else {
+            style.appendChild(document.createTextNode(data));
+          }
+        });
     }
   }
 
   /**
    * Controllo se l'accordion passato come paramentro sia aperto per restituire 0 in caso contrario ritorno -1
-   * @param accordion 
+   * @param accordion
    */
   public getTabindexForAccordion(accordion: any) {
     if (accordion.selected != false) {
@@ -285,10 +293,16 @@ export class MailDetailComponent implements OnInit, OnDestroy {
    * @param preview indica se voglio l'anteprima dell'allegato qualora sia possibile.
    */
   public getEmlAttachment(attachment: EmlAttachment, preview: boolean = false): void {
-    this.messageService.downloadEmlAttachment(this.fullMessage.message.id, attachment, this.fullMessage.emlSource).subscribe(
-      response =>
-        Utils.downLoadFile(response, attachment.contentType !== "" ? attachment.contentType : attachment.mimeType, attachment.fileName, preview)
-    );
+    this.messageService
+      .downloadEmlAttachment(this.fullMessage.message.id, attachment, this.fullMessage.emlSource)
+      .subscribe((response) =>
+        Utils.downLoadFile(
+          response,
+          attachment.contentType !== "" ? attachment.contentType : attachment.mimeType,
+          attachment.fileName,
+          preview
+        )
+      );
   }
 
   /**
@@ -298,12 +312,11 @@ export class MailDetailComponent implements OnInit, OnDestroy {
   public getAllEmlAttachment(): void {
     this.getAllEmlAttachmentInProgress = true;
     this.messageService.downloadAllEmlAttachment(this.fullMessage.message as Message, this.fullMessage.emlSource).subscribe(
-      response => {
+      (response) => {
         Utils.downLoadFile(response, "application/zip", "allegati.zip");
         this.getAllEmlAttachmentInProgress = false;
       },
-      err =>
-        this.getAllEmlAttachmentInProgress = false
+      (err) => (this.getAllEmlAttachmentInProgress = false)
     );
   }
 
@@ -338,13 +351,13 @@ export class MailDetailComponent implements OnInit, OnDestroy {
    */
   public getDateDisplay(date: string): string {
     if (date) {
-      date = (new Date(date)).toLocaleDateString("it-IT", {
+      date = new Date(date).toLocaleDateString("it-IT", {
         weekday: "long",
         year: "numeric",
         month: "long",
         day: "numeric",
         hour: "numeric",
-        minute: "numeric"
+        minute: "numeric",
       });
       return date.charAt(0).toUpperCase() + date.slice(1);
     }
@@ -372,28 +385,28 @@ export class MailDetailComponent implements OnInit, OnDestroy {
   }
 
   public removeZoneFromTime(date: string): string {
-		return date.replace(/\[\w+\/\w+\]$/, "");
-	}
-
-  public loadLogs() {    
-		this.krintFilterOptions = {
-			codiciOperazioni: null,
-			idOggetto: this.message?.id,
-			tipoOggetto: null,
-			idUtente: null,
-			idOggettoContenitore: this.message?.fk_idPec?.id,
-			tipoOggettoContenitore: null,
-			dataDa: null,
-			dataA: null
-		} as KrintFilterOptions;
-		this.showLogs = true;
+    return date.replace(/\[\w+\/\w+\]$/, "");
   }
 
-  public thereIsReplyToField(){
+  public loadLogs() {
+    this.krintFilterOptions = {
+      codiciOperazioni: null,
+      idOggetto: this.message?.id,
+      tipoOggetto: null,
+      idUtente: null,
+      idOggettoContenitore: this.message?.fk_idPec?.id,
+      tipoOggettoContenitore: null,
+      dataDa: null,
+      dataA: null,
+    } as KrintFilterOptions;
+    this.showLogs = true;
+  }
+
+  public thereIsReplyToField() {
     var res = null;
-    if (this.fullMessage?.message['messageAddressList']){
-      this.fullMessage?.message['messageAddressList'].forEach( obj => {
-        if (obj.addressRole === "REPLY_TO"){
+    if (this.fullMessage?.message["messageAddressList"]) {
+      this.fullMessage?.message["messageAddressList"].forEach((obj) => {
+        if (obj.addressRole === "REPLY_TO") {
           res = obj.idAddress.mailAddress;
         }
       });

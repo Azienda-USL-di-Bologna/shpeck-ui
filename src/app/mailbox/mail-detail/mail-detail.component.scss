@@ -7,7 +7,6 @@
   display: flex;
   flex: 1;
   flex-direction: column;
-  
 }
 
 /* ========== SELEZIONE SU PIU' MAIL ======== */
@@ -21,7 +20,7 @@
 /* ============ OGGETTO MAIL ============ */
 .mail-object {
   /* font-size: 1.5em; */
-  margin: 0.438rem; 
+  margin: 0.438rem;
   overflow: auto;
   min-height: 1.25rem;
   max-height: 10vh;
@@ -36,7 +35,7 @@
   justify-content: space-between;
 }
 .recepit-dates {
-  display: flex; 
+  display: flex;
   flex-direction: column;
 }
 .recepit-date {
@@ -47,13 +46,13 @@
   list-style-type: none;
   font-weight: bold;
 }
-.recepit-date-content{
+.recepit-date-content {
   margin: 0.438rem;
 }
 .recepits-button {
   display: inline;
   background-color: white;
-  color: black; 
+  color: black;
   border: #848484;
   border-radius: 3.125rem;
   background-color: #f4f4f4;
@@ -61,7 +60,7 @@
 }
 .recepits-button:hover {
   background-color: #c8c8c8 !important;
-  color: black !important; 
+  color: black !important;
   border: white !important;
 }
 
@@ -70,12 +69,12 @@
   font-weight: initial;
 }
 
-.multi-accordion-eml-detail{
+.multi-accordion-eml-detail {
   font-weight: initial;
   word-break: break-all;
 }
 
-::ng-deep .multi-accordion-eml-detail .p-accordion{
+::ng-deep .multi-accordion-eml-detail .p-accordion {
   height: 100%;
 }
 
@@ -93,12 +92,10 @@
   height: 100%;
 }
 
-
-
 /* ============ DETTAGLI ============ */
 .idPec {
   margin-right: 0.3rem;
-  background-color:rgb(247, 247, 247);
+  background-color: rgb(247, 247, 247);
   word-break: normal;
 }
 .id-date {
@@ -128,7 +125,7 @@
 }
 
 /* ============ ALLEGATI ============ */
-::ng-deep .accordion-allegati .ui-accordion-content-wrapper{
+::ng-deep .accordion-allegati .ui-accordion-content-wrapper {
   max-height: 9.75rem;
   overflow: auto;
 }
@@ -190,17 +187,17 @@
 @keyframes ui-progress-spinner-color {
   100%,
   0% {
-      stroke: #993366;
+    stroke: #993366;
   }
   40% {
-      stroke: #d072a1;
+    stroke: #d072a1;
   }
   66% {
-      stroke: #88a7c5;
+    stroke: #88a7c5;
   }
   80%,
   90% {
-      stroke: #203142;
+    stroke: #203142;
   }
 }
 
@@ -238,7 +235,6 @@
 }
 
 /* =========== LOG STUFF ============ */
-
 
 .ultima-azione {
   text-decoration: underline;

@@ -49,15 +49,14 @@ import { RubricaContainerComponent } from "./rubrica/rubrica-container/rubrica-c
 import { DialogService } from "primeng/dynamicdialog";
 import { MailFoldersModule } from "./mailbox/mail-folders/mail-folders.module";
 
-import { RouteReuseStrategy } from '@angular/router';
-import { CustomReuseStrategy } from './custom-reuse-strategy';
-import { MailDetailModule } from './mailbox/mail-detail/mail-detail.module';
-import { LandingRoutingComponent } from './landing-routing/landing-routing.component';
+import { RouteReuseStrategy } from "@angular/router";
+import { CustomReuseStrategy } from "./custom-reuse-strategy";
+import { MailDetailModule } from "./mailbox/mail-detail/mail-detail.module";
+import { LandingRoutingComponent } from "./landing-routing/landing-routing.component";
 import { MatMenuModule } from "@angular/material/menu";
 import { ShpeckToolbarModule } from "./mailbox/toolbar/shpeck-toolbar.module";
 
 registerLocaleData(localeIt, "it-IT", localeItExtra);
-
 
 @NgModule({
   declarations: [
@@ -72,7 +71,7 @@ registerLocaleData(localeIt, "it-IT", localeItExtra);
     SearchContactComponent,
     MailOutboxComponent,
     RubricaContainerComponent,
-    LandingRoutingComponent
+    LandingRoutingComponent,
   ],
   imports: [
     JwtLoginModule.forRoot(loginModuleConfig),
@@ -93,7 +92,6 @@ registerLocaleData(localeIt, "it-IT", localeItExtra);
     ShpeckToolbarModule,
     MailFoldersModule,
     MailDetailModule,
-    
   ],
   providers: [
     { provide: LOCALE_ID, useValue: "it-IT" },
@@ -109,10 +107,10 @@ registerLocaleData(localeIt, "it-IT", localeItExtra);
     ShpeckMessageService,
     MessageFolderService,
     MailListService,
-    ConfirmationService
+    ConfirmationService,
   ],
   bootstrap: [AppComponent],
   entryComponents: [SettingsComponent, NewMailComponent, ReaddressComponent],
-  exports: [  ]
+  exports: [],
 })
-export class AppModule { }
+export class AppModule {}

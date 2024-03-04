@@ -14,7 +14,7 @@ import { UtenteUtilities, JwtLoginService } from "@bds/jwt-login";
 import { DialogService } from "primeng/dynamicdialog";
 
 @Injectable({
-  providedIn: "root"
+  providedIn: "root",
 })
 export class ToolBarService {
   private subscriptions: Subscription[] = [];
@@ -44,7 +44,7 @@ export class ToolBarService {
     ["deleteActive", new BehaviorSubject<boolean>(false)],
     ["moveActive", new BehaviorSubject<boolean>(false)],
     ["searchActive", new BehaviorSubject<boolean>(true)],
-    ["archiveActive", new BehaviorSubject<boolean>(false)]
+    ["archiveActive", new BehaviorSubject<boolean>(false)],
   ]);
 
   constructor(
@@ -56,101 +56,122 @@ export class ToolBarService {
     private pecService: PecService,
     private mailListService: MailListService,
     private loginService: JwtLoginService
-    ) {
-      this.move = this.move.bind(this);
-      // this.archive = this.archive.bind(this);
-      this.subscriptions.push(this.loginService.loggedUser$.subscribe((utente: UtenteUtilities) => {
+  ) {
+    this.move = this.move.bind(this);
+    // this.archive = this.archive.bind(this);
+    this.subscriptions.push(
+      this.loginService.loggedUser$.subscribe((utente: UtenteUtilities) => {
         if (utente) {
           if (!this.loggedUser || utente.getUtente().id !== this.loggedUser.getUtente().id) {
             this.loggedUser = utente;
           }
         }
-        this.subscriptions.push(this.mailFoldersService.pecFolderSelected.subscribe((pecFolderSelected: PecFolder) => {
-          this.actualPecFolderTagSelected = pecFolderSelected;
-          if (pecFolderSelected && this.myPecs && this.myPecs.length > 0) {
-            let idPec: number;
-            if (pecFolderSelected.type === PecFolderType.FOLDER) {
-              this.selectedFolder = pecFolderSelected.data as Folder;
-              idPec = this.selectedFolder.fk_idPec.id;
-              this.buttonsObservables.get("buttonsActive").next(false);
-              this.buttonsObservables.get("archiveActive").next(false);
-              this.buttonsObservables.get("editVisible").next(false);
-              this.buttonsObservables.get("deleteActive").next(false);
-            } else if (pecFolderSelected.type === PecFolderType.TAG) {
-              idPec = ((pecFolderSelected.data) as Tag).fk_idPec.id;
-            } else {
-              idPec = ((pecFolderSelected.data) as Pec).id;
+        this.subscriptions.push(
+          this.mailFoldersService.pecFolderSelected.subscribe((pecFolderSelected: PecFolder) => {
+            this.actualPecFolderTagSelected = pecFolderSelected;
+            if (pecFolderSelected && this.myPecs && this.myPecs.length > 0) {
+              let idPec: number;
+              if (pecFolderSelected.type === PecFolderType.FOLDER) {
+                this.selectedFolder = pecFolderSelected.data as Folder;
+                idPec = this.selectedFolder.fk_idPec.id;
+                this.buttonsObservables.get("buttonsActive").next(false);
+                this.buttonsObservables.get("archiveActive").next(false);
+                this.buttonsObservables.get("editVisible").next(false);
+                this.buttonsObservables.get("deleteActive").next(false);
+              } else if (pecFolderSelected.type === PecFolderType.TAG) {
+                idPec = (pecFolderSelected.data as Tag).fk_idPec.id;
+              } else {
+                idPec = (pecFolderSelected.data as Pec).id;
+              }
+              this.buttonsObservables.get("moveActive").next(false);
+              this._selectedPec = this.myPecs.filter((p) => p.id === idPec)[0];
+
+              const puoInviareMail = this.mailListService.isNewMailActive(this._selectedPec);
+              if (puoInviareMail) {
+                this.buttonsObservables.get("newMailActive").next(true);
+              } else {
+                this.buttonsObservables.get("newMailActive").next(false);
+              }
+
+              // La ricerca è attiva ovunque purché non sia dentro a bozze o posta in uscita
+              if (
+                (pecFolderSelected.type === PecFolderType.FOLDER &&
+                  this.selectedFolder.type !== FolderType.OUTBOX &&
+                  this.selectedFolder.type !== FolderType.DRAFT) ||
+                pecFolderSelected.type === PecFolderType.TAG ||
+                pecFolderSelected.type === PecFolderType.PEC
+              ) {
+                this.buttonsObservables.get("searchActive").next(true);
+              } else {
+                this.buttonsObservables.get("searchActive").next(false);
+              }
+              this.deleteLabel.next("Elimina");
             }
-            this.buttonsObservables.get("moveActive").next(false);
-            this._selectedPec = this.myPecs.filter(p => p.id === idPec)[0];
-  
-            const puoInviareMail = this.mailListService.isNewMailActive(this._selectedPec);
-            if (puoInviareMail) {
-              this.buttonsObservables.get("newMailActive").next(true);
-            } else {
-              this.buttonsObservables.get("newMailActive").next(false);
-            }
-  
-            // La ricerca è attiva ovunque purché non sia dentro a bozze o posta in uscita
-            if ((pecFolderSelected.type === PecFolderType.FOLDER && this.selectedFolder.type !== FolderType.OUTBOX && this.selectedFolder.type !== FolderType.DRAFT) ||
-                  pecFolderSelected.type === PecFolderType.TAG ||
-                  pecFolderSelected.type === PecFolderType.PEC) {
-              this.buttonsObservables.get("searchActive").next(true);
-            } else {
-              this.buttonsObservables.get("searchActive").next(false);
-            }
-            this.deleteLabel.next("Elimina");
-          }
-        }));
-      }));
-      
-      this.subscriptions.push(this.pecService.myPecs.subscribe((pecs: Pec[]) => {
+          })
+        );
+      })
+    );
+
+    this.subscriptions.push(
+      this.pecService.myPecs.subscribe((pecs: Pec[]) => {
         if (pecs) {
           console.log("pecs = ", pecs);
           this.myPecs = pecs;
         }
-      }));
-    this.subscriptions.push(this.mailFoldersService.pecFoldersAndTags.subscribe((foldersAndPec: FoldersAndTags) => {
-      if (foldersAndPec && foldersAndPec.folders) {
-        this.folders = foldersAndPec.folders;
-      }
-    }));
+      })
+    );
+    this.subscriptions.push(
+      this.mailFoldersService.pecFoldersAndTags.subscribe((foldersAndPec: FoldersAndTags) => {
+        if (foldersAndPec && foldersAndPec.folders) {
+          this.folders = foldersAndPec.folders;
+        }
+      })
+    );
     this.buttonObs = new Map();
     this.buttonsObservables.forEach((value, key) => {
       this.buttonObs.set(key, value);
     });
 
-    this.subscriptions.push(this.messageService.messageEvent.subscribe((messageEvent: MessageEvent) => {
-      if (messageEvent) {
-        // console.log("DATA = ", messageEvent);
-        this.messageEvent = messageEvent;
-        this.selectedMessages = this.messageEvent.selectedMessages;
-        this.buttonsObservables.get("archiveActive").next(this.mailListService.isArchiveActive());
-        if (messageEvent.downloadedMessage) {
-          this.buttonsObservables.get("buttonsActive").next(true);
-        } else  {
-          this.buttonsObservables.get("buttonsActive").next(false);
-        }
-        this.buttonsObservables.get("editVisible").next(false);
-        const isMoveActive = this.mailListService.isMoveActive();
-        this.buttonsObservables.get("moveActive").next(isMoveActive);
+    this.subscriptions.push(
+      this.messageService.messageEvent.subscribe((messageEvent: MessageEvent) => {
+        if (messageEvent) {
+          // console.log("DATA = ", messageEvent);
+          this.messageEvent = messageEvent;
+          this.selectedMessages = this.messageEvent.selectedMessages;
+          this.buttonsObservables.get("archiveActive").next(this.mailListService.isArchiveActive());
+          if (messageEvent.downloadedMessage) {
+            this.buttonsObservables.get("buttonsActive").next(true);
+          } else {
+            this.buttonsObservables.get("buttonsActive").next(false);
+          }
+          this.buttonsObservables.get("editVisible").next(false);
+          const isMoveActive = this.mailListService.isMoveActive();
+          this.buttonsObservables.get("moveActive").next(isMoveActive);
 
-        const isDeleteActive = this.mailListService.isDeleteActive();
-        this.buttonsObservables.get("deleteActive").next(isDeleteActive);
-        if (isDeleteActive && this.selectedFolder.type === FolderType.TRASH && this.selectedMessages && this.selectedMessages.length > 0) {
-          this.deleteLabel.next("Elimina definitivamente");
-        } else {
-          this.deleteLabel.next("Elimina");
+          const isDeleteActive = this.mailListService.isDeleteActive();
+          this.buttonsObservables.get("deleteActive").next(isDeleteActive);
+          if (
+            isDeleteActive &&
+            this.selectedFolder.type === FolderType.TRASH &&
+            this.selectedMessages &&
+            this.selectedMessages.length > 0
+          ) {
+            this.deleteLabel.next("Elimina definitivamente");
+          } else {
+            this.deleteLabel.next("Elimina");
+          }
         }
-      }
-    }));
-    this.subscriptions.push(this.draftService.draftEvent.subscribe(
-      (draftEvent: DraftEvent) => {
+      })
+    );
+    this.subscriptions.push(
+      this.draftService.draftEvent.subscribe((draftEvent: DraftEvent) => {
         if (draftEvent) {
           this.draftEvent = draftEvent;
           if (draftEvent) {
             this.buttonsObservables.get("editVisible").next(true);
-            this.buttonsObservables.get("editActive").next(this.draftEvent.selectedDrafts && this.draftEvent.selectedDrafts.length === 1 ? true : false);
+            this.buttonsObservables
+              .get("editActive")
+              .next(this.draftEvent.selectedDrafts && this.draftEvent.selectedDrafts.length === 1 ? true : false);
             const puoInviareMail = this.mailListService.isNewMailActive(null, true);
             if (puoInviareMail) {
               this.buttonsObservables.get("deleteActive").next(true);
@@ -161,8 +182,8 @@ export class ToolBarService {
           this.buttonsObservables.get("editActive").next(false);
           this.buttonsObservables.get("deleteActive").next(false);
         }
-      }
-    ));
+      })
+    );
   }
 
   public buildMoveMenuItems() {
@@ -204,17 +225,21 @@ export class ToolBarService {
   }
 
   public newMail(action) {
-      if (this._selectedPec.attiva) {
-        const draftMessage = new Draft();
-        draftMessage.idPec = { id: this._selectedPec.id } as Pec;
-        if (action !== TOOLBAR_ACTIONS.NEW) {
-          if (!this.messageEvent || !this.messageEvent.downloadedMessage) {
-            this.messagePrimeService.add(
-              { severity: "error", summary: "Errore", detail: "Errore! Non è possibile agire sulla mail. Contattare BabelCare" });
-            return;
-          }
+    if (this._selectedPec.attiva) {
+      const draftMessage = new Draft();
+      draftMessage.idPec = { id: this._selectedPec.id } as Pec;
+      if (action !== TOOLBAR_ACTIONS.NEW) {
+        if (!this.messageEvent || !this.messageEvent.downloadedMessage) {
+          this.messagePrimeService.add({
+            severity: "error",
+            summary: "Errore",
+            detail: "Errore! Non è possibile agire sulla mail. Contattare BabelCare",
+          });
+          return;
         }
-        this.draftService.postHttpCall(draftMessage).subscribe((draft: Draft) => {
+      }
+      this.draftService.postHttpCall(draftMessage).subscribe(
+        (draft: Draft) => {
           this.draftService.setIsMailFormSubmitted = false;
           const ref = this.dialogService.open(NewMailComponent, {
             data: {
@@ -222,28 +247,28 @@ export class ToolBarService {
               idDraft: draft.id,
               pec: this._selectedPec,
               action: action,
-              reloadOnDelete: false
+              reloadOnDelete: false,
             },
-          header: "Nuova Mail Inviata da <" + this._selectedPec.indirizzo + ">",
-          width: "80%",
-          styleClass: "new-draft",
-          contentStyle: { "overflow": "visible", "height": "85vh" },
-          closable: false, // la x di chiusura la mettiamo noi custom.
-          closeOnEscape: false
-        });
-        ref.onClose.subscribe((el) => {
-          if (el) {
-            console.log("Ref: ", el);
-          }
-          this.isDialogOpen = false;
-        });
-      },
+            header: "Nuova Mail Inviata da <" + this._selectedPec.indirizzo + ">",
+            width: "80%",
+            styleClass: "new-draft",
+            contentStyle: { overflow: "visible", height: "85vh" },
+            closable: false, // la x di chiusura la mettiamo noi custom.
+            closeOnEscape: false,
+          });
+          ref.onClose.subscribe((el) => {
+            if (el) {
+              console.log("Ref: ", el);
+            }
+            this.isDialogOpen = false;
+          });
+        },
         (error: any) => {
           if (error) {
             this.messagePrimeService.add({
               severity: "error",
               summary: "Errore",
-              detail: "Errore! Non è possibile agire su una PEC non attiva. Contattare BabelCare"
+              detail: "Errore! Non è possibile agire su una PEC non attiva. Contattare BabelCare",
             });
           }
         }
@@ -252,7 +277,7 @@ export class ToolBarService {
       this.messagePrimeService.add({
         severity: "error",
         summary: "Errore",
-        detail: "Errore! Non è possibile agire su una PEC non attiva. Contattare BabelCare"
+        detail: "Errore! Non è possibile agire su una PEC non attiva. Contattare BabelCare",
       });
     }
   }
@@ -266,14 +291,14 @@ export class ToolBarService {
           idDraft: this.draftEvent.fullDraft.message.id,
           pec: this.draftEvent.fullDraft.message.idPec,
           action: "edit",
-          reloadOnDelete: true
+          reloadOnDelete: true,
         },
         header: "Modifica bozza",
         width: "auto",
         styleClass: "new-draft",
-        contentStyle: { "overflow": "visible", "height": "85vh" },
+        contentStyle: { overflow: "visible", height: "85vh" },
         closable: false,
-        closeOnEscape: false
+        closeOnEscape: false,
       });
       ref.onClose.subscribe((el) => {
         if (el) {
@@ -283,5 +308,4 @@ export class ToolBarService {
       });
     }
   }
-
 }

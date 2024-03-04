@@ -6,11 +6,13 @@ import { ENTITIES_STRUCTURE } from "@bds/internauta-model";
 import { getInternautaUrl, BaseUrlType } from "src/environments/app-constants";
 
 @Injectable({
-  providedIn: "root"
+  providedIn: "root",
 })
 export class OutboxLiteService extends NextSDREntityProvider {
-
-  constructor(protected http: HttpClient, protected datepipe: DatePipe) {
+  constructor(
+    protected http: HttpClient,
+    protected datepipe: DatePipe
+  ) {
     super(http, datepipe, ENTITIES_STRUCTURE.shpeck.outboxLite, getInternautaUrl(BaseUrlType.Shpeck));
   }
 }

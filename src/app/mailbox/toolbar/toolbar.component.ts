@@ -1,4 +1,4 @@
-import { Component, OnDestroy, ViewChild, ElementRef, AfterViewInit} from "@angular/core";
+import { Component, OnDestroy, ViewChild, ElementRef, AfterViewInit } from "@angular/core";
 import { ConfirmationService, MenuItem } from "primeng/api";
 import { Subscription, Observable } from "rxjs";
 import { TOOLBAR_ACTIONS } from "src/environments/app-constants";
@@ -15,7 +15,7 @@ import { DialogService } from "primeng/dynamicdialog";
   selector: "app-toolbar",
   templateUrl: "./toolbar.component.html",
   providers: [ConfirmationService],
-  styleUrls: ["./toolbar.component.scss"]
+  styleUrls: ["./toolbar.component.scss"],
 })
 export class ToolbarComponent implements OnDestroy, AfterViewInit {
   private subscriptions: Subscription[] = [];
@@ -47,35 +47,33 @@ export class ToolbarComponent implements OnDestroy, AfterViewInit {
     this.askConfirmationBeforeArchiviation = this.askConfirmationBeforeArchiviation.bind(this);
   }
 
-  ngAfterViewInit() {
-  }
+  ngAfterViewInit() {}
 
   /**
    * Manager del menu.
    * @param event
    * @param action
    */
-  handleEvent(event , action) {
-    
+  handleEvent(event, action) {
     console.log("EVENTO = ", action);
     switch (action) {
       case TOOLBAR_ACTIONS.NEW:
-          this.toolBarService.newMail(action);
+        this.toolBarService.newMail(action);
         break;
       case TOOLBAR_ACTIONS.EDIT:
-          this.toolBarService.editMail();
+        this.toolBarService.editMail();
         break;
       case TOOLBAR_ACTIONS.REPLY:
       case TOOLBAR_ACTIONS.REPLY_ALL:
       case TOOLBAR_ACTIONS.FORWARD:
-          this.toolBarService.newMail(action);
+        this.toolBarService.newMail(action);
         break;
       case TOOLBAR_ACTIONS.DELETE:
         this.deletingConfirmation();
         break;
       case TOOLBAR_ACTIONS.MOVE:
-          this.moveMenuItems = this.toolBarService.buildMoveMenuItems();
-          this.moveMenu.toggle(event);
+        this.moveMenuItems = this.toolBarService.buildMoveMenuItems();
+        this.moveMenu.toggle(event);
         break;
       case TOOLBAR_ACTIONS.ARCHIVE:
         this.archiveMenuItems = this.toolBarService.buildArchiveMenuItems(this.askConfirmationBeforeArchiviation);
@@ -89,15 +87,22 @@ export class ToolbarComponent implements OnDestroy, AfterViewInit {
   }
 
   private askConfirmationBeforeArchiviation(event) {
-    if (this.mailListService.selectedMessages && this.mailListService.selectedMessages.length === 1 && event && event.item && event.item) {
+    if (
+      this.mailListService.selectedMessages &&
+      this.mailListService.selectedMessages.length === 1 &&
+      event &&
+      event.item &&
+      event.item
+    ) {
       if (!event.item.queryParams.isPecDellAzienda) {
         this.confirmationService.confirm({
           header: "Conferma",
-          message: "<b>Attenzione! Stai fascicolando su una azienda non associata alla casella selezionata su cui è arrivato il messaggio.</b><br/><br/>Sei sicuro?",
+          message:
+            "<b>Attenzione! Stai fascicolando su una azienda non associata alla casella selezionata su cui è arrivato il messaggio.</b><br/><br/>Sei sicuro?",
           icon: "pi pi-exclamation-triangle",
           accept: () => {
             this.mailListService.archiveMessage(event);
-          }
+          },
         });
       } else {
         this.mailListService.archiveMessage(event);
@@ -114,7 +119,6 @@ export class ToolbarComponent implements OnDestroy, AfterViewInit {
     }
   }
 
-
   // Scatta al keydown nella ricerca. Fa il controllo sui tre caratteri e la fa partire.
   public onEnter(value) {
     if (value && value.length >= 3) {
@@ -126,23 +130,24 @@ export class ToolbarComponent implements OnDestroy, AfterViewInit {
     }
   }
 
-
   /**
    * Chiedo conferma sulla cancellazione dei messaggi selezioni.
    * In caso affermativo faccio partire la cancellazione spostamento nel cestino).
    */
   private deletingConfirmation() {
-    setTimeout(() => {let message: string;
-      const almenoUnoConTag = this.mailListService.selectedMessages
-          .some(m => m.messageTagList)
-          if(almenoUnoConTag){
-            var almenoUnoInErrore = this.mailListService.selectedMessages
-              .some(m => m.messageTagList
-                .some(mt => mt.idTag.name === "in_error"));
-          }else{
-            almenoUnoInErrore = false;
-          }
-      const defaultMessage = almenoUnoInErrore ? "Almeno uno dei messaggi selezionati è <b>in errore</b>, sei sicuro di volerli eliminare? Se eliminato verrà segnato come errore visto" : "Sei sicuro di voler eliminare i messaggi selezionati?"
+    setTimeout(() => {
+      let message: string;
+      const almenoUnoConTag = this.mailListService.selectedMessages.some((m) => m.messageTagList);
+      if (almenoUnoConTag) {
+        var almenoUnoInErrore = this.mailListService.selectedMessages.some((m) =>
+          m.messageTagList.some((mt) => mt.idTag.name === "in_error")
+        );
+      } else {
+        almenoUnoInErrore = false;
+      }
+      const defaultMessage = almenoUnoInErrore
+        ? "Almeno uno dei messaggi selezionati è <b>in errore</b>, sei sicuro di volerli eliminare? Se eliminato verrà segnato come errore visto"
+        : "Sei sicuro di voler eliminare i messaggi selezionati?";
       if (this.toolBarService.selectedFolder.type === FolderType.TRASH) {
         this.mailListService.deleteSelectedMessageFromTrash();
       } else {
@@ -153,13 +158,13 @@ export class ToolbarComponent implements OnDestroy, AfterViewInit {
             message = "Vuoi eliminare definitivamente le bozze selezionate?";
           }
         } else {
-          if(almenoUnoInErrore){
+          if (almenoUnoInErrore) {
             message = defaultMessage;
           } else {
             message = "Sei sicuro di voler eliminare i messaggi selezionati?";
           }
-      }
-      
+        }
+
         this.confirmationService.confirm({
           message: message,
           header: "Conferma",
@@ -167,7 +172,7 @@ export class ToolbarComponent implements OnDestroy, AfterViewInit {
           accept: () => {
             this.toolBarService.handleDelete();
           },
-          reject: () => {}
+          reject: () => {},
         });
       }
     }, 0);
@@ -192,33 +197,43 @@ export class ToolbarComponent implements OnDestroy, AfterViewInit {
     if (this.toolBarService.actualPecFolderTagSelected === null) {
       return "";
     }
-    if (this.toolBarService.actualPecFolderTagSelected.type === PecFolderType.TAG_CONTAINER || this.toolBarService.actualPecFolderTagSelected.type === PecFolderType.PEC) {
+    if (
+      this.toolBarService.actualPecFolderTagSelected.type === PecFolderType.TAG_CONTAINER ||
+      this.toolBarService.actualPecFolderTagSelected.type === PecFolderType.PEC
+    ) {
       if (this.toolBarService.actualPecFolderTagSelected.type === "pec") {
         return "Cerca nella casella pec " + (this.toolBarService.actualPecFolderTagSelected.data as Pec).indirizzo;
       } else {
         return "Cerca nella casella pec " + this.toolBarService.actualPecFolderTagSelected.pec.indirizzo;
       }
-      
     }
     if (this.toolBarService.actualPecFolderTagSelected.type === PecFolderType.FOLDER) {
-      return "Cerca nella cartella " + (this.toolBarService.actualPecFolderTagSelected.data as Folder).description + " della casella pec " + this.toolBarService.actualPecFolderTagSelected.pec.indirizzo;
+      return (
+        "Cerca nella cartella " +
+        (this.toolBarService.actualPecFolderTagSelected.data as Folder).description +
+        " della casella pec " +
+        this.toolBarService.actualPecFolderTagSelected.pec.indirizzo
+      );
     }
     if (this.toolBarService.actualPecFolderTagSelected.type === PecFolderType.TAG) {
-      return "Cerca nell'etichetta " + (this.toolBarService.actualPecFolderTagSelected.data as Tag).description + " della casella pec " + this.toolBarService.actualPecFolderTagSelected.pec.indirizzo;
+      return (
+        "Cerca nell'etichetta " +
+        (this.toolBarService.actualPecFolderTagSelected.data as Tag).description +
+        " della casella pec " +
+        this.toolBarService.actualPecFolderTagSelected.pec.indirizzo
+      );
     }
     return "";
   }
 
-	/**
-	 * Metodo che si occupa di resettare la ricerca contatti quando si preme la x
-	 */
-  clearInput(){
-		const filtro = [];
+  /**
+   * Metodo che si occupa di resettare la ricerca contatti quando si preme la x
+   */
+  clearInput() {
+    const filtro = [];
     this.toolBarService.setFilterTyped(filtro);
-    this.searchField.nativeElement.value= "";
-	}
-
- 
+    this.searchField.nativeElement.value = "";
+  }
 
   ngOnDestroy() {
     if (this.subscriptions && this.subscriptions.length > 0) {
@@ -227,23 +242,21 @@ export class ToolbarComponent implements OnDestroy, AfterViewInit {
       });
     }
   }
-
 }
 
-
-  // public onInput(event) {
-  //   if (event && event.target) {
-  //     this.filterString = event.target.value;
-  //   }
-    // if (this.searchTimeout) {
-    //   clearTimeout(this.searchTimeout);
-    // }
-    // this.searchTimeout = setTimeout(() => {
-    //   const filter = [];
-    //   if (event && event.target && event.target.value && event.target.value !== "") {
-    //     filter.push(new FilterDefinition("tscol", FILTER_TYPES.not_string.equals, event.target.value));
-    //   }
-    //   // this.filtersEmitter.emit(valueToEmit);
-    //   this.toolBarService.setFilterTyped(filter);
-    // }, 600);
-  // }
+// public onInput(event) {
+//   if (event && event.target) {
+//     this.filterString = event.target.value;
+//   }
+// if (this.searchTimeout) {
+//   clearTimeout(this.searchTimeout);
+// }
+// this.searchTimeout = setTimeout(() => {
+//   const filter = [];
+//   if (event && event.target && event.target.value && event.target.value !== "") {
+//     filter.push(new FilterDefinition("tscol", FILTER_TYPES.not_string.equals, event.target.value));
+//   }
+//   // this.filtersEmitter.emit(valueToEmit);
+//   this.toolBarService.setFilterTyped(filter);
+// }, 600);
+// }

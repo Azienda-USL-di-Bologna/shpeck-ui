@@ -9,12 +9,15 @@ import { EmlAttachment } from "../classes/eml-attachment";
 import { EmlData } from "../classes/eml-data";
 
 @Injectable({
-  providedIn: "root"
+  providedIn: "root",
 })
 export class ShpeckMessageService extends NextSDREntityProvider {
   private _messageEvent = new BehaviorSubject<MessageEvent>(null);
 
-  constructor(protected http: HttpClient, protected datepipe: DatePipe) {
+  constructor(
+    protected http: HttpClient,
+    protected datepipe: DatePipe
+  ) {
     super(http, datepipe, ENTITIES_STRUCTURE.shpeck.message, getInternautaUrl(BaseUrlType.Shpeck));
   }
 
@@ -43,25 +46,23 @@ export class ShpeckMessageService extends NextSDREntityProvider {
             downloadedMessage: {
               message: messageToDownload,
               emlData: data,
-              emlSource: emlSource
+              emlSource: emlSource,
             },
-            selectedMessages
+            selectedMessages,
           });
         },
         (err) => {
           this._messageEvent.next({
-            selectedMessages
+            selectedMessages,
           });
         }
       );
     } else {
       this._messageEvent.next({
-        selectedMessages
+        selectedMessages,
       });
     }
   }
-
-
 
   /**
    * Ritorna un Observable di tipo EmlData relativo al download dell'eml del messaggo passato.
@@ -69,7 +70,14 @@ export class ShpeckMessageService extends NextSDREntityProvider {
    * @param emlSource da dove scaricare l'eml (DRAFT: tabella delle bozze/OUTBOX: tabella della posta in uscita//MESSAGE: repository)
    */
   public extractEmlData(messageId: number, emlSource: string): Observable<EmlData> {
-    const url = getInternautaUrl(BaseUrlType.Shpeck) + "/" + CUSTOM_SERVER_METHODS.extractEmlData + "/" + messageId + "?emlSource=" + emlSource;
+    const url =
+      getInternautaUrl(BaseUrlType.Shpeck) +
+      "/" +
+      CUSTOM_SERVER_METHODS.extractEmlData +
+      "/" +
+      messageId +
+      "?emlSource=" +
+      emlSource;
     return this.http.get(url) as Observable<EmlData>;
   }
 
@@ -79,8 +87,9 @@ export class ShpeckMessageService extends NextSDREntityProvider {
    * @param emlSource da dove scaricare l'eml (DRAFT: tabella delle bozze/OUTBOX: tabella della posta in uscita//MESSAGE: repository)
    */
   public downloadEml(messageId: number, emlSorce: string): Observable<any> {
-    const url = getInternautaUrl(BaseUrlType.Shpeck) + "/" + CUSTOM_SERVER_METHODS.downloadEml + "/" + messageId + "?emlSource=" + emlSorce;
-    return this.http.get(url, {responseType: "blob"}/* {responseType: "arraybuffer"} */);
+    const url =
+      getInternautaUrl(BaseUrlType.Shpeck) + "/" + CUSTOM_SERVER_METHODS.downloadEml + "/" + messageId + "?emlSource=" + emlSorce;
+    return this.http.get(url, { responseType: "blob" } /* {responseType: "arraybuffer"} */);
   }
 
   /**
@@ -90,8 +99,17 @@ export class ShpeckMessageService extends NextSDREntityProvider {
    * @param emlSource da dove scaricare l'eml (DRAFT: tabella delle bozze/OUTBOX: tabella della posta in uscita//MESSAGE: repository)
    */
   public downloadEmlAttachment(messageId: number, allegato: EmlAttachment, emlSorce: string): Observable<any> {
-    const url = getInternautaUrl(BaseUrlType.Shpeck) + "/" + CUSTOM_SERVER_METHODS.downloadEmlAttachment + "/" + messageId + "/" + allegato.id + "?emlSource=" + emlSorce;
-     return this.http.get(url, {responseType: "blob"}/* {responseType: "arraybuffer"} */);
+    const url =
+      getInternautaUrl(BaseUrlType.Shpeck) +
+      "/" +
+      CUSTOM_SERVER_METHODS.downloadEmlAttachment +
+      "/" +
+      messageId +
+      "/" +
+      allegato.id +
+      "?emlSource=" +
+      emlSorce;
+    return this.http.get(url, { responseType: "blob" } /* {responseType: "arraybuffer"} */);
   }
 
   /**
@@ -99,15 +117,30 @@ export class ShpeckMessageService extends NextSDREntityProvider {
    * @param message Il Message del quale si vuole lo zip degli allegati
    */
   public downloadAllEmlAttachment(message: Message, emlSorce: string): Observable<any> {
-    const url = getInternautaUrl(BaseUrlType.Shpeck) + "/" + CUSTOM_SERVER_METHODS.downloadAllEmlAttachment + "/" + message.id + "?emlSource=" + emlSorce;
-    return this.http.get(url, {responseType: "blob"});
+    const url =
+      getInternautaUrl(BaseUrlType.Shpeck) +
+      "/" +
+      CUSTOM_SERVER_METHODS.downloadAllEmlAttachment +
+      "/" +
+      message.id +
+      "?emlSource=" +
+      emlSorce;
+    return this.http.get(url, { responseType: "blob" });
   }
 
   public archiveMessage(message: Message, archivio: ArchivioDetailView, nomeDocDaPec: string): Observable<any> {
-    const url = getInternautaUrl(BaseUrlType.Scripta) + "/" + CUSTOM_SERVER_METHODS.archiveMessage + "/" + message.id + "/" + archivio.id + "/" + nomeDocDaPec;
+    const url =
+      getInternautaUrl(BaseUrlType.Scripta) +
+      "/" +
+      CUSTOM_SERVER_METHODS.archiveMessage +
+      "/" +
+      message.id +
+      "/" +
+      archivio.id +
+      "/" +
+      nomeDocDaPec;
     return this.http.post(url, null);
   }
-
 }
 
 /**
@@ -130,5 +163,5 @@ export interface MessageEvent {
 }
 
 export enum MessageCommand {
-  MessageRegistration = "MessageRegistration"
+  MessageRegistration = "MessageRegistration",
 }

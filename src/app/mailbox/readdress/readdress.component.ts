@@ -10,11 +10,10 @@ import { JwtLoginService, UtenteUtilities } from "@bds/jwt-login";
 import { HttpClient } from "@angular/common/http";
 import { CUSTOM_SERVER_METHODS, BaseUrlType, getInternautaUrl } from "src/environments/app-constants";
 
-
 @Component({
   selector: "app-readdress",
   templateUrl: "./readdress.component.html",
-  styleUrls: ["./readdress.component.scss"]
+  styleUrls: ["./readdress.component.scss"],
 })
 export class ReaddressComponent implements OnInit, OnDestroy {
   private subscriptions: Subscription[] = [];
@@ -27,9 +26,9 @@ export class ReaddressComponent implements OnInit, OnDestroy {
   private pageConfNoLimit: PagingConf = {
     conf: {
       page: 0,
-      size: 999999
+      size: 999999,
     },
-    mode: "PAGE"
+    mode: "PAGE",
   };
 
   constructor(
@@ -49,30 +48,25 @@ export class ReaddressComponent implements OnInit, OnDestroy {
       }
     });
     this.readdressForm = new FormGroup({
-      to: new FormControl("", [Validators.required])
+      to: new FormControl("", [Validators.required]),
     });
     this.subscriptions.push(
       this.pecService.myPecs.subscribe((pecs: Pec[]) => {
         const idAziendeList = pecs
-          .filter(pec => pec.id === this.config.data.message.fk_idPec.id)
-          .map(pec =>
-            pec.pecAziendaList.map(pecAzienda => pecAzienda.fk_idAzienda.id)
-          )[0];
+          .filter((pec) => pec.id === this.config.data.message.fk_idPec.id)
+          .map((pec) => pec.pecAziendaList.map((pecAzienda) => pecAzienda.fk_idAzienda.id))[0];
         // console.log("Our data , PEC : ", pecs);
         // console.log("Aziende List; ", idAziendeList);
         this.pecService
           .getData(
-            ENTITIES_STRUCTURE.baborg.pec.standardProjections
-              .PecWithPlainFields,
+            ENTITIES_STRUCTURE.baborg.pec.standardProjections.PecWithPlainFields,
             this.buildFolderInitialFilterAndSort(idAziendeList),
             null,
             this.pageConfNoLimit
           )
-          .subscribe(data => {
-            this.myPecs = data.results.filter(
-              pec => pec.id !== this.config.data.message.fk_idPec.id
-            );
-            this.userPecs = this.myPecs.map(pec => pec.indirizzo);
+          .subscribe((data) => {
+            this.myPecs = data.results.filter((pec) => pec.id !== this.config.data.message.fk_idPec.id);
+            this.userPecs = this.myPecs.map((pec) => pec.indirizzo);
             // console.log("User can readress to: ", this.userPecs);
           });
       })
@@ -81,38 +75,25 @@ export class ReaddressComponent implements OnInit, OnDestroy {
   }
 
   ngOnDestroy() {
-    this.subscriptions.forEach(s => s.unsubscribe());
+    this.subscriptions.forEach((s) => s.unsubscribe());
   }
 
-  private buildFolderInitialFilterAndSort(
-    idAziendeList: number[]
-  ): FiltersAndSorts {
+  private buildFolderInitialFilterAndSort(idAziendeList: number[]): FiltersAndSorts {
     const filter = new FiltersAndSorts();
-    idAziendeList.forEach(idAzienda => {
-      filter.addFilter(
-        new FilterDefinition(
-          "pecAziendaList.idAzienda.id",
-          FILTER_TYPES.not_string.equals,
-          idAzienda
-        )
-      );
+    idAziendeList.forEach((idAzienda) => {
+      filter.addFilter(new FilterDefinition("pecAziendaList.idAzienda.id", FILTER_TYPES.not_string.equals, idAzienda));
     });
-    filter.addFilter(
-      new FilterDefinition("attiva", FILTER_TYPES.not_string.equals, true)
-    );
+    filter.addFilter(new FilterDefinition("attiva", FILTER_TYPES.not_string.equals, true));
     filter.addSort(new SortDefinition("indirizzo", SORT_MODES.asc));
     return filter;
   }
 
   public readdressMessage(form: FormData) {
-    const apiUrl =
-      getInternautaUrl(BaseUrlType.Shpeck) +
-      "/" +
-      CUSTOM_SERVER_METHODS.readdressMessage;
+    const apiUrl = getInternautaUrl(BaseUrlType.Shpeck) + "/" + CUSTOM_SERVER_METHODS.readdressMessage;
     console.warn("Endpoint: ", apiUrl);
     const message = this.config.data.message as Message;
     this.http.post(apiUrl, form).subscribe(
-      res => {
+      (res) => {
         // console.log("res", res);
         message["iconsVisibility"]["readdressed_out"] = true;
         const newTag = new Tag();
@@ -131,7 +112,7 @@ export class ReaddressComponent implements OnInit, OnDestroy {
         }
         message.messageTagList.push(newMessageTag);
       },
-      err => {
+      (err) => {
         console.log(err);
       }
     );

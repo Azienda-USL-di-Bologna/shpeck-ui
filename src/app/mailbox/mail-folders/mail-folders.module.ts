@@ -5,14 +5,10 @@ import { MailFoldersComponent } from "./mail-folders.component";
 import { MailFoldersService } from "./mail-folders.service";
 import { FormsModule } from "@angular/forms";
 
-
-
 @NgModule({
   declarations: [MailFoldersComponent],
-  imports: [
-    CommonModule, PrimengModule, FormsModule
-  ],
+  imports: [CommonModule, PrimengModule, FormsModule],
   providers: [MailFoldersService],
-  exports: [MailFoldersComponent]
+  exports: [MailFoldersComponent],
 })
-export class MailFoldersModule { }
+export class MailFoldersModule {}

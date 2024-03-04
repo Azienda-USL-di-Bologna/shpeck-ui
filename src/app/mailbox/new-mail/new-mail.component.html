@@ -1,18 +1,18 @@
 <section class="height-100">
   <a
-    [ngClass]="
-      'ui-dialog-titlebar-icon ui-dialog-titlebar-close ui-corner-all close-button'
-    "
+    [ngClass]="'ui-dialog-titlebar-icon ui-dialog-titlebar-close ui-corner-all close-button'"
     tabindex="0"
     role="button"
-    (click)="checkAndClose()">
+    (click)="checkAndClose()"
+  >
     <span class="pi pi-times"></span>
   </a>
   <!-- <div class="height-100"> -->
   <!-- Prevent default on form to avoid auto submit -->
   <form
     class="height-100 d-flex flex-dir-col"
-    [formGroup]="mailForm">
+    [formGroup]="mailForm"
+  >
     <ul class="list-items">
       <!-- A Addresses -->
       <li>
@@ -39,23 +39,17 @@
             (onBlur)="onKeyUpNew($event, 'to')"
             [minLength]="1"
             placeholder="Seleziona contatti..."
-            [multiple]="true">
+            [multiple]="true"
+          >
             <ng-template
               let-value
-              pTemplate="selectedItem">
+              pTemplate="selectedItem"
+            >
               <span
                 class="token-label"
                 *ngIf="value.tipo !== 'GRUPPO'"
-                [ngClass]="
-                  isInserimentoInCorso || emailRegex.test(value)
-                    ? null
-                    : 'alert-message-warn'
-                "
-                >{{
-                  value.descrizioneDettaglioContatto
-                    ? "Inserimento contatto..."
-                    : value
-                }}
+                [ngClass]="isInserimentoInCorso || emailRegex.test(value) ? null : 'alert-message-warn'"
+                >{{ value.descrizioneDettaglioContatto ? "Inserimento contatto..." : value }}
               </span>
               <span
                 class="token-label"
@@ -65,16 +59,17 @@
             </ng-template>
             <ng-template
               let-value
-              pTemplate="item">
+              pTemplate="item"
+            >
               <span class="token-label item-contatto"
                 ><i
                   pTooltip=""
                   tooltipPosition="top"
                   *ngIf="value.isDomicilioDigitale"
-                  class="tooltip pi pi-id-card icon-item-contatto"></i
+                  class="tooltip pi pi-id-card icon-item-contatto"
+                ></i
                 ><span
-                  >{{ value.tipo == "GRUPPO" ? "[GRUPPO] " : ""
-                  }}{{ value.descrizioneContatto }} -
+                  >{{ value.tipo == "GRUPPO" ? "[GRUPPO] " : "" }}{{ value.descrizioneContatto }} -
                   {{ value.descrizioneDettaglioContatto }}</span
                 >
               </span>
@@ -87,16 +82,14 @@
             type="button"
             icon="fa fa-address-book"
             class="ui-button-raised custom-primary-button"
-            (click)="onOpenRubricaPopup(); lastAddressBookUsed = 'to'"></button>
+            (click)="onOpenRubricaPopup(); lastAddressBookUsed = 'to'"
+          ></button>
         </span>
       </li>
       <li
-        *ngIf="
-          ((addressesTO?.invalid && !addressesTO?.errors?.required) ||
-            !isMailValid) &&
-          !isInserimentoInCorso
-        "
-        class="alert-message-warn">
+        *ngIf="((addressesTO?.invalid && !addressesTO?.errors?.required) || !isMailValid) && !isInserimentoInCorso"
+        class="alert-message-warn"
+      >
         Hai inserito un indirizzo mail sbagliato!
       </li>
       <!-- CC Addresses -->
@@ -120,23 +113,17 @@
             [pTooltip]="mailForm.get('hideRecipients')?.value ? ccTooltip : ''"
             [disabled]="mailForm.get('hideRecipients')?.value"
             [minLength]="1"
-            [multiple]="true">
+            [multiple]="true"
+          >
             <ng-template
               let-value
-              pTemplate="selectedItem">
+              pTemplate="selectedItem"
+            >
               <span
                 class="token-label"
                 *ngIf="value.tipo !== 'GRUPPO'"
-                [ngClass]="
-                  isInserimentoInCorso || emailRegex.test(value)
-                    ? null
-                    : 'alert-message-warn'
-                "
-                >{{
-                  value.descrizioneDettaglioContatto
-                    ? "Inserimento contatto..."
-                    : value
-                }}
+                [ngClass]="isInserimentoInCorso || emailRegex.test(value) ? null : 'alert-message-warn'"
+                >{{ value.descrizioneDettaglioContatto ? "Inserimento contatto..." : value }}
               </span>
               <span
                 class="token-label"
@@ -146,16 +133,17 @@
             </ng-template>
             <ng-template
               let-value
-              pTemplate="item">
+              pTemplate="item"
+            >
               <span class="token-label item-contatto"
                 ><i
                   pTooltip=""
                   tooltipPosition="top"
                   *ngIf="value.isDomicilioDigitale"
-                  class="tooltip pi pi-id-card icon-item-contatto"></i
+                  class="tooltip pi pi-id-card icon-item-contatto"
+                ></i
                 ><span
-                  >{{ value.tipo == "GRUPPO" ? "[GRUPPO] " : ""
-                  }}{{ value.descrizioneContatto }} -
+                  >{{ value.tipo == "GRUPPO" ? "[GRUPPO] " : "" }}{{ value.descrizioneContatto }} -
                   {{ value.descrizioneDettaglioContatto }}</span
                 >
               </span>
@@ -168,16 +156,14 @@
             type="button"
             icon="fa fa-address-book"
             class="ui-button-raised custom-primary-button"
-            (click)="onOpenRubricaPopup(); lastAddressBookUsed = 'cc'"></button>
+            (click)="onOpenRubricaPopup(); lastAddressBookUsed = 'cc'"
+          ></button>
         </span>
       </li>
       <li
-        *ngIf="
-          ((addressesTO?.invalid && !addressesTO?.errors?.required) ||
-            !isMailValidCC) &&
-          !isInserimentoInCorso
-        "
-        class="alert-message-warn">
+        *ngIf="((addressesTO?.invalid && !addressesTO?.errors?.required) || !isMailValidCC) && !isInserimentoInCorso"
+        class="alert-message-warn"
+      >
         Hai inserito un indirizzo mail sbagliato!
       </li>
       <!-- Destinatari Privati -->
@@ -188,9 +174,8 @@
             id="hideRecipients"
             formControlName="hideRecipients"
             [binary]="true"
-            [pTooltip]="
-              mailForm.get('cc')?.value.length > 0 ? hideRecipientsTooltip : ''
-            ">
+            [pTooltip]="mailForm.get('cc')?.value.length > 0 ? hideRecipientsTooltip : ''"
+          >
           </p-checkbox>
         </span>
       </li>
@@ -202,7 +187,8 @@
             id="subject"
             type="text"
             pInputText
-            formControlName="subject" />
+            formControlName="subject"
+          />
         </span>
       </li>
       <!-- Allegati -->
@@ -212,24 +198,27 @@
           style="height: 2.063rem; min-width: 5.204rem"
           label="Allega"
           icon="pi pi-paperclip"
-          pButton>
+          pButton
+        >
           <input
             #fileinput
             class="inputfile"
             type="file"
             (change)="onFileChange($event, fileinput)"
-            multiple="multiple" />
+            multiple="multiple"
+          />
         </span>
         <span class="ui-fluid flex-1 margin-lr-5">
           <p-chips
             id="attachments"
-            formControlName="attachments">
+            formControlName="attachments"
+          >
             <ng-template
               let-item
-              pTemplate="item">
-              {{ item.name ? item.name : item.displayName }} ({{
-                item.id ? formatSize(item.size) : formatSize(item.size, true)
-              }}) <i style="margin-right: 1.5em"></i>
+              pTemplate="item"
+            >
+              {{ item.name ? item.name : item.displayName }} ({{ item.id ? formatSize(item.size) : formatSize(item.size, true) }})
+              <i style="margin-right: 1.5em"></i>
             </ng-template>
           </p-chips>
         </span>
@@ -240,20 +229,23 @@
             icon="pi pi-times"
             class="ui-button-raised custom-primary-button"
             (click)="clearAttachmentsField()"
-            pTooltip="Svuota allegati"></button>
+            pTooltip="Svuota allegati"
+          ></button>
         </span>
       </li>
       <!-- Testo Mail -->
       <li
         class="flex-1 flex-dir-col min-height-0"
-        style="margin: 0">
+        style="margin: 0"
+      >
         <!-- <label for="body">Testo: </label> -->
         <span class="height-100 d-flex flex-1 min-height-0">
           <p-editor
             #editor
             id="body"
             formControlName="body"
-            (onInit)="editorInit($event)">
+            (onInit)="editorInit($event)"
+          >
           </p-editor>
         </span>
       </li>
@@ -266,14 +258,16 @@
         icon="pi pi-save"
         class="ui-button-raised ui-button-secondary button-styles custom-secondary-button"
         label="Salva e chiudi"
-        (click)="onSaveDraft()"></button>
+        (click)="onSaveDraft()"
+      ></button>
       <button
         type="button"
         pButton
         icon="pi pi-trash"
         class="ui-button-raised ui-button-secondary button-styles custom-secondary-button"
         label="Elimina"
-        (click)="onDelete(true)"></button>
+        (click)="onDelete(true)"
+      ></button>
       <button
         type="button"
         pButton
@@ -281,9 +275,8 @@
         class="ui-button-raised ui-button-secondary button-styles custom-secondary-button"
         label="Invia"
         (click)="onSubmit()"
-        [disabled]="
-          mailForm.invalid || this.draftService.isMailFormSubmitted
-        "></button>
+        [disabled]="mailForm.invalid || this.draftService.isMailFormSubmitted"
+      ></button>
     </p-footer>
   </form>
   <!-- </div> -->
@@ -294,7 +287,8 @@
   [modal]="true"
   [responsive]="true"
   [style]="{ width: '20vw !important' }"
-  appendTo="body">
+  appendTo="body"
+>
   <i class="fas fa-exclamation-triangle warn-class"></i>
   <p class="d-inline-block">Vuoi salvare il messaggio corrente?</p>
   <p-footer class="d-flex justify-c-c">
@@ -304,21 +298,24 @@
       pButton
       icon="fas fa-check"
       (click)="onSaveDraft()"
-      label="Sì"></button>
+      label="Sì"
+    ></button>
     <button
       type="button"
       class="confirm-buttons ui-button-raised ui-button-secondary custom-secondary-button"
       pButton
       icon="fas fa-times"
       (click)="onClose()"
-      label="No"></button>
+      label="No"
+    ></button>
     <button
       type="button"
       class="confirm-buttons ui-button-raised ui-button-secondary custom-secondary-button"
       pButton
       icon="fas fa-undo-alt"
       (click)="display = false"
-      label="Annulla"></button>
+      label="Annulla"
+    ></button>
   </p-footer>
 </p-dialog>
 
@@ -328,7 +325,8 @@
   acceptLabel="Continua"
   rejectLabel="Modifica Gruppo"
   appendTo="body"
-  [style]="{ width: '50vw' }">
+  [style]="{ width: '50vw' }"
+>
   <p-footer>
     <button
       type="button"
@@ -336,14 +334,16 @@
       icon="pi pi-check"
       label="Continua"
       (click)="cd2.accept()"
-      class="confirm-buttons ui-button-raised ui-button-secondary custom-secondary-button"></button>
+      class="confirm-buttons ui-button-raised ui-button-secondary custom-secondary-button"
+    ></button>
     <button
       type="button"
       pButton
       icon="pi pi-pencil "
       label="Modifica Gruppo"
       (click)="cd2.reject()"
-      class="confirm-buttons ui-button-raised ui-button-secondary custom-secondary-button"></button>
+      class="confirm-buttons ui-button-raised ui-button-secondary custom-secondary-button"
+    ></button>
   </p-footer>
 </p-confirmDialog>
 
@@ -353,20 +353,23 @@
   acceptLabel="Sì"
   rejectLabel="No"
   appendTo="body"
-  [style]="{ width: '20vw' }">
+  [style]="{ width: '20vw' }"
+>
   <p-footer>
     <button
       type="button"
       pButton
       icon="pi pi-check"
       label="Sì"
-      (click)="cd3.accept()"></button>
+      (click)="cd3.accept()"
+    ></button>
     <button
       type="button"
       pButton
       icon="pi pi-times "
       label="No"
-      (click)="cd3.reject()"></button>
+      (click)="cd3.reject()"
+    ></button>
   </p-footer>
 </p-confirmDialog>
 
@@ -376,7 +379,8 @@
   acceptLabel="Sì"
   rejectLabel="No"
   appendTo="body"
-  [style]="{ width: '20vw', top: '40%' }">
+  [style]="{ width: '20vw', top: '40%' }"
+>
   <p-footer>
     <button
       type="button"
@@ -384,14 +388,16 @@
       icon="pi pi-check"
       label="Sì"
       (click)="cd.accept()"
-      class="confirm-buttons ui-button-raised ui-button-secondary custom-secondary-button"></button>
+      class="confirm-buttons ui-button-raised ui-button-secondary custom-secondary-button"
+    ></button>
     <button
       type="button"
       pButton
       icon="pi pi-times "
       label="No"
       (click)="cd.reject()"
-      class="confirm-buttons ui-button-raised ui-button-secondary custom-secondary-button"></button>
+      class="confirm-buttons ui-button-raised ui-button-secondary custom-secondary-button"
+    ></button>
   </p-footer>
 </p-confirmDialog>
 
@@ -405,21 +411,23 @@
     utenteConnesso.aziendaLogin.parametriAzienda?.rubricaInternauta
       ? { height: '70vh', 'max-height': '70vh', width: '92vw' }
       : null
-  ">
+  "
+>
   <p-header> Aggiungi destinatario </p-header>
 
   <app-search-contact
     *ngIf="!utenteConnesso.aziendaLogin.parametriAzienda?.rubricaInternauta"
     (addressChosedByBook)="onAddressChosedByBook($event)"
-    (closeRubricaPopup)="displayRubricaPopup = false">
+    (closeRubricaPopup)="displayRubricaPopup = false"
+  >
   </app-search-contact>
 
   <app-rubrica-container
     *ngIf="utenteConnesso.aziendaLogin.parametriAzienda?.rubricaInternauta"
-    (closeRubricaPopup)="displayRubricaPopup = false"></app-rubrica-container>
+    (closeRubricaPopup)="displayRubricaPopup = false"
+  ></app-rubrica-container>
 
-  <p-footer
-    *ngIf="utenteConnesso.aziendaLogin.parametriAzienda?.rubricaInternauta">
+  <p-footer *ngIf="utenteConnesso.aziendaLogin.parametriAzienda?.rubricaInternauta">
     <button
       type="button"
       pButton
@@ -427,7 +435,8 @@
       label="Conferma Destinatari Selezionati"
       (click)="onConfermaDestinatari()"
       [disabled]="checkIfExistDestinatariSelezionati()"
-      class="ui-button-raised ui-button-secondary custom-secondary-button"></button>
+      class="ui-button-raised ui-button-secondary custom-secondary-button"
+    ></button>
     <button
       type="button"
       pButton
@@ -435,6 +444,7 @@
       label="Annulla"
       (click)="onCloseRubricaPopup()"
       [disabled]="disableButtonsConfermaDestinatariSelezionati"
-      class="confirm-buttons ui-button-raised ui-button-secondary custom-secondary-button"></button>
+      class="confirm-buttons ui-button-raised ui-button-secondary custom-secondary-button"
+    ></button>
   </p-footer>
 </p-dialog>

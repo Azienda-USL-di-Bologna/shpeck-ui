@@ -12,15 +12,21 @@ import { FilterMetadata, LazyLoadEvent } from "primeng/api";
 import { buildLazyEventFiltersAndSorts } from "@bds/primeng-plugin";
 import { AppCustomization } from "src/environments/app-customization";
 import { PecFolder, MailFoldersService, PecFolderType } from "../mail-folders/mail-folders.service";
-import { IntimusClientService, IntimusCommand, IntimusCommands, RefreshMailsParams, RefreshMailsParamsOperations, RefreshMailsParamsEntities } from '@bds/common-tools';
+import {
+  IntimusClientService,
+  IntimusCommand,
+  IntimusCommands,
+  RefreshMailsParams,
+  RefreshMailsParamsOperations,
+  RefreshMailsParamsEntities,
+} from "@bds/common-tools";
 
 @Component({
   selector: "app-mail-outbox",
   templateUrl: "./mail-outbox.component.html",
-  styleUrls: ["./mail-outbox.component.scss"]
+  styleUrls: ["./mail-outbox.component.scss"],
 })
 export class MailOutboxComponent implements OnInit, OnDestroy {
-
   public _selectedPecId: number;
   @Input("pecId")
   set selectedPecId(pecId: number) {
@@ -35,12 +41,11 @@ export class MailOutboxComponent implements OnInit, OnDestroy {
 
   @ViewChild("ot", {}) private ot: Table;
   private previousFilter: FilterDefinition[] = [];
-  private selectedProjection: string =
-    ENTITIES_STRUCTURE.shpeck.outboxLite.standardProjections.OutboxLiteWithIdPec;
+  private selectedProjection: string = ENTITIES_STRUCTURE.shpeck.outboxLite.standardProjections.OutboxLiteWithIdPec;
 
   public _filters: FilterDefinition[];
 
-  private subscriptions: {id: number, type: string, subscription: Subscription}[] = [];
+  private subscriptions: { id: number; type: string; subscription: Subscription }[] = [];
   public loading = false;
   public virtualRowHeight: number = 70;
   public totalRecords: number;
@@ -53,8 +58,8 @@ export class MailOutboxComponent implements OnInit, OnDestroy {
       header: "Oggetto",
       filterMatchMode: FILTER_TYPES.string.containsIgnoreCase,
       width: "5.313rem",
-      minWidth: "5.313rem"
-    }
+      minWidth: "5.313rem",
+    },
   ];
   public displayDetailPopup = false;
   public openDetailInPopup = false;
@@ -62,49 +67,70 @@ export class MailOutboxComponent implements OnInit, OnDestroy {
     mode: "LIMIT_OFFSET",
     conf: {
       limit: 0,
-      offset: 0
-    }
+      offset: 0,
+    },
   };
   private sorting: Sorting = {
     field: "receiveTime",
-    sortMode: SORT_MODES.desc
+    sortMode: SORT_MODES.desc,
   };
 
-  constructor(private outboxLiteService: OutboxLiteService,
+  constructor(
+    private outboxLiteService: OutboxLiteService,
     private settingsService: SettingsService,
     private datepipe: DatePipe,
     private mailboxService: MailboxService,
     private outboxService: OutboxService,
     private mailFoldersService: MailFoldersService,
     private intimusClient: IntimusClientService
-  ) { }
+  ) {}
 
   ngOnInit() {
     this.selectedOutboxMails = [];
 
-    this.subscriptions.push({id: null, type: "outboxServiceReload", subscription: this.outboxService.reload.subscribe(idOutboxMail => {
-      this.selectedOutboxMails = [];
-      idOutboxMail ? this.loadData(null, null, idOutboxMail) : this.loadData(null);
-    })});
-    this.subscriptions.push({id: null, type: "pecFolderSelected", subscription: this.mailFoldersService.pecFolderSelected.subscribe((pecFolderSelected: PecFolder) => {
-      this.pecFolderSelected = pecFolderSelected;
-    })});
-    this.subscriptions.push({id: null, type: "settingsChangedNotifier", subscription: this.settingsService.settingsChangedNotifier$.subscribe(newSettings => {
-      this.openDetailInPopup = newSettings[AppCustomization.shpeck.hideDetail] === "true";
-    })});
+    this.subscriptions.push({
+      id: null,
+      type: "outboxServiceReload",
+      subscription: this.outboxService.reload.subscribe((idOutboxMail) => {
+        this.selectedOutboxMails = [];
+        idOutboxMail ? this.loadData(null, null, idOutboxMail) : this.loadData(null);
+      }),
+    });
+    this.subscriptions.push({
+      id: null,
+      type: "pecFolderSelected",
+      subscription: this.mailFoldersService.pecFolderSelected.subscribe((pecFolderSelected: PecFolder) => {
+        this.pecFolderSelected = pecFolderSelected;
+      }),
+    });
+    this.subscriptions.push({
+      id: null,
+      type: "settingsChangedNotifier",
+      subscription: this.settingsService.settingsChangedNotifier$.subscribe((newSettings) => {
+        this.openDetailInPopup = newSettings[AppCustomization.shpeck.hideDetail] === "true";
+      }),
+    });
 
-    this.subscriptions.push({id: null, type: "sorting", subscription: this.mailboxService.sorting.subscribe((sorting: Sorting) => {
-      if (sorting) {
-        this.sorting = sorting;
-        if (this.ot && this.ot.el && this.ot.el.nativeElement) {
-          this.ot.el.nativeElement.getElementsByClassName("ui-table-scrollable-body")[0].scrollTop = 0;
+    this.subscriptions.push({
+      id: null,
+      type: "sorting",
+      subscription: this.mailboxService.sorting.subscribe((sorting: Sorting) => {
+        if (sorting) {
+          this.sorting = sorting;
+          if (this.ot && this.ot.el && this.ot.el.nativeElement) {
+            this.ot.el.nativeElement.getElementsByClassName("ui-table-scrollable-body")[0].scrollTop = 0;
+          }
+          this.lazyLoad(null);
         }
-        this.lazyLoad(null);
-      }
-    })});
-    this.subscriptions.push({id: null, type: "intimusClient.command", subscription: this.intimusClient.command$.subscribe((command: IntimusCommand) => {
-      this.manageIntimusCommand(command);
-    })});
+      }),
+    });
+    this.subscriptions.push({
+      id: null,
+      type: "intimusClient.command",
+      subscription: this.intimusClient.command$.subscribe((command: IntimusCommand) => {
+        this.manageIntimusCommand(command);
+      }),
+    });
 
     if (this.settingsService.getImpostazioniVisualizzazione()) {
       this.openDetailInPopup = this.settingsService.getHideDetail() === "true";
@@ -120,23 +146,23 @@ export class MailOutboxComponent implements OnInit, OnDestroy {
       case IntimusCommands.RefreshMails: // comando di refresh delle mail
         const params: RefreshMailsParams = command.params as RefreshMailsParams;
         if (params.entity === RefreshMailsParamsEntities.OUTBOX) {
-        switch (params.operation) {
-          case RefreshMailsParamsOperations.INSERT:
-            console.log("INSERT");
-            this.manageIntimusInsertCommand(params);
-            break;
-          case RefreshMailsParamsOperations.UPDATE:
-            console.log("UPDATE");
-            this.manageIntimusUpdateCommand(params);
-            break;
-          case RefreshMailsParamsOperations.DELETE:
-            console.log("DELETE");
-            this.manageIntimusDeleteCommand(params);
-            break;
+          switch (params.operation) {
+            case RefreshMailsParamsOperations.INSERT:
+              console.log("INSERT");
+              this.manageIntimusInsertCommand(params);
+              break;
+            case RefreshMailsParamsOperations.UPDATE:
+              console.log("UPDATE");
+              this.manageIntimusUpdateCommand(params);
+              break;
+            case RefreshMailsParamsOperations.DELETE:
+              console.log("DELETE");
+              this.manageIntimusDeleteCommand(params);
+              break;
+          }
+          // this.refreshOtherBadgeAndDoOtherOperation(params);
+          break;
         }
-        // this.refreshOtherBadgeAndDoOtherOperation(params);
-        break;
-      }
     }
   }
 
@@ -149,58 +175,68 @@ export class MailOutboxComponent implements OnInit, OnDestroy {
     console.log("manageIntimusInsertCommand");
     /*
      * se sto guardando l'outbox della pec interessata dal comando
-    */
-    if (params.newRow["id_pec"] && this.pecFolderSelected.type === PecFolderType.FOLDER && params.newRow["id_pec"] === this.pecFolderSelected.pec.id) {
+     */
+    if (
+      params.newRow["id_pec"] &&
+      this.pecFolderSelected.type === PecFolderType.FOLDER &&
+      params.newRow["id_pec"] === this.pecFolderSelected.pec.id
+    ) {
       // chiedo il messaggio al backend
       const idOutbox: number = params.newRow["id"];
       const filterDefinition = new FilterDefinition("id", FILTER_TYPES.not_string.equals, idOutbox);
       const filter: FiltersAndSorts = new FiltersAndSorts();
       filter.addFilter(filterDefinition);
-      this.subscriptions.push({id: idOutbox, type: "AutoRefresh", subscription: this.outboxLiteService.getData(this.selectedProjection, filter, null, null).subscribe((data: any) => {
-        /*
-         * può capitare che il comando arrivi prima che la transazione sia conclusa, per cui non troverei il messaggio sul database.
-         * Se capita, riprovo dopo 30ms per un massimo di 10 volte
-        */
-        if (!data || !data.results || data.results.length === 0) {
-          console.log("message not ready");
-          if (times <= 10) {
-            console.log(`rescheduling after ${30 * times}ms for the ${times} time...`);
-            setTimeout(() => {
-              this.manageIntimusInsertCommand(params, times + 1);
-            }, 30 * times);
-          } else {
-            console.log("too many tries, stop!");
+      this.subscriptions.push({
+        id: idOutbox,
+        type: "AutoRefresh",
+        subscription: this.outboxLiteService.getData(this.selectedProjection, filter, null, null).subscribe((data: any) => {
+          /*
+           * può capitare che il comando arrivi prima che la transazione sia conclusa, per cui non troverei il messaggio sul database.
+           * Se capita, riprovo dopo 30ms per un massimo di 10 volte
+           */
+          if (!data || !data.results || data.results.length === 0) {
+            console.log("message not ready");
+            if (times <= 10) {
+              console.log(`rescheduling after ${30 * times}ms for the ${times} time...`);
+              setTimeout(() => {
+                this.manageIntimusInsertCommand(params, times + 1);
+              }, 30 * times);
+            } else {
+              console.log("too many tries, stop!");
+            }
+            return;
           }
-          return;
-        }
-        console.log("message ready, proceed...");
+          console.log("message ready, proceed...");
 
-        const newMessage = data.results[0];
-        // TODO: probabilmente è da togliere questo caso, perché deriva dal copia-incolla della gestione in mail-list-component
-        // cerco il messaggio perché potrebbe essere già nella cartella disabilitato (ad esempio se qualcuno l'ha spostato e poi rispostato in questa cartella mentre io la guardo)
-        console.log("searching message in list...");
-        const messageIndex = this.outboxMails.findIndex(m => m.id === idOutbox);
-        if (messageIndex >= 0) { // se lo trovo lo riabilito
-          console.log("message found, updating...");
-          this.outboxMails.splice(messageIndex, 1, newMessage);
-        } else { // se non lo trovo lo inserisco in testa
-          console.log("message not found in list, pushing on top...");
-          this.outboxMails.unshift(newMessage);
+          const newMessage = data.results[0];
+          // TODO: probabilmente è da togliere questo caso, perché deriva dal copia-incolla della gestione in mail-list-component
+          // cerco il messaggio perché potrebbe essere già nella cartella disabilitato (ad esempio se qualcuno l'ha spostato e poi rispostato in questa cartella mentre io la guardo)
+          console.log("searching message in list...");
+          const messageIndex = this.outboxMails.findIndex((m) => m.id === idOutbox);
+          if (messageIndex >= 0) {
+            // se lo trovo lo riabilito
+            console.log("message found, updating...");
+            this.outboxMails.splice(messageIndex, 1, newMessage);
+          } else {
+            // se non lo trovo lo inserisco in testa
+            console.log("message not found in list, pushing on top...");
+            this.outboxMails.unshift(newMessage);
 
-          this.totalRecords++; // ho aggiunto un messaggio per cui aumento di uno il numero dei messaggi visualizzati
-          // mando l'evento con il numero di messaggi (serve a mailbox-component perché lo deve scrivere nella barra superiore)
-          this.mailboxService.setTotalMessageNumberDescriptor({
-            messageNumber: this.totalRecords,
-            pecFolder: this.pecFolderSelected // folder/tag che era selezionato quando lo scaricamento dei messaggi è iniziato
-          } as TotalMessageNumberDescriptor);
-        }
+            this.totalRecords++; // ho aggiunto un messaggio per cui aumento di uno il numero dei messaggi visualizzati
+            // mando l'evento con il numero di messaggi (serve a mailbox-component perché lo deve scrivere nella barra superiore)
+            this.mailboxService.setTotalMessageNumberDescriptor({
+              messageNumber: this.totalRecords,
+              pecFolder: this.pecFolderSelected, // folder/tag che era selezionato quando lo scaricamento dei messaggi è iniziato
+            } as TotalMessageNumberDescriptor);
+          }
 
-        // se nuovo il messaggio ricaricato/inserito è tra i messaggi selezionati lo sostituisco
-        const smIndex = this.selectedOutboxMails.findIndex(sm => sm.id === newMessage.id);
-        if (smIndex >= 0) {
-          this.selectedOutboxMails[smIndex] = newMessage;
-        }
-      })});
+          // se nuovo il messaggio ricaricato/inserito è tra i messaggi selezionati lo sostituisco
+          const smIndex = this.selectedOutboxMails.findIndex((sm) => sm.id === newMessage.id);
+          if (smIndex >= 0) {
+            this.selectedOutboxMails[smIndex] = newMessage;
+          }
+        }),
+      });
     }
   }
 
@@ -210,17 +246,21 @@ export class MailOutboxComponent implements OnInit, OnDestroy {
    */
   private manageIntimusDeleteCommand(params: RefreshMailsParams) {
     // se sto guardando la outbox della pec interessata dal comando
-    if (params.oldRow["id_pec"] && this.pecFolderSelected.type === PecFolderType.FOLDER && params.oldRow["id_pec"] === this.pecFolderSelected.pec.id) {
+    if (
+      params.oldRow["id_pec"] &&
+      this.pecFolderSelected.type === PecFolderType.FOLDER &&
+      params.oldRow["id_pec"] === this.pecFolderSelected.pec.id
+    ) {
       const idOutbox: number = params.oldRow["id"];
-      const messageIndex: number = this.outboxMails.findIndex(m => m.id === idOutbox);
+      const messageIndex: number = this.outboxMails.findIndex((m) => m.id === idOutbox);
       if (messageIndex >= 0) {
         this.outboxMails.splice(messageIndex, 1);
         this.totalRecords--;
-          // mando l'evento con il numero di messaggi (serve a mailbox-component perché lo deve scrivere nella barra superiore)
-          this.mailboxService.setTotalMessageNumberDescriptor({
-            messageNumber: this.totalRecords,
-            pecFolder: this.pecFolderSelected // folder/tag che era selezionato quando lo scaricamento dei messaggi è iniziato
-          } as TotalMessageNumberDescriptor);
+        // mando l'evento con il numero di messaggi (serve a mailbox-component perché lo deve scrivere nella barra superiore)
+        this.mailboxService.setTotalMessageNumberDescriptor({
+          messageNumber: this.totalRecords,
+          pecFolder: this.pecFolderSelected, // folder/tag che era selezionato quando lo scaricamento dei messaggi è iniziato
+        } as TotalMessageNumberDescriptor);
       }
     }
   }
@@ -243,17 +283,9 @@ export class MailOutboxComponent implements OnInit, OnDestroy {
 
   private buildOutboxtInitialFilterAndSort() {
     const filtersAndSorts: FiltersAndSorts = new FiltersAndSorts();
-    filtersAndSorts.addFilter(new FilterDefinition(
-      "idPec.id",
-      FILTER_TYPES.not_string.equals,
-      this._selectedPecId
-    ));
+    filtersAndSorts.addFilter(new FilterDefinition("idPec.id", FILTER_TYPES.not_string.equals, this._selectedPecId));
 
-    filtersAndSorts.addFilter(new FilterDefinition(
-      "ignore",
-      FILTER_TYPES.not_string.equals,
-      false
-    ));
+    filtersAndSorts.addFilter(new FilterDefinition("ignore", FILTER_TYPES.not_string.equals, false));
 
     // Me ne frego dell'ordinamento generale impostato. Mi limito ad usare l'ordinamento della data cambiando il nome del campo
     if (this.sorting.field === "receiveTime") {
@@ -279,21 +311,22 @@ export class MailOutboxComponent implements OnInit, OnDestroy {
       // perché nella subscribe quando la invio al mailbox-component per scrivere il numero di messaggi
       // la selezione potrebbe essere cambiata e quindi manderei un dato errato
       const folderSelected = this.pecFolderSelected;
-      this.subscriptions.push({id: folderSelected.data.id, type: "folder_message", subscription:
-        this.outboxLiteService.getData(this.selectedProjection,
-          this.buildOutboxtInitialFilterAndSort(),
-          lazyFilterAndSort,
-          pageCong).subscribe(data => {
+      this.subscriptions.push({
+        id: folderSelected.data.id,
+        type: "folder_message",
+        subscription: this.outboxLiteService
+          .getData(this.selectedProjection, this.buildOutboxtInitialFilterAndSort(), lazyFilterAndSort, pageCong)
+          .subscribe((data) => {
             if (data && data.results) {
               this.totalRecords = data.page.totalElements;
               // mando l'evento con il numero di messaggi (serve a mailbox-component perché lo deve scrivere nella barra superiore)
               this.mailboxService.setTotalMessageNumberDescriptor({
                 messageNumber: this.totalRecords,
-                pecFolder: folderSelected // folder/tag che era selezionato quando lo scaricamento dei messaggi è iniziato
+                pecFolder: folderSelected, // folder/tag che era selezionato quando lo scaricamento dei messaggi è iniziato
               } as TotalMessageNumberDescriptor);
               this.outboxMails = data.results;
               if (idOutboxMail) {
-                const selectedOutboxMail: Outbox = this.selectedOutboxMails.find(value => value.id === idOutboxMail);
+                const selectedOutboxMail: Outbox = this.selectedOutboxMails.find((value) => value.id === idOutboxMail);
                 if (selectedOutboxMail !== undefined) {
                   this.outboxService.manageOutboxEvent(selectedOutboxMail);
                 }
@@ -308,17 +341,18 @@ export class MailOutboxComponent implements OnInit, OnDestroy {
                 this.selectedOutboxMails[i] = this.outboxMails[index];
               }
             }
-      })});
+          }),
+      });
     }
   }
 
-  public buildTableEventFilters(filtersDefinition: FilterDefinition[] ): {[s: string]: FilterMetadata} {
+  public buildTableEventFilters(filtersDefinition: FilterDefinition[]): { [s: string]: FilterMetadata } {
     if (filtersDefinition && filtersDefinition.length > 0) {
-      const eventFilters: {[s: string]: FilterMetadata} = {};
-      filtersDefinition.forEach(filter => {
+      const eventFilters: { [s: string]: FilterMetadata } = {};
+      filtersDefinition.forEach((filter) => {
         const filterMetadata: FilterMetadata = {
           value: filter.value,
-          matchMode: filter.filterMatchMode
+          matchMode: filter.filterMatchMode,
         };
         eventFilters[filter.field] = filterMetadata;
       });
@@ -329,17 +363,19 @@ export class MailOutboxComponent implements OnInit, OnDestroy {
   }
 
   private needLoading(event: LazyLoadEvent): boolean {
-    let needLoading = this.pageConf.conf.limit !== event.rows ||
-    this.pageConf.conf.offset !== event.first;
+    let needLoading = this.pageConf.conf.limit !== event.rows || this.pageConf.conf.offset !== event.first;
     if (!needLoading) {
-      if (this._filters && !this.previousFilter || !this._filters && this.previousFilter) {
+      if ((this._filters && !this.previousFilter) || (!this._filters && this.previousFilter)) {
         needLoading = true;
       } else if (this._filters && this.previousFilter) {
         for (const filter of this._filters) {
-          if (this.previousFilter.findIndex(e =>
-            e.field === filter.field && e.filterMatchMode === filter.filterMatchMode && e.value === filter.value) === -1) {
-              needLoading = true;
-              break;
+          if (
+            this.previousFilter.findIndex(
+              (e) => e.field === filter.field && e.filterMatchMode === filter.filterMatchMode && e.value === filter.value
+            ) === -1
+          ) {
+            needLoading = true;
+            break;
           }
         }
       }

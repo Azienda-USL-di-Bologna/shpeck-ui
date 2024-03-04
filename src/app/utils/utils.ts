@@ -1,4 +1,3 @@
-
 export class Utils {
   public static contentTypesEnabledForPreview = ["text/html", "application/pdf", "text/plain", "image/jpeg", "image/png"];
   /**
@@ -10,8 +9,8 @@ export class Utils {
    */
   public static downLoadFile(data: any, type: string, filename: string, preview: boolean = false) {
     const blob = new Blob([data], { type: type });
-    const url = window.URL.createObjectURL(blob, );
-    if (preview && (this.contentTypesEnabledForPreview.indexOf(type) > -1)) {
+    const url = window.URL.createObjectURL(blob);
+    if (preview && this.contentTypesEnabledForPreview.indexOf(type) > -1) {
       const pwa = window.open(url);
       if (!pwa || pwa.closed || typeof pwa.closed === "undefined") {
         alert("L'apertura del pop-up è bloccata dal tuo browser. Per favore disabilita il blocco.");
@@ -19,10 +18,11 @@ export class Utils {
         setTimeout(() => {
           // console.log("FILE = ", filename, type);
           if (type && type === "application/pdf") {
-            pwa.document.getElementsByTagName("html")[0]
-            .appendChild(document.createElement("head"))
-            .appendChild(document.createElement("title"))
-            .appendChild(document.createTextNode(filename));
+            pwa.document
+              .getElementsByTagName("html")[0]
+              .appendChild(document.createElement("head"))
+              .appendChild(document.createElement("title"))
+              .appendChild(document.createTextNode(filename));
           } else {
             pwa.document.title = filename;
           }
@@ -46,14 +46,13 @@ export class Utils {
           return f[fieldId] === el[fieldId];
         });
       });
-      
     } else {
-      return a.filter(i => b.indexOf(i) < 0);
+      return a.filter((i) => b.indexOf(i) < 0);
     }
   }
 
   public static arrayOverlap(array1: any[], array2: any[]): any[] {
-    return array1.filter(function(n) {
+    return array1.filter(function (n) {
       return array2.indexOf(n) !== -1;
     });
   }
@@ -64,7 +63,6 @@ export class Utils {
         .toString(16)
         .substring(1);
     }
-    return s4() + s4() + "-" + s4() + "-" + s4() + "-" +
-      s4() + "-" + s4() + s4() + s4();
+    return s4() + s4() + "-" + s4() + "-" + s4() + "-" + s4() + "-" + s4() + s4() + s4();
   }
 }

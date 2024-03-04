@@ -6,11 +6,13 @@ import { getInternautaUrl, BaseUrlType } from "src/environments/app-constants";
 import { ENTITIES_STRUCTURE } from "@bds/internauta-model";
 
 @Injectable({
-  providedIn: "root"
+  providedIn: "root",
 })
 export class NoteService extends NextSDREntityProvider {
-
-  constructor(protected http: HttpClient, protected datepipe: DatePipe) {
+  constructor(
+    protected http: HttpClient,
+    protected datepipe: DatePipe
+  ) {
     super(http, datepipe, ENTITIES_STRUCTURE.shpeck.note, getInternautaUrl(BaseUrlType.Shpeck));
   }
 
@@ -20,9 +22,7 @@ export class NoteService extends NextSDREntityProvider {
    */
   public loadNote(idMessage: number) {
     const filtersAndSorts: FiltersAndSorts = new FiltersAndSorts();
-    filtersAndSorts.addFilter(
-      new FilterDefinition("idMessage.id", FILTER_TYPES.not_string.equals, idMessage)
-    );
+    filtersAndSorts.addFilter(new FilterDefinition("idMessage.id", FILTER_TYPES.not_string.equals, idMessage));
     return this.getData(null, filtersAndSorts, null, null);
   }
 }
