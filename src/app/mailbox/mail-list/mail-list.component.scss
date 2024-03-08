@@ -18,26 +18,13 @@
   width: 2rem;
   max-width: 2rem;
 }
-::ng-deep
-  .column-checkbox
-  p-tableCheckbox
-  .ui-chkbox.p-component
-  .ui-chkbox-box.p-component.ui-state-default {
+::ng-deep .column-checkbox p-tableCheckbox .ui-chkbox.p-component .ui-chkbox-box.p-component.ui-state-default {
   opacity: 0.5;
 }
-::ng-deep
-  .message-row:hover
-  .column-checkbox
-  p-tableCheckbox
-  .ui-chkbox.p-component
-  .ui-chkbox-box.p-component.ui-state-default {
+::ng-deep .message-row:hover .column-checkbox p-tableCheckbox .ui-chkbox.p-component .ui-chkbox-box.p-component.ui-state-default {
   opacity: 1;
 }
-::ng-deep
-  .column-checkbox
-  p-tableCheckbox
-  .p-checkbox
-  .p-checkbox-box.p-highlight {
+::ng-deep .column-checkbox p-tableCheckbox .p-checkbox .p-checkbox-box.p-highlight {
   opacity: 1;
   border-color: #848484;
   background-color: #848484;
@@ -414,14 +401,8 @@
 ::ng-deep .message-labels + p-contextmenusub .ui-menuitem-icon.fas.fa-square,
 ::ng-deep .message-labels + p-contextmenusub .ui-menuitem-icon.fas.fa-check,
 ::ng-deep .message-labels + p-contextmenusub .ui-menuitem-icon.fas.fa-tag,
-::ng-deep
-  .message-labels
-  + p-contextmenusub
-  .ui-menuitem-icon.fas.fa-check-square,
-::ng-deep
-  .message-labels
-  + p-contextmenusub
-  .ui-menuitem-icon.fas.fa-minus-square,
+::ng-deep .message-labels + p-contextmenusub .ui-menuitem-icon.fas.fa-check-square,
+::ng-deep .message-labels + p-contextmenusub .ui-menuitem-icon.fas.fa-minus-square,
 ::ng-deep .message-labels-icon-action .ui-menuitem-icon.fas.fa-square,
 ::ng-deep .message-labels-icon-action .ui-menuitem-icon.fas.fa-check,
 ::ng-deep .message-labels-icon-action .ui-menuitem-icon.fas.fa-tag,

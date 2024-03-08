@@ -7,26 +7,23 @@ import { AccessibilitaMailListComponent } from "./accessibilita-mail-list/access
 import { AppModule } from "src/app/app.module";
 import { ShpeckToolbarModule } from "../toolbar/shpeck-toolbar.module";
 import { MailFoldersModule } from "../mail-folders/mail-folders.module";
-import { AccessibilitaMailDetailComponent } from './accessibilita-mail-detail/accessibilita-mail-detail.component';
-import { RouteReuseStrategy } from '@angular/router';
-import { CustomReuseStrategy } from 'src/app/custom-reuse-strategy';
-import { MailDetailModule } from '../mail-detail/mail-detail.module';
+import { AccessibilitaMailDetailComponent } from "./accessibilita-mail-detail/accessibilita-mail-detail.component";
+import { RouteReuseStrategy } from "@angular/router";
+import { CustomReuseStrategy } from "src/app/custom-reuse-strategy";
+import { MailDetailModule } from "../mail-detail/mail-detail.module";
 import { CommonComponentsModule } from "@bds/common-components";
-
-
 
 @NgModule({
   declarations: [AccessibilitaMailboxComponent, AccessibilitaMailListComponent, AccessibilitaMailDetailComponent],
   imports: [
-    CommonModule, 
-    AccessibilitaRoutingModule, 
-    ShpeckToolbarModule, 
-    PrimengModule, 
-    MailFoldersModule, 
+    CommonModule,
+    AccessibilitaRoutingModule,
+    ShpeckToolbarModule,
+    PrimengModule,
+    MailFoldersModule,
     MailDetailModule,
-    CommonComponentsModule
+    CommonComponentsModule,
   ],
-  providers: [
-  ]
+  providers: [],
 })
-export class AccessibilitaMailboxModule { }
+export class AccessibilitaMailboxModule {}

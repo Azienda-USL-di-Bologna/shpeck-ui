@@ -1,16 +1,15 @@
-import { async, ComponentFixture, TestBed } from '@angular/core/testing';
+import { async, ComponentFixture, TestBed } from "@angular/core/testing";
 
-import { MailDetailComponent } from './mail-detail.component';
+import { MailDetailComponent } from "./mail-detail.component";
 
-describe('MailDetailComponent', () => {
+describe("MailDetailComponent", () => {
   let component: MailDetailComponent;
   let fixture: ComponentFixture<MailDetailComponent>;
 
   beforeEach(async(() => {
     TestBed.configureTestingModule({
-      declarations: [ MailDetailComponent ]
-    })
-    .compileComponents();
+      declarations: [MailDetailComponent],
+    }).compileComponents();
   }));
 
   beforeEach(() => {
@@ -19,7 +18,7 @@ describe('MailDetailComponent', () => {
     fixture.detectChanges();
   });
 
-  it('should create', () => {
+  it("should create", () => {
     expect(component).toBeTruthy();
   });
 });

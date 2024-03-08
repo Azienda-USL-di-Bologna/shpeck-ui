@@ -8,26 +8,36 @@ import { BehaviorSubject, Observable } from "rxjs";
 import { tap, map } from "rxjs/operators";
 
 @Injectable({
-  providedIn: "root"
+  providedIn: "root",
 })
 export class PecService extends NextSDREntityProvider {
-
   private _myPecsSubject: BehaviorSubject<Pec[]> = new BehaviorSubject(null);
 
-  constructor(protected _http: HttpClient, protected _datepipe: DatePipe) {
+  constructor(
+    protected _http: HttpClient,
+    protected _datepipe: DatePipe
+  ) {
     super(_http, _datepipe, ENTITIES_STRUCTURE.baborg.pec, getInternautaUrl(BaseUrlType.Baborg));
   }
 
   public getMyPecs(): Observable<Pec[]> {
-    return super.getData(ENTITIES_STRUCTURE.baborg.pec.customProjections.CustomPecWithFolderListAndPecAziendaListAndTagList, this.buildFolderInitialFilterAndSort(), null, null).pipe(
-      map(data => {
-        if (data && data.results) {
-          return data.results;
-        }
-      }), tap( (pecs: Pec[]) => {
-        this._myPecsSubject.next(pecs);
-      })
-    );
+    return super
+      .getData(
+        ENTITIES_STRUCTURE.baborg.pec.customProjections.CustomPecWithFolderListAndPecAziendaListAndTagList,
+        this.buildFolderInitialFilterAndSort(),
+        null,
+        null
+      )
+      .pipe(
+        map((data) => {
+          if (data && data.results) {
+            return data.results;
+          }
+        }),
+        tap((pecs: Pec[]) => {
+          this._myPecsSubject.next(pecs);
+        })
+      );
   }
 
   private buildFolderInitialFilterAndSort(): FiltersAndSorts {

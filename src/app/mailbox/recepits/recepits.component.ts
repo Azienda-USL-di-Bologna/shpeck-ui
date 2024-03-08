@@ -7,10 +7,9 @@ import { EMLSOURCE } from "src/environments/app-constants";
 @Component({
   selector: "app-recepits",
   templateUrl: "./recepits.component.html",
-  styleUrls: ["./recepits.component.scss"]
+  styleUrls: ["./recepits.component.scss"],
 })
 export class RecepitsComponent implements OnInit {
-
   public recepits: Message[];
   public cols: any;
 
@@ -39,11 +38,11 @@ export class RecepitsComponent implements OnInit {
         field: "receiveTime",
         header: "Data",
         fieldType: "DateTime",
-        format: {viewFormat:'dd/MM/yyyy HH:mm'},
+        format: { viewFormat: "dd/MM/yyyy HH:mm" },
         style: {
           width: "8.438rem",
-          textAlign: "center"
-        }
+          textAlign: "center",
+        },
       },
       {
         field: "idRecepit.recepitType",
@@ -51,16 +50,16 @@ export class RecepitsComponent implements OnInit {
         header: "Tipo Ricevuta",
         style: {
           width: "7.5rem",
-          textAlign: "center"
-        }
+          textAlign: "center",
+        },
       },
       {
         field: "address",
         header: "Destinatario",
         fieldType: "string",
         style: {
-          width: "16.25rem"
-        }
+          width: "16.25rem",
+        },
       },
       {
         field: "button",
@@ -70,9 +69,9 @@ export class RecepitsComponent implements OnInit {
         onClick: this.dowloadRecepit,
         style: {
           width: "2.813rem",
-          textAlign: "center"
-        }
-      }
+          textAlign: "center",
+        },
+      },
     ];
   }
 
@@ -81,12 +80,10 @@ export class RecepitsComponent implements OnInit {
    * @param recepit
    */
   public dowloadRecepit(recepit: Message): void {
-    this.messageService.downloadEml(recepit.id, EMLSOURCE.MESSAGE).subscribe(
-      response => {
-        const nomeRicevuta = "Ricevuta_" + recepit.idRecepit.recepitType + "_" + recepit.id + ".eml";
-        Utils.downLoadFile(response, "message/rfc822", nomeRicevuta, false);
-      }
-    );
+    this.messageService.downloadEml(recepit.id, EMLSOURCE.MESSAGE).subscribe((response) => {
+      const nomeRicevuta = "Ricevuta_" + recepit.idRecepit.recepitType + "_" + recepit.id + ".eml";
+      Utils.downLoadFile(response, "message/rfc822", nomeRicevuta, false);
+    });
   }
 
   /**
@@ -96,7 +93,7 @@ export class RecepitsComponent implements OnInit {
    */
   public calculateAddress(recepit: Message): string {
     if (recepit.idRecepit.recepitType === RecepitType.CONSEGNA) {
-      return recepit.messageAddressList.find(m => m.addressRole === "FROM").idAddress.mailAddress;
+      return recepit.messageAddressList.find((m) => m.addressRole === "FROM").idAddress.mailAddress;
     } else {
       return null;
     }

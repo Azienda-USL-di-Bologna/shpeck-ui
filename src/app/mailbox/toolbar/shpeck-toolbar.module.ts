@@ -4,14 +4,10 @@ import { ToolbarComponent } from "./toolbar.component";
 import { PrimengModule } from "src/app/primeng.module";
 import { ToolBarService } from "./toolbar.service";
 
-
-
 @NgModule({
   declarations: [ToolbarComponent],
-  imports: [
-    CommonModule, PrimengModule
-  ],
+  imports: [CommonModule, PrimengModule],
   providers: [ToolBarService],
-  exports: [ToolbarComponent]
+  exports: [ToolbarComponent],
 })
-export class ShpeckToolbarModule { }
+export class ShpeckToolbarModule {}

@@ -19,7 +19,8 @@
 
 /* ------------TEMPLATE GENERALE---------------------- */
 /* --- RIGHE P-TABLE --- */
-::ng-deep body .p-dialog .p-dialog-titlebar, .titolo-popup,
+::ng-deep body .p-dialog .p-dialog-titlebar,
+.titolo-popup,
 ::ng-deep body .p-dialog .p-dialog-header {
   background-color: #993366;
   color: white;
@@ -29,12 +30,12 @@
 
 ::ng-deep body .p-dialog .p-dialog-titlebar .p-dialog-titlebar-icon,
 ::ng-deep body .p-dialog .p-dialog-header .p-dialog-header-icon,
-::ng-deep body .p-dialog .p-dialog-titlebar-close  {
+::ng-deep body .p-dialog .p-dialog-titlebar-close {
   color: white;
 }
 
 ::ng-deep body .p-datatable .p-datatable-tbody > tr.p-highlight {
-  background-color: #FCF9BF !important;
+  background-color: #fcf9bf !important;
   color: black !important;
 }
 
@@ -68,13 +69,13 @@
   width: 0.625rem;
   height: 0.625rem;
 }
-::ng-deep  ::-webkit-scrollbar-track {
+::ng-deep ::-webkit-scrollbar-track {
   background: #f1f1f1;
 }
-::ng-deep  ::-webkit-scrollbar-thumb {
+::ng-deep ::-webkit-scrollbar-thumb {
   background: #88888857;
 }
-::ng-deep  ::-webkit-scrollbar-thumb:hover {
+::ng-deep ::-webkit-scrollbar-thumb:hover {
   background: #8888889c;
 }
 
@@ -87,7 +88,8 @@
   scrollbar-color: #8888889c #f1f1f1;
 }
 
-@media only screen and (max-height: 50.063rem) { /* For low resolutions */
+@media only screen and (max-height: 50.063rem) {
+  /* For low resolutions */
   ::ng-deep .new-draft .p-dialog-content.p-widget-content {
     height: 91vh !important;
   }

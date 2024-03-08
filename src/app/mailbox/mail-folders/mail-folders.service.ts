@@ -6,20 +6,15 @@ import { HttpClient } from "@angular/common/http";
 import { getInternautaUrl, BaseUrlType, CUSTOM_SERVER_METHODS } from "src/environments/app-constants";
 
 @Injectable({
-  providedIn: "root"
+  providedIn: "root",
 })
 export class MailFoldersService {
-
-
   private _pecFolderSelected: BehaviorSubject<PecFolder> = new BehaviorSubject<PecFolder>(null);
   private _pecFoldersAndTags: BehaviorSubject<FoldersAndTags> = new BehaviorSubject<FoldersAndTags>(null);
   private _reloadTag: Subject<number>[] = [];
   private _reloadFolder: Subject<number>[] = [];
 
-  constructor(
-      private http: HttpClient
-  ) {
-  }
+  constructor(private http: HttpClient) {}
 
   public selectedPecFolder(node: PecFolder, folders: Folder[], tags: Tag[]): void {
     this._pecFolderSelected.next(node);
@@ -33,7 +28,7 @@ export class MailFoldersService {
   public setPecFoldersAndTags(folders: Folder[], tags: Tag[]): void {
     this._pecFoldersAndTags.next({
       folders: folders,
-      tags: tags
+      tags: tags,
     });
   }
 
@@ -46,13 +41,11 @@ export class MailFoldersService {
 
   public doReloadTag(idTag: number): void {
     const url = getInternautaUrl(BaseUrlType.Shpeck) + "/" + CUSTOM_SERVER_METHODS.countMessageInTag + "/" + idTag;
-    this.http.get(url).subscribe(
-        (res) => {
-          if (this._reloadTag[idTag]) {
-            this._reloadTag[idTag].next(res as number);
-          }
-        }
-    );
+    this.http.get(url).subscribe((res) => {
+      if (this._reloadTag[idTag]) {
+        this._reloadTag[idTag].next(res as number);
+      }
+    });
   }
 
   public getReloadFolder(idFolder: number): Observable<number> {
@@ -76,7 +69,12 @@ export class MailFoldersService {
     return this._pecFoldersAndTags.asObservable();
   }
 
-  public countMessageInFolder(folderId: number, unSeen = false, folderType: string = null, idPec: number = null): Observable<number> {
+  public countMessageInFolder(
+    folderId: number,
+    unSeen = false,
+    folderType: string = null,
+    idPec: number = null
+  ): Observable<number> {
     let url = getInternautaUrl(BaseUrlType.Shpeck) + "/" + CUSTOM_SERVER_METHODS.countMessageInFolder + "/" + folderId;
     let carattereUrl = "?";
     if (folderType) {
@@ -102,7 +100,7 @@ export enum PecFolderType {
   PEC = "pec",
   FOLDER = "folder",
   TAG = "tag",
-  TAG_CONTAINER = "tag_container"
+  TAG_CONTAINER = "tag_container",
 }
 
 export interface PecFolder {

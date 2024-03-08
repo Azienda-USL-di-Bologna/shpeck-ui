@@ -80,21 +80,14 @@ ul {
 
 /******* Attachments and Address chips *******/
 ::ng-deep body .p-chips > ul.p-inputtext .p-chips-token,
-::ng-deep
-  body
-  .p-autocomplete.p-autocomplete-multiple
-  .p-autocomplete-multiple-container
-  .p-autocomplete-token {
+::ng-deep body .p-autocomplete.p-autocomplete-multiple .p-autocomplete-multiple-container .p-autocomplete-token {
   background-color: rgb(235, 235, 235);
   border-radius: 0.3rem;
   padding: 0.13rem 0.3rem;
   margin: 0.06rem;
   color: black;
 }
-::ng-deep
-  body
-  .p-autocomplete.p-autocomplete-multiple
-  .p-autocomplete-multiple-container {
+::ng-deep body .p-autocomplete.p-autocomplete-multiple .p-autocomplete-multiple-container {
   max-height: 5.063rem;
   overflow: auto;
   width: 100%;
@@ -140,10 +133,7 @@ ul {
   justify-content: center;
 }
 
-::ng-deep
-  body
-  .p-autocomplete.p-autocomplete-multiple
-  .p-autocomplete-multiple-container:not(.p-state-disabled).p-state-focus,
+::ng-deep body .p-autocomplete.p-autocomplete-multiple .p-autocomplete-multiple-container:not(.p-state-disabled).p-state-focus,
 input:focus {
   border-color: #2e4a65 !important;
 }
@@ -156,10 +146,7 @@ input:focus {
 ::ng-deep .p-editor-content.ql-container.ql-snow {
   min-height: 1.25rem;
 }
-::ng-deep
-  .ql-align.ql-picker.ql-icon-picker.ql-expanded
-  .ql-picker-options
-  .ql-picker-item {
+::ng-deep .ql-align.ql-picker.ql-icon-picker.ql-expanded .ql-picker-options .ql-picker-item {
   padding: 0 !important;
 }
 .min-height-0 {

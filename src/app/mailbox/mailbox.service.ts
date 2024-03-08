@@ -6,11 +6,8 @@ import { PecFolderType, PecFolder } from "./mail-folders/mail-folders.service";
   providedIn: "root",
 })
 export class MailboxService {
-  private _sorting: BehaviorSubject<Sorting> = new BehaviorSubject<Sorting>(
-    null
-  );
-  private _totalMessageNumberDescriptor$: Subject<TotalMessageNumberDescriptor> =
-    new Subject<TotalMessageNumberDescriptor>();
+  private _sorting: BehaviorSubject<Sorting> = new BehaviorSubject<Sorting>(null);
+  private _totalMessageNumberDescriptor$: Subject<TotalMessageNumberDescriptor> = new Subject<TotalMessageNumberDescriptor>();
 
   public get sorting(): Observable<Sorting> {
     return this._sorting.asObservable();
@@ -24,9 +21,7 @@ export class MailboxService {
     return this._totalMessageNumberDescriptor$.asObservable();
   }
 
-  public setTotalMessageNumberDescriptor(
-    totalMessageNumberDescriptor: TotalMessageNumberDescriptor
-  ) {
+  public setTotalMessageNumberDescriptor(totalMessageNumberDescriptor: TotalMessageNumberDescriptor) {
     this._totalMessageNumberDescriptor$.next(totalMessageNumberDescriptor);
   }
 }

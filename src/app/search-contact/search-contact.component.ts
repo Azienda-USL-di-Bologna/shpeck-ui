@@ -8,7 +8,7 @@ import { MessageService } from "primeng/api";
 @Component({
   selector: "app-search-contact",
   templateUrl: "./search-contact.component.html",
-  styleUrls: ["./search-contact.component.scss"]
+  styleUrls: ["./search-contact.component.scss"],
 })
 export class SearchContactComponent implements OnInit {
   public filteredContacts: any[];
@@ -20,11 +20,15 @@ export class SearchContactComponent implements OnInit {
   @Output() addressChosedByBook = new EventEmitter<any>();
   @Output() closeRubricaPopup = new EventEmitter<any>();
 
-  constructor(protected http: HttpClient, protected rubricaService: RubricaService, protected messageService: MessageService) { }
+  constructor(
+    protected http: HttpClient,
+    protected rubricaService: RubricaService,
+    protected messageService: MessageService
+  ) {}
 
   ngOnInit() {
     this.contactForm = new FormGroup({
-      contatto: new FormControl("", [Validators.required])
+      contatto: new FormControl("", [Validators.required]),
     });
 
     setTimeout(() => {
@@ -59,14 +63,18 @@ export class SearchContactComponent implements OnInit {
         },
         (err) => {
           console.log("orrore");
-          this.messageService.add({severity: "error", summary: "Errore", detail: "Qualcosa è andato storto.\nContattattare Babelcare"});
+          this.messageService.add({
+            severity: "error",
+            summary: "Errore",
+            detail: "Qualcosa è andato storto.\nContattattare Babelcare",
+          });
         }
       );
     }
   }
 
   private trasformValuesAfterSearch(values: any[]): any[] {
-    values.forEach(contact => {
+    values.forEach((contact) => {
       contact["descrizioneCustom"] = contact.contatto.cognomeRagione + " (" + contact.emails[0].email + ")";
     });
     return values;
