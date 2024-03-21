@@ -16,7 +16,7 @@
   width: 100%;
 }
 
-.oldslider{
+.oldslider {
   position: absolute;
   left: 0;
   top: 0;
@@ -27,7 +27,7 @@
   justify-content: center;
 }
 
-.oldslider > div{
+.oldslider > div {
   border: dotted 0.06rem grey;
   width: 0.19rem;
   border-top: none;
@@ -82,7 +82,7 @@
   }
 }
 
-.d-flex{
+.d-flex {
   display: flex;
 }
 
@@ -98,14 +98,15 @@
   width: 100%;
   display: flex;
 }
-.flex-1{
+.flex-1 {
   flex: 1;
 }
-.text-center{
+.text-center {
   text-align: center;
 }
 /* ========= MAIL LIST ========== */
-app-mail-list, app-mail-drafts {
+app-mail-list,
+app-mail-drafts {
   overflow: hidden;
 }
 .mail-list {
@@ -121,7 +122,7 @@ app-mail-list, app-mail-drafts {
   overflow: auto;
 }
 .filter-box {
-  background-color: #eaecef; 
+  background-color: #eaecef;
   border-bottom: 0.06rem solid #96a4b2;
   display: flex;
   flex: 1;
@@ -130,7 +131,8 @@ app-mail-list, app-mail-drafts {
   max-height: min-content;
   flex-direction: row;
   font-size: 0.75rem;
-  .filter-box-left, .filter-box-right {
+  .filter-box-left,
+  .filter-box-right {
     padding: 0.313rem 0.6rem;
   }
   .filter-box-left {

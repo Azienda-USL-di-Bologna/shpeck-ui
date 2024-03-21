@@ -8,17 +8,20 @@ import { DynamicDialogRef } from "primeng/dynamicdialog";
 @Component({
   selector: "app-settings",
   templateUrl: "./settings.component.html",
-  styleUrls: ["./settings.component.scss"]
+  styleUrls: ["./settings.component.scss"],
 })
 export class SettingsComponent implements OnInit, OnDestroy {
-
   checked: boolean;
   model: Impostazioni;
   loggedUser: UtenteUtilities;
   private subscription: Subscription;
   public accessibilitaEnabled: boolean = false;
 
-  constructor(public ref: DynamicDialogRef, private loginService: JwtLoginService, private impostazioniService: SettingsService) { }
+  constructor(
+    public ref: DynamicDialogRef,
+    private loginService: JwtLoginService,
+    private impostazioniService: SettingsService
+  ) {}
 
   ngOnInit() {
     this.loginService.loggedUser$.subscribe((utente: UtenteUtilities) => {
@@ -40,25 +43,24 @@ export class SettingsComponent implements OnInit, OnDestroy {
     }
     const fontSize = this.impostazioniService.getFontSize();
     this.model.fontSize = fontSize ? fontSize : FONTSIZE.BIG;
-
   }
 
   saveSettings() {
     this.impostazioniService.setHideDetail(this.model.hideDetail.toString());
     this.impostazioniService.setFontSize(this.model.fontSize);
-    this.subscription =
-      this.loggedUser.setImpostazioniApplicazione(this.loginService, this.impostazioniService.getImpostazioniVisualizzazione())
+    this.subscription = this.loggedUser
+      .setImpostazioniApplicazione(this.loginService, this.impostazioniService.getImpostazioniVisualizzazione())
       .subscribe((newSettings) => {
         this.impostazioniService.doNotify(newSettings);
         this.onClose();
       });
-    }
+  }
 
   onClose() {
     this.ref.close();
   }
 
-  autoDestroy(){
+  autoDestroy() {
     this.ref.destroy();
   }
 
@@ -67,12 +69,11 @@ export class SettingsComponent implements OnInit, OnDestroy {
       this.subscription.unsubscribe();
     }
   }
-
 }
 
 export class Impostazioni {
   hideDetail: boolean;
   fontSize: string;
 
-  constructor() { }
+  constructor() {}
 }

@@ -10,14 +10,18 @@ import { MessageService } from "primeng/api";
 import { FullMessage } from "./shpeck-message.service";
 
 @Injectable({
-  providedIn: "root"
+  providedIn: "root",
 })
 export class DraftService extends NextSDREntityProvider {
   private _draftEvent = new BehaviorSubject<DraftEvent>(null);
   public reload: BehaviorSubject<number> = new BehaviorSubject<number>(null);
   private _isMailFormSubmitted: boolean = false;
 
-  constructor(protected http: HttpClient, protected datepipe: DatePipe, public messagePrimeService: MessageService) {
+  constructor(
+    protected http: HttpClient,
+    protected datepipe: DatePipe,
+    public messagePrimeService: MessageService
+  ) {
     super(http, datepipe, ENTITIES_STRUCTURE.shpeck.draft, getInternautaUrl(BaseUrlType.Shpeck));
   }
 
@@ -36,22 +40,25 @@ export class DraftService extends NextSDREntityProvider {
   /**
    * Salva la bozza sul database e ritorna un observable
    * @param form La form contenente tutti i campi della mail da salvare
-  */
+   */
   public saveDraftMessage(form: FormData, idDraft?: number) {
     const apiUrl = getInternautaUrl(BaseUrlType.Shpeck) + "/" + CUSTOM_SERVER_METHODS.saveDraftMessage;
     this.http.post(apiUrl, form).subscribe(
-      res => {
+      (res) => {
         console.log(res);
-        this.messagePrimeService.add(
-          { severity: "success", summary: "Successo", detail: "Bozza salvata correttamente" });
+        this.messagePrimeService.add({ severity: "success", summary: "Successo", detail: "Bozza salvata correttamente" });
         if (idDraft) {
           this.reload.next(idDraft);
         }
       },
-      err => {
+      (err) => {
         console.log(err);
-        this.messagePrimeService.add(
-          { severity: "error", summary: "Errore", detail: "Errore durante il salvaggio, contattare BabelCare", life: 3500 });
+        this.messagePrimeService.add({
+          severity: "error",
+          summary: "Errore",
+          detail: "Errore durante il salvaggio, contattare BabelCare",
+          life: 3500,
+        });
       }
     );
     // return this.http.post(apiUrl, form);
@@ -61,23 +68,27 @@ export class DraftService extends NextSDREntityProvider {
    * Elimina la bozza dal database
    * @param idDraft Id della bozza da eliminare
    * @param showMessage Mostrare/Non mostrare il messaggio di notifica eliminazione
-  */
+   */
   public deleteDraftMessage(idDraft: number, showMessage: boolean, reload?: boolean) {
     this.deleteHttpCall(idDraft).subscribe(
-      res => {
+      (res) => {
         if (showMessage) {
-          this.messagePrimeService.add(
-            { severity: "success", summary: "Successo", detail: "Bozza eliminata correttamente" });
+          this.messagePrimeService.add({ severity: "success", summary: "Successo", detail: "Bozza eliminata correttamente" });
         }
-        if (reload) { // Il reload è true soltanto se siamo in EDIT
+        if (reload) {
+          // Il reload è true soltanto se siamo in EDIT
           this.reload.next(null);
           this._draftEvent.next(null);
         }
       },
-      err => {
+      (err) => {
         if (showMessage) {
-          this.messagePrimeService.add(
-            { severity: "error", summary: "Errore", detail: "Errore durante l'eliminazione, contattare BabelCare", life: 3500 });
+          this.messagePrimeService.add({
+            severity: "error",
+            summary: "Errore",
+            detail: "Errore durante l'eliminazione, contattare BabelCare",
+            life: 3500,
+          });
         }
       }
     );
@@ -87,7 +98,7 @@ export class DraftService extends NextSDREntityProvider {
    * Elimina le bozze selezionate dal database
    * @param drafts Array delle bozze da eliminare
    * @param showMessage Mostrare/Non mostrare il messaggio di notifica eliminazione
-  */
+   */
   public deleteDrafts(drafts: Draft[], showMessage: boolean) {
     const draftsToDelete: BatchOperation[] = [];
     for (const draft of drafts) {
@@ -98,24 +109,27 @@ export class DraftService extends NextSDREntityProvider {
           entityPath: BaseUrls.get(BaseUrlType.Shpeck) + "/" + ENTITIES_STRUCTURE.shpeck.draft.path,
           entityBody: null,
           additionalData: null,
-          returnProjection: null
+          returnProjection: null,
         });
       }
     }
     if (draftsToDelete.length > 0) {
       return super.batchHttpCall(draftsToDelete).subscribe(
-        res => {
+        (res) => {
           if (showMessage) {
-            this.messagePrimeService.add(
-              { severity: "success", summary: "Successo", detail: "Bozze eliminate correttamente" });
+            this.messagePrimeService.add({ severity: "success", summary: "Successo", detail: "Bozze eliminate correttamente" });
           }
           this.reload.next(null);
           this._draftEvent.next(null);
         },
-        err => {
+        (err) => {
           if (showMessage) {
-            this.messagePrimeService.add(
-              { severity: "error", summary: "Errore", detail: "Errore durante l'eliminazione, contattare BabelCare", life: 3500 });
+            this.messagePrimeService.add({
+              severity: "error",
+              summary: "Errore",
+              detail: "Errore durante l'eliminazione, contattare BabelCare",
+              life: 3500,
+            });
           }
         }
       );
@@ -127,25 +141,27 @@ export class DraftService extends NextSDREntityProvider {
   /**
    * Invia la mail al server e ritorna un observable
    * @param form La form contenente tutti i campi della mail da salvare
-  */
+   */
   public submitMessage(form: FormData) {
     const apiUrl = getInternautaUrl(BaseUrlType.Shpeck) + "/" + CUSTOM_SERVER_METHODS.sendMessage;
     this.http.post(apiUrl, form).subscribe(
-      res => {
+      (res) => {
         console.log(res);
-        this.messagePrimeService.add(
-          { severity: "success", summary: "Successo", detail: "Email inviata!" });
+        this.messagePrimeService.add({ severity: "success", summary: "Successo", detail: "Email inviata!" });
         this.reload.next(null);
         this._draftEvent.next(null);
-        },
-      err => {
+      },
+      (err) => {
         console.log("Error: ", err);
         if (err && err.error.code === "007") {
-            this.messagePrimeService.add(
-            { severity: "error", summary: "Errore", detail: err.error.message, life: 3500 });
+          this.messagePrimeService.add({ severity: "error", summary: "Errore", detail: err.error.message, life: 3500 });
         } else {
-          this.messagePrimeService.add(
-          { severity: "error", summary: "Errore", detail: "Errore durante l'invio della mail, contattare BabelCare", life: 3500 });
+          this.messagePrimeService.add({
+            severity: "error",
+            summary: "Errore",
+            detail: "Errore durante l'invio della mail, contattare BabelCare",
+            life: 3500,
+          });
         }
         this._isMailFormSubmitted = false;
       }
@@ -172,9 +188,9 @@ export class DraftService extends NextSDREntityProvider {
             fullDraft: {
               message: draft,
               emlData: data,
-              emlSource: EMLSOURCE.DRAFT
+              emlSource: EMLSOURCE.DRAFT,
             },
-            selectedDrafts
+            selectedDrafts,
           });
         },
         (err) => {
@@ -182,15 +198,15 @@ export class DraftService extends NextSDREntityProvider {
             fullDraft: {
               message: draft,
               emlData: null,
-              emlSource: EMLSOURCE.DRAFT
+              emlSource: EMLSOURCE.DRAFT,
             },
-            selectedDrafts
+            selectedDrafts,
           });
         }
       );
     } else {
       this._draftEvent.next({
-        selectedDrafts
+        selectedDrafts,
       });
     }
   }
@@ -200,7 +216,14 @@ export class DraftService extends NextSDREntityProvider {
    * @param emlSource Il tipo di EML che stiamo richiedendo (DRAFT|OUTBOX|MESSAGE)
    */
   public extractEmlData(messageId: number, emlSource: string): Observable<EmlData> {
-    const url = getInternautaUrl(BaseUrlType.Shpeck) + "/" + CUSTOM_SERVER_METHODS.extractEmlData + "/" + messageId + "?emlSource=" + emlSource;
+    const url =
+      getInternautaUrl(BaseUrlType.Shpeck) +
+      "/" +
+      CUSTOM_SERVER_METHODS.extractEmlData +
+      "/" +
+      messageId +
+      "?emlSource=" +
+      emlSource;
     return this.http.get(url) as Observable<EmlData>;
   }
 }

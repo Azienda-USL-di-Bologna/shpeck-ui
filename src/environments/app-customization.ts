@@ -1,19 +1,18 @@
 export const AppCustomization = {
-    shpeck: {
-        /* leftside: {
+  shpeck: {
+    /* leftside: {
             offsetWidth: "shpeck.leftside.offsetWidth"
         },
         rigthside: {
             offsetWidth: "shpeck.rigthside.offsetWidth"
         }, */
-        hideDetail: "shpeck.hideDetail",
-        version: "shpeck.version",
-        fontSize: "shpeck.fontSize"
-    }
+    hideDetail: "shpeck.hideDetail",
+    version: "shpeck.version",
+    fontSize: "shpeck.fontSize",
+  },
 };
 
 export const ShpeckVersion = {
-    internauta: "internauta",
-    local: "local"
+  internauta: "internauta",
+  local: "local",
 };
-

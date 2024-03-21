@@ -1,16 +1,15 @@
-import { async, ComponentFixture, TestBed } from '@angular/core/testing';
+import { async, ComponentFixture, TestBed } from "@angular/core/testing";
 
-import { ReaddressComponent } from './readdress.component';
+import { ReaddressComponent } from "./readdress.component";
 
-describe('ReaddressComponent', () => {
+describe("ReaddressComponent", () => {
   let component: ReaddressComponent;
   let fixture: ComponentFixture<ReaddressComponent>;
 
   beforeEach(async(() => {
     TestBed.configureTestingModule({
-      declarations: [ ReaddressComponent ]
-    })
-    .compileComponents();
+      declarations: [ReaddressComponent],
+    }).compileComponents();
   }));
 
   beforeEach(() => {
@@ -19,7 +18,7 @@ describe('ReaddressComponent', () => {
     fixture.detectChanges();
   });
 
-  it('should create', () => {
+  it("should create", () => {
     expect(component).toBeTruthy();
   });
 });

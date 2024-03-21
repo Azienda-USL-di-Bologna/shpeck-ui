@@ -1,13 +1,12 @@
 .flex-1 {
-    display: flex;
-    flex: 1;
+  display: flex;
+  flex: 1;
 }
 :host {
-    height: 100%;
-    display: flex;
-    flex-direction: column;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
 }
-
 
 ::ng-deep .ui-table-tbody > tr > td {
   border: none !important;
@@ -50,7 +49,6 @@
   margin-left: 0.3rem;
   overflow: hidden;
   color: gray;
-
 }
 
 .pad-left-19 {

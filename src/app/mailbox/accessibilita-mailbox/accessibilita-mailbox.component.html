@@ -1,23 +1,45 @@
-<div 
-  class="container" 
-  [ngClass]="fontSize === 'small' ? 'general-font-size-small' : fontSize === 'medium' ? 'general-font-size-medium' : 'general-font-size-big'">
-
+<div
+  class="container"
+  [ngClass]="
+    fontSize === 'small'
+      ? 'general-font-size-small'
+      : fontSize === 'medium'
+        ? 'general-font-size-medium'
+        : 'general-font-size-big'
+  "
+>
   <div>
     <app-toolbar></app-toolbar>
   </div>
-  <div #mailContainer class="mail-container" *ngIf="true">
+  <div
+    #mailContainer
+    class="mail-container"
+    *ngIf="true"
+  >
     <!-- Left side -->
-    <div #mailFolder class="content-left">
+    <div
+      #mailFolder
+      class="content-left"
+    >
       <app-mail-folders></app-mail-folders>
     </div>
 
-    <div #leftSlider class="slider text-center">
+    <div
+      #leftSlider
+      class="slider text-center"
+    >
       <div></div>
     </div>
 
-    <div #rightSide class="content-right">
-      <router-outlet ></router-outlet>
+    <div
+      #rightSide
+      class="content-right"
+    >
+      <router-outlet></router-outlet>
     </div>
   </div>
 </div>
-<p-toast key="c" position="center"></p-toast>
+<p-toast
+  key="c"
+  position="center"
+></p-toast>

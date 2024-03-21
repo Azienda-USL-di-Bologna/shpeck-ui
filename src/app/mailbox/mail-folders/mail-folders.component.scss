@@ -10,7 +10,7 @@
     }
   }
 }
-.flex-container{
+.flex-container {
   display: flex;
   flex: 1;
   flex-direction: column;
@@ -50,23 +50,30 @@
   width: initial;
 }
 ::ng-deep .p-treenode-children p-treenode li,
-::ng-deep .p-treenode-children p-treenode li .p-treenode-content{
+::ng-deep .p-treenode-children p-treenode li .p-treenode-content {
   height: 1.813rem;
   white-space: nowrap;
 }
 ::ng-deep .p-treenode-children p-treenode .root-tree-node-style {
   height: initial;
 }
-::ng-deep .tree-style, ::ng-deep .p-tree-container {
-    border: none !important;
-    padding: 0 !important;
+::ng-deep .tree-style,
+::ng-deep .p-tree-container {
+  border: none !important;
+  padding: 0 !important;
 }
 ::ng-deep .tree-node-style.p-treenode-leaf .p-treenode-label {
   background-color: white !important;
 }
 ::ng-deep body .p-tree .p-tree-container .p-treenode .p-treenode-content.p-highlight,
 ::ng-deep body .p-tree .p-tree-container .p-treenode .p-treenode-content.p-highlight .p-treenode-label,
-::ng-deep body .p-tree .p-tree-container .p-treenode .p-treenode-content.p-treenode-selectable:not(.p-highlight):hover .p-treenode-label {
+::ng-deep
+  body
+  .p-tree
+  .p-tree-container
+  .p-treenode
+  .p-treenode-content.p-treenode-selectable:not(.p-highlight):hover
+  .p-treenode-label {
   background-color: #eaeaea !important;
   color: black;
   font-weight: bold;
@@ -150,8 +157,8 @@
   margin-bottom: 0.625rem;
 }
 ::ng-deep .restore-color .button-restore {
-  background-color:#2e4a65;
-  height: 1em; 
+  background-color: #2e4a65;
+  height: 1em;
   width: 1em;
   margin: auto 0;
   margin-left: 0.3rem;
@@ -161,34 +168,34 @@
 
 /* ----- ICONE  ------ */
 ::ng-deep .readdressed-icon::before {
-  content: 'low_priority';
+  content: "low_priority";
 }
 ::ng-deep .registered-icon::before {
-  content: 'assignment_turned_in';
+  content: "assignment_turned_in";
 }
 ::ng-deep .inbox-icon::before {
-  content: 'inbox';
+  content: "inbox";
 }
 ::ng-deep .outbox-icon::before {
-  content: 'hourglass_empty';
+  content: "hourglass_empty";
 }
 ::ng-deep .sent-icon::before {
-  content: 'send';
+  content: "send";
 }
 ::ng-deep .draft-icon::before {
-  content: 'drafts';
+  content: "drafts";
 }
 ::ng-deep .more-icon::before {
-  content: 'more';
+  content: "more";
 }
 ::ng-deep .loyalty-icon::before {
-  content: 'loyalty';
+  content: "loyalty";
 }
 ::ng-deep .local-offer-icon::before {
-  content: 'local_offer';
+  content: "local_offer";
 }
 ::ng-deep .trash-icon::before {
-  content: 'delete';
+  content: "delete";
 }
 ::ng-deep .p-link:focus {
   box-shadow: 0 0 0 0 transparent !important;

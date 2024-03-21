@@ -2,9 +2,9 @@ import { Injectable } from "@angular/core";
 import { ActivatedRouteSnapshot, RouterStateSnapshot, UrlTree, CanActivate, Router, PRIMARY_OUTLET } from "@angular/router";
 
 @Injectable({
-  providedIn: "root"
+  providedIn: "root",
 })
-export class DoNotShowRubricaPopupOnRefreshGuard implements CanActivate  {
+export class DoNotShowRubricaPopupOnRefreshGuard implements CanActivate {
   private router: Router;
 
   constructor(router: Router) {
@@ -12,18 +12,16 @@ export class DoNotShowRubricaPopupOnRefreshGuard implements CanActivate  {
   }
 
   // determine if the requested route can be activated (navigated to)
-  public canActivate(
-    activatedRouteSnapshot: ActivatedRouteSnapshot,
-    routerStateSnapshot: RouterStateSnapshot): boolean {
+  public canActivate(activatedRouteSnapshot: ActivatedRouteSnapshot, routerStateSnapshot: RouterStateSnapshot): boolean {
     // we don't want to render this view on page-refresh
     if (this.isPageRefresh()) {
       console.warn("RubricaPopup not allowd on refresh");
       // console.log("activatedRouteSnapshot", activatedRouteSnapshot);
       // console.log("routerStateSnapshot", routerStateSnapshot);
       this.router.navigateByUrl(this.getUrlWithoutRubricaPopup(routerStateSnapshot));
-      return (false);
+      return false;
     }
-    return (true);
+    return true;
   }
 
   /**
@@ -36,11 +34,11 @@ export class DoNotShowRubricaPopupOnRefreshGuard implements CanActivate  {
     let segment = urlTree.root;
     urlTree.queryParams = {};
     while (!!segment && segment.numberOfChildren > 0) {
-      delete (segment.children.rubricaPopup);
+      delete segment.children.rubricaPopup;
       segment = segment.children[PRIMARY_OUTLET];
     }
 
-    return (urlTree);
+    return urlTree;
   }
 
   /**
@@ -48,7 +46,6 @@ export class DoNotShowRubricaPopupOnRefreshGuard implements CanActivate  {
    */
   private isPageRefresh(): boolean {
     // if the router has yet to establish a single navigation, it means that this navigation is the first attempt to reconcile the application state with the URL state. Page refresh.
-    return (!this.router.navigated);
+    return !this.router.navigated;
   }
-
 }

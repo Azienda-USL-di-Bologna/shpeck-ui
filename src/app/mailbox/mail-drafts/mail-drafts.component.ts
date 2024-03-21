@@ -12,15 +12,21 @@ import { AppCustomization } from "src/environments/app-customization";
 import { MailboxService, Sorting, TotalMessageNumberDescriptor } from "../mailbox.service";
 import { Table } from "primeng/table";
 import { PecFolder, MailFoldersService, PecFolderType } from "../mail-folders/mail-folders.service";
-import { IntimusClientService, IntimusCommand, IntimusCommands, RefreshMailsParams, RefreshMailsParamsEntities, RefreshMailsParamsOperations } from '@bds/common-tools';
+import {
+  IntimusClientService,
+  IntimusCommand,
+  IntimusCommands,
+  RefreshMailsParams,
+  RefreshMailsParamsEntities,
+  RefreshMailsParamsOperations,
+} from "@bds/common-tools";
 
 @Component({
   selector: "app-mail-drafts",
   templateUrl: "./mail-drafts.component.html",
-  styleUrls: ["./mail-drafts.component.scss"]
+  styleUrls: ["./mail-drafts.component.scss"],
 })
 export class MailDraftsComponent implements OnInit, OnDestroy {
-
   public _selectedPecId: number;
   @Input("pecId")
   set selectedPecId(pecId: number) {
@@ -35,8 +41,7 @@ export class MailDraftsComponent implements OnInit, OnDestroy {
 
   @ViewChild("dt", {}) private dt: Table;
   private previousFilter: FilterDefinition[] = [];
-  private selectedProjection: string =
-    ENTITIES_STRUCTURE.shpeck.draftlite.standardProjections.DraftLiteWithIdPec;
+  private selectedProjection: string = ENTITIES_STRUCTURE.shpeck.draftlite.standardProjections.DraftLiteWithIdPec;
 
   public _filters: FilterDefinition[];
 
@@ -53,8 +58,8 @@ export class MailDraftsComponent implements OnInit, OnDestroy {
       header: "Oggetto",
       filterMatchMode: FILTER_TYPES.string.containsIgnoreCase,
       width: "5.313rem",
-      minWidth: "5.313rem"
-    }
+      minWidth: "5.313rem",
+    },
   ];
   public displayDetailPopup = false;
   public openDetailInPopup = false;
@@ -62,15 +67,16 @@ export class MailDraftsComponent implements OnInit, OnDestroy {
     mode: "LIMIT_OFFSET",
     conf: {
       limit: 0,
-      offset: 0
-    }
+      offset: 0,
+    },
   };
   private sorting: Sorting = {
     field: "receiveTime",
-    sortMode: SORT_MODES.desc
+    sortMode: SORT_MODES.desc,
   };
 
-  constructor(private draftService: DraftService,
+  constructor(
+    private draftService: DraftService,
     private settingsService: SettingsService,
     private draftLiteService: DraftLiteService,
     private datepipe: DatePipe,
@@ -78,33 +84,41 @@ export class MailDraftsComponent implements OnInit, OnDestroy {
     private mailFoldersService: MailFoldersService,
     private confirmationService: ConfirmationService,
     private intimusClient: IntimusClientService
-    ) { }
+  ) {}
 
   ngOnInit() {
     this.selectedDrafts = [];
-    this.subscriptions.push(this.draftService.reload.subscribe(idDraft => {
-      this.selectedDrafts = [];
-      if (idDraft) {
-        this.loadData(null, null, idDraft);
-      } else {
-        this.loadData(null);
-      }
-    }));
-    this.subscriptions.push(this.mailFoldersService.pecFolderSelected.subscribe((pecFolderSelected: PecFolder) => {
-      this.pecFolderSelected = pecFolderSelected;
-    }));
-    this.subscriptions.push(this.settingsService.settingsChangedNotifier$.subscribe(newSettings => {
-      this.openDetailInPopup = newSettings[AppCustomization.shpeck.hideDetail] === "true";
-    }));
-    this.subscriptions.push(this.mailboxService.sorting.subscribe((sorting: Sorting) => {
-      if (sorting) {
-        this.sorting = sorting;
-        if (this.dt && this.dt.el && this.dt.el.nativeElement) {
-          this.dt.el.nativeElement.getElementsByClassName("ui-table-scrollable-body")[0].scrollTop = 0;
+    this.subscriptions.push(
+      this.draftService.reload.subscribe((idDraft) => {
+        this.selectedDrafts = [];
+        if (idDraft) {
+          this.loadData(null, null, idDraft);
+        } else {
+          this.loadData(null);
         }
-        this.lazyLoad(null);
-      }
-    }));
+      })
+    );
+    this.subscriptions.push(
+      this.mailFoldersService.pecFolderSelected.subscribe((pecFolderSelected: PecFolder) => {
+        this.pecFolderSelected = pecFolderSelected;
+      })
+    );
+    this.subscriptions.push(
+      this.settingsService.settingsChangedNotifier$.subscribe((newSettings) => {
+        this.openDetailInPopup = newSettings[AppCustomization.shpeck.hideDetail] === "true";
+      })
+    );
+    this.subscriptions.push(
+      this.mailboxService.sorting.subscribe((sorting: Sorting) => {
+        if (sorting) {
+          this.sorting = sorting;
+          if (this.dt && this.dt.el && this.dt.el.nativeElement) {
+            this.dt.el.nativeElement.getElementsByClassName("ui-table-scrollable-body")[0].scrollTop = 0;
+          }
+          this.lazyLoad(null);
+        }
+      })
+    );
     // this.subscriptions.push(this.intimusClient.command$.subscribe((command: IntimusCommand) => {
     //   this.manageIntimusCommand(command);
     // }));
@@ -159,10 +173,7 @@ export class MailDraftsComponent implements OnInit, OnDestroy {
         // selezione di un singolo messaggio (o come click singolo oppure come click del primo messaggio con il ctrl)
         if (this.selectedDrafts.length === 1) {
           const selectedDraft: Draft = this.selectedDrafts[0];
-          this.draftService.manageDraftEvent(
-            selectedDraft,
-            this.selectedDrafts
-          );
+          this.draftService.manageDraftEvent(selectedDraft, this.selectedDrafts);
         } else {
           this.draftService.manageDraftEvent(null, this.selectedDrafts);
         }
@@ -172,9 +183,9 @@ export class MailDraftsComponent implements OnInit, OnDestroy {
     }
   }
 
-  public lazyLoad(event: LazyLoadEvent ) {
+  public lazyLoad(event: LazyLoadEvent) {
     console.log("lazyload", event);
-    const eventFilters: {[s: string]: FilterMetadata} = this.buildTableEventFilters(this._filters);
+    const eventFilters: { [s: string]: FilterMetadata } = this.buildTableEventFilters(this._filters);
     if (event) {
       if (eventFilters && Object.entries(eventFilters).length > 0) {
         event.filters = eventFilters;
@@ -186,31 +197,23 @@ export class MailDraftsComponent implements OnInit, OnDestroy {
       if (this.needLoading(event)) {
         this.pageConf.conf = {
           limit: event.rows,
-          offset: event.first
+          offset: event.first,
         };
-        const filtersAndSorts: FiltersAndSorts = buildLazyEventFiltersAndSorts(
-          event,
-          this.cols,
-          this.datepipe
-        );
+        const filtersAndSorts: FiltersAndSorts = buildLazyEventFiltersAndSorts(event, this.cols, this.datepipe);
 
         this.loadData(this.pageConf, filtersAndSorts);
       }
     } else {
       if (eventFilters) {
         event = {
-          filters: eventFilters
+          filters: eventFilters,
         };
       }
       this.pageConf.conf = {
         limit: this.rowsNmber * 2,
-        offset: 0
+        offset: 0,
       };
-      const filtersAndSorts: FiltersAndSorts = buildLazyEventFiltersAndSorts(
-        event,
-        this.cols,
-        this.datepipe
-      );
+      const filtersAndSorts: FiltersAndSorts = buildLazyEventFiltersAndSorts(event, this.cols, this.datepipe);
 
       this.loadData(this.pageConf, filtersAndSorts);
     }
@@ -219,17 +222,19 @@ export class MailDraftsComponent implements OnInit, OnDestroy {
   }
 
   private needLoading(event: LazyLoadEvent): boolean {
-    let needLoading = this.pageConf.conf.limit !== event.rows ||
-    this.pageConf.conf.offset !== event.first;
+    let needLoading = this.pageConf.conf.limit !== event.rows || this.pageConf.conf.offset !== event.first;
     if (!needLoading) {
-      if (this._filters && !this.previousFilter || !this._filters && this.previousFilter) {
+      if ((this._filters && !this.previousFilter) || (!this._filters && this.previousFilter)) {
         needLoading = true;
       } else if (this._filters && this.previousFilter) {
         for (const filter of this._filters) {
-          if (this.previousFilter.findIndex(e =>
-            e.field === filter.field && e.filterMatchMode === filter.filterMatchMode && e.value === filter.value) === -1) {
-              needLoading = true;
-              break;
+          if (
+            this.previousFilter.findIndex(
+              (e) => e.field === filter.field && e.filterMatchMode === filter.filterMatchMode && e.value === filter.value
+            ) === -1
+          ) {
+            needLoading = true;
+            break;
           }
         }
       }
@@ -245,38 +250,38 @@ export class MailDraftsComponent implements OnInit, OnDestroy {
       // perché nella subscribe quando la invio al mailbox-component per scrivere il numero di messaggi
       // la selezione potrebbe essere cambiata e quindi manderei un dato errato
       const folderSelected = this.pecFolderSelected;
-      this.draftLiteService.getData(this.selectedProjection, this.buildDraftInitialFilterAndSort(), lazyFilterAndSort, pageCong).subscribe(data => {
-        if (data && data.results) {
-          console.log("DATA = ", data);
-          this.totalRecords = data.page.totalElements;
-          // mando l'evento con il numero di messaggi (serve a mailbox-component perché lo deve scrivere nella barra superiore)
-          this.mailboxService.setTotalMessageNumberDescriptor({
-            messageNumber: this.totalRecords,
-            pecFolder: folderSelected // folder/tag che era selezionato quando lo scaricamento dei messaggi è iniziato
-          } as TotalMessageNumberDescriptor);
+      this.draftLiteService
+        .getData(this.selectedProjection, this.buildDraftInitialFilterAndSort(), lazyFilterAndSort, pageCong)
+        .subscribe((data) => {
+          if (data && data.results) {
+            console.log("DATA = ", data);
+            this.totalRecords = data.page.totalElements;
+            // mando l'evento con il numero di messaggi (serve a mailbox-component perché lo deve scrivere nella barra superiore)
+            this.mailboxService.setTotalMessageNumberDescriptor({
+              messageNumber: this.totalRecords,
+              pecFolder: folderSelected, // folder/tag che era selezionato quando lo scaricamento dei messaggi è iniziato
+            } as TotalMessageNumberDescriptor);
 
-          this.drafts = data.results;
-          if (idDraft) {
-            const selectedDraft: Draft = this.drafts.find(value => value.id === idDraft);
-            if (selectedDraft !== undefined) {
-              this.draftService.manageDraftEvent(
-                selectedDraft
-              );
+            this.drafts = data.results;
+            if (idDraft) {
+              const selectedDraft: Draft = this.drafts.find((value) => value.id === idDraft);
+              if (selectedDraft !== undefined) {
+                this.draftService.manageDraftEvent(selectedDraft);
+              }
             }
           }
-        }
-        this.loading = false;
-        // setTimeout(() => {
-        //   console.log(this.selRow.nativeElement.offsetHeight);
-        // });
-        let index;
-        for (let i = 0; i < this.selectedDrafts.length; i++) {
-          index = this.isDraftinList(this.selectedDrafts[i].id, this.drafts);
-          if (index !== -1) {
-            this.selectedDrafts[i] = this.drafts[index];
+          this.loading = false;
+          // setTimeout(() => {
+          //   console.log(this.selRow.nativeElement.offsetHeight);
+          // });
+          let index;
+          for (let i = 0; i < this.selectedDrafts.length; i++) {
+            index = this.isDraftinList(this.selectedDrafts[i].id, this.drafts);
+            if (index !== -1) {
+              this.selectedDrafts[i] = this.drafts[index];
+            }
           }
-        }
-      });
+        });
     }
   }
 
@@ -291,11 +296,7 @@ export class MailDraftsComponent implements OnInit, OnDestroy {
 
   private buildDraftInitialFilterAndSort() {
     const filtersAndSorts: FiltersAndSorts = new FiltersAndSorts();
-    filtersAndSorts.addFilter(new FilterDefinition(
-      "idPec.id",
-      FILTER_TYPES.not_string.equals,
-      this._selectedPecId
-    ));
+    filtersAndSorts.addFilter(new FilterDefinition("idPec.id", FILTER_TYPES.not_string.equals, this._selectedPecId));
 
     // Me ne frego dell'ordinamento generale impostato. Mi limito ad usare l'ordinamento della data cambiando il nome del campo
     if (this.sorting.field === "receiveTime") {
@@ -304,13 +305,13 @@ export class MailDraftsComponent implements OnInit, OnDestroy {
     return filtersAndSorts;
   }
 
-  public buildTableEventFilters(filtersDefinition: FilterDefinition[] ): {[s: string]: FilterMetadata} {
+  public buildTableEventFilters(filtersDefinition: FilterDefinition[]): { [s: string]: FilterMetadata } {
     if (filtersDefinition && filtersDefinition.length > 0) {
-      const eventFilters: {[s: string]: FilterMetadata} = {};
-      filtersDefinition.forEach(filter => {
+      const eventFilters: { [s: string]: FilterMetadata } = {};
+      filtersDefinition.forEach((filter) => {
         const filterMetadata: FilterMetadata = {
           value: filter.value,
-          matchMode: filter.filterMatchMode
+          matchMode: filter.filterMatchMode,
         };
         eventFilters[filter.field] = filterMetadata;
       });
@@ -332,13 +333,13 @@ export class MailDraftsComponent implements OnInit, OnDestroy {
       accept: () => {
         this.draftService.deleteDraftMessage(this.selectedDrafts[0].id, true, true);
       },
-      reject: () => {}
+      reject: () => {},
     });
   }
 
   onKeyUpMoveFocus(event) {
     this.stopPropagation(event);
-  
+
     const mailDetailContainer: HTMLElement = document.querySelector(".mail-detail");
     if (!!mailDetailContainer) mailDetailContainer.focus();
   }

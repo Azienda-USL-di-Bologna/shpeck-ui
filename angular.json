@@ -27,11 +27,7 @@
             "main": "src/main.ts",
             "polyfills": "src/polyfills.ts",
             "tsConfig": "src/tsconfig.app.json",
-            "assets": [
-              "src/favicon.ico",
-              "src/assets",
-              "src/app"
-            ],
+            "assets": ["src/favicon.ico", "src/assets", "src/app"],
             "styles": [
               "src/styles.scss",
               "node_modules/@fortawesome/fontawesome-free/css/all.css",
@@ -39,10 +35,7 @@
               "node_modules/quill/dist/quill.snow.css",
               "./node_modules/@angular/material/prebuilt-themes/pink-bluegrey.css"
             ],
-            "scripts": [
-              "node_modules/quill/dist/quill.js",
-              "src/assets/primus.js"
-            ]
+            "scripts": ["node_modules/quill/dist/quill.js", "src/assets/primus.js"]
           },
           "configurations": {
             "production": {
@@ -132,26 +125,16 @@
             "polyfills": "src/polyfills.ts",
             "tsConfig": "src/tsconfig.spec.json",
             "karmaConfig": "src/karma.conf.js",
-            "styles": [
-              "src/styles.scss"
-            ],
+            "styles": ["src/styles.scss"],
             "scripts": [],
-            "assets": [
-              "src/favicon.ico",
-              "src/assets"
-            ]
+            "assets": ["src/favicon.ico", "src/assets"]
           }
         },
         "lint": {
           "builder": "@angular-devkit/build-angular:tslint",
           "options": {
-            "tsConfig": [
-              "src/tsconfig.app.json",
-              "src/tsconfig.spec.json"
-            ],
-            "exclude": [
-              "**/node_modules/**"
-            ]
+            "tsConfig": ["src/tsconfig.app.json", "src/tsconfig.spec.json"],
+            "exclude": ["**/node_modules/**"]
           }
         }
       }
@@ -177,9 +160,7 @@
           "builder": "@angular-devkit/build-angular:tslint",
           "options": {
             "tsConfig": "e2e/tsconfig.e2e.json",
-            "exclude": [
-              "**/node_modules/**"
-            ]
+            "exclude": ["**/node_modules/**"]
           }
         }
       }

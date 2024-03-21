@@ -19,11 +19,8 @@
     "importHelpers": true,
     "target": "es5",
     "module": "es2020",
-    "skipLibCheck":true,
-    "lib": [
-      "es2018",
-      "dom"
-    ]
+    "skipLibCheck": true,
+    "lib": ["es2018", "dom"]
   },
   "angularCompilerOptions": {
     "enableI18nLegacyMessageIdFormat": false,

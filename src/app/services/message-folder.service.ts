@@ -7,11 +7,13 @@ import { getInternautaUrl, BaseUrlType, BaseUrls } from "src/environments/app-co
 import { Observable } from "rxjs";
 
 @Injectable({
-  providedIn: "root"
+  providedIn: "root",
 })
 export class MessageFolderService extends NextSDREntityProvider {
-
-  constructor(protected http: HttpClient, protected datepipe: DatePipe) {
+  constructor(
+    protected http: HttpClient,
+    protected datepipe: DatePipe
+  ) {
     super(http, datepipe, ENTITIES_STRUCTURE.shpeck.messagefolder, getInternautaUrl(BaseUrlType.Shpeck));
   }
 
@@ -30,15 +32,15 @@ export class MessageFolderService extends NextSDREntityProvider {
           entityPath: BaseUrls.get(BaseUrlType.Shpeck) + "/" + ENTITIES_STRUCTURE.shpeck.messagefolder.path,
           entityBody: {
             idFolder: {
-              id: newFolderId
+              id: newFolderId,
             },
             idUtente: {
-              id: idUtente
+              id: idUtente,
             },
             version: messageFolder.version,
           } as NextSdrEntity,
           additionalData: null,
-          returnProjection: null
+          returnProjection: null,
         });
       }
     });
