@@ -19,6 +19,7 @@ import { MenuItem } from "primeng/api";
 import { MailboxService, Sorting, TotalMessageNumberDescriptor } from "./mailbox.service";
 import { FONTSIZE } from "src/environments/app-constants";
 import { JwtLoginService, UtenteUtilities } from "@bds/jwt-login";
+import { ToolBarService } from "./toolbar/toolbar.service";
 
 @Component({
   selector: "app-mailbox",
@@ -53,6 +54,8 @@ export class MailboxComponent implements OnInit, AfterViewInit, AfterViewChecked
   public totalMessageNumberDescriptor: TotalMessageNumberDescriptor;
 
   public tooltipSorting = "L'ordinamento è impostato su data discendente";
+  public sortingLabel = "Ordina per data discendente";
+  private idLastSortingUsed: string = "sortData";
   public sortMenuItem: MenuItem[] = [
     {
       label: "Data",
@@ -63,6 +66,7 @@ export class MailboxComponent implements OnInit, AfterViewInit, AfterViewChecked
       queryParams: {
         sort: SORT_MODES.desc,
         field: "receiveTime",
+        defaultSort: SORT_MODES.desc,
       },
       command: (event) => this.changeSorting(event),
     },
@@ -74,7 +78,8 @@ export class MailboxComponent implements OnInit, AfterViewInit, AfterViewChecked
       disabled: false,
       queryParams: {
         sort: null,
-        field: "messageExtensionList.addressFrom",
+        field: "addressFrom",
+        defaultSort: SORT_MODES.asc,
       },
       command: (event) => this.changeSorting(event),
     },
@@ -82,11 +87,12 @@ export class MailboxComponent implements OnInit, AfterViewInit, AfterViewChecked
       label: "Da leggere",
       icon: "",
       id: "sortLetto",
-      title: "letto",
+      title: "da leggere",
       disabled: false,
       queryParams: {
         sort: null,
         field: "seen",
+        defaultSort: SORT_MODES.asc,
       },
       command: (event) => this.changeSorting(event),
     },
@@ -106,6 +112,7 @@ export class MailboxComponent implements OnInit, AfterViewInit, AfterViewChecked
     private settingsService: SettingsService,
     private mailFoldersService: MailFoldersService,
     private mailboxService: MailboxService,
+    private toolBarService: ToolBarService,
     private loginService: JwtLoginService
   ) {
     this.rightSideVisible = true;
@@ -216,25 +223,65 @@ export class MailboxComponent implements OnInit, AfterViewInit, AfterViewChecked
         }
       )
     );
+    this.subscriptions.push(
+      this.mailboxService.sorting.subscribe((sorting: Sorting) => {
+        // Se l'utente effettua una ricerca allora il soting diventa il ranking. Quindi rimuovo il sorting impostato dall'utente
+        // e correggo il label e tooltip
+        if (sorting && sorting.field === "ranking") {
+          this.sortMenuItem.forEach((sortItem) => {
+            sortItem.queryParams.sort = null;
+            sortItem.icon = null;
+          });
+          this.idLastSortingUsed = null;
+          this.tooltipSorting = `Ordinamento corrispondente alla ricerca`;
+          this.sortingLabel = `Ordinamento corrispondente alla ricerca`;
+        } else if (sorting && sorting.reset) {
+          // Se arrivo qui è perché
+          this.changeSorting({ item: { id: "sortData" } }, true);
+        }
+      })
+    );
   }
 
   /**
    * Gestisce la scelta del sorting da parte dell'utente
    */
-  public changeSorting(event) {
+  public changeSorting(event, resettingFilterAndSort: boolean = false) {
     console.log(event);
+    // Ciclo i vari item, ai non usati tolgo l'icona e il sort. A quello cliccato cambio il sort se è lo stesso, altrimenti lo faccio partire con sort prestabilito
     this.sortMenuItem.forEach((sortItem) => {
       if (sortItem.id === event.item.id) {
-        sortItem.queryParams.sort =
-          sortItem.queryParams.sort === null || sortItem.queryParams.sort === SORT_MODES.desc ? SORT_MODES.asc : SORT_MODES.desc;
-        sortItem.icon = sortItem.queryParams.sort === SORT_MODES.desc ? "pi pi-chevron-down" : "pi pi-chevron-up";
+        // SortItem cliccato, e cioè è quello usato per l'ordinamento
+        if (this.idLastSortingUsed === sortItem.id) {
+          // Ho cambiato solo il sorting mantenendo il campo di ordinamento
+          sortItem.queryParams.sort = sortItem.queryParams.sort === SORT_MODES.desc ? SORT_MODES.asc : SORT_MODES.desc;
+          sortItem.icon = sortItem.queryParams.sort === SORT_MODES.desc ? "pi pi-chevron-down" : "pi pi-chevron-up";
+        } else {
+          // Ho cambaito campo di ordinamento e allora il sort lo metto desc
+          sortItem.queryParams.sort = sortItem.queryParams.defaultSort;
+          sortItem.icon = "pi pi-chevron-down";
+          this.idLastSortingUsed = sortItem.id;
+        }
+
         const sort: Sorting = {
           field: sortItem.queryParams.field,
           sortMode: sortItem.queryParams.sort,
         };
-        this.mailboxService.setSorting(sort);
-        this.tooltipSorting = `L'ordinamento è impostato su ${sortItem.title} ${sortItem.queryParams.sort === SORT_MODES.desc ? "discendente" : "ascendente"}`;
+
+        this.tooltipSorting = `L'ordinamento è impostato su ${sortItem.title} ${
+          sortItem.queryParams.sort === SORT_MODES.desc ? "discendente" : "ascendente"
+        }`;
+        this.sortingLabel = `Ordina per ${sortItem.title} ${
+          sortItem.queryParams.sort === SORT_MODES.desc ? "discendente" : "ascendente"
+        }`;
+        // Informo chi di dovere che il sorting è stato modificato
+        if (resettingFilterAndSort) {
+          this.toolBarService.setFilterTyped(null);
+        } else {
+          this.mailboxService.setSorting(sort);
+        }
       } else {
+        // Item non usato per l'ordinamento
         sortItem.queryParams.sort = null;
         sortItem.icon = null;
       }

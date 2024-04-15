@@ -4,12 +4,13 @@ import { Subscription, Observable } from "rxjs";
 import { TOOLBAR_ACTIONS } from "src/environments/app-constants";
 import { Pec, Folder, FolderType, Tag } from "@bds/internauta-model";
 import { PecService } from "src/app/services/pec.service";
-import { FilterDefinition, FILTER_TYPES } from "@bds/next-sdr";
+import { FilterDefinition, FILTER_TYPES, SORT_MODES } from "@bds/next-sdr";
 import { ToolBarService } from "./toolbar.service";
 import { MailFoldersService, PecFolderType } from "../mail-folders/mail-folders.service";
 import { MailListService } from "../mail-list/mail-list.service";
 import { Menu } from "primeng/menu";
 import { DialogService } from "primeng/dynamicdialog";
+import { MailboxService, Sorting } from "../mailbox.service";
 
 @Component({
   selector: "app-toolbar",
@@ -42,7 +43,8 @@ export class ToolbarComponent implements OnDestroy, AfterViewInit {
     public toolBarService: ToolBarService,
     private mailFoldersService: MailFoldersService,
     private mailListService: MailListService,
-    private confirmationService: ConfirmationService
+    private confirmationService: ConfirmationService,
+    private mailboxService: MailboxService
   ) {
     this.askConfirmationBeforeArchiviation = this.askConfirmationBeforeArchiviation.bind(this);
   }
@@ -116,17 +118,6 @@ export class ToolbarComponent implements OnDestroy, AfterViewInit {
     if (this.showErrorDialog === false) {
       this.searchField.nativeElement.focus();
       this.closeField.nativeElement.blur();
-    }
-  }
-
-  // Scatta al keydown nella ricerca. Fa il controllo sui tre caratteri e la fa partire.
-  public onEnter(value) {
-    if (value && value.length >= 3) {
-      const filter = [];
-      filter.push(new FilterDefinition("tscol", FILTER_TYPES.not_string.equals, value));
-      this.toolBarService.setFilterTyped(filter);
-    } else {
-      this.toggleDialogAndAddFocus();
     }
   }
 
@@ -226,13 +217,36 @@ export class ToolbarComponent implements OnDestroy, AfterViewInit {
     return "";
   }
 
+  // Scatta al keydown nella ricerca. Fa il controllo sui tre caratteri e la fa partire.
+  public onEnter(value) {
+    if (value && value.length >= 3) {
+      //const filter = [];
+      //filter.push(new FilterDefinition("global", FILTER_TYPES.not_string.equals, value)); // global è lo standard per usare la tscol e ottenere l'ordinamento per ranking
+      this.toolBarService.setFilterTyped(value);
+
+      const sort: Sorting = {
+        field: "ranking",
+        sortMode: SORT_MODES.desc,
+      };
+      this.mailboxService.setSorting(sort);
+    } else {
+      this.toggleDialogAndAddFocus();
+    }
+  }
+
   /**
    * Metodo che si occupa di resettare la ricerca contatti quando si preme la x
    */
   clearInput() {
-    const filtro = [];
-    this.toolBarService.setFilterTyped(filtro);
+    //const filtro = [];
+    //this.toolBarService.setFilterTyped(null);
     this.searchField.nativeElement.value = "";
+    const sort: Sorting = {
+      field: "receiveTime",
+      sortMode: SORT_MODES.desc,
+      reset: true,
+    };
+    this.mailboxService.setSorting(sort);
   }
 
   ngOnDestroy() {
@@ -243,20 +257,3 @@ export class ToolbarComponent implements OnDestroy, AfterViewInit {
     }
   }
 }
-
-// public onInput(event) {
-//   if (event && event.target) {
-//     this.filterString = event.target.value;
-//   }
-// if (this.searchTimeout) {
-//   clearTimeout(this.searchTimeout);
-// }
-// this.searchTimeout = setTimeout(() => {
-//   const filter = [];
-//   if (event && event.target && event.target.value && event.target.value !== "") {
-//     filter.push(new FilterDefinition("tscol", FILTER_TYPES.not_string.equals, event.target.value));
-//   }
-//   // this.filtersEmitter.emit(valueToEmit);
-//   this.toolBarService.setFilterTyped(filter);
-// }, 600);
-// }
