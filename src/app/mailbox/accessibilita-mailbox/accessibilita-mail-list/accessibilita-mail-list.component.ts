@@ -129,6 +129,8 @@ export class AccessibilitaMailListComponent implements OnInit, OnDestroy {
   @ViewChild("archiviationMenu", {}) private archiviationMenu: Menu;
   @ViewChild("tagMenu", {}) private tagMenu: Menu;
 
+  private actualStringSearch: string = null;
+
   public folderTypeOutbox: String = FolderType.OUTBOX;
   public folderTypeSent: String = FolderType.SENT;
   public folderTypeInbox: String = FolderType.INBOX;
@@ -208,9 +210,11 @@ export class AccessibilitaMailListComponent implements OnInit, OnDestroy {
     this.subscriptions.push({
       id: null,
       type: "getFilterTyped",
-      subscription: this.toolBarService.getFilterTyped.subscribe((filters: FilterDefinition[]) => {
-        if (filters) {
-          this.setFilters(filters);
+      subscription: this.toolBarService.getFilterTyped.subscribe((stringToSearch: string) => {
+        this.actualStringSearch = stringToSearch;
+        if (stringToSearch) {
+          // global è lo standard per usare la tscol e ottenere l'ordinamento per ranking
+          this.reloadTable();
         }
       }),
     });
@@ -251,12 +255,16 @@ export class AccessibilitaMailListComponent implements OnInit, OnDestroy {
       id: null,
       type: "sorting",
       subscription: this.mailboxService.sorting.subscribe((sorting: Sorting) => {
-        if (sorting) {
+        if (sorting && sorting.field !== "ranking") {
+          // Se sto ordinando per ranking allora è una ricerca e la subscribe che farà partire la getData è quella del getFilterTyped
           this.mailListService.sorting = sorting;
           if (this.dt && this.dt.el && this.dt.el.nativeElement) {
             this.dt.el.nativeElement.getElementsByClassName("p-datatable-virtual-scrollable-body")[0].scrollTop = 0;
           }
-          this.lazyLoad(null);
+          if (!sorting.reset) {
+            // Se non sto resettando faccio la load altrimenti, il reset farà scattare il getFilterTyped
+            this.lazyLoad(null);
+          }
         }
       }),
     });
@@ -354,16 +362,14 @@ export class AccessibilitaMailListComponent implements OnInit, OnDestroy {
     return this.mailListService.messages ? this.first === 0 : true;
   }
 
-  private setFilters(filters: FilterDefinition[]) {
+  private reloadTable(/* filters: FilterDefinition[] */) {
     this.mostratable = false;
     this._filters = null;
     this.mailListService.selectedMessages = [];
     this.mailListService.messages = [];
     setTimeout(() => {
-      this._filters = filters;
+      //this._filters = filters;
       this.mostratable = true;
-      if (filters) {
-      }
     }, 0);
   }
 
@@ -452,9 +458,8 @@ export class AccessibilitaMailListComponent implements OnInit, OnDestroy {
     ) {
       // chiedo il messaggio al backend
       const idMessage: number = params.newRow["id_message"];
-      const filterDefinition = new FilterDefinition("id", FILTER_TYPES.not_string.equals, idMessage);
       const filter: FiltersAndSorts = new FiltersAndSorts();
-      filter.addFilter(filterDefinition);
+      filter.addFilter(new FilterDefinition("id", FILTER_TYPES.not_string.equals, idMessage));
       this.subscriptions.push({
         id: idMessage,
         type: "AutoRefresh",
@@ -641,7 +646,12 @@ export class AccessibilitaMailListComponent implements OnInit, OnDestroy {
     }
 
     /* ? */
-    const filtersAndSorts = this.mailListService.buildInitialFilterAndSort(folder, tag, this._selectedPecId);
+    const filtersAndSorts = this.mailListService.buildInitialFilterAndSort(
+      folder,
+      tag,
+      this._selectedPecId,
+      this.actualStringSearch
+    );
     this.subscriptions.push({
       id: folderSelected.data.id,
       type: "folder_message",
@@ -1241,7 +1251,7 @@ export class AccessibilitaMailListComponent implements OnInit, OnDestroy {
         this.mailListService.toggleError(false);
         break;
       case "MessageUndelete":
-        let idPreviousFolder = this.mailListService.selectedMessages[0].messageFolderList[0].fk_idPreviousFolder.id;
+        let idPreviousFolder = this.mailListService.selectedMessages[0].messageFolderList[0].idPreviousFolderTransient;
         const received = this.mailListService.selectedMessages[0].inOut === "IN" ? true : false;
         if (idPreviousFolder === null && received === true) {
           idPreviousFolder = this._selectedPec.folderList.filter((folder) => folder.type === "INBOX")[0].id;

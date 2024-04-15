@@ -4,8 +4,8 @@
     fontSize === 'small'
       ? 'general-font-size-small'
       : fontSize === 'medium'
-        ? 'general-font-size-medium'
-        : 'general-font-size-big'
+      ? 'general-font-size-medium'
+      : 'general-font-size-big'
   "
 >
   <div class="buttons-bar">
@@ -43,8 +43,8 @@
           _selectedFolder
             ? 'La lista dei messagi nella cartella'
             : _selectedTag
-              ? 'La lista dei messagi nell etichetta'
-              : 'Lista messaggi vuota'
+            ? 'La lista dei messagi nell etichetta'
+            : 'Lista messaggi vuota'
         "
       >
         <!-- <app-mail-list
@@ -67,7 +67,7 @@
             (click)="sortingmenu.toggle($event)"
             [pTooltip]="tooltipSorting"
           >
-            Ordina
+            {{ sortingLabel }}
           </div>
         </div>
         <p-menu

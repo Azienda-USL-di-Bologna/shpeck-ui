@@ -28,8 +28,9 @@ import {
   MessageWithTagViewService,
   ConfigurazioneService,
   ParametroAziende,
-  Archivio,
   MessageDoc,
+  ProjectedMessageService,
+  ProjectedMessageForTagFilterService,
 } from "@bds/internauta-model";
 import { MenuItem, MessageService } from "primeng/api";
 import { Utils } from "src/app/utils/utils";
@@ -99,6 +100,8 @@ export class MailListService {
     private loginService: JwtLoginService,
     private messageService: ShpeckMessageService,
     private messageWithFolderViewService: MessageWithFolderViewService,
+    private projectedMessageService: ProjectedMessageService,
+    private projectedMessageForTagFilterService: ProjectedMessageForTagFilterService,
     private messageWithTagViewService: MessageWithTagViewService,
     private mailboxService: MailboxService,
     private tagService: TagService,
@@ -206,7 +209,7 @@ export class MailListService {
               }
               break;
             case FolderType.CUSTOM:
-              if (this.selectedMessages.some((message: Message) => message.messageFolderList[0].fk_idFolder.id === f.id)) {
+              if (this.selectedMessages.some((message: Message) => message.messageFolderList[0].idFolder.id === f.id)) {
                 subElementDisabled = true;
               }
           }
@@ -418,7 +421,7 @@ export class MailListService {
    */
   public checkCurrentStatusAndRegister(exe: any, codiceAzienda: string): void {
     if (this.selectedMessages && this.selectedMessages.length === 1) {
-      this.getMessageById(this.selectedMessages[0].id).subscribe((data) => {
+      this.getMessageById(this.selectedMessages[0]).subscribe((data) => {
         if (data && data.results && data.results.length === 1) {
           const message = data.results[0] as Message;
           if (this.isRegisterActive(message, codiceAzienda)) {
@@ -438,13 +441,14 @@ export class MailListService {
   }
 
   public getMessageById(
-    idMessage: number,
+    message: Message,
     projection = ENTITIES_STRUCTURE.shpeck.message.customProjections.CustomMessageForMailList,
     useSpecialService: boolean = false
   ) {
-    const serviceToUse = useSpecialService ? this.messageWithFolderViewService : this.messageService;
+    const serviceToUse = useSpecialService ? this.projectedMessageService : this.messageService;
     const filtersAndSorts: FiltersAndSorts = new FiltersAndSorts();
-    filtersAndSorts.addFilter(new FilterDefinition("id", FILTER_TYPES.not_string.equals, idMessage));
+    filtersAndSorts.addFilter(new FilterDefinition("id", FILTER_TYPES.not_string.equals, message.id));
+    filtersAndSorts.addFilter(new FilterDefinition("idPec.id", FILTER_TYPES.not_string.equals, message.fk_idPec.id));
     return serviceToUse.getData(projection, filtersAndSorts, null, null);
   }
 
@@ -538,7 +542,7 @@ export class MailListService {
         .subscribe((res) => {
           if (this.pecFolderSelected.type === PecFolderType.FOLDER) {
             this.messages = Utils.arrayDiff(this.messages, this.selectedMessages, "id");
-            this.mailFoldersService.doReloadFolder(messagesFolder[0].fk_idFolder.id);
+            this.mailFoldersService.doReloadFolder(messagesFolder[0].idFolder.id);
             this.mailFoldersService.doReloadFolder(idFolder);
             this.selectedMessages = [];
             this.messageService.manageMessageEvent(null, null, this.selectedMessages);
@@ -968,7 +972,7 @@ export class MailListService {
         item.message.messageFolderList.splice(item.message.messageFolderList.indexOf(item.messageFolder), 1);
         this.setIconsVisibility(item.message);
 
-        if (this.pecFolderSelected && this.pecFolderSelected.data["FOLDER"] === item.messageFolder.fk_idFolder.id) {
+        if (this.pecFolderSelected && this.pecFolderSelected.data["FOLDER"] === item.messageFolder.idFolder.id) {
           this.messages.splice(this.messages.indexOf(this.messages.find((m) => m.id === item.messageFolder.fk_idMessage.id)), 1);
         }
       }
@@ -1436,48 +1440,71 @@ export class MailListService {
   }
 
   /**
-   * Questa funzione si preoccupa di creare gli opportuni filtri per la query.
+   * Questa funzione si occupa di creare gli opportuni filtri per la query.
    * Di base si può cercare su un folder, su un tag oppure ovunque dentro al pec;
-   * in quest'ultimo caso viene tipicamente esclusa la folder TRASH
+   * in quest'ultimo caso viene tipicamente esclusa la folder TRASH.
+   * Oltre ai filtri setta:
+   * - l'ordinamento da usare.
+   * - Il service da usare.
+   *  -La projection da usare.
    * @param folder
    * @param tag
    * @param selectedPecId
    * @returns
    */
-  public buildInitialFilterAndSort(folder: Folder, tag: Tag, selectedPecId: number): FiltersAndSorts {
+  public buildInitialFilterAndSort(folder: Folder, tag: Tag, selectedPecId: number, actualStringSearch: string): FiltersAndSorts {
     const filtersAndSorts: FiltersAndSorts = new FiltersAndSorts();
+
+    // Se l'utente sta cercando inserisco un filtro sulla tscol
+    if (actualStringSearch && actualStringSearch.length > 0) {
+      filtersAndSorts.addFilter(new FilterDefinition("tscol", FILTER_TYPES.not_string.equals, actualStringSearch));
+      /*       if (this.sorting.field === "ranking") {
+        filtersAndSorts.addSort(new SortDefinition("ranking", SORT_MODES.desc));
+      } */
+    }
 
     // Innanzitutto i filtri standard:
     filtersAndSorts.addFilter(new FilterDefinition("idPec.id", FILTER_TYPES.not_string.equals, selectedPecId));
     filtersAndSorts.addFilter(new FilterDefinition("messageType", FILTER_TYPES.not_string.equals, MessageType.MAIL));
+    filtersAndSorts.addFilter(new FilterDefinition("messageFolderDeleted", FILTER_TYPES.not_string.equals, false));
 
     if (folder) {
-      // Uso la vista MessageWithFolderView
-      this.dynamicPrjectionForLoadData = "CustomMessageWithFolderViewForMailList";
-      this.dynamicServiceForLoadData = this.messageWithFolderViewService;
-      filtersAndSorts.addFilter(new FilterDefinition("idFolder.id", FILTER_TYPES.not_string.equals, folder.id));
-      filtersAndSorts.addFilter(new FilterDefinition("deleted", FILTER_TYPES.not_string.equals, false));
-    } else if (tag) {
-      this.dynamicPrjectionForLoadData = "CustomMessageWithTagViewForMailList";
-      this.dynamicServiceForLoadData = this.messageWithTagViewService;
-      filtersAndSorts.addFilter(new FilterDefinition("idTag.id", FILTER_TYPES.not_string.equals, tag.id));
-      filtersAndSorts.addFilter(new FilterDefinition("messageFolderList.deleted", FILTER_TYPES.not_string.equals, false));
-    } else if (tag === null && folder === null) {
-      // quando effettuo una ricerca generica (avendo selezionato la casella) non vengano considerate le mail nel cestino
-      this.dynamicPrjectionForLoadData = this.selectedProjection;
-      this.dynamicServiceForLoadData = this.messageService;
-      filtersAndSorts.addAdditionalData(new AdditionalDataDefinition("OperationRequested", "FiltraSuTuttiFolderTranneTrash"));
-      filtersAndSorts.addFilter(new FilterDefinition("messageFolderList.deleted", FILTER_TYPES.not_string.equals, false));
-    }
+      this.dynamicPrjectionForLoadData = "ProjectedMessageWithPlainFields";
+      this.dynamicServiceForLoadData = this.projectedMessageService;
+      filtersAndSorts.addFilter(new FilterDefinition("folderId", FILTER_TYPES.not_string.equals, folder.id));
 
-    // Aggiungo l'ordinamento
-    filtersAndSorts.addSort(new SortDefinition(this.sorting.field, this.sorting.sortMode));
+      if (this.sorting.field === "receiveTime") {
+        filtersAndSorts.addSort(new SortDefinition("messageFolderReceiveTime", this.sorting.sortMode));
+      } else {
+        filtersAndSorts.addSort(new SortDefinition(this.sorting.field, this.sorting.sortMode));
+      }
+    } else if (tag) {
+      this.dynamicPrjectionForLoadData = "ProjectedMessageForTagFilterWithPlainFields";
+      this.dynamicServiceForLoadData = this.projectedMessageForTagFilterService;
+      filtersAndSorts.addFilter(new FilterDefinition("tagId", FILTER_TYPES.not_string.equals, tag.id));
+
+      if (this.sorting.field === "receiveTime") {
+        filtersAndSorts.addSort(new SortDefinition("messageTagReceiveTime", this.sorting.sortMode));
+      } else {
+        filtersAndSorts.addSort(new SortDefinition(this.sorting.field, this.sorting.sortMode));
+      }
+    } else if (tag === null && folder === null) {
+      // Sto effettuando una ricerca generica (avendo selezionato la casella), qui non vengano considerate le mail nel cestino
+      this.dynamicPrjectionForLoadData = "ProjectedMessageWithPlainFields";
+      this.dynamicServiceForLoadData = this.projectedMessageService;
+      filtersAndSorts.addAdditionalData(new AdditionalDataDefinition("OperationRequested", "FiltraSuTuttiFolderTranneTrash"));
+      if (this.sorting.field === "receiveTime") {
+        filtersAndSorts.addSort(new SortDefinition("messageFolderReceiveTime", this.sorting.sortMode));
+      } else {
+        filtersAndSorts.addSort(new SortDefinition(this.sorting.field, this.sorting.sortMode));
+      }
+    }
 
     return filtersAndSorts;
   }
 
-  public getSubscriptionReadyForLoadData(folder, tag, _selectedPecId, lazyFilterAndSort, pageConf) {
-    const filtersAndSorts = this.buildInitialFilterAndSort(folder, tag, _selectedPecId);
+  public getSubscriptionReadyForLoadData(folder, tag, _selectedPecId, lazyFilterAndSort, pageConf, actualStringSearch: string) {
+    const filtersAndSorts = this.buildInitialFilterAndSort(folder, tag, _selectedPecId, actualStringSearch);
     return this.dynamicServiceForLoadData.getData(this.dynamicPrjectionForLoadData, filtersAndSorts, lazyFilterAndSort, pageConf);
   }
 }
