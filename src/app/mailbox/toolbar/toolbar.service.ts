@@ -18,7 +18,7 @@ import { DialogService } from "primeng/dynamicdialog";
 })
 export class ToolBarService {
   private subscriptions: Subscription[] = [];
-  private _filter: BehaviorSubject<FilterDefinition[]> = new BehaviorSubject<FilterDefinition[]>(null);
+  private _filter: BehaviorSubject<string> = new BehaviorSubject<string>(null);
 
   public messageEvent: MessageEvent;
   public selectedMessages: Message[];
@@ -204,11 +204,11 @@ export class ToolBarService {
     }
   }
 
-  public setFilterTyped(filter: FilterDefinition[]): void {
+  public setFilterTyped(filter: string): void {
     this._filter.next(filter);
   }
 
-  public get getFilterTyped(): Observable<FilterDefinition[]> {
+  public get getFilterTyped(): Observable<string> {
     return this._filter.asObservable();
   }
 

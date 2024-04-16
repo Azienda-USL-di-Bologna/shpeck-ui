@@ -34,6 +34,7 @@ export interface TotalMessageNumberDescriptor {
 export interface Sorting {
   field: string;
   sortMode: string;
+  reset?: boolean;
 }
 
 export class FilteredContactMultiple {

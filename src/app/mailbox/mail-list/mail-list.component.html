@@ -1,7 +1,8 @@
+<!-- *ngIf="mostratable && (_selectedTag || _selectedFolder || _filters)" -->
 <p-table
+  *ngIf="mostratable"
   #dt
   id="pec-mail-list"
-  *ngIf="mostratable && (_selectedTag || _selectedFolder || _filters)"
   [lazy]="true"
   (onLazyLoad)="lazyLoad($event)"
   [value]="mailListService.messages"
@@ -96,12 +97,12 @@
                     message['moved']
                       ? null
                       : registrationstatus === 'REGISTERED'
-                        ? 'Vedi dettaglio protocollazione'
-                        : registrationstatus === 'REGISTRABLE'
-                          ? 'Protocolla il messaggio'
-                          : registrationstatus === 'IN_REGISTRATION'
-                            ? 'In protocollazione'
-                            : 'Il messaggio non può essere protocollato'
+                      ? 'Vedi dettaglio protocollazione'
+                      : registrationstatus === 'REGISTRABLE'
+                      ? 'Protocolla il messaggio'
+                      : registrationstatus === 'IN_REGISTRATION'
+                      ? 'In protocollazione'
+                      : 'Il messaggio non può essere protocollato'
                   "
                   tooltipPosition="top"
                   class="material-icons-outlined mail-icons icon-enabled"
@@ -166,10 +167,10 @@
                     message['moved']
                       ? null
                       : readdressstatus === 'NOT_READDRESSABLE'
-                        ? 'Il messaggio non può essere reindirizzato'
-                        : readdressstatus === 'READDRESSABLE'
-                          ? 'Reindirizza il messaggio'
-                          : 'Vedi dettagli reindirizzamento'
+                      ? 'Il messaggio non può essere reindirizzato'
+                      : readdressstatus === 'READDRESSABLE'
+                      ? 'Reindirizza il messaggio'
+                      : 'Vedi dettagli reindirizzamento'
                   "
                   tooltipPosition="top"
                   class="material-icons mail-icons icon-enabled"
@@ -231,12 +232,12 @@
                     message['moved']
                       ? null
                       : archivedstatus === 'ARCHIVED'
-                        ? 'Vedi dettaglio fascicolazione'
-                        : archivedstatus === 'ARCHIVABLE'
-                          ? 'Fascicola il messaggio'
-                          : archivedstatus === 'TEMPORARILY_NOT_ARCHIVABLE'
-                            ? 'Pec non ancora disponibile per la fasciolazione diretta, riprovare più tardi'
-                            : 'Il messaggio non può essere fascicolato'
+                      ? 'Vedi dettaglio fascicolazione'
+                      : archivedstatus === 'ARCHIVABLE'
+                      ? 'Fascicola il messaggio'
+                      : archivedstatus === 'TEMPORARILY_NOT_ARCHIVABLE'
+                      ? 'Pec non ancora disponibile per la fasciolazione diretta, riprovare più tardi'
+                      : 'Il messaggio non può essere fascicolato'
                   "
                   tooltipPosition="top"
                   class="fa fa-server fa-rotate-270 mail-icons icon-enabled"
@@ -384,9 +385,9 @@
             <!-- data della mail -->
             <span
               class="mail-date"
-              [attr.aria-label]="message.receiveTime | date: 'fullDate'"
+              [attr.aria-label]="message.receiveTime | date : 'fullDate'"
             >
-              {{ message.receiveTime | date: "EE d MMM y, H:mm" | titlecase }}
+              {{ message.receiveTime | date : "EE d MMM y, H:mm" | titlecase }}
             </span>
             <!-- iconcina degli errori -->
             <span
@@ -710,7 +711,7 @@ class="ui-button-raised ui-button-secondary button-styles custom-secondary-butto
   <div *ngIf="archiviationDetail?.additionalData">
     <div *ngFor="let d of archiviationDetail.additionalData">
       <li>
-        <b>{{ d.dataArchiviazione | date: "EE d MMM y, H:mm" | titlecase }}</b
+        <b>{{ d.dataArchiviazione | date : "EE d MMM y, H:mm" | titlecase }}</b
         >: {{ d.idUtente.descrizione }} ha fascicolato in
         <span *ngIf="d.idFascicolo">{{ d.idFascicolo.oggetto }} [{{ d.idFascicolo.numerazioneGerarchica }}]</span>
         <span *ngIf="d.idArchivio">{{ d.idArchivio.oggetto }} [{{ d.idArchivio.numerazioneGerarchica }}]</span>

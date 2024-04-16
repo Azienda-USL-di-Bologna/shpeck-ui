@@ -158,10 +158,10 @@ export class MailDetailComponent implements OnInit, OnDestroy {
         data.htmlTextImgEmbedded != null
           ? data.htmlTextImgEmbedded
           : data.htmlText != null
-            ? data.htmlText
-            : data.plainText != null
-              ? data.plainText.replace(/\n/g, "<br/>")
-              : null;
+          ? data.htmlText
+          : data.plainText != null
+          ? data.plainText.replace(/\n/g, "<br/>")
+          : null;
 
       data.displayBody = "<div tabindex='0'>" + data.displayBody + "</div>";
     }
@@ -215,6 +215,7 @@ export class MailDetailComponent implements OnInit, OnDestroy {
   private buildFilterAndSortRecepits(fullMessage: FullMessage): FiltersAndSorts {
     const filtersAndSorts: FiltersAndSorts = new FiltersAndSorts();
     filtersAndSorts.addFilter(new FilterDefinition("idRelated", FILTER_TYPES.not_string.equals, fullMessage.message.id));
+    filtersAndSorts.addFilter(new FilterDefinition("idPec", FILTER_TYPES.not_string.equals, fullMessage.message["fk_idPec"].id));
     filtersAndSorts.addFilter(new FilterDefinition("messageType", FILTER_TYPES.not_string.equals, MessageType.RECEPIT));
     filtersAndSorts.addSort(new SortDefinition("receiveTime", SORT_MODES.desc));
     return filtersAndSorts;
