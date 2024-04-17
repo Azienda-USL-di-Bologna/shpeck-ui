@@ -489,27 +489,27 @@
   >
     <tr>
       <td
-        *ngIf="_selectedTag || _selectedFolder || _filters"
+        *ngIf="_selectedTag || _selectedFolder || actualStringSearch"
         [attr.colspan]="columns.length"
         class="flex-1 message-align flex-direction-col cella-no-elementi"
       >
         <p
-          *ngIf="_filters"
+          *ngIf="actualStringSearch"
           style="margin: 0"
         >
-          Nessun elemento trovato
+          Nessun messaggio trovato corrispondente alla ricerca: "{{ actualStringSearch }}"
         </p>
         <p
-          *ngIf="!_filters && _selectedFolder"
+          *ngIf="!actualStringSearch && _selectedFolder"
           style="margin: 0"
         >
-          La cartella selezionata non contiene elementi
+          La cartella selezionata non contiene messaggi
         </p>
         <p
-          *ngIf="!_filters && _selectedTag"
+          *ngIf="!actualStringSearch && _selectedTag"
           style="margin: 0"
         >
-          L'etichetta selezionata non contiene elementi
+          L'etichetta selezionata non contiene messaggi
         </p>
       </td>
     </tr>

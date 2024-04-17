@@ -95,7 +95,7 @@ export class MailListComponent implements OnInit, OnDestroy, AfterViewInit {
   // serve per mandarlo al mailbox-component
   private pecFolderSelected: PecFolder;
 
-  private actualStringSearch: string = null;
+  public actualStringSearch: string = null;
 
   public _selectedTag: Tag;
   public _selectedFolder: Folder;
