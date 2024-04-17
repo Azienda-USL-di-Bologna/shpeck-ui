@@ -426,15 +426,19 @@ export class MailListComponent implements OnInit, OnDestroy, AfterViewInit {
       id: null,
       type: "sorting",
       subscription: this.mailboxService.sorting.subscribe((sorting: Sorting) => {
-        if (sorting /*  && sorting.field !== "ranking" */) {
+        if (sorting) {
           this.mailListService.sorting = sorting;
 
           if (this.dt && this.dt.el && this.dt.el.nativeElement) {
             this.dt.el.nativeElement.getElementsByClassName("p-datatable-virtual-scrollable-body")[0].scrollTop = 0;
           }
-          if (!sorting.reset) {
-            // Reset è un valore a true quando si vuole fare un reset della ricerca, in quel caso non devo fare il reload della tabella
-            // perché questo verrà fatto con il getFilterTyped
+          if (sorting.reset) {
+            // Reset è un valore a true quando l'utente ha fatto il reset della ricerca
+            // in questo caso viene reimpostato il sorting di default e eliminata la stringa di ricerca.
+            this.actualStringSearch = null;
+            this.reloadTable();
+          } else {
+            // Sorting modificato, faccio partire la lezyload.
             this.lazyLoad(null);
           }
         }

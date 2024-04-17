@@ -276,7 +276,7 @@ export class MailboxComponent implements OnInit, AfterViewInit, AfterViewChecked
         }`;
         // Informo chi di dovere che il sorting è stato modificato
         if (resettingFilterAndSort) {
-          this.toolBarService.setFilterTyped(null);
+          //this.toolBarService.setFilterTyped(null);
         } else {
           this.mailboxService.setSorting(sort);
         }
