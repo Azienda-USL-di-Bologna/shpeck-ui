@@ -461,7 +461,7 @@
 
           <!-- nome della cartella in cui si trova la mail in caso di risultati di una ricerca su tutta la casella -->
           <span
-            *ngIf="(_filters && !_selectedFolder) || _selectedTag"
+            *ngIf="!_selectedFolder"
             class="display-text text-background little-margin-left"
             >{{ message?.messageFolderList[0]?.idFolder.description }}</span
           >
