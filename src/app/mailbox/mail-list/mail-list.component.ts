@@ -42,6 +42,7 @@ import { SettingsService } from "src/app/services/settings.service";
 import { FormControl, FormGroup, Validators } from "@angular/forms";
 import { MailboxService, Sorting } from "../mailbox.service";
 import {
+  ColonnaBds,
   IntimusClientService,
   IntimusCommand,
   IntimusCommands,
@@ -93,6 +94,8 @@ export class MailListComponent implements OnInit, OnDestroy, AfterViewInit {
 
   // serve per mandarlo al mailbox-component
   private pecFolderSelected: PecFolder;
+
+  private actualStringSearch: string = null;
 
   public _selectedTag: Tag;
   public _selectedFolder: Folder;
@@ -237,6 +240,8 @@ export class MailListComponent implements OnInit, OnDestroy, AfterViewInit {
     },
   ];
 
+  private primavolta = true;
+  public mostratable = false;
   public displayNote: boolean = false;
   public displayNewTagPopup: boolean = false;
   public displayProtocollaDialog = false;
@@ -277,14 +282,14 @@ export class MailListComponent implements OnInit, OnDestroy, AfterViewInit {
   // private LARGE_SIZE_VIRTUAL_ROW_HEIGHT = 89;
   public virtualRowHeight: number = this.VIRTUAL_ROW_HEIGHTS[FONTSIZE.BIG];
   public rowsNmber = 30;
-  public cols = [
-    {
+  public cols: ColonnaBds[] = [
+    /* {
       field: "subject",
       header: "Oggetto",
       filterMatchMode: FILTER_TYPES.string.containsIgnoreCase,
       width: "5.313rem",
       minWidth: "5.313rem",
-    },
+    }, */
   ];
 
   @ViewChild("cm", {}) private contextMenu: ContextMenu;
@@ -357,6 +362,7 @@ export class MailListComponent implements OnInit, OnDestroy, AfterViewInit {
             this._selectedPec = pec;
             this._selectedPecId = pec.id;
             this.setFolder(null);
+            this.lazyLoad(null);
           }
         }
       }),
@@ -364,10 +370,12 @@ export class MailListComponent implements OnInit, OnDestroy, AfterViewInit {
     this.subscriptions.push({
       id: null,
       type: "getFilterTyped",
-      subscription: this.toolBarService.getFilterTyped.subscribe((filters: FilterDefinition[]) => {
-        if (filters) {
-          this.setFilters(filters);
-        }
+      subscription: this.toolBarService.getFilterTyped.subscribe((stringToSearch: string) => {
+        this.actualStringSearch = stringToSearch;
+        //if (stringToSearch) {
+        // global è lo standard per usare la tscol e ottenere l'ordinamento per ranking
+        this.reloadTable();
+        //}
       }),
     });
     this.subscriptions.push({
@@ -418,12 +426,17 @@ export class MailListComponent implements OnInit, OnDestroy, AfterViewInit {
       id: null,
       type: "sorting",
       subscription: this.mailboxService.sorting.subscribe((sorting: Sorting) => {
-        if (sorting) {
+        if (sorting /*  && sorting.field !== "ranking" */) {
           this.mailListService.sorting = sorting;
+
           if (this.dt && this.dt.el && this.dt.el.nativeElement) {
             this.dt.el.nativeElement.getElementsByClassName("p-datatable-virtual-scrollable-body")[0].scrollTop = 0;
           }
-          this.lazyLoad(null);
+          if (!sorting.reset) {
+            // Reset è un valore a true quando si vuole fare un reset della ricerca, in quel caso non devo fare il reload della tabella
+            // perché questo verrà fatto con il getFilterTyped
+            this.lazyLoad(null);
+          }
         }
       }),
     });
@@ -1039,18 +1052,14 @@ export class MailListComponent implements OnInit, OnDestroy, AfterViewInit {
     this._filters = null;
     this.mailListService.selectedMessages = [];
     this.mailListService.messages = [];
-    // trucco per far si che la table vanga tolta e rimessa nel dom (in modo da essere resettata) altrimenti sminchia
-    // NB: nell'html la visualizzazione della table è controllata da un *ngIf
+
     setTimeout(() => {
       this._selectedTag = tag;
       if (tag) {
-        //this.lazyLoad(null);
+        this.lazyLoad(null);
       }
     }, 0);
   }
-
-  private primavolta = true;
-  public mostratable = false;
 
   private setFolder(folder: Folder) {
     this._selectedFolder = null;
@@ -1058,8 +1067,7 @@ export class MailListComponent implements OnInit, OnDestroy, AfterViewInit {
     this._filters = null;
     this.mailListService.selectedMessages = [];
     this.mailListService.messages = [];
-    // trucco per far si che la table vanga tolta e rimessa nel dom (in modo da essere resettata) altrimenti sminchia
-    // NB: nell'html la visualizzazione della table è controllata da un *ngIf
+
     setTimeout(() => {
       this._selectedFolder = folder;
       if (folder) {
@@ -1069,27 +1077,39 @@ export class MailListComponent implements OnInit, OnDestroy, AfterViewInit {
           this.primavolta = false;
           this.mostratable = true;
         } else {
-          //this.lazyLoad(null);
+          this.lazyLoad(null);
         }
       }
     }, 0);
   }
 
-  private setFilters(filters: FilterDefinition[]) {
+  /**
+   * Ricarica la tabella dei messaggi
+   */
+  private reloadTable(/* filters: FilterDefinition[] */) {
+    this._filters = null;
+    this.mailListService.selectedMessages = [];
+    this.mailListService.messages = [];
+    if (this.dt) {
+      for (const key in this.dt.filters) {
+        (this.dt.filters as any)[key]["value"] = null;
+      }
+      this.dt.filteredValue = null;
+      this.dt.first = 0;
+      if (this.actualStringSearch || this._selectedFolder || this._selectedTag) {
+        // Se non sto cercando e non sono ne in un folder ne in una pec allora non carico nulla perché nono ho nulla da mostrare
+        this.lazyLoad(null);
+      }
+    }
     // this._selectedFolder = null;
-    this.mostratable = false;
+    /* this.mostratable = false;
     this._filters = null;
     this.mailListService.selectedMessages = [];
     this.mailListService.messages = [];
     setTimeout(() => {
-      this._filters = filters;
+      //this._filters = filters;
       this.mostratable = true;
-      if (filters) {
-        // this.resetPageConfig = true;
-        // this.filtering = true;
-        //this.lazyLoad(null);
-      }
-    }, 0);
+    }, 0); */
   }
 
   /* public toggleOrderMenu(event) {
@@ -1115,6 +1135,14 @@ export class MailListComponent implements OnInit, OnDestroy, AfterViewInit {
     return this.tagService.getData(null, filtersAndSorts, null, null);
   }
 
+  /**
+   * Questa funzione carica i Message relativi alla Pec/Folder/atg/ricerca effettuata dall'utente
+   * @param pageConf
+   * @param lazyFilterAndSort
+   * @param folder
+   * @param tag
+   * @param event
+   */
   private loadData(pageConf: PagingConf, lazyFilterAndSort?: FiltersAndSorts, folder?: Folder, tag?: Tag, event?) {
     this.loading = true;
     // mi devo salvare la folder/tag selezionata al momento del caricamento,
@@ -1133,56 +1161,43 @@ export class MailListComponent implements OnInit, OnDestroy, AfterViewInit {
       this.subscriptions.splice(currentSubscription, 1);
     }
 
-    /* ? */
-    //const filtersAndSorts = this.mailListService.buildInitialFilterAndSort(folder, tag, this._selectedPecId);
-
     this.subscriptions.push({
       id: folderSelected.data.id,
       type: "folder_message",
-      subscription:
-        /* this.messageService
-      .getData(
-        this.mailListService.selectedProjection,
-        filtersAndSorts,
-        lazyFilterAndSort,
-        pageConf
-      ) */
-        this.mailListService
-          .getSubscriptionReadyForLoadData(folder, tag, this._selectedPecId, lazyFilterAndSort, pageConf)
-          .subscribe((data) => {
-            if (data && data.results) {
-              this.mailListService.totalRecords = data.page.totalElements;
-              // mando l'evento con il numero di messaggi (serve a mailbox-component perché lo deve scrivere nella barra superiore)
-              this.mailListService.refreshAndSendTotalMessagesNumber(0, folderSelected);
+      subscription: this.mailListService
+        .getSubscriptionReadyForLoadData(folder, tag, this._selectedPecId, lazyFilterAndSort, pageConf, this.actualStringSearch)
+        .subscribe((data) => {
+          if (data && data.results) {
+            this.mailListService.totalRecords = data.page.totalElements;
+            // mando l'evento con il numero di messaggi (serve a mailbox-component perché lo deve scrivere nella barra superiore)
+            this.mailListService.refreshAndSendTotalMessagesNumber(0, folderSelected);
 
-              //this.mailListService.messages = data.results;
+            Array.prototype.splice.apply(this.mailListService.messages, [event.first, event.rows, ...data.results]);
 
-              Array.prototype.splice.apply(this.mailListService.messages, [event.first, event.rows, ...data.results]);
+            //trigger change detection
+            this.mailListService.messages = [...this.mailListService.messages];
 
-              //trigger change detection
-              this.mailListService.messages = [...this.mailListService.messages];
+            console.log("this.mailListService.messages", this.mailListService.messages);
+            this.mailListService.setMailTagVisibility(this.mailListService.messages);
+            this.mailFoldersService.doReloadTag(this.mailListService.tags.find((t) => t.name === "in_error").id);
+          }
+          this.loading = false;
+          // setTimeout(() => {
+          //   console.log(this.selRow.nativeElement.offsetHeight);
+          // });
 
-              console.log("this.mailListService.messages", this.mailListService.messages);
-              this.mailListService.setMailTagVisibility(this.mailListService.messages);
-              this.mailFoldersService.doReloadTag(this.mailListService.tags.find((t) => t.name === "in_error").id);
+          // I selected messages sono quelli che sono.
+          // Ma dopo il caricamento devo far puntare tra i messages quelli che sono selected
+          // Altimenti la table non li evidenzia
+          let index;
+          for (let i = 0; i < this.mailListService.selectedMessages.length; i++) {
+            index = this.isMessageinList(this.mailListService.selectedMessages[i].id, this.mailListService.messages);
+            if (index !== -1) {
+              this.mailListService.selectedMessages[i] = this.mailListService.messages[index];
             }
-            this.loading = false;
-            // setTimeout(() => {
-            //   console.log(this.selRow.nativeElement.offsetHeight);
-            // });
-
-            // I selected messages sono quelli che sono.
-            // Ma dopo il caricamento devo far puntare tra i messages quelli che sono selected
-            // Altimenti la table non li evidenzia
-            let index;
-            for (let i = 0; i < this.mailListService.selectedMessages.length; i++) {
-              index = this.isMessageinList(this.mailListService.selectedMessages[i].id, this.mailListService.messages);
-              if (index !== -1) {
-                this.mailListService.selectedMessages[i] = this.mailListService.messages[index];
-              }
-            }
-            this.setAccessibilityProperties(true);
-          }),
+          }
+          this.setAccessibilityProperties(true);
+        }),
     });
   }
 
@@ -1641,7 +1656,7 @@ export class MailListComponent implements OnInit, OnDestroy, AfterViewInit {
         this.mailListService.toggleError(false);
         break;
       case "MessageUndelete":
-        let idPreviousFolder = this.mailListService.selectedMessages[0].messageFolderList[0].fk_idPreviousFolder.id;
+        let idPreviousFolder = this.mailListService.selectedMessages[0].messageFolderList[0].idPreviousFolderTransient;
         const received = this.mailListService.selectedMessages[0].inOut === "IN" ? true : false;
         if (idPreviousFolder === null && received === true) {
           idPreviousFolder = this._selectedPec.folderList.filter((folder) => folder.type === "INBOX")[0].id;
@@ -2341,9 +2356,9 @@ export class MailListComponent implements OnInit, OnDestroy, AfterViewInit {
           this.unsubscribeFromMessage(message.id); // disabilito le sottoscrizioni relative al messaggio da ricaricare
           // console.log("message found, refreshing...");
           // ricarico il messaggio tramite una chiamata al backend
-          const filterDefinition = new FilterDefinition("id", FILTER_TYPES.not_string.equals, message.id);
           const filter: FiltersAndSorts = new FiltersAndSorts();
-          filter.addFilter(filterDefinition);
+          filter.addFilter(new FilterDefinition("id", FILTER_TYPES.not_string.equals, message.id));
+          filter.addFilter(new FilterDefinition("idPec.id", FILTER_TYPES.not_string.equals, message.fk_idPec.id));
           this.subscriptions.push({
             id: message.id,
             type: "AutoRefresh",
@@ -2544,7 +2559,7 @@ export class MailListComponent implements OnInit, OnDestroy, AfterViewInit {
           this.toolBarService.loadingSpinner = false;
           this.archivioRicercaSelected = null;
           this.mailListService
-            .getMessageById(this.mailListService.selectedMessages[0].id, "CustomMessageWithFolderViewForMailList", true)
+            .getMessageById(this.mailListService.selectedMessages[0], "CustomMessageWithFolderViewForMailList", true)
             .subscribe((data) => {
               if (data && data.results && data.results.length === 1) {
                 const message = data.results[0] as Message;
