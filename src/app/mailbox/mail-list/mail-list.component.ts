@@ -362,7 +362,8 @@ export class MailListComponent implements OnInit, OnDestroy, AfterViewInit {
             this._selectedPec = pec;
             this._selectedPecId = pec.id;
             this.setFolder(null);
-            this.lazyLoad(null);
+            //this.lazyLoad(null);
+            this.reloadTable();
           }
         }
       }),
