@@ -151,7 +151,8 @@
           size="30"
           required
           placeholder="Cerca..."
-          (keydown.enter)="onEnter(search.value)"
+          (keyup.enter)="onSearch(search.value, true)"
+          (keyup)="onSearch(search.value, false)"
           class="input-find"
           [pTooltip]="
             (toolBarService.buttonObs.get('searchActive') | async) ? 'Inserire almeno 3 caratteri e premere invio' : null
@@ -170,7 +171,7 @@
         <button
           class="custom-search-button pi pi-search"
           aria-label="Ricerca"
-          (click)="onEnter(search.value)"
+          (click)="onSearch(search.value, true)"
         ></button>
       </div>
     </div>
