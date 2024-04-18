@@ -151,8 +151,8 @@
           size="30"
           required
           placeholder="Cerca..."
-          (keydown.enter)="onSearch(search.value, true)"
-          (keydown)="onSearch(search.value, false)"
+          (keyup.enter)="onSearch(search.value, true)"
+          (keyup)="onSearch(search.value, false)"
           class="input-find"
           [pTooltip]="
             (toolBarService.buttonObs.get('searchActive') | async) ? 'Inserire almeno 3 caratteri e premere invio' : null
