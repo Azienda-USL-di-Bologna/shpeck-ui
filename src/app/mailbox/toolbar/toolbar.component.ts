@@ -223,7 +223,7 @@ export class ToolbarComponent implements OnDestroy, AfterViewInit {
    * Fa il controllo sui tre caratteri e la fa partire.
    * @param value
    */
-  public onSearch(value, enter: boolean) {
+  public onSearch(value: string, enter: boolean) {
     if ((value == null || value === "") && this.searchString != null && this.searchString !== "") {
       // Quindi ora la ricerca è vuota ma prima non lo era, allora resetto la ricerca
       this.clearInput();
