@@ -54,7 +54,7 @@ export class MailboxComponent implements OnInit, AfterViewInit, AfterViewChecked
   public totalMessageNumberDescriptor: TotalMessageNumberDescriptor;
 
   public tooltipSorting = "L'ordinamento è impostato su data discendente";
-  public sortingLabel = "Ordina per data discendente";
+  public sortingLabel = "Ordinato per data discendente";
   private idLastSortingUsed: string = "sortData";
   public sortMenuItem: MenuItem[] = [
     {
@@ -271,7 +271,7 @@ export class MailboxComponent implements OnInit, AfterViewInit, AfterViewChecked
         this.tooltipSorting = `L'ordinamento è impostato su ${sortItem.title} ${
           sortItem.queryParams.sort === SORT_MODES.desc ? "discendente" : "ascendente"
         }`;
-        this.sortingLabel = `Ordina per ${sortItem.title} ${
+        this.sortingLabel = `Ordinato per ${sortItem.title} ${
           sortItem.queryParams.sort === SORT_MODES.desc ? "discendente" : "ascendente"
         }`;
         // Informo chi di dovere che il sorting è stato modificato

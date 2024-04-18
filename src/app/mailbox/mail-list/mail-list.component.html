@@ -497,7 +497,8 @@
           *ngIf="actualStringSearch"
           style="margin: 0"
         >
-          Nessun messaggio trovato corrispondente alla ricerca: "{{ actualStringSearch }}"
+          Nessun messaggio trovato corrispondente alla ricerca:
+          <span class="highligth-actual-string-search">"{{ actualStringSearch }}"</span>
         </p>
         <p
           *ngIf="!actualStringSearch && _selectedFolder"
