@@ -24,6 +24,7 @@ export class ToolbarComponent implements OnDestroy, AfterViewInit {
   private folders: Folder[];
   private selectedFolder: Folder;
   private _selectedPec: Pec;
+  private searchString: string;
 
   public buttonObs: Map<string, Observable<boolean>>;
   public moveMenuItems: MenuItem[];
@@ -217,29 +218,39 @@ export class ToolbarComponent implements OnDestroy, AfterViewInit {
     return "";
   }
 
-  // Scatta al keydown nella ricerca. Fa il controllo sui tre caratteri e la fa partire.
-  public onEnter(value) {
-    if (value && value.length >= 3) {
-      //const filter = [];
-      //filter.push(new FilterDefinition("global", FILTER_TYPES.not_string.equals, value)); // global è lo standard per usare la tscol e ottenere l'ordinamento per ranking
-      this.toolBarService.setFilterTyped(value);
+  /**
+   * Scatta al keydown dell'invio nella ricerca.
+   * Fa il controllo sui tre caratteri e la fa partire.
+   * @param value
+   */
+  public onSearch(value, enter: boolean) {
+    if ((value == null || value === "") && this.searchString != null && this.searchString !== "") {
+      // Quindi ora la ricerca è vuota ma prima non lo era, allora resetto la ricerca
+      this.clearInput();
+    }
 
-      const sort: Sorting = {
-        field: "ranking",
-        sortMode: SORT_MODES.desc,
-      };
-      this.mailboxService.setSorting(sort);
-    } else {
-      this.toggleDialogAndAddFocus();
+    this.searchString = value;
+
+    if (enter) {
+      if (value && value.length >= 3) {
+        this.toolBarService.setFilterTyped(value);
+
+        const sort: Sorting = {
+          field: "ranking",
+          sortMode: SORT_MODES.desc,
+        };
+
+        this.mailboxService.setSorting(sort);
+      } else {
+        this.toggleDialogAndAddFocus();
+      }
     }
   }
 
   /**
    * Metodo che si occupa di resettare la ricerca contatti quando si preme la x
    */
-  clearInput() {
-    //const filtro = [];
-    //this.toolBarService.setFilterTyped(null);
+  public clearInput(): void {
     this.searchField.nativeElement.value = "";
     const sort: Sorting = {
       field: "receiveTime",
