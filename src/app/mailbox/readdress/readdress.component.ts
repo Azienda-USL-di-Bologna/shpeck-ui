@@ -1,5 +1,5 @@
 import { Component, OnInit, OnDestroy } from "@angular/core";
-import { FormGroup, FormControl, Validators } from "@angular/forms";
+import { UntypedFormGroup, UntypedFormControl, Validators } from "@angular/forms";
 import { ShpeckMessageService } from "src/app/services/shpeck-message.service";
 import { DialogService, DynamicDialogConfig, DynamicDialogRef } from "primeng/dynamicdialog";
 import { Subscription } from "rxjs";
@@ -20,7 +20,7 @@ export class ReaddressComponent implements OnInit, OnDestroy {
   public myPecs: Pec[];
   public userPecs: any[];
   public filteredPecs: any[];
-  public readdressForm: FormGroup;
+  public readdressForm: UntypedFormGroup;
   private utenteConnesso: UtenteUtilities;
 
   private pageConfNoLimit: PagingConf = {
@@ -47,8 +47,8 @@ export class ReaddressComponent implements OnInit, OnDestroy {
         this.utenteConnesso = utente;
       }
     });
-    this.readdressForm = new FormGroup({
-      to: new FormControl("", [Validators.required]),
+    this.readdressForm = new UntypedFormGroup({
+      to: new UntypedFormControl("", [Validators.required]),
     });
     this.subscriptions.push(
       this.pecService.myPecs.subscribe((pecs: Pec[]) => {

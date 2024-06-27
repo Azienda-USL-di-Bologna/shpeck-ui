@@ -9,7 +9,7 @@ import {
   Renderer2,
   ElementRef,
 } from "@angular/core";
-import { FormGroup, FormControl, FormBuilder, Validators, FormArray } from "@angular/forms";
+import { UntypedFormGroup, UntypedFormControl, FormBuilder, Validators, UntypedFormArray } from "@angular/forms";
 import { ConfirmationService, MessageService } from "primeng/api";
 import {
   Message,
@@ -75,12 +75,12 @@ export class NewMailComponent implements OnInit, AfterViewInit, OnDestroy {
   private ccAddressesForLabel: string[] = [];
   private toAddresses: any[] = [];
   private ccAddresses: any[] = [];
-  private toFormControl: FormControl[] = [];
-  private ccFormControl: FormControl[] = [];
+  private toFormControl: UntypedFormControl[] = [];
+  private ccFormControl: UntypedFormControl[] = [];
 
   public suggestion: number = 688300;
   public attachments: any[] = [];
-  public mailForm: FormGroup;
+  public mailForm: UntypedFormGroup;
   public selectedPec: Pec;
   public display = false;
   // emailRegex = new RegExp(/^([\w])+([\w-_\.]+)+([\w])@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.)|(([\w-]+\.)+))([a-zA-Z]{2,4}|[0-9]{1,3})(\]?)$/);
@@ -225,30 +225,30 @@ export class NewMailComponent implements OnInit, AfterViewInit, OnDestroy {
   ) {
     if (this.toAddresses && this.toAddresses.length > 0) {
       //console.log("qui ci entro", this.toAddresses);
-      this.toAddresses.forEach((el) => this.toFormControl.push(new FormControl(el, Validators.pattern(this.emailRegex))));
+      this.toAddresses.forEach((el) => this.toFormControl.push(new UntypedFormControl(el, Validators.pattern(this.emailRegex))));
       this.toFormControl = [...this.toFormControl];
       // this.mailForm.get("to").setValue([...this.toFormControl]);
       this.toAutoComplete.writeValue(this.toAddresses);
     }
 
     if (this.ccAddresses && this.ccAddresses.length > 0) {
-      this.ccAddresses.forEach((el) => this.ccFormControl.push(new FormControl(el, Validators.pattern(this.emailRegex))));
+      this.ccAddresses.forEach((el) => this.ccFormControl.push(new UntypedFormControl(el, Validators.pattern(this.emailRegex))));
       this.ccFormControl = [...this.ccFormControl];
       // this.mailForm.get("cc").setValue([...this.ccFormControl]);
       this.ccAutoComplete.writeValue(this.ccAddresses);
     }
 
-    this.mailForm = new FormGroup({
-      idDraftMessage: new FormControl(this.config.data.idDraft),
-      idPec: new FormControl(this.selectedPec.id),
-      to: new FormArray(this.toFormControl, Validators.required),
-      cc: new FormArray(this.ccFormControl),
-      hideRecipients: new FormControl(hideRecipients),
-      subject: new FormControl(subject),
-      attachments: new FormControl(this.attachments),
-      body: new FormControl(""), // Il body viene inizializzato nell'afterViewInit perché l'editor non è ancora istanziato
-      idMessageRelated: new FormControl(message && action !== TOOLBAR_ACTIONS.EDIT ? message.id : ""),
-      messageRelatedType: new FormControl(messageRelatedType),
+    this.mailForm = new UntypedFormGroup({
+      idDraftMessage: new UntypedFormControl(this.config.data.idDraft),
+      idPec: new UntypedFormControl(this.selectedPec.id),
+      to: new UntypedFormArray(this.toFormControl, Validators.required),
+      cc: new UntypedFormArray(this.ccFormControl),
+      hideRecipients: new UntypedFormControl(hideRecipients),
+      subject: new UntypedFormControl(subject),
+      attachments: new UntypedFormControl(this.attachments),
+      body: new UntypedFormControl(""), // Il body viene inizializzato nell'afterViewInit perché l'editor non è ancora istanziato
+      idMessageRelated: new UntypedFormControl(message && action !== TOOLBAR_ACTIONS.EDIT ? message.id : ""),
+      messageRelatedType: new UntypedFormControl(messageRelatedType),
       // idMessageRelatedAttachments: new FormControl(this.attachments)
     });
     // if it is a draft update input state
@@ -610,7 +610,7 @@ export class NewMailComponent implements OnInit, AfterViewInit, OnDestroy {
    * @param formField
    */
   private onSelectOrOnEnter(item: FilteredContactMultiple, formField: string): void {
-    const form = formField === "to" ? (this.mailForm.get("to") as FormArray) : (this.mailForm.get("cc") as FormArray);
+    const form = formField === "to" ? (this.mailForm.get("to") as UntypedFormArray) : (this.mailForm.get("cc") as UntypedFormArray);
     const autocomplete = formField === "to" ? this.toAutoComplete : this.ccAutoComplete;
     if (item) {
       if (item.tipo !== "GRUPPO") {
@@ -619,7 +619,7 @@ export class NewMailComponent implements OnInit, AfterViewInit, OnDestroy {
         if (form.value.indexOf(item.descrizioneDettaglioContatto) === -1) {
           // INSERISCO L'ELEMENTO NEL FORM
           form.push(
-            new FormControl(item.descrizioneDettaglioContatto, {
+            new UntypedFormControl(item.descrizioneDettaglioContatto, {
               validators: Validators.pattern(this.emailRegex),
               updateOn: "blur",
             })
@@ -678,10 +678,10 @@ export class NewMailComponent implements OnInit, AfterViewInit, OnDestroy {
    */
   onUnselect(item, formField) {
     if (item && formField === "to") {
-      const toForm = this.mailForm.get("to") as FormArray;
+      const toForm = this.mailForm.get("to") as UntypedFormArray;
       toForm.removeAt(toForm.value.indexOf(item));
     } else if (item && formField === "cc") {
-      const ccForm = this.mailForm.get("cc") as FormArray;
+      const ccForm = this.mailForm.get("cc") as UntypedFormArray;
       ccForm.removeAt(ccForm.value.indexOf(item));
       if (ccForm.value && ccForm.value.length === 0) {
         const hideRecipients = this.mailForm.get("hideRecipients");
@@ -1360,7 +1360,7 @@ export class NewMailComponent implements OnInit, AfterViewInit, OnDestroy {
    * @param formField
    */
   private ControlAreAllMailInGroup(gruppoItem: any, formField: string) {
-    const form = formField === "to" ? (this.mailForm.get("to") as FormArray) : (this.mailForm.get("cc") as FormArray);
+    const form = formField === "to" ? (this.mailForm.get("to") as UntypedFormArray) : (this.mailForm.get("cc") as UntypedFormArray);
     const autocomplete = formField === "to" ? this.toAutoComplete : this.ccAutoComplete;
     const projection = ENTITIES_STRUCTURE.rubrica.contatto.customProjections.CustomContattoGruppoDetail;
     const filtersAndSorts: FiltersAndSorts = new FiltersAndSorts();

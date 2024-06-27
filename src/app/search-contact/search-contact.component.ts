@@ -1,7 +1,7 @@
 import { Component, OnInit, ViewChild, ElementRef, Output, EventEmitter } from "@angular/core";
 import { HttpClient } from "@angular/common/http";
 import { RubricaService } from "../services/rubrica.service";
-import { FormGroup, Validators, FormControl } from "@angular/forms";
+import { UntypedFormGroup, Validators, UntypedFormControl } from "@angular/forms";
 import { AutoComplete } from "primeng/autocomplete";
 import { MessageService } from "primeng/api";
 
@@ -12,7 +12,7 @@ import { MessageService } from "primeng/api";
 })
 export class SearchContactComponent implements OnInit {
   public filteredContacts: any[];
-  public contactForm: FormGroup;
+  public contactForm: UntypedFormGroup;
   // public contact: any;
 
   @ViewChild("search", {}) searchField: AutoComplete;
@@ -27,8 +27,8 @@ export class SearchContactComponent implements OnInit {
   ) {}
 
   ngOnInit() {
-    this.contactForm = new FormGroup({
-      contatto: new FormControl("", [Validators.required]),
+    this.contactForm = new UntypedFormGroup({
+      contatto: new UntypedFormControl("", [Validators.required]),
     });
 
     setTimeout(() => {

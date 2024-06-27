@@ -45,7 +45,7 @@ import {
   Tag,
 } from "@bds/internauta-model";
 import { ContextMenu } from "primeng/contextmenu";
-import { FormControl, FormGroup, Validators } from "@angular/forms";
+import { UntypedFormControl, UntypedFormGroup, Validators } from "@angular/forms";
 import { Utils } from "src/app/utils/utils";
 import { NoteService } from "src/app/services/note.service";
 import { Router, ActivatedRoute, NavigationStart, NavigationEnd } from "@angular/router";
@@ -1271,8 +1271,8 @@ export class AccessibilitaMailListComponent implements OnInit, OnDestroy {
   }
 
   private showNewTagPopup() {
-    this.tagForm = new FormGroup({
-      tagName: new FormControl("", Validators.required),
+    this.tagForm = new UntypedFormGroup({
+      tagName: new UntypedFormControl("", Validators.required),
     });
     this.displayNewTagPopup = true;
     setTimeout(() => {

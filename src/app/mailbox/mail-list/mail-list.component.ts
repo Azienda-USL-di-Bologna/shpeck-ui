@@ -39,7 +39,7 @@ import { JwtLoginService, UtenteUtilities } from "@bds/jwt-login";
 import { Menu } from "primeng/menu";
 import { AppCustomization } from "src/environments/app-customization";
 import { SettingsService } from "src/app/services/settings.service";
-import { FormControl, FormGroup, Validators } from "@angular/forms";
+import { UntypedFormControl, UntypedFormGroup, Validators } from "@angular/forms";
 import { MailboxService, Sorting } from "../mailbox.service";
 import {
   ColonnaBds,
@@ -1723,8 +1723,8 @@ export class MailListComponent implements OnInit, OnDestroy, AfterViewInit {
   }
 
   private showNewTagPopup() {
-    this.tagForm = new FormGroup({
-      tagName: new FormControl("", Validators.required),
+    this.tagForm = new UntypedFormGroup({
+      tagName: new UntypedFormControl("", Validators.required),
     });
     this.displayNewTagPopup = true;
     setTimeout(() => {
