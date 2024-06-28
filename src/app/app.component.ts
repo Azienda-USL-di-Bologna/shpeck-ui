@@ -33,8 +33,8 @@ export class AppComponent implements OnInit {
   ) {}
 
   ngOnInit() {
-    const Link = Quill.import("formats/link");
-    Link.sanitize = function (url) {
+    let Link = Quill.import("formats/link");
+    Link = function (url) {
       if (!url.startsWith("http://") && !url.startsWith("https://")) {
         url = "https://" + url;
       }

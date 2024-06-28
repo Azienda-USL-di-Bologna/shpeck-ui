@@ -9,7 +9,7 @@ import { ToolBarService } from "../../toolbar/toolbar.service";
 import { AppCustomization } from "src/environments/app-customization";
 import { BaseUrls, BaseUrlType, EMLSOURCE, FONTSIZE, TOOLBAR_ACTIONS } from "src/environments/app-constants";
 import { MailboxService, Sorting } from "../../mailbox.service";
-import { Table } from "primeng/table";
+import { Table, TableLazyLoadEvent } from "primeng/table";
 import {
   IntimusClientService,
   IntimusCommand,
@@ -283,10 +283,9 @@ export class AccessibilitaMailListComponent implements OnInit, OnDestroy {
         if (
           event instanceof NavigationStart &&
           event.url !== this.lastRoute &&
-          this.dt &&
-          this.dt.virtualScrollBody /* scrollableViewChild */
+          this.dt /* scrollableViewChild */
         ) {
-          let dtToGetScrollTop = this.dt.virtualScrollBody.elementRef /* scrollableViewChild.scrollBodyViewChild */ as ElementRef;
+          let dtToGetScrollTop = this.dt.el/* scrollableViewChild.scrollBodyViewChild */ as ElementRef;
           // console.log("DT", dtToGetScrollTop.nativeElement.scrollTop);
           this.lastRoute = this.router.url;
           this.lastPosition = dtToGetScrollTop.nativeElement.scrollTop; // get the scrollTop property

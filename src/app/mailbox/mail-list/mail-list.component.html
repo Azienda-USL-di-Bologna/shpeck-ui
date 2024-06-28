@@ -4,7 +4,7 @@
   #dt
   id="pec-mail-list"
   [lazy]="true"
-  (onLazyLoad)="lazyLoad($event)"
+  (onLazyLoad)="lazyLoad($any($event))"
   [value]="mailListService.messages"
   [(selection)]="mailListService.selectedMessages"
   dataKey="id"

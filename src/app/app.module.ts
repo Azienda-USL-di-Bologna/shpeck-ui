@@ -49,12 +49,13 @@ import { RubricaContainerComponent } from "./rubrica/rubrica-container/rubrica-c
 import { DialogService } from "primeng/dynamicdialog";
 import { MailFoldersModule } from "./mailbox/mail-folders/mail-folders.module";
 
-import { RouteReuseStrategy } from "@angular/router";
+import { RouteReuseStrategy, RouterModule } from "@angular/router";
 import { CustomReuseStrategy } from "./custom-reuse-strategy";
 import { MailDetailModule } from "./mailbox/mail-detail/mail-detail.module";
 import { LandingRoutingComponent } from "./landing-routing/landing-routing.component";
 import { MatMenuModule } from "@angular/material/menu";
 import { ShpeckToolbarModule } from "./mailbox/toolbar/shpeck-toolbar.module";
+import { NgIdleKeepaliveModule } from "@ng-idle/keepalive";
 
 registerLocaleData(localeIt, "it-IT", localeItExtra);
 
@@ -92,6 +93,7 @@ registerLocaleData(localeIt, "it-IT", localeItExtra);
         ShpeckToolbarModule,
         MailFoldersModule,
         MailDetailModule,
+        NgIdleKeepaliveModule.forRoot(),
     ],
     providers: [
         { provide: LOCALE_ID, useValue: "it-IT" },

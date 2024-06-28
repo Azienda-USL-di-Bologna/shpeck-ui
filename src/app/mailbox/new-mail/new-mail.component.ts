@@ -4,10 +4,6 @@ import {
   ViewChild,
   AfterViewInit,
   OnDestroy,
-  SystemJsNgModuleLoaderConfig,
-  Input,
-  Renderer2,
-  ElementRef,
 } from "@angular/core";
 import { UntypedFormGroup, UntypedFormControl, FormBuilder, Validators, UntypedFormArray } from "@angular/forms";
 import { ConfirmationService, MessageService } from "primeng/api";
@@ -285,7 +281,7 @@ export class NewMailComponent implements OnInit, AfterViewInit, OnDestroy {
     /* Disabilito la compilazione automatica degli indirizzi */
     this.setAttribute("toInputId", "autocomplete", "false");
     this.setAttribute("ccInputId", "autocomplete", "false");
-    this.toAutoComplete.focusInput();
+    this.toAutoComplete.focused = true;
   }
 
   /**

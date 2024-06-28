@@ -32,7 +32,7 @@ export class SearchContactComponent implements OnInit {
     });
 
     setTimeout(() => {
-      this.searchField.focusInput();
+      this.searchField.focused = true;
     }, 0);
 
     /* Alla selezione di un contatto con Enter, questo metodo non scatta in automatico come avviene con il click
@@ -46,7 +46,7 @@ export class SearchContactComponent implements OnInit {
 
   /* Brutto quanto vuoi. Ma funziona. Se trovi altro modo dimmelo grassie(gus) */
   public onBlur() {
-    this.searchField.focusInput();
+    this.searchField.focused = true;
   }
 
   public getField() {
