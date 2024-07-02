@@ -8,6 +8,7 @@ import {
   OnInit,
   Output,
   ViewChild,
+  ChangeDetectorRef
 } from "@angular/core";
 import { buildLazyEventFiltersAndSorts } from "@bds/primeng-plugin";
 import {
@@ -74,7 +75,8 @@ export class MailListComponent implements OnInit, OnDestroy, AfterViewInit {
     private settingsService: SettingsService,
     private loginService: JwtLoginService,
     private mailboxService: MailboxService,
-    private intimusClient: IntimusClientService
+    private intimusClient: IntimusClientService,
+    private detector: ChangeDetectorRef
   ) {
     this.selectedContextMenuItem = this.selectedContextMenuItem.bind(this);
     this.showNewTagPopup = this.showNewTagPopup.bind(this);
@@ -108,7 +110,7 @@ export class MailListComponent implements OnInit, OnDestroy, AfterViewInit {
   private pageConf: PagingConf = {
     mode: "LIMIT_OFFSET_NO_COUNT",
     conf: {
-      limit: 0,
+      limit: 9999,
       offset: 0,
     },
   };
@@ -358,6 +360,7 @@ export class MailListComponent implements OnInit, OnDestroy, AfterViewInit {
             this._selectedPec = pecFolderSelected.pec;
             this.setTag(selectedTag);
           } else {
+            debugger;
             const pec: Pec = pecFolderSelected.data as Pec;
             this._selectedPec = pec;
             this._selectedPecId = pec.id;
@@ -1079,6 +1082,8 @@ export class MailListComponent implements OnInit, OnDestroy, AfterViewInit {
         //this.lazy = true;
         //this.lazyLoad(null);
         if (this.primavolta) {
+          debugger;
+          this.lazyLoad(null)
           this.primavolta = false;
           this.mostratable = true;
         } else {
@@ -1149,11 +1154,13 @@ export class MailListComponent implements OnInit, OnDestroy, AfterViewInit {
    * @param event
    */
   private loadData(pageConf: PagingConf, lazyFilterAndSort?: FiltersAndSorts, folder?: Folder, tag?: Tag, event?) {
+    
     this.loading = true;
     // mi devo salvare la folder/tag selezionata al momento del caricamento,
     // perché nella subscribe quando la invio al mailbox-component per scrivere il numero di messaggi
     // la selezione potrebbe essere cambiata e quindi manderei un dato errato
     const folderSelected = this.pecFolderSelected;
+
 
     /* mi devo dissottoscrivere dalla precedente sottoscrizione di richiesta dei dati prima di sottoscrivermi alla nuova
      * per farlo mi metto come tipo della sottocrizione "folder_message" in modo da rintracciarla nell'array delle sottoscrizioni e rimuoverla
@@ -1187,9 +1194,7 @@ export class MailListComponent implements OnInit, OnDestroy, AfterViewInit {
             this.mailFoldersService.doReloadTag(this.mailListService.tags.find((t) => t.name === "in_error").id);
           }
           this.loading = false;
-          // setTimeout(() => {
-          //   console.log(this.selRow.nativeElement.offsetHeight);
-          // });
+          
 
           // I selected messages sono quelli che sono.
           // Ma dopo il caricamento devo far puntare tra i messages quelli che sono selected
@@ -1202,8 +1207,14 @@ export class MailListComponent implements OnInit, OnDestroy, AfterViewInit {
             }
           }
           this.setAccessibilityProperties(true);
+          setTimeout(() => {
+            window.dispatchEvent(new Event("resize"));
+            console.log("dentro timeout:", );
+          }, 2000);
         }),
     });
+   
+    
   }
 
   private isMessageinList(id: number, messages: Message[]) {
@@ -1253,7 +1264,7 @@ export class MailListComponent implements OnInit, OnDestroy, AfterViewInit {
   } */
 
   public lazyLoad(event: LazyLoadEvent) {
-    console.log("lazyload", event);
+    console.log("lazyLoad di mailList Component", event);
     const eventFilters: { [s: string]: FilterMetadata } = this.buildTableEventFilters(this._filters);
     if (event) {
       if (eventFilters && Object.entries(eventFilters).length > 0) {
@@ -1266,10 +1277,11 @@ export class MailListComponent implements OnInit, OnDestroy, AfterViewInit {
       }
       /*  if (this.needLoading(event)) { */
       //event.rows = event.rows - 50;
+      /*
       this.pageConf.conf = {
         limit: event.rows,
         offset: event.first,
-      };
+      }; */
       const filtersAndSorts: FiltersAndSorts = buildLazyEventFiltersAndSorts(event, this.cols, this.datepipe);
 
       this.loadData(this.pageConf, filtersAndSorts, this._selectedFolder, this._selectedTag, event);
