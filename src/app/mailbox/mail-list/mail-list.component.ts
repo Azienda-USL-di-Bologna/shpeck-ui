@@ -8,7 +8,7 @@ import {
   OnInit,
   Output,
   ViewChild,
-  ChangeDetectorRef
+  ChangeDetectorRef,
 } from "@angular/core";
 import { buildLazyEventFiltersAndSorts } from "@bds/primeng-plugin";
 import {
@@ -1081,14 +1081,14 @@ export class MailListComponent implements OnInit, OnDestroy, AfterViewInit {
       if (folder) {
         //this.lazy = true;
         //this.lazyLoad(null);
-        if (this.primavolta) {
-          debugger;
-          this.lazyLoad(null)
-          this.primavolta = false;
-          this.mostratable = true;
-        } else {
-          this.lazyLoad(null);
-        }
+        // if (this.primavolta) {
+        //   debugger;
+        //   this.lazyLoad(null);
+        //   this.primavolta = false;
+        //   //this.mostratable = true;
+        // } else {
+        // }
+        this.lazyLoad(null);
       }
     }, 0);
   }
@@ -1111,15 +1111,6 @@ export class MailListComponent implements OnInit, OnDestroy, AfterViewInit {
         this.lazyLoad(null);
       }
     }
-    // this._selectedFolder = null;
-    /* this.mostratable = false;
-    this._filters = null;
-    this.mailListService.selectedMessages = [];
-    this.mailListService.messages = [];
-    setTimeout(() => {
-      //this._filters = filters;
-      this.mostratable = true;
-    }, 0); */
   }
 
   /* public toggleOrderMenu(event) {
@@ -1154,13 +1145,11 @@ export class MailListComponent implements OnInit, OnDestroy, AfterViewInit {
    * @param event
    */
   private loadData(pageConf: PagingConf, lazyFilterAndSort?: FiltersAndSorts, folder?: Folder, tag?: Tag, event?) {
-    
     this.loading = true;
     // mi devo salvare la folder/tag selezionata al momento del caricamento,
     // perché nella subscribe quando la invio al mailbox-component per scrivere il numero di messaggi
     // la selezione potrebbe essere cambiata e quindi manderei un dato errato
     const folderSelected = this.pecFolderSelected;
-
 
     /* mi devo dissottoscrivere dalla precedente sottoscrizione di richiesta dei dati prima di sottoscrivermi alla nuova
      * per farlo mi metto come tipo della sottocrizione "folder_message" in modo da rintracciarla nell'array delle sottoscrizioni e rimuoverla
@@ -1194,7 +1183,6 @@ export class MailListComponent implements OnInit, OnDestroy, AfterViewInit {
             this.mailFoldersService.doReloadTag(this.mailListService.tags.find((t) => t.name === "in_error").id);
           }
           this.loading = false;
-          
 
           // I selected messages sono quelli che sono.
           // Ma dopo il caricamento devo far puntare tra i messages quelli che sono selected
@@ -1207,14 +1195,16 @@ export class MailListComponent implements OnInit, OnDestroy, AfterViewInit {
             }
           }
           this.setAccessibilityProperties(true);
-          setTimeout(() => {
-            window.dispatchEvent(new Event("resize"));
-            console.log("dentro timeout:", );
-          }, 2000);
+          // setTimeout(() => {
+          //   window.dispatchEvent(new Event("resize"));
+          //   console.log("dentro timeout:");
+          // }, 2000);
+          if (this.primavolta) {
+            this.primavolta = false;
+            this.mostratable = true;
+          }
         }),
     });
-   
-    
   }
 
   private isMessageinList(id: number, messages: Message[]) {
