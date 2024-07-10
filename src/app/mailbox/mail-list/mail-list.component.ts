@@ -243,7 +243,7 @@ export class MailListComponent implements OnInit, OnDestroy, AfterViewInit {
   ];
 
   private primavolta = true;
-  public mostratable = false;
+  public mostratable: boolean = false;
   public displayNote: boolean = false;
   public displayNewTagPopup: boolean = false;
   public displayProtocollaDialog = false;
@@ -1108,6 +1108,7 @@ export class MailListComponent implements OnInit, OnDestroy, AfterViewInit {
       this.dt.first = 0;
       if (this.actualStringSearch || this._selectedFolder || this._selectedTag) {
         // Se non sto cercando e non sono ne in un folder ne in una pec allora non carico nulla perché nono ho nulla da mostrare
+
         this.lazyLoad(null);
       }
     }
