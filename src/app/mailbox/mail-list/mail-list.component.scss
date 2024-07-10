@@ -127,11 +127,14 @@
 }
 
 .riga-tabella {
-  height: 4.938rem !important;
+
+  //height: 4.938rem !important;
   .row-main-content {
     display: block;
     width: 99% !important;
   }
+
+  height: 89px;
 }
 
 .cella-no-elementi {

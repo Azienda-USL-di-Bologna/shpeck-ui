@@ -28,7 +28,7 @@ import { BatchOperation, BatchOperationTypes, FILTER_TYPES, FilterDefinition, Fi
 import { TagService } from "src/app/services/tag.service";
 import { Observable, Subscription } from "rxjs";
 import { DatePipe } from "@angular/common";
-import { Table } from "primeng/table";
+import { Table, TableLazyLoadEvent } from "primeng/table";
 import { BaseUrls, BaseUrlType, EMLSOURCE, FONTSIZE, TOOLBAR_ACTIONS } from "src/environments/app-constants";
 import { ConfirmationService, FilterMetadata, LazyLoadEvent, MenuItem, MessageService } from "primeng/api";
 import { Utils } from "src/app/utils/utils";
@@ -104,6 +104,7 @@ export class MailListComponent implements OnInit, OnDestroy, AfterViewInit {
   public _selectedPecId: number;
   public _selectedPec: Pec;
   public _filters: FilterDefinition[];
+  private storedLazyLoadEvent: LazyLoadEvent;
 
   // private tempSelectedMessages: Message[] = null;
 
@@ -283,7 +284,7 @@ export class MailListComponent implements OnInit, OnDestroy, AfterViewInit {
   // private MEDIUM_SIZE_VIRTUAL_ROW_HEIGHT = 83;
   // private LARGE_SIZE_VIRTUAL_ROW_HEIGHT = 89;
   public virtualRowHeight: number = this.VIRTUAL_ROW_HEIGHTS[FONTSIZE.BIG];
-  public rowsNmber = 30;
+  public rowsNumber = 40;
   public cols: ColonnaBds[] = [
     /* {
       field: "subject",
@@ -1174,32 +1175,84 @@ export class MailListComponent implements OnInit, OnDestroy, AfterViewInit {
             // mando l'evento con il numero di messaggi (serve a mailbox-component perché lo deve scrivere nella barra superiore)
             this.mailListService.refreshAndSendTotalMessagesNumber(0, folderSelected);
 
-            Array.prototype.splice.apply(this.mailListService.messages, [event.first, event.rows, ...data.results]);
+            const elementiCaricati = data.results;
 
-            //trigger change detection
-            this.mailListService.messages = [...this.mailListService.messages];
+            const existAnotherElementNext: boolean = data.page.totalPages > 1;
+            if (this.storedLazyLoadEvent.first + this.rowsNumber === this.mailListService.messages.length) {
+              console.log(`Sto riempendo l'intero array, forse dovrò espanderlo`);
+              // Se la lunghezza dei dati caricati è uguale a quanto richiesto, allora ho caricato tutti i dati richiesti
+              if (elementiCaricati.length === this.storedLazyLoadEvent.rows) {
+                if (existAnotherElementNext) {
+                  // Devo espandere l'array di altri this.rowsNumber posti perchè non ho ancora caricato tutti i dati
+                  console.log(
+                    `In questo momento l'array è lungo ${this.mailListService.messages.length}, gli do altri ${this.rowsNumber} posti`
+                  );
+                  Array.prototype.splice.apply(this.mailListService.messages, [
+                    this.storedLazyLoadEvent.first,
+                    this.storedLazyLoadEvent.rows,
+                    ...[...elementiCaricati, ...Array.from({ length: this.rowsNumber })],
+                  ]);
+                } else {
+                  console.log(`In questo momento l'array è lungo ${this.mailListService.messages.length}, ha raggiunto la fine`);
+                  Array.prototype.splice.apply(this.mailListService.messages, [
+                    this.storedLazyLoadEvent.first,
+                    this.storedLazyLoadEvent.rows,
+                    ...elementiCaricati,
+                  ]);
+                }
+              } else {
+                // Ho trovato meno righe di quante cercate, ho raggiuto il fondo della lista
+                console.log(
+                  `In questo momento l'array è lungo ${
+                    this.mailListService.messages.length
+                  }, ma sono arrivato in fondo devo togliergli ${this.rowsNumber - elementiCaricati.length} posti`
+                );
+                Array.prototype.splice.apply(this.mailListService.messages, [
+                  this.storedLazyLoadEvent.first,
+                  this.rowsNumber,
+                  ...elementiCaricati,
+                ]);
+                console.log(`Adesso l'array è lungo ${this.mailListService.messages.length}`);
+              }
+            } else {
+              console.log(`Caricamento semplice`);
+              Array.prototype.splice.apply(this.mailListService.messages, [
+                this.storedLazyLoadEvent.first,
+                this.storedLazyLoadEvent.rows,
+                ...elementiCaricati,
+              ]);
+            }
+
+            // Array.prototype.splice.apply(this.mailListService.messages, [event.first, event.rows, ...data.results]);
+
+            // //trigger change detection
+            // this.mailListService.messages = [...this.mailListService.messages];
 
             console.log("this.mailListService.messages", this.mailListService.messages);
             this.mailListService.setMailTagVisibility(this.mailListService.messages);
             this.mailFoldersService.doReloadTag(this.mailListService.tags.find((t) => t.name === "in_error").id);
           }
-          this.loading = false;
 
           // I selected messages sono quelli che sono.
           // Ma dopo il caricamento devo far puntare tra i messages quelli che sono selected
           // Altimenti la table non li evidenzia
-          let index;
+          let index: number;
           for (let i = 0; i < this.mailListService.selectedMessages.length; i++) {
             index = this.isMessageinList(this.mailListService.selectedMessages[i].id, this.mailListService.messages);
             if (index !== -1) {
               this.mailListService.selectedMessages[i] = this.mailListService.messages[index];
             }
           }
+          //trigger change detection
+          this.storedLazyLoadEvent.forceUpdate();
+
+          this.dt.scroller.setSize();
+          this.dt.scroller.setSpacerSize();
+
+          this.loading = false;
+
           this.setAccessibilityProperties(true);
-          // setTimeout(() => {
-          //   window.dispatchEvent(new Event("resize"));
-          //   console.log("dentro timeout:");
-          // }, 2000);
+
           if (this.primavolta) {
             this.primavolta = false;
             this.mostratable = true;
@@ -1254,47 +1307,65 @@ export class MailListComponent implements OnInit, OnDestroy, AfterViewInit {
     return needLoading;
   } */
 
-  public lazyLoad(event: LazyLoadEvent) {
+  public lazyLoad(event: LazyLoadEvent | TableLazyLoadEvent) {
     console.log("lazyLoad di mailList Component", event);
     const eventFilters: { [s: string]: FilterMetadata } = this.buildTableEventFilters(this._filters);
-    if (event) {
-      if (eventFilters && Object.entries(eventFilters).length > 0) {
-        event.filters = eventFilters;
-      }
-
-      // questo if è il modo più sicuro per fare "event.first === Nan"
-      if (event.first !== event.first) {
-        event.first = 0;
-      }
-      /*  if (this.needLoading(event)) { */
-      //event.rows = event.rows - 50;
-      /*
-      this.pageConf.conf = {
-        limit: event.rows,
-        offset: event.first,
-      }; */
-      const filtersAndSorts: FiltersAndSorts = buildLazyEventFiltersAndSorts(event, this.cols, this.datepipe);
-
-      this.loadData(this.pageConf, filtersAndSorts, this._selectedFolder, this._selectedTag, event);
-      /* } */
-    } else {
+    this.previousFilter = this._filters;
+    if (!event) {
       event = {
-        rows: this.rowsNmber,
+        rows: this.rowsNumber,
         first: 0,
       };
-      if (eventFilters) {
-        event["filters"] = eventFilters;
-      }
       this.pageConf.conf = {
-        limit: this.rowsNmber,
+        limit: this.rowsNumber,
         offset: 0,
       };
-      const filtersAndSorts: FiltersAndSorts = buildLazyEventFiltersAndSorts(event, this.cols, this.datepipe);
-
-      this.loadData(this.pageConf, filtersAndSorts, this._selectedFolder, this._selectedTag, event);
     }
-    this.previousFilter = this._filters;
-    // this.filtering = false;
+    if (eventFilters && Object.entries(eventFilters).length > 0) {
+      event["filters"] = eventFilters;
+    }
+
+    console.log(`---------------------------------------------------------------`);
+    console.log(`Chiedo ${event.rows} righe con offset di ${event.first}`);
+
+    if (event.first % this.rowsNumber !== 0) {
+      console.log(`Offset non corretto, non cairco i dati`);
+      return;
+    }
+
+    const filtersAndSorts: FiltersAndSorts = buildLazyEventFiltersAndSorts(event as LazyLoadEvent, this.cols, this.datepipe);
+    this.storedLazyLoadEvent = event as LazyLoadEvent;
+    this.loadData(this.pageConf, filtersAndSorts, this._selectedFolder, this._selectedTag, event);
+
+    // vecchio codice
+    {
+      // if (event) {
+      //   if (eventFilters && Object.entries(eventFilters).length > 0) {
+      //     event.filters = eventFilters;
+      //   }
+      //   // questo if è il modo più sicuro per fare "event.first === Nan"
+      //   if (event.first !== event.first) {
+      //     event.first = 0;
+      //   }
+      //   const filtersAndSorts: FiltersAndSorts = buildLazyEventFiltersAndSorts(event, this.cols, this.datepipe);
+      //   this.loadData(this.pageConf, filtersAndSorts, this._selectedFolder, this._selectedTag, event);
+      //   /* } */
+      // } else {
+      //   event = {
+      //     rows: this.rowsNmber,
+      //     first: 0,
+      //   };
+      //   if (eventFilters) {
+      //     event["filters"] = eventFilters;
+      //   }
+      //   this.pageConf.conf = {
+      //     limit: this.rowsNmber,
+      //     offset: 0,
+      //   };
+      //   const filtersAndSorts: FiltersAndSorts = buildLazyEventFiltersAndSorts(event, this.cols, this.datepipe);
+      //   this.loadData(this.pageConf, filtersAndSorts, this._selectedFolder, this._selectedTag, event);
+      // }
+    }
   }
 
   trackByFn(index, item) {
