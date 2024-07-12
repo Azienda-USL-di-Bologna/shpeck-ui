@@ -256,8 +256,8 @@ export class MailFoldersComponent implements OnInit, OnDestroy {
         this.mailFoldersService.doReloadTag(params.oldRow["id_tag"]);
       }
       // caso di rimozione di tag tramite servlet custom
-      if (params.entity === RefreshMailsParamsEntities.MESSAGE_TAG && params["id"]) {
-        this.mailFoldersService.doReloadTag(params["id"]);
+      if (params.entity === RefreshMailsParamsEntities.MESSAGE_TAG && (params as any)["id"]) {
+        this.mailFoldersService.doReloadTag((params as any)["id"]);
       }
       // se ho inserito un tag ricarico il badge del tag inserito
       if (params.newRow) {
@@ -344,7 +344,7 @@ export class MailFoldersComponent implements OnInit, OnDestroy {
         } // questo è un caso simile a quello sopra, ma riguarda l'eliminazione di un tag
       } else if (
         (!params.newRow && params.oldRow) ||
-        (!params.newRow && !params.oldRow && params["id_utente"] === this.loggedUser.getUtente().id)
+        (!params.newRow && !params.oldRow && (params as any)["id_utente"] === this.loggedUser.getUtente().id)
       ) {
         let tagName: string;
         let idMessage: number;
@@ -357,9 +357,9 @@ export class MailFoldersComponent implements OnInit, OnDestroy {
           idTag = params.oldRow["id_tag"];
         } else {
           // eliminazione custom
-          tagName = params["tag_name"];
-          idMessage = params["id_message"];
-          idTag = params["id"];
+          tagName = (params as any)["tag_name"];
+          idMessage = (params as any)["id_message"];
+          idTag = (params as any)["id"];
         }
         switch (tagName) {
           case "archived":
@@ -565,7 +565,7 @@ export class MailFoldersComponent implements OnInit, OnDestroy {
     } as MyTreeNode;
   }
 
-  public selectedContextMenuItem(event) {
+  public selectedContextMenuItem(event: any) {
     if (event && event.item) {
       const menuItemSelected: MenuItem = event.item;
       switch (menuItemSelected.id) {
@@ -972,26 +972,26 @@ export class MailFoldersComponent implements OnInit, OnDestroy {
     }
   }
 
-  public onLostFocus(event, value?: string) {
+  public onLostFocus(event: any, value?: string) {
     if (this._pressedEnter) {
       this._pressedEnter = false;
     } else {
       this.saveNode(value);
     }
   }
-  public onEnterPressed(event, value?: string) {
+  public onEnterPressed(event: any, value?: string) {
     this._pressedEnter = true;
     this.saveNode(value);
   }
 
-  public onEscPressed(event) {
+  public onEscPressed(event: any) {
     // this._pressedEnterOrEsc = true;
     const nodeType: PecFolderType = this.selectedNode.data.type;
     const inserting: boolean = !this.selectedNode.data.data.id ? true : false;
     this.abortSaveFolder(nodeType, inserting);
   }
 
-  onKeyUpMoveFocus(event) {
+  onKeyUpMoveFocus(event: any) {
     const messagesListContainer: HTMLElement = document.querySelector(".mail-list");
     // console.log("mail-folders onKeyUpMoveFocus event: ", event);
     // console.log("messagesListContainer", messagesListContainer);
@@ -1014,7 +1014,7 @@ export class MailFoldersComponent implements OnInit, OnDestroy {
     if (mailListContainer) mailListContainer.focus();
   }
 
-  private stopPropagation(event) {
+  private stopPropagation(event: any) {
     event.preventDefault();
     event.stopPropagation();
   }
@@ -1078,7 +1078,7 @@ export class MailFoldersComponent implements OnInit, OnDestroy {
     this._abortSaveFolder = false;
   }
 
-  private validateName(objArray: any[], name): boolean {
+  private validateName(objArray: any[], name: any): boolean {
     return !objArray.some((o) => o.name === name);
   }
 

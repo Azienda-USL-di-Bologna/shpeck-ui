@@ -1,31 +1,38 @@
 {
   "$schema": "./node_modules/@angular/cli/lib/config/schema.json",
   "cli": {
+    "cache": {
+      "enabled": false
+    },
     "analytics": false
   },
   "version": 1,
   "newProjectRoot": "projects",
   "projects": {
     "shpeck-ui": {
-      "root": "",
-      "sourceRoot": "src",
       "projectType": "application",
-      "prefix": "app",
       "schematics": {
         "@schematics/angular:component": {
           "style": "scss"
+        },
+        "@schematics/angular:application": {
+          "strict": true
         }
       },
+      "root": "",
+      "sourceRoot": "src",
+      "prefix": "app",
       "architect": {
         "build": {
           "builder": "@angular-devkit/build-angular:browser",
           "options": {
-            "aot": true,
             "preserveSymlinks": true,
             "outputPath": "dist/shpeck-ui",
             "index": "src/index.html",
             "main": "src/main.ts",
+            "polyfills": ["zone.js"],
             "tsConfig": "src/tsconfig.app.json",
+            "aot": false,
             "assets": ["src/favicon.ico", "src/assets", "src/app"],
             "styles": [
               "src/styles.scss",
@@ -58,9 +65,9 @@
               ],
               "outputHashing": "all",
               "sourceMap": {
-                "scripts": true,
+                "scripts": false,
                 "styles": false,
-                "hidden": false,
+                "hidden": true,
                 "vendor": false
               },
               "aot": true,
@@ -75,10 +82,11 @@
               "sourceMap": {
                 "scripts": true,
                 "styles": true,
-                "hidden": false,
-                "vendor": true
+                "vendor": true,
+                "hidden": false
               },
-              "namedChunks": true
+              "namedChunks": true,
+              "aot": false
             },
             "stage": {
               "buildOptimizer": false,
@@ -88,10 +96,11 @@
               "sourceMap": {
                 "scripts": true,
                 "styles": true,
-                "hidden": false,
-                "vendor": false
+                "vendor": false,
+                "hidden": false
               },
-              "namedChunks": true
+              "namedChunks": true,
+              "aot": false
             }
           },
           "defaultConfiguration": "production"

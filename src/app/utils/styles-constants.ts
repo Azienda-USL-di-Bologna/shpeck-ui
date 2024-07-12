@@ -48,4 +48,4 @@ export const ContentTypeList = {
     contentType: [],
     simpleType: ["application"],
   },
-};
+} as any;

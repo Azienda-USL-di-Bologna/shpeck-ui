@@ -20,11 +20,7 @@ export class SearchContactComponent implements OnInit {
   @Output() addressChosedByBook = new EventEmitter<any>();
   @Output() closeRubricaPopup = new EventEmitter<any>();
 
-  constructor(
-    protected http: HttpClient,
-    protected rubricaService: RubricaService,
-    protected messageService: MessageService
-  ) {}
+  constructor(protected http: HttpClient, protected rubricaService: RubricaService, protected messageService: MessageService) {}
 
   ngOnInit() {
     this.contactForm = new UntypedFormGroup({
@@ -53,7 +49,7 @@ export class SearchContactComponent implements OnInit {
     return "emails[0]['email']";
   }
 
-  public filterContacts(event) {
+  public filterContacts(event: any) {
     console.log("event", event);
     if (event.query.length > 2) {
       this.rubricaService.searchEmailContact(event.query).subscribe(

@@ -6,7 +6,7 @@
 </div>
 <div
   class="detail-container"
-  *ngIf="numberOfMessageSelected === null || numberOfMessageSelected <= 1"
+  *ngIf="(numberOfMessageSelected === null || numberOfMessageSelected <= 1) && fullMessage"
 >
   <h3
     #subject
