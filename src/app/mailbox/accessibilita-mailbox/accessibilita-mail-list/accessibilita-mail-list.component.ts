@@ -9,7 +9,7 @@ import { ToolBarService } from "../../toolbar/toolbar.service";
 import { AppCustomization } from "src/environments/app-customization";
 import { BaseUrls, BaseUrlType, EMLSOURCE, FONTSIZE, TOOLBAR_ACTIONS } from "src/environments/app-constants";
 import { MailboxService, Sorting } from "../../mailbox.service";
-import { Table, TableLazyLoadEvent } from "primeng/table";
+import { Table } from "primeng/table";
 import {
   IntimusClientService,
   IntimusCommand,
@@ -19,18 +19,9 @@ import {
   RefreshMailsParamsOperations,
 } from "@bds/common-tools";
 import { ConfirmationService, FilterMetadata, LazyLoadEvent, MenuItem, MessageService } from "primeng/api";
-import {
-  BatchOperation,
-  BatchOperationTypes,
-  FILTER_TYPES,
-  FilterDefinition,
-  FiltersAndSorts,
-  PagingConf,
-  SortDefinition,
-  AdditionalDataDefinition,
-} from "@bds/next-sdr";
+import { BatchOperation, BatchOperationTypes, FILTER_TYPES, FilterDefinition, FiltersAndSorts, PagingConf } from "@bds/next-sdr";
 import { buildLazyEventFiltersAndSorts } from "@bds/primeng-plugin";
-import { DatePipe, Location } from "@angular/common";
+import { DatePipe } from "@angular/common";
 import {
   Azienda,
   ENTITIES_STRUCTURE,
@@ -39,7 +30,6 @@ import {
   Menu,
   Message,
   MessageTag,
-  MessageType,
   Note,
   Pec,
   Tag,
@@ -280,12 +270,8 @@ export class AccessibilitaMailListComponent implements OnInit, OnDestroy {
       id: null,
       type: "router.events",
       subscription: this.router.events.subscribe((event) => {
-        if (
-          event instanceof NavigationStart &&
-          event.url !== this.lastRoute &&
-          this.dt /* scrollableViewChild */
-        ) {
-          let dtToGetScrollTop = this.dt.el/* scrollableViewChild.scrollBodyViewChild */ as ElementRef;
+        if (event instanceof NavigationStart && event.url !== this.lastRoute && this.dt /* scrollableViewChild */) {
+          let dtToGetScrollTop = this.dt.el /* scrollableViewChild.scrollBodyViewChild */ as ElementRef;
           // console.log("DT", dtToGetScrollTop.nativeElement.scrollTop);
           this.lastRoute = this.router.url;
           this.lastPosition = dtToGetScrollTop.nativeElement.scrollTop; // get the scrollTop property
@@ -632,6 +618,11 @@ export class AccessibilitaMailListComponent implements OnInit, OnDestroy {
     // perché nella subscribe quando la invio al mailbox-component per scrivere il numero di messaggi
     // la selezione potrebbe essere cambiata e quindi manderei un dato errato
     const folderSelected = this.pecFolderSelected;
+
+    if (!folderSelected) {
+      console.log("no folder selected");
+      return;
+    }
 
     /* mi devo dissottoscrivere dalla precedente sottoscrizione di richiesta dei dati prima di sottoscrivermi alla nuova
      * per farlo mi metto come tipo della sottocrizione "folder_message" in modo da rintracciarla nell'array delle sottoscrizioni e rimuoverla

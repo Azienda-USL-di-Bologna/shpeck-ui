@@ -44,8 +44,8 @@ export class MailDetailComponent implements OnInit, OnDestroy {
 
   public fullMessage: FullMessage;
   public message: Message;
-  public numberOfMessageSelected = null;
-  public messageTrueDraftFalse = null;
+  public numberOfMessageSelected: any = null;
+  public messageTrueDraftFalse: any = null;
   public accordionAttachmentsSelected: boolean = false;
   public recepitsVisible: boolean = false;
   public getAllEmlAttachmentInProgress: boolean = false;
@@ -53,10 +53,10 @@ export class MailDetailComponent implements OnInit, OnDestroy {
     return InOut;
   }
 
-  @ViewChild("subject") private subject;
+  @ViewChild("subject") private subject: any;
   @ViewChild("emliframe", {}) private emliframe: ElementRef;
-  @ViewChild("dettagli") private dettagli;
-  @ViewChild("allegati") private allegati;
+  @ViewChild("dettagli") private dettagli: any;
+  @ViewChild("allegati") private allegati: any;
 
   constructor(
     private messageService: ShpeckMessageService,
@@ -215,7 +215,9 @@ export class MailDetailComponent implements OnInit, OnDestroy {
   private buildFilterAndSortRecepits(fullMessage: FullMessage): FiltersAndSorts {
     const filtersAndSorts: FiltersAndSorts = new FiltersAndSorts();
     filtersAndSorts.addFilter(new FilterDefinition("idRelated", FILTER_TYPES.not_string.equals, fullMessage.message.id));
-    filtersAndSorts.addFilter(new FilterDefinition("idPec", FILTER_TYPES.not_string.equals, fullMessage.message["fk_idPec"].id));
+    filtersAndSorts.addFilter(
+      new FilterDefinition("idPec", FILTER_TYPES.not_string.equals, (fullMessage.message as any)["fk_idPec"].id)
+    );
     filtersAndSorts.addFilter(new FilterDefinition("messageType", FILTER_TYPES.not_string.equals, MessageType.RECEPIT));
     filtersAndSorts.addSort(new SortDefinition("receiveTime", SORT_MODES.desc));
     return filtersAndSorts;
@@ -403,10 +405,10 @@ export class MailDetailComponent implements OnInit, OnDestroy {
     this.showLogs = true;
   }
 
-  public thereIsReplyToField() {
-    var res = null;
-    if (this.fullMessage?.message["messageAddressList"]) {
-      this.fullMessage?.message["messageAddressList"].forEach((obj) => {
+  public thereIsReplyToField(): any {
+    let res = null;
+    if ((this.fullMessage?.message as any)["messageAddressList"]) {
+      (this.fullMessage?.message as any)["messageAddressList"].forEach((obj: any) => {
         if (obj.addressRole === "REPLY_TO") {
           res = obj.idAddress.mailAddress;
         }

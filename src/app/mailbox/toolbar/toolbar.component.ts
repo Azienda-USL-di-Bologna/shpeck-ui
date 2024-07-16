@@ -57,7 +57,7 @@ export class ToolbarComponent implements OnDestroy, AfterViewInit {
    * @param event
    * @param action
    */
-  handleEvent(event, action) {
+  handleEvent(event: any, action: any) {
     console.log("EVENTO = ", action);
     switch (action) {
       case TOOLBAR_ACTIONS.NEW:
@@ -89,7 +89,7 @@ export class ToolbarComponent implements OnDestroy, AfterViewInit {
     }
   }
 
-  private askConfirmationBeforeArchiviation(event) {
+  private askConfirmationBeforeArchiviation(event: any) {
     if (
       this.mailListService.selectedMessages &&
       this.mailListService.selectedMessages.length === 1 &&
@@ -170,7 +170,7 @@ export class ToolbarComponent implements OnDestroy, AfterViewInit {
     }, 0);
   }
 
-  onKeyUpMoveFocus(event) {
+  onKeyUpMoveFocus(event: any) {
     // console.log("mailbox onKeyUpMoveFocus", event);
     const pecContainer: HTMLElement = document.querySelector(".content-left");
     const searchBar: HTMLElement = document.querySelector(".input-field");

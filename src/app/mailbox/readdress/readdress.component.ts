@@ -65,7 +65,7 @@ export class ReaddressComponent implements OnInit, OnDestroy {
             this.pageConfNoLimit
           )
           .subscribe((data) => {
-            this.myPecs = data.results.filter((pec) => pec.id !== this.config.data.message.fk_idPec.id);
+            this.myPecs = data.results.filter((pec: any) => pec.id !== this.config.data.message.fk_idPec.id);
             this.userPecs = this.myPecs.map((pec) => pec.indirizzo);
             // console.log("User can readress to: ", this.userPecs);
           });
@@ -95,7 +95,7 @@ export class ReaddressComponent implements OnInit, OnDestroy {
     this.http.post(apiUrl, form).subscribe(
       (res) => {
         // console.log("res", res);
-        message["iconsVisibility"]["readdressed_out"] = true;
+        (message as any)["iconsVisibility"]["readdressed_out"] = true;
         const newTag = new Tag();
         newTag.idPec = message.idPec;
         newTag.description = "Reindirizzato";
@@ -118,7 +118,7 @@ export class ReaddressComponent implements OnInit, OnDestroy {
     );
   }
 
-  filterPecs(event) {
+  filterPecs(event: any) {
     // in a real application, make a request to a remote url with the query and return filtered results, for demo we filter at client side
     this.filteredPecs = [];
     for (let i = 0; i < this.myPecs.length; i++) {

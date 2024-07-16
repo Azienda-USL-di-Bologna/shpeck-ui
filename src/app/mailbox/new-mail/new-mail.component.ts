@@ -1,10 +1,4 @@
-import {
-  Component,
-  OnInit,
-  ViewChild,
-  AfterViewInit,
-  OnDestroy,
-} from "@angular/core";
+import { Component, OnInit, ViewChild, AfterViewInit, OnDestroy } from "@angular/core";
 import { UntypedFormGroup, UntypedFormControl, FormBuilder, Validators, UntypedFormArray } from "@angular/forms";
 import { ConfirmationService, MessageService } from "primeng/api";
 import {
@@ -606,7 +600,8 @@ export class NewMailComponent implements OnInit, AfterViewInit, OnDestroy {
    * @param formField
    */
   private onSelectOrOnEnter(item: FilteredContactMultiple, formField: string): void {
-    const form = formField === "to" ? (this.mailForm.get("to") as UntypedFormArray) : (this.mailForm.get("cc") as UntypedFormArray);
+    const form =
+      formField === "to" ? (this.mailForm.get("to") as UntypedFormArray) : (this.mailForm.get("cc") as UntypedFormArray);
     const autocomplete = formField === "to" ? this.toAutoComplete : this.ccAutoComplete;
     if (item) {
       if (item.tipo !== "GRUPPO") {
@@ -672,7 +667,7 @@ export class NewMailComponent implements OnInit, AfterViewInit, OnDestroy {
    * il check dei destinatari privati
    * @param item L'oggetto rimosso
    */
-  onUnselect(item, formField) {
+  onUnselect(item: any, formField: any) {
     if (item && formField === "to") {
       const toForm = this.mailForm.get("to") as UntypedFormArray;
       toForm.removeAt(toForm.value.indexOf(item));
@@ -700,12 +695,12 @@ export class NewMailComponent implements OnInit, AfterViewInit, OnDestroy {
   } */
 
   /* Gestione allegati */
-  onFileChange(event, fileinput) {
+  onFileChange(event: any, fileinput: any) {
     const fileForm = this.mailForm.get("attachments");
     for (const file of event.target.files) {
-      if (!fileForm.value.find((element) => element.name === file.name)) {
+      if (!fileForm.value.find((element: any) => element.name === file.name)) {
         const maxFilesSize = fileForm.value.reduce(
-          (tot, element) => (element.id ? tot + element.size * 0.71 : tot + element.size),
+          (tot: any, element: any) => (element.id ? tot + element.size * 0.71 : tot + element.size),
           0
         );
         if (file.size && maxFilesSize + file.size <= MAX_FILE_SIZE_UPLOAD) {
@@ -808,7 +803,7 @@ export class NewMailComponent implements OnInit, AfterViewInit, OnDestroy {
       if (key === "attachments") {
         // Gli allegati vanno aggiunti singolarmente
         const files = this.mailForm.get(key).value;
-        files.forEach((file) => {
+        files.forEach((file: any) => {
           if (file.id || file.id === 0) {
             // I file che hanno l'id sono presi dall'eml già salvato sul DB
             formToSend.append("idMessageRelatedAttachments", file.id);
@@ -829,7 +824,7 @@ export class NewMailComponent implements OnInit, AfterViewInit, OnDestroy {
   checkMaxPostSize() {
     const fileForm = this.mailForm.get("attachments");
     const maxFilesSize = fileForm.value.reduce(
-      (tot, element) => (element.id ? tot + element.size * 0.71 : tot + element.size),
+      (tot: any, element: any) => (element.id ? tot + element.size * 0.71 : tot + element.size),
       0
     );
     const bodyForm = this.mailForm.get("body");
@@ -883,7 +878,7 @@ export class NewMailComponent implements OnInit, AfterViewInit, OnDestroy {
     this.dynamicDialogRef.close();
   }
 
-  formatSize(bytes, originalBytes?) {
+  formatSize(bytes: any, originalBytes?: any) {
     const originalTotalSize = bytes;
     if (!originalBytes) {
       bytes = bytes * 0.71;
@@ -910,7 +905,7 @@ export class NewMailComponent implements OnInit, AfterViewInit, OnDestroy {
   //   this.filteredAddressSingle = this.filterAddress(query, this.indirizziTest);
   // }
 
-  public filterAddressMultiple(event): void {
+  public filterAddressMultiple(event: any): void {
     const query = event.query;
     if (this.checkIfRubricaInternautaShouldBeEnabled()) {
       this.filteredAddressMultiple.splice(0, this.filteredAddressMultiple.length);
@@ -993,7 +988,7 @@ export class NewMailComponent implements OnInit, AfterViewInit, OnDestroy {
       this.contattoService.getData(projection, filtersAndSorts).subscribe(
         (res) => {
           if (res.results.length > 0) {
-            res.results.forEach((contattoGruppo) => {
+            res.results.forEach((contattoGruppo: any) => {
               const groupContact = new FilteredContactMultiple();
               groupContact.descrizione = contattoGruppo.descrizione + " [ GRUPPO ] ";
               groupContact.descrizioneDettaglioContatto = contattoGruppo.descrizione;
@@ -1017,7 +1012,7 @@ export class NewMailComponent implements OnInit, AfterViewInit, OnDestroy {
     );
   }
 
-  filterAddress(query, addresses: any[]): any[] {
+  filterAddress(query: any, addresses: any[]): any[] {
     const filtered: any[] = [];
     for (let i = 0; i < addresses.length; i++) {
       const address = addresses[i];
@@ -1028,7 +1023,7 @@ export class NewMailComponent implements OnInit, AfterViewInit, OnDestroy {
     return filtered;
   }
 
-  private setAttribute(feild, attribute, value): void {
+  private setAttribute(feild: any, attribute: any, value: any): void {
     const field = document.getElementById(feild);
     field.setAttribute(attribute, value);
   }
@@ -1039,7 +1034,7 @@ export class NewMailComponent implements OnInit, AfterViewInit, OnDestroy {
     this.displayRubricaPopup = false;
   }
 
-  editorInit(event) {
+  editorInit(event: any) {
     // console.log("inside Quill", event);
     const quill = event.editor;
     const toolbar = quill.getModule("toolbar");
@@ -1096,9 +1091,9 @@ export class NewMailComponent implements OnInit, AfterViewInit, OnDestroy {
       image: "Inserisci immagini incorporate",
       "code-block": "Blocco di codice",
       clean: "Rimuovi formattazione",
-    };
+    } as any;
 
-    const showTooltip = (el) => {
+    const showTooltip = (el: any) => {
       const tool = el.className.replace("ql-", "");
       if (tooltips[tool]) {
         el.setAttribute("title", tooltips[tool]);
@@ -1139,7 +1134,7 @@ export class NewMailComponent implements OnInit, AfterViewInit, OnDestroy {
     }
   }
 
-  handleOnHideRubricaPopup(event) {
+  handleOnHideRubricaPopup(event: any) {
     // console.log("handleOnHideRubricaPopup", event);
     this.onCloseRubricaPopup();
   }
@@ -1279,7 +1274,7 @@ export class NewMailComponent implements OnInit, AfterViewInit, OnDestroy {
 
   private handleConfermaAddToAddressTO() {
     if (this.toAutoComplete.value && this.toAutoComplete.value.length > 0) {
-      this.toAutoComplete.value.forEach((email) => this.onUnselect(email, "to"));
+      this.toAutoComplete.value.forEach((email: any) => this.onUnselect(email, "to"));
     }
     this.toAutoComplete.value = [];
     if (
@@ -1316,7 +1311,7 @@ export class NewMailComponent implements OnInit, AfterViewInit, OnDestroy {
 
   private handleConfermaAddToAddressCC() {
     if (this.ccAutoComplete.value && this.ccAutoComplete.value.length > 0) {
-      this.ccAutoComplete.value.forEach((email) => this.onUnselect(email, "cc"));
+      this.ccAutoComplete.value.forEach((email: any) => this.onUnselect(email, "cc"));
     }
     this.ccAutoComplete.value = [];
     if (
@@ -1356,7 +1351,8 @@ export class NewMailComponent implements OnInit, AfterViewInit, OnDestroy {
    * @param formField
    */
   private ControlAreAllMailInGroup(gruppoItem: any, formField: string) {
-    const form = formField === "to" ? (this.mailForm.get("to") as UntypedFormArray) : (this.mailForm.get("cc") as UntypedFormArray);
+    const form =
+      formField === "to" ? (this.mailForm.get("to") as UntypedFormArray) : (this.mailForm.get("cc") as UntypedFormArray);
     const autocomplete = formField === "to" ? this.toAutoComplete : this.ccAutoComplete;
     const projection = ENTITIES_STRUCTURE.rubrica.contatto.customProjections.CustomContattoGruppoDetail;
     const filtersAndSorts: FiltersAndSorts = new FiltersAndSorts();
