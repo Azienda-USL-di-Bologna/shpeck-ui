@@ -104,7 +104,7 @@ export class MailListComponent implements OnInit, OnDestroy, AfterViewInit {
   public _selectedPecId: number;
   public _selectedPec: Pec;
   public _filters: FilterDefinition[];
-  private storedLazyLoadEvent: LazyLoadEvent;
+  private storedLazyLoadEvent: any;
 
   // private tempSelectedMessages: Message[] = null;
 
@@ -366,7 +366,7 @@ export class MailListComponent implements OnInit, OnDestroy, AfterViewInit {
             this._selectedPec = pec;
             this._selectedPecId = pec.id;
             this.setFolder(null);
-            //this.lazyLoad(null);
+            //this.lazyLoad(this.storedLazyLoadEvent);
             this.reloadTable();
           }
         }
@@ -444,7 +444,7 @@ export class MailListComponent implements OnInit, OnDestroy, AfterViewInit {
             this.reloadTable();
           } else {
             // Sorting modificato, faccio partire la lezyload.
-            this.lazyLoad(null);
+            this.lazyLoad(this.storedLazyLoadEvent);
           }
         }
       }),
@@ -1065,7 +1065,7 @@ export class MailListComponent implements OnInit, OnDestroy, AfterViewInit {
     setTimeout(() => {
       this._selectedTag = tag;
       if (tag) {
-        this.lazyLoad(null);
+        this.lazyLoad(this.storedLazyLoadEvent);
       }
     }, 0);
   }
@@ -1081,15 +1081,15 @@ export class MailListComponent implements OnInit, OnDestroy, AfterViewInit {
       this._selectedFolder = folder;
       if (folder) {
         //this.lazy = true;
-        //this.lazyLoad(null);
+        //this.lazyLoad(this.storedLazyLoadEvent);
         // if (this.primavolta) {
         //   debugger;
-        //   this.lazyLoad(null);
+        //   this.lazyLoad(this.storedLazyLoadEvent);
         //   this.primavolta = false;
         //   //this.mostratable = true;
         // } else {
         // }
-        this.lazyLoad(null);
+        this.lazyLoad(this.storedLazyLoadEvent);
       }
     }, 0);
   }
@@ -1110,7 +1110,7 @@ export class MailListComponent implements OnInit, OnDestroy, AfterViewInit {
       if (this.actualStringSearch || this._selectedFolder || this._selectedTag) {
         // Se non sto cercando e non sono ne in un folder ne in una pec allora non carico nulla perché nono ho nulla da mostrare
 
-        this.lazyLoad(null);
+        this.lazyLoad(this.storedLazyLoadEvent);
       }
     }
   }
@@ -1244,8 +1244,9 @@ export class MailListComponent implements OnInit, OnDestroy, AfterViewInit {
             }
           }
           //trigger change detection
-          this.storedLazyLoadEvent.forceUpdate();
-
+          // this.storedLazyLoadEvent.forceUpdate();
+          this.detector.detectChanges();
+          this.dt.scrollTo({ top: 1 });
           this.dt.scroller.setSize();
           this.dt.scroller.setSpacerSize();
 
@@ -1336,7 +1337,6 @@ export class MailListComponent implements OnInit, OnDestroy, AfterViewInit {
     const filtersAndSorts: FiltersAndSorts = buildLazyEventFiltersAndSorts(event as LazyLoadEvent, this.cols, this.datepipe);
     this.storedLazyLoadEvent = event as LazyLoadEvent;
     this.loadData(this.pageConf, filtersAndSorts, this._selectedFolder, this._selectedTag, event);
-
     // vecchio codice
     {
       // if (event) {

@@ -1,7 +1,6 @@
 <!-- <button (click)="mostratable = true">mostra</button> -->
 <!-- *ngIf="mostratable && (_selectedTag || _selectedFolder || _filters)" -->
 <p-table
-  *ngIf="mostratable"
   #dt
   id="pec-mail-list"
   [lazy]="true"
@@ -12,8 +11,6 @@
   [columns]="cols"
   [paginator]="false"
   [loading]="loading"
-  
-  
   contextMenuSelectionMode="joint"
   selectionMode="multiple"
   [metaKeySelection]="true"
@@ -30,7 +27,7 @@
   (mouseenter)="handleEvent('onMouseEnter', $event)"
   (onContextMenuSelect)="handleEvent('onContextMenuSelect', $event)"
   [ngClass]="mailListService?.totalRecords > 0 ? '' : 'no-records-found'"
-><!-- [totalRecords]="mailListService.totalRecords"  [autoLayout]="true"
+  ><!-- [totalRecords]="mailListService.totalRecords"  [autoLayout]="true"
   [responsive]="true" -->
   <ng-template
     pTemplate="body"
