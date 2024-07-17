@@ -14,7 +14,6 @@ import { InputTextModule } from "primeng/inputtext";
 import { EditorModule } from "primeng/editor";
 import { FileUploadModule } from "primeng/fileupload";
 import { ChipsModule } from "primeng/chips";
-import { LightboxModule } from "primeng/lightbox";
 import { ContextMenuModule } from "primeng/contextmenu";
 import { MenuModule } from "primeng/menu";
 import { ToastModule } from "primeng/toast";
@@ -54,7 +53,6 @@ import { OverlayPanelModule } from "primeng/overlaypanel";
     EditorModule,
     FileUploadModule,
     ChipsModule,
-    LightboxModule,
     ContextMenuModule,
     MenuModule,
     ToastModule,
@@ -87,7 +85,6 @@ import { OverlayPanelModule } from "primeng/overlaypanel";
     EditorModule,
     FileUploadModule,
     ChipsModule,
-    LightboxModule,
     ContextMenuModule,
     MenuModule,
     ToastModule,

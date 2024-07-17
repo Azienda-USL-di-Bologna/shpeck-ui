@@ -13,29 +13,33 @@ body {
   height: 100%;
   margin: 0;
 }
+
 body,
 .p-component {
   font-family: "Open Sans", "Helvetica Neue", sans-serif !important;
 }
-body a {
-  color: deepskyblue;
-}
+
+//body a {
+//color: deepskyblue;
+//}
 // CLASSI NOSTRE
-body .custom-primary-button {
-  border: 0.06rem solid #203244 !important;
+::ng-deep body .custom-primary-button {
+  border: 0.06rem solid #000000 !important;
   background-color: #2e4a65 !important;
 }
-body .custom-primary-button:hover {
+
+::ng-deep body .custom-primary-button:hover {
   border-color: #2e4a65 !important;
-  background-color: #406284 !important;
-  color: #ffffff;
+  background-color: #2e4a65 !important;
+  color: #ffffff !important;
 }
-body .custom-border,
+
+::ng-deep body .custom-border,
 body .custom-secondary-button {
   border: 0.06rem solid #a6a6a6 !important;
   white-space: nowrap;
-  color: #333333;
-  background-color: #f4f4f4;
+  color: #f4f4f4 !important;
+  background-color: #f4f4f4 !important;
 }
 
 // Responsive
@@ -44,26 +48,31 @@ body .custom-secondary-button {
     font-size: 95%;
   }
 }
+
 @media screen and (max-width: 1500px) {
   html {
     font-size: 90%;
   }
 }
+
 @media screen and (max-width: 1400px) {
   html {
     font-size: 85%;
   }
 }
+
 @media screen and (max-width: 1300px) {
   html {
     font-size: 80%;
   }
 }
+
 @media screen and (max-width: 1200px) {
   html {
     font-size: 75%;
   }
 }
+
 @media screen and (max-width: 1100px) {
   html {
     font-size: 70%;

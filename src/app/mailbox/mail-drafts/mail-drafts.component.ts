@@ -104,7 +104,7 @@ export class MailDraftsComponent implements OnInit, OnDestroy {
       })
     );
     this.subscriptions.push(
-      this.settingsService.settingsChangedNotifier$.subscribe((newSettings) => {
+      this.settingsService.settingsChangedNotifier$.subscribe((newSettings: any) => {
         this.openDetailInPopup = newSettings[AppCustomization.shpeck.hideDetail] === "true";
       })
     );
@@ -321,7 +321,7 @@ export class MailDraftsComponent implements OnInit, OnDestroy {
     }
   }
 
-  public trackByFn(index, item) {
+  public trackByFn(index: any, item: any) {
     return item.id;
   }
 
@@ -337,14 +337,14 @@ export class MailDraftsComponent implements OnInit, OnDestroy {
     });
   }
 
-  onKeyUpMoveFocus(event) {
+  onKeyUpMoveFocus(event: any) {
     this.stopPropagation(event);
 
     const mailDetailContainer: HTMLElement = document.querySelector(".mail-detail");
     if (!!mailDetailContainer) mailDetailContainer.focus();
   }
 
-  private stopPropagation(event) {
+  private stopPropagation(event: any) {
     event.preventDefault();
     event.stopPropagation();
   }

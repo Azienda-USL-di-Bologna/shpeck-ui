@@ -1,36 +1,34 @@
+<!-- <button (click)="mostratable = true">mostra</button> -->
 <!-- *ngIf="mostratable && (_selectedTag || _selectedFolder || _filters)" -->
 <p-table
-  *ngIf="mostratable"
   #dt
   id="pec-mail-list"
   [lazy]="true"
-  (onLazyLoad)="lazyLoad($event)"
+  (onLazyLoad)="lazyLoad($any($event))"
   [value]="mailListService.messages"
   [(selection)]="mailListService.selectedMessages"
   dataKey="id"
-  [lazyLoadOnInit]="true"
   [columns]="cols"
-  [paginator]="false"
   [loading]="loading"
-  [autoLayout]="true"
-  [responsive]="true"
-  [totalRecords]="mailListService.totalRecords"
   contextMenuSelectionMode="joint"
   selectionMode="multiple"
   [metaKeySelection]="true"
-  [rows]="rowsNmber"
+  [rows]="rowsNumber"
   [rowTrackBy]="trackByFn"
   [contextMenu]="cm"
   [scrollable]="true"
   scrollHeight="flex"
   [virtualScroll]="true"
   [virtualScrollDelay]="150"
+  [virtualScrollItemSize]="89"
   (onRowSelect)="handleEvent('onRowSelect', $event)"
   (onRowUnselect)="handleEvent('onRowUnselect', $event)"
   (mouseenter)="handleEvent('onMouseEnter', $event)"
   (onContextMenuSelect)="handleEvent('onContextMenuSelect', $event)"
   [ngClass]="mailListService?.totalRecords > 0 ? '' : 'no-records-found'"
->
+  ><!-- [paginator]="false" 
+  [totalRecords]="mailListService.totalRecords"  [autoLayout]="true"
+  [responsive]="true" -->
   <ng-template
     pTemplate="body"
     let-rowData
@@ -516,7 +514,12 @@
     </tr>
   </ng-template>
 </p-table>
-
+<div
+  *ngIf="showLoadingDiv"
+  style="height: 100px"
+>
+  _ loading _
+</div>
 <p-contextMenu
   #cm
   [model]="cmItems"

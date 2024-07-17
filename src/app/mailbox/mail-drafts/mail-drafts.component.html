@@ -5,7 +5,7 @@
   *ngIf="_selectedPecId && totalRecords > 0"
   id="draft-mail-list"
   [lazy]="true"
-  (onLazyLoad)="lazyLoad($event)"
+  (onLazyLoad)="lazyLoad($any($event))"
   scrollHeight="flex"
   [value]="drafts"
   [columns]="cols"

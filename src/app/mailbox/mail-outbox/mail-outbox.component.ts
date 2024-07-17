@@ -106,7 +106,7 @@ export class MailOutboxComponent implements OnInit, OnDestroy {
     this.subscriptions.push({
       id: null,
       type: "settingsChangedNotifier",
-      subscription: this.settingsService.settingsChangedNotifier$.subscribe((newSettings) => {
+      subscription: this.settingsService.settingsChangedNotifier$.subscribe((newSettings: any) => {
         this.openDetailInPopup = newSettings[AppCustomization.shpeck.hideDetail] === "true";
       }),
     });
@@ -311,6 +311,12 @@ export class MailOutboxComponent implements OnInit, OnDestroy {
       // perché nella subscribe quando la invio al mailbox-component per scrivere il numero di messaggi
       // la selezione potrebbe essere cambiata e quindi manderei un dato errato
       const folderSelected = this.pecFolderSelected;
+
+      if (!folderSelected) {
+        console.log("no folder selected");
+        return;
+      }
+
       this.subscriptions.push({
         id: folderSelected.data.id,
         type: "folder_message",
@@ -438,7 +444,7 @@ export class MailOutboxComponent implements OnInit, OnDestroy {
     }
   }
 
-  trackByFn(index, item) {
+  trackByFn(index: any, item: any) {
     return item.id;
   }
 

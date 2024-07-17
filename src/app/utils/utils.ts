@@ -39,12 +39,15 @@ export class Utils {
     }
   }
 
-  public static arrayDiff(a: any[], b: any[], fieldId?: string) {
+  public static arrayDiff(a: any[], b: any[], fieldId?: string, keepUndefinedElements = true): any[] {
     if (fieldId) {
       return a.filter((el) => {
-        return !b.some((f) => {
-          return f[fieldId] === el[fieldId];
-        });
+        return (
+          (!el && keepUndefinedElements) ||
+          !b.some((f) => {
+            return f[fieldId] === el[fieldId];
+          })
+        );
       });
     } else {
       return a.filter((i) => b.indexOf(i) < 0);

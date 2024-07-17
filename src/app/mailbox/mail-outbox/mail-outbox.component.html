@@ -2,7 +2,7 @@
   #ot
   *ngIf="_selectedPecId && totalRecords > 0"
   [lazy]="true"
-  (onLazyLoad)="lazyLoad($event)"
+  (onLazyLoad)="lazyLoad($any($event))"
   scrollHeight="100%"
   [value]="outboxMails"
   [columns]="cols"

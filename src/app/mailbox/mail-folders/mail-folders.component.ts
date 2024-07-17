@@ -256,8 +256,8 @@ export class MailFoldersComponent implements OnInit, OnDestroy {
         this.mailFoldersService.doReloadTag(params.oldRow["id_tag"]);
       }
       // caso di rimozione di tag tramite servlet custom
-      if (params.entity === RefreshMailsParamsEntities.MESSAGE_TAG && params["id"]) {
-        this.mailFoldersService.doReloadTag(params["id"]);
+      if (params.entity === RefreshMailsParamsEntities.MESSAGE_TAG && (params as any)["id"]) {
+        this.mailFoldersService.doReloadTag((params as any)["id"]);
       }
       // se ho inserito un tag ricarico il badge del tag inserito
       if (params.newRow) {
@@ -344,7 +344,7 @@ export class MailFoldersComponent implements OnInit, OnDestroy {
         } // questo è un caso simile a quello sopra, ma riguarda l'eliminazione di un tag
       } else if (
         (!params.newRow && params.oldRow) ||
-        (!params.newRow && !params.oldRow && params["id_utente"] === this.loggedUser.getUtente().id)
+        (!params.newRow && !params.oldRow && (params as any)["id_utente"] === this.loggedUser.getUtente().id)
       ) {
         let tagName: string;
         let idMessage: number;
@@ -357,9 +357,9 @@ export class MailFoldersComponent implements OnInit, OnDestroy {
           idTag = params.oldRow["id_tag"];
         } else {
           // eliminazione custom
-          tagName = params["tag_name"];
-          idMessage = params["id_message"];
-          idTag = params["id"];
+          tagName = (params as any)["tag_name"];
+          idMessage = (params as any)["id_message"];
+          idTag = (params as any)["id"];
         }
         switch (tagName) {
           case "archived":
@@ -565,7 +565,7 @@ export class MailFoldersComponent implements OnInit, OnDestroy {
     } as MyTreeNode;
   }
 
-  public selectedContextMenuItem(event) {
+  public selectedContextMenuItem(event: any) {
     if (event && event.item) {
       const menuItemSelected: MenuItem = event.item;
       switch (menuItemSelected.id) {
@@ -653,9 +653,9 @@ export class MailFoldersComponent implements OnInit, OnDestroy {
             const element = a.find((e) => e.nativeElement.id === this.selectedNode.key).nativeElement;
             element.focus();
             element.select();
+            this.selectedNode.expanded = true;
+            this.selectedNode = this.selectedNode.children[this.selectedNode.children.length - 1];
           }, 0);
-          this.selectedNode.expanded = true;
-          this.selectedNode = this.selectedNode.children[this.selectedNode.children.length - 1];
           break;
         case "RenameTag":
           const tagToRename: Tag = this.selectedNode.data.data as Tag;
@@ -841,7 +841,9 @@ export class MailFoldersComponent implements OnInit, OnDestroy {
     }
     switch (name) {
       case "onContextMenuSelect":
-        this.op.hide();
+        // this.op.hide();
+        //event.originalEvent.preventDefault();
+
         this.selectedNode = event.node;
         this.elementSelected = event;
         this.mailfolders.map((m) => (m.styleClass = MailFoldersComponent.ROOT_NODE_NOT_SELECTED_STYLE_CLASS));
@@ -853,46 +855,46 @@ export class MailFoldersComponent implements OnInit, OnDestroy {
             const selectedNodeType = (event.node as MyTreeNode).data.type;
             if (selectedNodeType === PecFolderType.PEC) {
               this.cmItems = this.pecCmItems;
-              this.mailFoldersService.selectedPecFolder(
-                event.node.data,
-                event.node.children.map((c: MyTreeNode) => c.data.data) as Folder[],
-                (event.node.data.data as Pec).tagList
-              );
+              // this.mailFoldersService.selectedPecFolder(
+              //   event.node.data,
+              //   event.node.children.map((c: MyTreeNode) => c.data.data) as Folder[],
+              //   (event.node.data.data as Pec).tagList
+              // );
             } else if (selectedNodeType === PecFolderType.TAG_CONTAINER) {
               this.cmItems = this.tagContainerCmItems;
               event.node.data.pec = event.node.parent.data.data as Pec;
-              this.mailFoldersService.selectedPecFolder(
-                event.node.parent.data,
-                event.node.children.map((c: MyTreeNode) => c.data.data) as Folder[],
-                (event.node.parent.data.data as Pec).tagList
-              );
+              // this.mailFoldersService.selectedPecFolder(
+              //   event.node.parent.data,
+              //   event.node.children.map((c: MyTreeNode) => c.data.data) as Folder[],
+              //   (event.node.parent.data.data as Pec).tagList
+              // );
             } else if (selectedNodeType === PecFolderType.FOLDER) {
               this.disableNotSelectableFolderContextMenuItems(event.node.data.data as Folder);
               this.cmItems = this.folderCmItems;
               event.node.data.pec = event.node.parent.data.data as Pec;
-              this.mailFoldersService.selectedPecFolder(
-                event.node.data,
-                event.node.parent.children.map((c: MyTreeNode) => c.data.data) as Folder[],
-                (event.node.parent.data.data as Pec).tagList
-              );
+              // this.mailFoldersService.selectedPecFolder(
+              //   event.node.data,
+              //   event.node.parent.children.map((c: MyTreeNode) => c.data.data) as Folder[],
+              //   (event.node.parent.data.data as Pec).tagList
+              // );
             } else if (selectedNodeType === PecFolderType.TAG) {
               this.disableNotSelectableTagContextMenuItems(event.node.data.data as Tag);
               this.cmItems = this.tagCmItems;
               const isFirstLevel = (event.node.data.data as Tag).firstLevel;
               if (isFirstLevel) {
                 event.node.data.pec = event.node.parent.data.data as Pec;
-                this.mailFoldersService.selectedPecFolder(
-                  event.node.data,
-                  event.node.parent.children.map((c: MyTreeNode) => c.data.data) as Folder[],
-                  (event.node.parent.data.data as Pec).tagList
-                );
+                // this.mailFoldersService.selectedPecFolder(
+                //   event.node.data,
+                //   event.node.parent.children.map((c: MyTreeNode) => c.data.data) as Folder[],
+                //   (event.node.parent.data.data as Pec).tagList
+                // );
               } else {
                 event.node.data.pec = event.node.parent.parent.data.data as Pec;
-                this.mailFoldersService.selectedPecFolder(
-                  event.node.data,
-                  event.node.parent.parent.children.map((c: MyTreeNode) => c.data.data) as Folder[],
-                  (event.node.parent.parent.data.data as Pec).tagList
-                );
+                // this.mailFoldersService.selectedPecFolder(
+                //   event.node.data,
+                //   event.node.parent.parent.children.map((c: MyTreeNode) => c.data.data) as Folder[],
+                //   (event.node.parent.parent.data.data as Pec).tagList
+                // );
               }
             }
           }
@@ -972,26 +974,26 @@ export class MailFoldersComponent implements OnInit, OnDestroy {
     }
   }
 
-  public onLostFocus(event, value?: string) {
+  public onLostFocus(event: any, value?: string) {
     if (this._pressedEnter) {
       this._pressedEnter = false;
     } else {
       this.saveNode(value);
     }
   }
-  public onEnterPressed(event, value?: string) {
+  public onEnterPressed(event: any, value?: string) {
     this._pressedEnter = true;
     this.saveNode(value);
   }
 
-  public onEscPressed(event) {
+  public onEscPressed(event: any) {
     // this._pressedEnterOrEsc = true;
     const nodeType: PecFolderType = this.selectedNode.data.type;
     const inserting: boolean = !this.selectedNode.data.data.id ? true : false;
     this.abortSaveFolder(nodeType, inserting);
   }
 
-  onKeyUpMoveFocus(event) {
+  onKeyUpMoveFocus(event: any) {
     const messagesListContainer: HTMLElement = document.querySelector(".mail-list");
     // console.log("mail-folders onKeyUpMoveFocus event: ", event);
     // console.log("messagesListContainer", messagesListContainer);
@@ -1014,7 +1016,7 @@ export class MailFoldersComponent implements OnInit, OnDestroy {
     if (mailListContainer) mailListContainer.focus();
   }
 
-  private stopPropagation(event) {
+  private stopPropagation(event: any) {
     event.preventDefault();
     event.stopPropagation();
   }
@@ -1078,7 +1080,7 @@ export class MailFoldersComponent implements OnInit, OnDestroy {
     this._abortSaveFolder = false;
   }
 
-  private validateName(objArray: any[], name): boolean {
+  private validateName(objArray: any[], name: any): boolean {
     return !objArray.some((o) => o.name === name);
   }
 
@@ -1111,7 +1113,14 @@ export class MailFoldersComponent implements OnInit, OnDestroy {
 
   private updateTag(tag: Tag): void {
     this.previousSelectedNode = this.selectedNode;
-    this.tagService.patchHttpCall(tag, tag.id).subscribe(
+    const tagToSave: Tag = {
+      id: tag.id,
+      name: tag.name,
+      description: tag.description,
+      version: tag.version,
+      additionalData: tag.additionalData,
+    } as Tag;
+    this.tagService.patchHttpCall(tagToSave, tag.id).subscribe(
       (t: Tag) => {
         this.previousSelectedNode.data.data = t;
         const pecTagList: Tag[] = (this.previousSelectedNode.parent.parent.data.data as Pec).tagList;
@@ -1156,7 +1165,17 @@ export class MailFoldersComponent implements OnInit, OnDestroy {
 
   private insertTag(tag: Tag): void {
     this.previousSelectedNode = this.selectedNode; // Vedi insertFolder..
-    this.tagService.postHttpCall(tag).subscribe(
+    const tagToSave: Tag = {
+      name: tag.name,
+      description: tag.description,
+      additionalData: tag.additionalData,
+      type: tag.type,
+      idPec: { id: tag.idPec.id },
+      visible: tag.visible,
+      firstLevel: tag.firstLevel,
+    } as Tag;
+
+    this.tagService.postHttpCall(tagToSave).subscribe(
       (t: Tag) => {
         this.previousSelectedNode.data.data = t;
         const pecTagList: Tag[] = (this.previousSelectedNode.parent.parent.data.data as Pec).tagList;

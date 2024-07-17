@@ -136,7 +136,7 @@ export class MailboxComponent implements OnInit, AfterViewInit, AfterViewChecked
       })
     );
     this.subscriptions.push(
-      this.settingsService.settingsChangedNotifier$.subscribe((newSettings) => {
+      this.settingsService.settingsChangedNotifier$.subscribe((newSettings: any) => {
         this.hideDetail = newSettings[AppCustomization.shpeck.hideDetail] === "true";
         this.fontSize = newSettings[AppCustomization.shpeck.fontSize]
           ? newSettings[AppCustomization.shpeck.fontSize]
@@ -246,7 +246,7 @@ export class MailboxComponent implements OnInit, AfterViewInit, AfterViewChecked
   /**
    * Gestisce la scelta del sorting da parte dell'utente
    */
-  public changeSorting(event, resettingFilterAndSort: boolean = false) {
+  public changeSorting(event: any, resettingFilterAndSort: boolean = false) {
     console.log(event);
     // Ciclo i vari item, ai non usati tolgo l'icona e il sort. A quello cliccato cambio il sort se è lo stesso, altrimenti lo faccio partire con sort prestabilito
     this.sortMenuItem.forEach((sortItem) => {
@@ -291,7 +291,7 @@ export class MailboxComponent implements OnInit, AfterViewInit, AfterViewChecked
   /**
    * Rivevo il messaggio cliccato dalla mail-list e lo passo alla mail-detail per essere visualizzato
    */
-  public messageClicked(messageClicked) {
+  public messageClicked(messageClicked: any) {
     this.message = messageClicked;
   }
 
@@ -389,7 +389,7 @@ export class MailboxComponent implements OnInit, AfterViewInit, AfterViewChecked
     };
   }
 
-  onKeyUpMoveFocus(event) {
+  onKeyUpMoveFocus(event: any) {
     // console.log("mailbox onKeyUpMoveFocus", event);
     this.stopPropagation(event);
 
@@ -421,7 +421,7 @@ export class MailboxComponent implements OnInit, AfterViewInit, AfterViewChecked
     }
   }
 
-  private stopPropagation(event) {
+  private stopPropagation(event: any) {
     event.preventDefault();
     event.stopPropagation();
   }
