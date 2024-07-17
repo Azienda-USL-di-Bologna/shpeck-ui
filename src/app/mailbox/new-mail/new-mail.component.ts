@@ -1,5 +1,5 @@
 import { Component, OnInit, ViewChild, AfterViewInit, OnDestroy, ChangeDetectorRef } from "@angular/core";
-import { UntypedFormGroup, UntypedFormControl, FormBuilder, Validators, UntypedFormArray } from "@angular/forms";
+import { UntypedFormGroup, UntypedFormControl, Validators, UntypedFormArray } from "@angular/forms";
 import { ConfirmationService, MessageService } from "primeng/api";
 import {
   Message,
@@ -19,7 +19,6 @@ import {
   CategoriaContatto,
   DettaglioContatto,
   ConfigurazioneService,
-  ParametroAziende,
   Email,
 } from "@bds/internauta-model";
 import { Editor } from "primeng/editor";
@@ -36,20 +35,13 @@ import {
   SORT_MODES,
   SortDefinition,
 } from "@bds/next-sdr";
-import { ActivatedRoute, Router } from "@angular/router";
+import { Router } from "@angular/router";
 import { UtenteUtilities, JwtLoginService } from "@bds/jwt-login";
 import { Subscription } from "rxjs";
-import {
-  CustomContactService,
-  GroupModifyContactsComponent,
-  ProgressBarEvent,
-  SelectedContact,
-  SelectedContactType,
-} from "@bds/rubrint";
+import { CustomContactService, GroupModifyContactsComponent, SelectedContact, SelectedContactType } from "@bds/rubrint";
 import { AutoComplete } from "primeng/autocomplete";
 import { DialogService, DynamicDialogConfig, DynamicDialogRef } from "primeng/dynamicdialog";
 import { FilteredContactMultiple } from "../mailbox.service";
-import Quill from "quill";
 
 @Component({
   selector: "app-new-mail",
@@ -257,27 +249,27 @@ export class NewMailComponent implements OnInit, AfterViewInit, OnDestroy {
   ngAfterViewInit() {
     /* Inizializzazione del body per le risposte e l'inoltra */
     setTimeout(() => {
-      if (this.config.data.action !== TOOLBAR_ACTIONS.NEW) {
-        let body = "";
-        if (this.config.data.fullMessage.emlData) {
-          body = this.config.data.fullMessage.emlData.displayBody;
-        } else if (this.config.data.fullMessage.body) {
-          body = this.config.data.fullMessage.body;
-        }
-        if (this.config.data.action === TOOLBAR_ACTIONS.EDIT) {
-          this.editor.quill.clipboard.dangerouslyPasteHTML(body);
-        } else {
-          const message: Message = this.config.data.fullMessage.message;
-          this.buildBody(message, body);
-        }
-        this.mailForm.patchValue({
-          body: this.editor.quill.root["innerHTML"],
-        });
-      }
-      /* Disabilito la compilazione automatica degli indirizzi */
-      this.setAttribute("toInputId", "autocomplete", "false");
-      this.setAttribute("ccInputId", "autocomplete", "false");
-      this.toAutoComplete.focused = true;
+      // if (this.config.data.action !== TOOLBAR_ACTIONS.NEW) {
+      //   let body = "";
+      //   if (this.config.data.fullMessage.emlData) {
+      //     body = this.config.data.fullMessage.emlData.displayBody;
+      //   } else if (this.config.data.fullMessage.body) {
+      //     body = this.config.data.fullMessage.body;
+      //   }
+      //   if (this.config.data.action === TOOLBAR_ACTIONS.EDIT) {
+      //     this.editor.quill.clipboard.dangerouslyPasteHTML(body);
+      //   } else {
+      //     const message: Message = this.config.data.fullMessage.message;
+      //     this.buildBody(message, body);
+      //   }
+      //   this.mailForm.patchValue({
+      //     body: this.editor.quill.root["innerHTML"],
+      //   });
+      // }
+      // /* Disabilito la compilazione automatica degli indirizzi */
+      // this.setAttribute("toInputId", "autocomplete", "false");
+      // this.setAttribute("ccInputId", "autocomplete", "false");
+      // this.toAutoComplete.focused = true;
     }, 0);
   }
 
@@ -608,6 +600,7 @@ export class NewMailComponent implements OnInit, AfterViewInit, OnDestroy {
     const autocomplete = formField === "to" ? this.toAutoComplete : this.ccAutoComplete;
     if (item) {
       if (item.tipo !== "GRUPPO") {
+        debugger;
         item.descrizioneDettaglioContatto = item.descrizioneDettaglioContatto.trim();
         //item.descrizione = item.descrizione.trim();
         if (form.value.indexOf(item.descrizioneDettaglioContatto) === -1) {
@@ -790,13 +783,7 @@ export class NewMailComponent implements OnInit, AfterViewInit, OnDestroy {
       { insert: message.subject },
       { insert: "\n\n" }
     );
-    // const quill = new Quill("#editor-container", {
-    //   modules: {
-    //     toolbar: { container: "#toolbar-toolbar" },
-    //   },
-    //   theme: "snow",
-    // });
-    // this.editor.quill = editorContent;
+
     this.editor.quill.setContents(editorContent);
     /* Mi vergogno di questa cosa ma per adesso devo fare per forza così
      * in attesa del supporto alle table dell'editor Quill nella versione 2.0 */
@@ -1045,6 +1032,27 @@ export class NewMailComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   editorInit(event: any) {
+    if (this.config.data.action !== TOOLBAR_ACTIONS.NEW) {
+      let body = "";
+      if (this.config.data.fullMessage.emlData) {
+        body = this.config.data.fullMessage.emlData.displayBody;
+      } else if (this.config.data.fullMessage.body) {
+        body = this.config.data.fullMessage.body;
+      }
+      if (this.config.data.action === TOOLBAR_ACTIONS.EDIT) {
+        this.editor.quill.clipboard.dangerouslyPasteHTML(body);
+      } else {
+        const message: Message = this.config.data.fullMessage.message;
+        this.buildBody(message, body);
+      }
+      /* this.mailForm.patchValue({
+        body: this.editor.quill.root["innerHTML"],
+      }); */
+    }
+    /* Disabilito la compilazione automatica degli indirizzi */
+    this.setAttribute("toInputId", "autocomplete", "false");
+    this.setAttribute("ccInputId", "autocomplete", "false");
+    this.toAutoComplete.focused = true;
     // console.log("inside Quill", event);
     const quill = event.editor;
     const toolbar = quill.getModule("toolbar");
