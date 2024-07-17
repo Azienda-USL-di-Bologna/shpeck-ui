@@ -250,7 +250,7 @@ export class MailListService {
           const tagIconAndAction: TagIconAction = this.getTagIconAction(messagesWithTag);
           items.push({
             label: tag.description,
-            styleClass: tag.description && tag.description.length > 21 ? "d-inline-flex" : "",
+            styleClass: tag.description && tag.description.length > 21 ? "item-menu-lungo" : "",
             icon: tagIconAndAction.iconType,
             id: "MessageLabels",
             title: tagIconAndAction.title,
@@ -277,7 +277,7 @@ export class MailListService {
       .sort((a, b) => (a.label.toLowerCase() < b.label.toLowerCase() ? -1 : 1));
     const finalItems: MenuItem[] = [
       {
-        label: "<Nuova Etichetta>",
+        label: "- Nuova Etichetta -",
         icon: "fas new-tag",
         id: "MessageLabels",
         title: "Seleziona per creare una nuova etichetta e associarla al messaggio",
@@ -544,6 +544,7 @@ export class MailListService {
         .moveMessagesToFolder(messagesFolder, idFolder, this.loggedUser.getUtente().id)
         .subscribe((res) => {
           if (this.pecFolderSelected.type === PecFolderType.FOLDER) {
+            debugger;
             this.messages = Utils.arrayDiff(this.messages, this.selectedMessages, "id");
             this.mailFoldersService.doReloadFolder(messagesFolder[0].idFolder.id);
             this.mailFoldersService.doReloadFolder(idFolder);
@@ -952,8 +953,8 @@ export class MailListService {
         item.message.messageTagList.splice(item.message.messageTagList.indexOf(item.messageTag), 1);
         this.setIconsVisibility(item.message);
 
-        if (this.selectedTag && this.selectedTag.id === item.messageTag.fk_idTag.id) {
-          this.messages.splice(this.messages.indexOf(this.messages.find((m) => m.id === item.messageTag.fk_idMessage.id)), 1);
+        if (this.selectedTag && this.selectedTag.id === item.messageTag.idTag.id) {
+          this.messages.splice(this.messages.indexOf(this.messages.find((m) => m.id === item.messageTag.idMessage.id)), 1);
           this.totalRecords--;
           // mando l'evento con il numero di messaggi (serve a mailbox-component perché lo deve scrivere nella barra superiore)
           this.refreshAndSendTotalMessagesNumber(0, this.pecFolderSelected);
