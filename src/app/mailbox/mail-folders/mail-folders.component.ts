@@ -1321,6 +1321,9 @@ export class MailFoldersComponent implements OnInit, OnDestroy {
     this.nodeColorIsActuallyChanging();
   }
 
+  /**
+   * Salvo il colore selezionato sul nodo attualmente selezionato.
+   */
   public saveNewColor(): void {
     // Può essere un Folder o un Tag
     const nodeType: PecFolderType = this.selectedNode.data.type;
@@ -1328,7 +1331,7 @@ export class MailFoldersComponent implements OnInit, OnDestroy {
       const folder = this.selectedNode.data.data as Folder;
       let a: any = {};
       if (folder.additionalData) {
-        a = folder.additionalData;
+        a = JSON.parse(folder.additionalData);
       }
       a.color = this.color;
       folder.additionalData = JSON.stringify(a);
@@ -1337,7 +1340,7 @@ export class MailFoldersComponent implements OnInit, OnDestroy {
       const tag = this.selectedNode.data.data as Tag;
       let a: any = {};
       if (tag.additionalData) {
-        a = tag.additionalData;
+        a = JSON.parse(tag.additionalData);
       }
       a.color = this.color;
       tag.additionalData = JSON.stringify(a);
