@@ -567,7 +567,6 @@ export class MailFoldersComponent implements OnInit, OnDestroy {
 
   public selectedContextMenuItem(event: any) {
     if (event && event.item) {
-      debugger;
       const menuItemSelected: MenuItem = event.item;
       switch (menuItemSelected.id) {
         case "NewFolder":
@@ -654,9 +653,9 @@ export class MailFoldersComponent implements OnInit, OnDestroy {
             const element = a.find((e) => e.nativeElement.id === this.selectedNode.key).nativeElement;
             element.focus();
             element.select();
+            this.selectedNode.expanded = true;
+            this.selectedNode = this.selectedNode.children[this.selectedNode.children.length - 1];
           }, 0);
-          this.selectedNode.expanded = true;
-          this.selectedNode = this.selectedNode.children[this.selectedNode.children.length - 1];
           break;
         case "RenameTag":
           const tagToRename: Tag = this.selectedNode.data.data as Tag;
@@ -1114,7 +1113,14 @@ export class MailFoldersComponent implements OnInit, OnDestroy {
 
   private updateTag(tag: Tag): void {
     this.previousSelectedNode = this.selectedNode;
-    this.tagService.patchHttpCall(tag, tag.id).subscribe(
+    const tagToSave: Tag = {
+      id: tag.id,
+      name: tag.name,
+      description: tag.description,
+      version: tag.version,
+      additionalData: tag.additionalData,
+    } as Tag;
+    this.tagService.patchHttpCall(tagToSave, tag.id).subscribe(
       (t: Tag) => {
         this.previousSelectedNode.data.data = t;
         const pecTagList: Tag[] = (this.previousSelectedNode.parent.parent.data.data as Pec).tagList;
@@ -1159,7 +1165,17 @@ export class MailFoldersComponent implements OnInit, OnDestroy {
 
   private insertTag(tag: Tag): void {
     this.previousSelectedNode = this.selectedNode; // Vedi insertFolder..
-    this.tagService.postHttpCall(tag).subscribe(
+    const tagToSave: Tag = {
+      name: tag.name,
+      description: tag.description,
+      additionalData: tag.additionalData,
+      type: tag.type,
+      idPec: { id: tag.idPec.id },
+      visible: tag.visible,
+      firstLevel: tag.firstLevel,
+    } as Tag;
+
+    this.tagService.postHttpCall(tagToSave).subscribe(
       (t: Tag) => {
         this.previousSelectedNode.data.data = t;
         const pecTagList: Tag[] = (this.previousSelectedNode.parent.parent.data.data as Pec).tagList;

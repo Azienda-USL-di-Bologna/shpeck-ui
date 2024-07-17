@@ -1092,7 +1092,6 @@ export class MailListComponent implements OnInit, OnDestroy, AfterViewInit {
         //this.lazy = true;
         //this.lazyLoad(null);
         // if (this.primavolta) {
-        //   debugger;
         //   this.lazyLoad(null);
         //   this.primavolta = false;
         //   //this.mostratable = true;
@@ -1485,8 +1484,8 @@ export class MailListComponent implements OnInit, OnDestroy, AfterViewInit {
           this.alternativeMenu.hide();
         }
         if (this.tagsMenuOpened.tagMenuOpened) {
-          this.tagMenu.hide();
-          this.alternativeMenu.hide();
+          if (this.tagMenu) this.tagMenu.hide();
+          if (this.alternativeMenu) this.alternativeMenu.hide();
         }
         break;
       case "onContextMenuSelect":
@@ -1866,7 +1865,11 @@ export class MailListComponent implements OnInit, OnDestroy, AfterViewInit {
 
   private setAttribute(feild: any, attribute: any, value: any): void {
     const field = document.getElementById(feild);
-    field.setAttribute(attribute, value);
+    if (field) {
+      field.setAttribute(attribute, value);
+    } else {
+      console.log("Field not found");
+    }
   }
 
   public noteHandler(specificMessage?: Message) {

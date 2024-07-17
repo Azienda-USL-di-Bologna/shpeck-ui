@@ -10,11 +10,11 @@
   flex-direction: column;
 }
 
-::ng-deep p-table > div > div > div div.ui-table-scrollable-body {
+::ng-deep p-table>div>div>div div.ui-table-scrollable-body {
   overflow-x: auto;
 }
 
-::ng-deep #pec-mail-list .p-datatable .p-datatable-tbody > tr:nth-child(even) {
+::ng-deep #pec-mail-list .p-datatable .p-datatable-tbody>tr:nth-child(even) {
   background-color: #f9f9f9;
 }
 
@@ -92,8 +92,9 @@
   height: 100%;
 
   .p-datatable {
+
     //height: 100%;
-    .p-datatable-tbody > tr > td {
+    .p-datatable-tbody>tr>td {
       border: none !important;
       flex: content !important;
     }
@@ -126,6 +127,7 @@
 }
 
 .riga-tabella {
+
   //height: 4.938rem !important;
   .row-main-content {
     display: block;
@@ -452,21 +454,21 @@
 }
 
 ::ng-deep .message-labels-icon-action,
-::ng-deep .message-labels + p-contextmenusub {
+::ng-deep .message-labels+p-contextmenusub {
   width: auto;
 }
 
-::ng-deep .message-labels + p-contextmenusub ul a {
+::ng-deep .message-labels+p-contextmenusub ul a {
   width: fit-content;
 }
 
-::ng-deep .message-labels + p-contextmenusub ul li {
+::ng-deep .message-labels+p-contextmenusub ul li {
   width: max-content;
 }
 
-::ng-deep .message-moves + p-contextmenusub ul a::after,
-::ng-deep .message-labels-icon-action > ul > li > a::after,
-::ng-deep .message-labels + p-contextmenusub ul a::after {
+::ng-deep .message-moves+p-contextmenusub ul a::after,
+::ng-deep .message-labels-icon-action>ul>li>a::after,
+::ng-deep .message-labels+p-contextmenusub ul a::after {
   display: block;
   content: attr(title);
   font-weight: bold;
@@ -476,18 +478,18 @@
   visibility: hidden;
 }
 
-::ng-deep .message-moves + p-contextmenusub ul {
+::ng-deep .message-moves+p-contextmenusub ul {
   max-height: 20.625rem;
 }
 
-::ng-deep .message-labels-icon-action > ul,
-::ng-deep .message-labels + p-contextmenusub ul {
+::ng-deep .message-labels-icon-action>ul,
+::ng-deep .message-labels+p-contextmenusub ul {
   max-height: 18.563rem;
 }
 
-::ng-deep .message-moves + p-contextmenusub ul,
-::ng-deep .message-labels-icon-action > ul,
-::ng-deep .message-labels + p-contextmenusub ul {
+::ng-deep .message-moves+p-contextmenusub ul,
+::ng-deep .message-labels-icon-action>ul,
+::ng-deep .message-labels+p-contextmenusub ul {
   overflow-y: auto;
   width: fit-content !important;
   width: -moz-fit-content;
@@ -496,11 +498,11 @@
   overflow-x: hidden;
 }
 
-::ng-deep .message-labels + p-contextmenusub .ui-menuitem-icon.fas.fa-square,
-::ng-deep .message-labels + p-contextmenusub .ui-menuitem-icon.fas.fa-check,
-::ng-deep .message-labels + p-contextmenusub .ui-menuitem-icon.fas.fa-tag,
-::ng-deep .message-labels + p-contextmenusub .ui-menuitem-icon.fas.fa-check-square,
-::ng-deep .message-labels + p-contextmenusub .ui-menuitem-icon.fas.fa-minus-square,
+::ng-deep .message-labels+p-contextmenusub .ui-menuitem-icon.fas.fa-square,
+::ng-deep .message-labels+p-contextmenusub .ui-menuitem-icon.fas.fa-check,
+::ng-deep .message-labels+p-contextmenusub .ui-menuitem-icon.fas.fa-tag,
+::ng-deep .message-labels+p-contextmenusub .ui-menuitem-icon.fas.fa-check-square,
+::ng-deep .message-labels+p-contextmenusub .ui-menuitem-icon.fas.fa-minus-square,
 ::ng-deep .message-labels-icon-action .ui-menuitem-icon.fas.fa-square,
 ::ng-deep .message-labels-icon-action .ui-menuitem-icon.fas.fa-check,
 ::ng-deep .message-labels-icon-action .ui-menuitem-icon.fas.fa-tag,
@@ -509,21 +511,22 @@
   font-size: 1.1em !important;
 }
 
-::ng-deep .d-inline-flex {
+/* ::ng-deep .d-inline-flex {
   display: inline-flex !important;
-}
+} */
+::ng-deep .item-menu-lungo {}
 
 ::ng-deep .popup-mail-detail {
   width: 56.25rem !important;
   height: 80%;
 }
 
-::ng-deep .popup-mail-detail > div {
+::ng-deep .popup-mail-detail>div {
   width: inherit !important;
   height: 80%;
 }
 
-::ng-deep .popup-mail-detail > div .ui-dialog-content {
+::ng-deep .popup-mail-detail>div .ui-dialog-content {
   height: 90%;
 }
 

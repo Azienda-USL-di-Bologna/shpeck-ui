@@ -600,7 +600,6 @@ export class NewMailComponent implements OnInit, AfterViewInit, OnDestroy {
     const autocomplete = formField === "to" ? this.toAutoComplete : this.ccAutoComplete;
     if (item) {
       if (item.tipo !== "GRUPPO") {
-        debugger;
         item.descrizioneDettaglioContatto = item.descrizioneDettaglioContatto.trim();
         //item.descrizione = item.descrizione.trim();
         if (form.value.indexOf(item.descrizioneDettaglioContatto) === -1) {
