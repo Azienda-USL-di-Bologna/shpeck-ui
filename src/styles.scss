@@ -13,10 +13,12 @@ body {
   height: 100%;
   margin: 0;
 }
+
 body,
 .p-component {
   font-family: "Open Sans", "Helvetica Neue", sans-serif !important;
 }
+
 //body a {
 //color: deepskyblue;
 //}
@@ -25,11 +27,13 @@ body,
   border: 0.06rem solid #000000 !important;
   background-color: #2e4a65 !important;
 }
+
 ::ng-deep body .custom-primary-button:hover {
   border-color: #2e4a65 !important;
   background-color: #2e4a65 !important;
   color: #ffffff !important;
 }
+
 ::ng-deep body .custom-border,
 body .custom-secondary-button {
   border: 0.06rem solid #a6a6a6 !important;
@@ -44,26 +48,31 @@ body .custom-secondary-button {
     font-size: 95%;
   }
 }
+
 @media screen and (max-width: 1500px) {
   html {
     font-size: 90%;
   }
 }
+
 @media screen and (max-width: 1400px) {
   html {
     font-size: 85%;
   }
 }
+
 @media screen and (max-width: 1300px) {
   html {
     font-size: 80%;
   }
 }
+
 @media screen and (max-width: 1200px) {
   html {
     font-size: 75%;
   }
 }
+
 @media screen and (max-width: 1100px) {
   html {
     font-size: 70%;

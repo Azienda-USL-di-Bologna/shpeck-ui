@@ -567,6 +567,7 @@ export class MailFoldersComponent implements OnInit, OnDestroy {
 
   public selectedContextMenuItem(event: any) {
     if (event && event.item) {
+      debugger;
       const menuItemSelected: MenuItem = event.item;
       switch (menuItemSelected.id) {
         case "NewFolder":
@@ -842,6 +843,7 @@ export class MailFoldersComponent implements OnInit, OnDestroy {
     switch (name) {
       case "onContextMenuSelect":
         // this.op.hide();
+        //event.originalEvent.preventDefault();
 
         this.selectedNode = event.node;
         this.elementSelected = event;
@@ -854,46 +856,46 @@ export class MailFoldersComponent implements OnInit, OnDestroy {
             const selectedNodeType = (event.node as MyTreeNode).data.type;
             if (selectedNodeType === PecFolderType.PEC) {
               this.cmItems = this.pecCmItems;
-              this.mailFoldersService.selectedPecFolder(
-                event.node.data,
-                event.node.children.map((c: MyTreeNode) => c.data.data) as Folder[],
-                (event.node.data.data as Pec).tagList
-              );
+              // this.mailFoldersService.selectedPecFolder(
+              //   event.node.data,
+              //   event.node.children.map((c: MyTreeNode) => c.data.data) as Folder[],
+              //   (event.node.data.data as Pec).tagList
+              // );
             } else if (selectedNodeType === PecFolderType.TAG_CONTAINER) {
               this.cmItems = this.tagContainerCmItems;
               event.node.data.pec = event.node.parent.data.data as Pec;
-              this.mailFoldersService.selectedPecFolder(
-                event.node.parent.data,
-                event.node.children.map((c: MyTreeNode) => c.data.data) as Folder[],
-                (event.node.parent.data.data as Pec).tagList
-              );
+              // this.mailFoldersService.selectedPecFolder(
+              //   event.node.parent.data,
+              //   event.node.children.map((c: MyTreeNode) => c.data.data) as Folder[],
+              //   (event.node.parent.data.data as Pec).tagList
+              // );
             } else if (selectedNodeType === PecFolderType.FOLDER) {
               this.disableNotSelectableFolderContextMenuItems(event.node.data.data as Folder);
               this.cmItems = this.folderCmItems;
               event.node.data.pec = event.node.parent.data.data as Pec;
-              this.mailFoldersService.selectedPecFolder(
-                event.node.data,
-                event.node.parent.children.map((c: MyTreeNode) => c.data.data) as Folder[],
-                (event.node.parent.data.data as Pec).tagList
-              );
+              // this.mailFoldersService.selectedPecFolder(
+              //   event.node.data,
+              //   event.node.parent.children.map((c: MyTreeNode) => c.data.data) as Folder[],
+              //   (event.node.parent.data.data as Pec).tagList
+              // );
             } else if (selectedNodeType === PecFolderType.TAG) {
               this.disableNotSelectableTagContextMenuItems(event.node.data.data as Tag);
               this.cmItems = this.tagCmItems;
               const isFirstLevel = (event.node.data.data as Tag).firstLevel;
               if (isFirstLevel) {
                 event.node.data.pec = event.node.parent.data.data as Pec;
-                this.mailFoldersService.selectedPecFolder(
-                  event.node.data,
-                  event.node.parent.children.map((c: MyTreeNode) => c.data.data) as Folder[],
-                  (event.node.parent.data.data as Pec).tagList
-                );
+                // this.mailFoldersService.selectedPecFolder(
+                //   event.node.data,
+                //   event.node.parent.children.map((c: MyTreeNode) => c.data.data) as Folder[],
+                //   (event.node.parent.data.data as Pec).tagList
+                // );
               } else {
                 event.node.data.pec = event.node.parent.parent.data.data as Pec;
-                this.mailFoldersService.selectedPecFolder(
-                  event.node.data,
-                  event.node.parent.parent.children.map((c: MyTreeNode) => c.data.data) as Folder[],
-                  (event.node.parent.parent.data.data as Pec).tagList
-                );
+                // this.mailFoldersService.selectedPecFolder(
+                //   event.node.data,
+                //   event.node.parent.parent.children.map((c: MyTreeNode) => c.data.data) as Folder[],
+                //   (event.node.parent.parent.data.data as Pec).tagList
+                // );
               }
             }
           }
