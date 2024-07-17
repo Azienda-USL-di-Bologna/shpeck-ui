@@ -190,7 +190,7 @@ export class ToolBarService {
     return this.mailListService.buildMoveMenuItems(this.folders, this.selectedFolder, this.move);
   }
 
-  public buildArchiveMenuItems(command) {
+  public buildArchiveMenuItems(command: any) {
     return this.mailListService.buildAziendeUtenteMenuItems(this._selectedPec, command);
   }
 
@@ -198,7 +198,7 @@ export class ToolBarService {
     this.mailListService.archiveMessage(event);
   } */
 
-  private move(event) {
+  private move(event: any) {
     if (event.item.queryParams.folder) {
       this.mailListService.moveMessages(event.item.queryParams.folder.id);
     }
@@ -224,7 +224,7 @@ export class ToolBarService {
     }
   }
 
-  public newMail(action) {
+  public newMail(action: string) {
     if (this._selectedPec.attiva) {
       const draftMessage = new Draft();
       draftMessage.idPec = { id: this._selectedPec.id } as Pec;

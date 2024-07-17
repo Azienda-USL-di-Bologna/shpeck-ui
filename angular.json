@@ -1,32 +1,38 @@
 {
   "$schema": "./node_modules/@angular/cli/lib/config/schema.json",
   "cli": {
+    "cache": {
+      "enabled": false
+    },
     "analytics": false
   },
   "version": 1,
   "newProjectRoot": "projects",
   "projects": {
     "shpeck-ui": {
-      "root": "",
-      "sourceRoot": "src",
       "projectType": "application",
-      "prefix": "app",
       "schematics": {
         "@schematics/angular:component": {
           "style": "scss"
+        },
+        "@schematics/angular:application": {
+          "strict": true
         }
       },
+      "root": "",
+      "sourceRoot": "src",
+      "prefix": "app",
       "architect": {
         "build": {
-          "builder": "@angular-devkit/build-angular:browser",
+          "builder": "@angular-devkit/build-angular:application",
           "options": {
-            "aot": true,
             "preserveSymlinks": true,
-            "outputPath": "dist/shpeck-ui",
+            "outputPath": { "base": "dist/shpeck-ui", "browser": "" },
             "index": "src/index.html",
-            "main": "src/main.ts",
-            "polyfills": "src/polyfills.ts",
+            "polyfills": ["src/polyfills.ts"],
             "tsConfig": "src/tsconfig.app.json",
+            "aot": false,
+            "browser": "src/main.ts",
             "assets": ["src/favicon.ico", "src/assets", "src/app"],
             "styles": [
               "src/styles.scss",
@@ -65,34 +71,30 @@
                 "vendor": false
               },
               "aot": true,
-              "buildOptimizer": true,
               "optimization": true
             },
             "development": {
-              "buildOptimizer": false,
               "optimization": false,
-              "vendorChunk": true,
               "extractLicenses": false,
               "sourceMap": {
                 "scripts": true,
                 "styles": true,
-                "hidden": false,
-                "vendor": true
+                "vendor": true,
+                "hidden": false
               },
               "namedChunks": true
             },
             "stage": {
-              "buildOptimizer": false,
               "optimization": false,
-              "vendorChunk": true,
               "extractLicenses": false,
               "sourceMap": {
                 "scripts": true,
                 "styles": true,
-                "hidden": false,
-                "vendor": false
+                "vendor": false,
+                "hidden": false
               },
-              "namedChunks": true
+              "namedChunks": true,
+              "aot": false
             }
           },
           "defaultConfiguration": "production"
@@ -122,19 +124,11 @@
           "builder": "@angular-devkit/build-angular:karma",
           "options": {
             "main": "src/test.ts",
-            "polyfills": "src/polyfills.ts",
             "tsConfig": "src/tsconfig.spec.json",
             "karmaConfig": "src/karma.conf.js",
             "styles": ["src/styles.scss"],
             "scripts": [],
             "assets": ["src/favicon.ico", "src/assets"]
-          }
-        },
-        "lint": {
-          "builder": "@angular-devkit/build-angular:tslint",
-          "options": {
-            "tsConfig": ["src/tsconfig.app.json", "src/tsconfig.spec.json"],
-            "exclude": ["**/node_modules/**"]
           }
         }
       }
@@ -155,16 +149,8 @@
               "devServerTarget": "shpeck-ui:serve:production"
             }
           }
-        },
-        "lint": {
-          "builder": "@angular-devkit/build-angular:tslint",
-          "options": {
-            "tsConfig": "e2e/tsconfig.e2e.json",
-            "exclude": ["**/node_modules/**"]
-          }
         }
       }
     }
-  },
-  "defaultProject": "shpeck-ui"
+  }
 }

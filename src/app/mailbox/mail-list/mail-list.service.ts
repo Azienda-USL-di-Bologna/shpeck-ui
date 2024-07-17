@@ -48,6 +48,7 @@ import {
   AdditionalDataDefinition,
   SortDefinition,
   NextSDREntityProvider,
+  PagingConf,
 } from "@bds/next-sdr";
 import { CUSTOM_SERVER_METHODS } from "src/environments/app-constants";
 import { MessageEvent, ShpeckMessageService } from "src/app/services/shpeck-message.service";
@@ -61,7 +62,7 @@ import { DialogService } from "primeng/dynamicdialog";
   providedIn: "root",
 })
 export class MailListService {
-  public messages: Message[] = [];
+  public messages: Message[] = Array.from({ length: 40 });
   public folders: Folder[] = [];
   public tags: Tag[] = [];
   public trashFolder: Folder;
@@ -169,8 +170,8 @@ export class MailListService {
    * @param selectedMessages
    * @param command // La funzione che verrà chiamata al click sul singolo item.
    */
-  public buildMoveMenuItems(folders: Folder[], selectedFolder: Folder, command: (any) => any): MenuItem[] {
-    const foldersSubCmItems = [];
+  public buildMoveMenuItems(folders: Folder[], selectedFolder: Folder, command: (any: any) => any): MenuItem[] {
+    const foldersSubCmItems: any[] = [];
     folders.forEach((f) => {
       if (f.type !== FolderType.DRAFT && f.type !== FolderType.OUTBOX && f.type !== FolderType.TRASH && f.name !== "in_error") {
         let subElementDisabled = false;
@@ -222,7 +223,7 @@ export class MailListService {
           queryParams: {
             folder: f,
           },
-          command: (event) => command(event),
+          command: (event: any) => command(event),
         });
       }
     });
@@ -234,7 +235,7 @@ export class MailListService {
    * @param command La funzione che verrà chiamata al click sul singolo item
    * @returns di MenuItem
    */
-  buildTagsMenuItems(command: (any) => any, newTag: (any) => any): MenuItem[] {
+  buildTagsMenuItems(command: (any: any) => any, newTag: (any: any) => any): MenuItem[] {
     const items: MenuItem[] = [];
     if (this.tags) {
       for (const tag of this.tags) {
@@ -249,7 +250,7 @@ export class MailListService {
           const tagIconAndAction: TagIconAction = this.getTagIconAction(messagesWithTag);
           items.push({
             label: tag.description,
-            styleClass: tag.description && tag.description.length > 21 ? "d-inline-flex" : "",
+            styleClass: tag.description && tag.description.length > 21 ? "item-menu-lungo" : "",
             icon: tagIconAndAction.iconType,
             id: "MessageLabels",
             title: tagIconAndAction.title,
@@ -276,7 +277,7 @@ export class MailListService {
       .sort((a, b) => (a.label.toLowerCase() < b.label.toLowerCase() ? -1 : 1));
     const finalItems: MenuItem[] = [
       {
-        label: "<Nuova Etichetta>",
+        label: "- Nuova Etichetta -",
         icon: "fas new-tag",
         id: "MessageLabels",
         title: "Seleziona per creare una nuova etichetta e associarla al messaggio",
@@ -420,24 +421,26 @@ export class MailListService {
    * @param codiceAzienda
    */
   public checkCurrentStatusAndRegister(exe: any, codiceAzienda: string): void {
-    if (this.selectedMessages && this.selectedMessages.length === 1) {
-      this.getMessageById(this.selectedMessages[0]).subscribe((data) => {
-        if (data && data.results && data.results.length === 1) {
-          const message = data.results[0] as Message;
-          if (this.isRegisterActive(message, codiceAzienda)) {
-            exe();
-          } else {
-            this.messagePrimeService.add({
-              key: "c",
-              severity: "warn",
-              sticky: true,
-              summary: "Attenzione",
-              detail: "Il messaggio risulta già protocollato. Si consiglia di aggiornare la pagina.",
-            });
+    setTimeout(() => {
+      if (this.selectedMessages && this.selectedMessages.length === 1) {
+        this.getMessageById(this.selectedMessages[0]).subscribe((data) => {
+          if (data && data.results && data.results.length === 1) {
+            const message = data.results[0] as Message;
+            if (this.isRegisterActive(message, codiceAzienda)) {
+              exe();
+            } else {
+              this.messagePrimeService.add({
+                key: "c",
+                severity: "warn",
+                sticky: true,
+                summary: "Attenzione",
+                detail: "Il messaggio risulta già protocollato. Si consiglia di aggiornare la pagina.",
+              });
+            }
           }
-        }
-      });
-    }
+        });
+      }
+    }, 0);
   }
 
   public getMessageById(
@@ -541,6 +544,7 @@ export class MailListService {
         .moveMessagesToFolder(messagesFolder, idFolder, this.loggedUser.getUtente().id)
         .subscribe((res) => {
           if (this.pecFolderSelected.type === PecFolderType.FOLDER) {
+            debugger;
             this.messages = Utils.arrayDiff(this.messages, this.selectedMessages, "id");
             this.mailFoldersService.doReloadFolder(messagesFolder[0].idFolder.id);
             this.mailFoldersService.doReloadFolder(idFolder);
@@ -576,12 +580,14 @@ export class MailListService {
 
   public setMailTagVisibility(messages: Message[]) {
     messages.map((message: Message) => {
-      this.setFromOrTo(message);
-      this.setIconsVisibility(message);
+      if (message) {
+        this.setFromOrTo(message);
+        this.setIconsVisibility(message);
+      }
     });
   }
 
-  public setFromOrTo(message: Message) {
+  public setFromOrTo(message: any) {
     let addresRoleType: string;
     switch (message.inOut) {
       case InOut.IN:
@@ -640,7 +646,7 @@ export class MailListService {
     this.moveMessages(this.trashFolder.id);
   }
 
-  public createAndApplyTag(tagName) {
+  public createAndApplyTag(tagName: any) {
     this.createTag(tagName).subscribe((res: Tag) => {
       this._newTagInserted$.next(res);
       // this.tags.push(res);
@@ -671,7 +677,7 @@ export class MailListService {
    */
   public toggleTag(tag: Tag, showMessage?: boolean) {
     const messageTagOperations: BatchOperation[] = [];
-    let messagesWithTag = [];
+    let messagesWithTag: any[] = [];
     messagesWithTag = this.filterMessagesWithTag(tag);
     const tagIconAndAction: TagIconAction = this.getTagIconAction(messagesWithTag);
     const mtp: MessageTagOp[] = [];
@@ -703,7 +709,7 @@ export class MailListService {
       messaggioOperazione = "rimossa";
       const idMessageTagToDelete: number[] = [];
       for (const message of messagesWithTag) {
-        const mTag: MessageTag = message.messageTagList.find((messageTag) => messageTag.idTag.name === tag.name);
+        const mTag: MessageTag = message.messageTagList.find((messageTag: any) => messageTag.idTag.name === tag.name);
         // const mTagCall = this.buildMessageTagOperationDelete(message, tag.name);
         if (mTag) {
           idMessageTagToDelete.push(mTag.id);
@@ -766,7 +772,7 @@ export class MailListService {
         entityBody: mTag,
         additionalData: null,
         returnProjection: ENTITIES_STRUCTURE.shpeck.messagetag.standardProjections.MessageTagWithIdTagAndIdUtente,
-      },
+      } as any,
     };
   }
 
@@ -947,8 +953,8 @@ export class MailListService {
         item.message.messageTagList.splice(item.message.messageTagList.indexOf(item.messageTag), 1);
         this.setIconsVisibility(item.message);
 
-        if (this.selectedTag && this.selectedTag.id === item.messageTag.fk_idTag.id) {
-          this.messages.splice(this.messages.indexOf(this.messages.find((m) => m.id === item.messageTag.fk_idMessage.id)), 1);
+        if (this.selectedTag && this.selectedTag.id === item.messageTag.idTag.id) {
+          this.messages.splice(this.messages.indexOf(this.messages.find((m) => m.id === item.messageTag.idMessage.id)), 1);
           this.totalRecords--;
           // mando l'evento con il numero di messaggi (serve a mailbox-component perché lo deve scrivere nella barra superiore)
           this.refreshAndSendTotalMessagesNumber(0, this.pecFolderSelected);
@@ -972,7 +978,7 @@ export class MailListService {
         item.message.messageFolderList.splice(item.message.messageFolderList.indexOf(item.messageFolder), 1);
         this.setIconsVisibility(item.message);
 
-        if (this.pecFolderSelected && this.pecFolderSelected.data["FOLDER"] === item.messageFolder.idFolder.id) {
+        if (this.pecFolderSelected && (this.pecFolderSelected.data as any)["FOLDER"] === item.messageFolder.idFolder.id) {
           this.messages.splice(this.messages.indexOf(this.messages.find((m) => m.id === item.messageFolder.fk_idMessage.id)), 1);
         }
       }
@@ -1140,10 +1146,10 @@ export class MailListService {
     codiciAziende: string[],
     selectedPec: Pec,
     idCommand: string,
-    command: (any) => any,
+    command: (any: any) => any,
     longDescriptionItem: boolean = false
   ): MenuItem[] {
-    const aziendeMenuItems = [];
+    const aziendeMenuItems: any[] = [];
     codiciAziende.forEach((codiceAzienda) => {
       const azienda = this.loggedUser.getUtente().aziende.find((a) => a.codice === codiceAzienda);
       let pIspecDellAzienda = true;
@@ -1164,7 +1170,7 @@ export class MailListService {
           codiceAzienda: codiceAzienda,
           isPecDellAzienda: pIspecDellAzienda,
         },
-        command: (event) => command(event),
+        command: (event: any) => command(event),
       });
     });
     return aziendeMenuItems;
@@ -1182,7 +1188,7 @@ export class MailListService {
     codiciAziende: string[],
     selectedPec: Pec,
     idCommand: string,
-    command: (any) => any,
+    command: (any: any) => any,
     longDescriptionItem: boolean = false
   ): ItemMenu[] {
     const aziendeMenuItems: ItemMenu[] = [];
@@ -1271,7 +1277,7 @@ export class MailListService {
   public buildRegistrationMenuItems(
     message: Message,
     selectedPec: Pec,
-    command: (any) => any,
+    command: (any: any) => any,
     longDescriptionItem: boolean = false
   ): MenuItem[] {
     return this.buildAziendeMenuItems(
@@ -1294,7 +1300,7 @@ export class MailListService {
   public buildRegistrationBdsMenuItems(
     message: Message,
     selectedPec: Pec,
-    command: (any) => any,
+    command: (any: any) => any,
     longDescriptionItem: boolean = false
   ): ItemMenu[] {
     return this.buildAziendeBdsMenuItems(
@@ -1311,7 +1317,7 @@ export class MailListService {
    * lista delle aziende dell'utente loggato .
    * @param command
    */
-  public buildAziendeUtenteMenuItems(selectedPec: Pec, command: (any) => any): MenuItem[] {
+  public buildAziendeUtenteMenuItems(selectedPec: Pec, command: (any: any) => any): MenuItem[] {
     return this.buildAziendeMenuItems(
       this.loggedUser.getUtente()["aziende"].map((a) => a.codice),
       selectedPec,
@@ -1425,7 +1431,7 @@ export class MailListService {
     });
   }
 
-  public setIconsVisibility(message: Message) {
+  public setIconsVisibility(message: any) {
     message["iconsVisibility"] = [];
     if (message.messageTagList && message.messageTagList.length > 0) {
       message.messageTagList.forEach((messageTag: MessageTag) => {
@@ -1503,7 +1509,14 @@ export class MailListService {
     return filtersAndSorts;
   }
 
-  public getSubscriptionReadyForLoadData(folder, tag, _selectedPecId, lazyFilterAndSort, pageConf, actualStringSearch: string) {
+  public getSubscriptionReadyForLoadData(
+    folder: Folder,
+    tag: Tag,
+    _selectedPecId: number,
+    lazyFilterAndSort: FiltersAndSorts,
+    pageConf: PagingConf,
+    actualStringSearch: string
+  ) {
     const filtersAndSorts = this.buildInitialFilterAndSort(folder, tag, _selectedPecId, actualStringSearch);
     return this.dynamicServiceForLoadData.getData(this.dynamicPrjectionForLoadData, filtersAndSorts, lazyFilterAndSort, pageConf);
   }

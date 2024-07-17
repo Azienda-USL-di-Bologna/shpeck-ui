@@ -95,7 +95,7 @@ export function getInternautaUrl(type: BaseUrlType): string {
 
   const out: string = wl.protocol + "//" + wl.hostname + ":" + port + BaseUrls.get(type);
 
-  console.log(out);
+  //console.log(out);
 
   return out;
 }

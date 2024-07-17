@@ -1,5 +1,5 @@
 import { Component, OnInit, OnDestroy } from "@angular/core";
-import { FormGroup, FormControl, Validators } from "@angular/forms";
+import { UntypedFormGroup, UntypedFormControl, Validators } from "@angular/forms";
 import { ShpeckMessageService } from "src/app/services/shpeck-message.service";
 import { DialogService, DynamicDialogConfig, DynamicDialogRef } from "primeng/dynamicdialog";
 import { Subscription } from "rxjs";
@@ -20,7 +20,7 @@ export class ReaddressComponent implements OnInit, OnDestroy {
   public myPecs: Pec[];
   public userPecs: any[];
   public filteredPecs: any[];
-  public readdressForm: FormGroup;
+  public readdressForm: UntypedFormGroup;
   private utenteConnesso: UtenteUtilities;
 
   private pageConfNoLimit: PagingConf = {
@@ -47,8 +47,8 @@ export class ReaddressComponent implements OnInit, OnDestroy {
         this.utenteConnesso = utente;
       }
     });
-    this.readdressForm = new FormGroup({
-      to: new FormControl("", [Validators.required]),
+    this.readdressForm = new UntypedFormGroup({
+      to: new UntypedFormControl("", [Validators.required]),
     });
     this.subscriptions.push(
       this.pecService.myPecs.subscribe((pecs: Pec[]) => {
@@ -65,7 +65,7 @@ export class ReaddressComponent implements OnInit, OnDestroy {
             this.pageConfNoLimit
           )
           .subscribe((data) => {
-            this.myPecs = data.results.filter((pec) => pec.id !== this.config.data.message.fk_idPec.id);
+            this.myPecs = data.results.filter((pec: any) => pec.id !== this.config.data.message.fk_idPec.id);
             this.userPecs = this.myPecs.map((pec) => pec.indirizzo);
             // console.log("User can readress to: ", this.userPecs);
           });
@@ -95,7 +95,7 @@ export class ReaddressComponent implements OnInit, OnDestroy {
     this.http.post(apiUrl, form).subscribe(
       (res) => {
         // console.log("res", res);
-        message["iconsVisibility"]["readdressed_out"] = true;
+        (message as any)["iconsVisibility"]["readdressed_out"] = true;
         const newTag = new Tag();
         newTag.idPec = message.idPec;
         newTag.description = "Reindirizzato";
@@ -118,7 +118,7 @@ export class ReaddressComponent implements OnInit, OnDestroy {
     );
   }
 
-  filterPecs(event) {
+  filterPecs(event: any) {
     // in a real application, make a request to a remote url with the query and return filtered results, for demo we filter at client side
     this.filteredPecs = [];
     for (let i = 0; i < this.myPecs.length; i++) {
