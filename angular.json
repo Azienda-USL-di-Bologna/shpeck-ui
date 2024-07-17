@@ -24,15 +24,15 @@
       "prefix": "app",
       "architect": {
         "build": {
-          "builder": "@angular-devkit/build-angular:browser",
+          "builder": "@angular-devkit/build-angular:application",
           "options": {
             "preserveSymlinks": true,
-            "outputPath": "dist/shpeck-ui",
+            "outputPath": { "base": "dist/shpeck-ui", "browser": "" },
             "index": "src/index.html",
-            "main": "src/main.ts",
-            "polyfills": ["zone.js"],
+            "polyfills": ["src/polyfills.ts"],
             "tsConfig": "src/tsconfig.app.json",
             "aot": false,
+            "browser": "src/main.ts",
             "assets": ["src/favicon.ico", "src/assets", "src/app"],
             "styles": [
               "src/styles.scss",
@@ -65,19 +65,16 @@
               ],
               "outputHashing": "all",
               "sourceMap": {
-                "scripts": false,
+                "scripts": true,
                 "styles": false,
-                "hidden": true,
+                "hidden": false,
                 "vendor": false
               },
               "aot": true,
-              "buildOptimizer": true,
               "optimization": true
             },
             "development": {
-              "buildOptimizer": false,
               "optimization": false,
-              "vendorChunk": true,
               "extractLicenses": false,
               "sourceMap": {
                 "scripts": true,
@@ -85,13 +82,10 @@
                 "vendor": true,
                 "hidden": false
               },
-              "namedChunks": true,
-              "aot": false
+              "namedChunks": true
             },
             "stage": {
-              "buildOptimizer": false,
               "optimization": false,
-              "vendorChunk": true,
               "extractLicenses": false,
               "sourceMap": {
                 "scripts": true,

@@ -841,7 +841,8 @@ export class MailFoldersComponent implements OnInit, OnDestroy {
     }
     switch (name) {
       case "onContextMenuSelect":
-        this.op.hide();
+        // this.op.hide();
+
         this.selectedNode = event.node;
         this.elementSelected = event;
         this.mailfolders.map((m) => (m.styleClass = MailFoldersComponent.ROOT_NODE_NOT_SELECTED_STYLE_CLASS));

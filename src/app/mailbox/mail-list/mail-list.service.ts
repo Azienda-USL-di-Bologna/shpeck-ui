@@ -421,24 +421,26 @@ export class MailListService {
    * @param codiceAzienda
    */
   public checkCurrentStatusAndRegister(exe: any, codiceAzienda: string): void {
-    if (this.selectedMessages && this.selectedMessages.length === 1) {
-      this.getMessageById(this.selectedMessages[0]).subscribe((data) => {
-        if (data && data.results && data.results.length === 1) {
-          const message = data.results[0] as Message;
-          if (this.isRegisterActive(message, codiceAzienda)) {
-            exe();
-          } else {
-            this.messagePrimeService.add({
-              key: "c",
-              severity: "warn",
-              sticky: true,
-              summary: "Attenzione",
-              detail: "Il messaggio risulta già protocollato. Si consiglia di aggiornare la pagina.",
-            });
+    setTimeout(() => {
+      if (this.selectedMessages && this.selectedMessages.length === 1) {
+        this.getMessageById(this.selectedMessages[0]).subscribe((data) => {
+          if (data && data.results && data.results.length === 1) {
+            const message = data.results[0] as Message;
+            if (this.isRegisterActive(message, codiceAzienda)) {
+              exe();
+            } else {
+              this.messagePrimeService.add({
+                key: "c",
+                severity: "warn",
+                sticky: true,
+                summary: "Attenzione",
+                detail: "Il messaggio risulta già protocollato. Si consiglia di aggiornare la pagina.",
+              });
+            }
           }
-        }
-      });
-    }
+        });
+      }
+    }, 0);
   }
 
   public getMessageById(

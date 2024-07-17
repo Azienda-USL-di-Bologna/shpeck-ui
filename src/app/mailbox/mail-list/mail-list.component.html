@@ -1,10 +1,10 @@
 <!-- <button (click)="mostratable = true">mostra</button> -->
 <!-- *ngIf="mostratable && (_selectedTag || _selectedFolder || _filters)" -->
-<p-table 
+<p-table
   #dt
   id="pec-mail-list"
   [lazy]="true"
-  (onLazyLoad)="lazyLoad($event)"
+  (onLazyLoad)="lazyLoad($any($event))"
   [value]="mailListService.messages"
   [(selection)]="mailListService.selectedMessages"
   dataKey="id"
@@ -26,7 +26,7 @@
   (mouseenter)="handleEvent('onMouseEnter', $event)"
   (onContextMenuSelect)="handleEvent('onContextMenuSelect', $event)"
   [ngClass]="mailListService?.totalRecords > 0 ? '' : 'no-records-found'"
-><!-- [paginator]="false" 
+  ><!-- [paginator]="false" 
   [totalRecords]="mailListService.totalRecords"  [autoLayout]="true"
   [responsive]="true" -->
   <ng-template
@@ -514,9 +514,11 @@
     </tr>
   </ng-template>
 </p-table>
-<div *ngIf="showLoadingDiv" 
-style="height: 100px;">
- _ loading _
+<div
+  *ngIf="showLoadingDiv"
+  style="height: 100px"
+>
+  _ loading _
 </div>
 <p-contextMenu
   #cm

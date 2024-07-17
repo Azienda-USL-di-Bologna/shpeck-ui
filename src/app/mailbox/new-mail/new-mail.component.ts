@@ -1,4 +1,4 @@
-import { Component, OnInit, ViewChild, AfterViewInit, OnDestroy } from "@angular/core";
+import { Component, OnInit, ViewChild, AfterViewInit, OnDestroy, ChangeDetectorRef } from "@angular/core";
 import { UntypedFormGroup, UntypedFormControl, FormBuilder, Validators, UntypedFormArray } from "@angular/forms";
 import { ConfirmationService, MessageService } from "primeng/api";
 import {
@@ -49,6 +49,7 @@ import {
 import { AutoComplete } from "primeng/autocomplete";
 import { DialogService, DynamicDialogConfig, DynamicDialogRef } from "primeng/dynamicdialog";
 import { FilteredContactMultiple } from "../mailbox.service";
+import Quill from "quill";
 
 @Component({
   selector: "app-new-mail",
@@ -116,6 +117,7 @@ export class NewMailComponent implements OnInit, AfterViewInit, OnDestroy {
     private loginService: JwtLoginService,
     private customContactService: CustomContactService,
     private contattoService: ContattoService,
+    private detector: ChangeDetectorRef,
     private configurazioneService: ConfigurazioneService
   ) {
     // Mi salvo l'elenco di aziende che vogliono la funzionalità "recuperaDomicilioDigitaleInad"
@@ -254,28 +256,29 @@ export class NewMailComponent implements OnInit, AfterViewInit, OnDestroy {
 
   ngAfterViewInit() {
     /* Inizializzazione del body per le risposte e l'inoltra */
-
-    if (this.config.data.action !== TOOLBAR_ACTIONS.NEW) {
-      let body = "";
-      if (this.config.data.fullMessage.emlData) {
-        body = this.config.data.fullMessage.emlData.displayBody;
-      } else if (this.config.data.fullMessage.body) {
-        body = this.config.data.fullMessage.body;
+    setTimeout(() => {
+      if (this.config.data.action !== TOOLBAR_ACTIONS.NEW) {
+        let body = "";
+        if (this.config.data.fullMessage.emlData) {
+          body = this.config.data.fullMessage.emlData.displayBody;
+        } else if (this.config.data.fullMessage.body) {
+          body = this.config.data.fullMessage.body;
+        }
+        if (this.config.data.action === TOOLBAR_ACTIONS.EDIT) {
+          this.editor.quill.clipboard.dangerouslyPasteHTML(body);
+        } else {
+          const message: Message = this.config.data.fullMessage.message;
+          this.buildBody(message, body);
+        }
+        this.mailForm.patchValue({
+          body: this.editor.quill.root["innerHTML"],
+        });
       }
-      if (this.config.data.action === TOOLBAR_ACTIONS.EDIT) {
-        this.editor.quill.clipboard.dangerouslyPasteHTML(body);
-      } else {
-        const message: Message = this.config.data.fullMessage.message;
-        this.buildBody(message, body);
-      }
-      this.mailForm.patchValue({
-        body: this.editor.quill.root["innerHTML"],
-      });
-    }
-    /* Disabilito la compilazione automatica degli indirizzi */
-    this.setAttribute("toInputId", "autocomplete", "false");
-    this.setAttribute("ccInputId", "autocomplete", "false");
-    this.toAutoComplete.focused = true;
+      /* Disabilito la compilazione automatica degli indirizzi */
+      this.setAttribute("toInputId", "autocomplete", "false");
+      this.setAttribute("ccInputId", "autocomplete", "false");
+      this.toAutoComplete.focused = true;
+    }, 0);
   }
 
   /**
@@ -787,6 +790,13 @@ export class NewMailComponent implements OnInit, AfterViewInit, OnDestroy {
       { insert: message.subject },
       { insert: "\n\n" }
     );
+    // const quill = new Quill("#editor-container", {
+    //   modules: {
+    //     toolbar: { container: "#toolbar-toolbar" },
+    //   },
+    //   theme: "snow",
+    // });
+    // this.editor.quill = editorContent;
     this.editor.quill.setContents(editorContent);
     /* Mi vergogno di questa cosa ma per adesso devo fare per forza così
      * in attesa del supporto alle table dell'editor Quill nella versione 2.0 */
