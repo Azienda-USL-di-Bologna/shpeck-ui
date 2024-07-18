@@ -1,5 +1,5 @@
 <div
-  class="p-col container p-nogutter"
+  class="container"
   [ngClass]="
     fontSize === 'small'
       ? 'general-font-size-small'
@@ -8,18 +8,15 @@
       : 'general-font-size-big'
   "
 >
-  <div class="buttons-bar">
-    <app-toolbar></app-toolbar>
-  </div>
+  <app-toolbar></app-toolbar>
   <div
     #mailContainer
-    class="mail-container p-col"
-    *ngIf="true"
+    class="mail-container"
   >
     <!-- Left side -->
     <div
       #mailFolder
-      class="content-left"
+      class="mail-folder-container"
     >
       <app-mail-folders></app-mail-folders>
     </div>
@@ -119,6 +116,7 @@
     </div>
   </div>
 </div>
+
 <p-toast position="top-right"></p-toast>
 <p-toast
   key="c"

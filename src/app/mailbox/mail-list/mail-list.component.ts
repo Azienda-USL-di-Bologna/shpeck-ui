@@ -1265,29 +1265,12 @@ export class MailListComponent implements OnInit, OnDestroy, AfterViewInit {
           }
           //trigger change detection
           this.storedLazyLoadEvent.forceUpdate();
-          window.dispatchEvent(new Event("resize"));
+          //window.dispatchEvent(new Event("resize"));
 
           this.dt.scroller.setSize();
           this.dt.scroller.setSpacerSize();
-          //this.mailListService.messages = [...this.mailListService.messages];
 
           this.loading = false;
-
-          /* this.showLoadingDiv = true;
-          window.dispatchEvent(new Event("resize"));
-          //this.showLoadingDiv = false;
-          setTimeout(() => {
-            this.showLoadingDiv = false;
-            this.loading = false;
-            //window.dispatchEvent(new Event("resize"));
-          }, 100); */
-
-          //this.setAccessibilityProperties(true);
-
-          /* if (this.primavolta) {
-            this.primavolta = false;
-            this.mostratable = true;
-          } */
         }),
     });
   }
@@ -1344,32 +1327,25 @@ export class MailListComponent implements OnInit, OnDestroy, AfterViewInit {
       return;
     } */
 
-    if (event && event.rows === 0) {
+    /* if (event && event.rows === 0) {
       this.storedLazyLoadEvent = event;
-      /* event.forceUpdate();
-      this.dt.scroller.setSize();
-      this.dt.scroller.setSpacerSize();
-      window.dispatchEvent(new Event("resize")); */
       this.showLoadingDiv = true;
-      window.dispatchEvent(new Event("resize"));
-      //this.showLoadingDiv = false;
+      //window.dispatchEvent(new Event("resize"));
       setTimeout(() => {
         this.showLoadingDiv = false;
-
-        //window.dispatchEvent(new Event("resize"));
       }, 100);
       return;
-    }
+    } */
 
     //console.log("lazyLoad di mailList Component", event);
     const eventFilters: { [s: string]: FilterMetadata } = this.buildTableEventFilters(this._filters);
     this.previousFilter = this._filters;
     if (!event) {
       this.resetMessagesArrayLenght = true;
-      this.storedLazyLoadEvent.forceUpdate();
+      /* this.storedLazyLoadEvent.forceUpdate();
       this.dt.scroller.setSize();
-      this.dt.scroller.setSpacerSize();
-      window.dispatchEvent(new Event("resize"));
+      this.dt.scroller.setSpacerSize(); */
+      //window.dispatchEvent(new Event("resize"));
       event = this.storedLazyLoadEvent;
       event.rows = this.rowsNumber;
       event.first = 0;
