@@ -1,0 +1,70 @@
+stages:
+  - install
+  - build
+  - deploy
+
+variables:
+  SSH_PRIVATE_KEY: "LS0tLS1CRUdJTiBPUEVOU1NIIFBSSVZBVEUgS0VZLS0tLS0KYjNCbGJuTnphQzFyWlhrdGRqRUFBQUFBQkc1dmJtVUFBQUFFYm05dVpRQUFBQUFBQUFBQkFBQUJGUUFBQUFkegpjMmd0Y25OaEFBQUFBU1VBQUFFQkFJUW5nbXJaT28vRFQxa2xSRGthbkpCczBqSEp1ZGdZdXc4QTNZTXExeFpsCk9nNmdWVE8rbFNYSGgxKzJScWV2YUNTVmFpTEtLL1prL3dIcWZGbUg3S09Cd0tmaFduemk3ZTE4ei9NVEtUTzMKeFd0MU81Q2MzUXBZb29LTVFieTJnTTlYazVJdmlEcE5CMUJvSkRDRmRFeitBRUpXWnh0a0htenViM20vbjBhbwpvdUtqek5NT3ZZNHMyaHNXb0M1U2tVemdEbjNlRWpPNU5Ja1NTRFQ5UmlTWDk2d2ZhQjU3MVVHQWhkVVhYRkhvClprcFdmSllnMVNYY3ljOHhoZTFMUmpXSXlZSzVGQUhKNlB0RVBrTnNBQVV6aGNzN2pSVVRnYmE1VUUzMm0wZUIKb1NHNFZlWXVQS0d4TC8vN1kzQ2pNcjdhUUFFeWdvTlhwbXVQbFFESTN0RUFBQVBRcHBEVVJLYVExRVFBQUFBSApjM05vTFhKellRQUFBUUVBaENlQ2F0azZqOE5QV1NWRU9ScWNrR3pTTWNtNTJCaTdEd0RkZ3lyWEZtVTZEcUJWCk03NlZKY2VIWDdaR3A2OW9KSlZxSXNvcjltVC9BZXA4V1lmc280SEFwK0ZhZk9MdDdYelA4eE1wTTdmRmEzVTcKa0p6ZENsaWlnb3hCdkxhQXoxZVRraStJT2swSFVHZ2tNSVYwVFA0QVFsWm5HMlFlYk81dmViK2ZScWlpNHFQTQowdzY5aml6YUd4YWdMbEtSVE9BT2ZkNFNNN2swaVJKSU5QMUdKSmYzckI5b0hudlZRWUNGMVJkY1VlaG1TbFo4CmxpRFZKZHpKenpHRjdVdEdOWWpKZ3JrVUFjbm8rMFErUTJ3QUJUT0Z5enVORlJPQnRybFFUZmFiUjRHaEliaFYKNWk0OG9iRXYvL3RqY0tNeXZ0cEFBVEtDZzFlbWE0K1ZBTWplMFFBQUFBRWxBQUFCQUJ5UzY4UVRTdTZteFF4YgpGYXQ3WUI4Nkg1d1A4TlRIRTdBM2lkY3IyM3Ayd0hIZGVqU3psZDZucnBFOEt2UFM1aFcvY09UdGNVb0gvOGtRCkd1THM5T1VWSXJ5RHdJbTBobmlKc0d2b2Q1eDZ3dWJOUFUrek5yWWhBSXJ0NUxNdVlRbzhjdThzM3k4elA5b0kKcmVENlFxamMrU01abWNDN3M0MHNvbnN3V2NvV1Rud2h4VEF5d0J4UlMwR1RXSXM2UlNqWWl0ZXlGdWt6NUlkSwpGUHpnOHRzMUtDRjVPMGNiSWpvSHUyNlp0b2NzUlFQZHMwcHJteDVvUW1xVlIxQ09sNFBUU0JncEpvbnRlM1gwCnRjR0ROOHlDV05obEpIdHp0c1prQlZQL2lKVTdWNTF0KzRIc1hSbjBvL2dOYVQwNlA4TXowSzNLSGU4M0k1WGQKUjM5Yk82MEFBQUNBR1dLVlFKeDJPcno2S0g2ZXdnaXF6aDZObEhvSFJCeVZaK09PSjVkMlRRTi9ScE81eFZndQpLdFJYTWthUzcxSFpmdkYxUVExeHJtMzYxcGxBa0lGNXM1dlY0b0s0WjdzNTdTVzdKbzRISkVERVZxK253dGlFCnJNQ3Nsa3NtNkJvZVdiVU5uUVRibWZnbEp6Z1NSbnAzSm52VUYzRDdsVmNOQ1plVVVRL1BlNFFBQUFDQkFPS1QKc0FOSGJLdWtJSUNDQ0dLSW9JM1FSbmxOcWs1T25vZHV5SFplejJGMGZ5bmtFbFAwME1hR01ZRGlQWURZQzk0dAorL3BvWkhaTXRreGgwUWdqSkVwYkEzMTZQLzV3c0Fxcm1WeGlnNWtQemVwZWxFTnRadThoVVhxQTFjQ0tlL1NDCk1jMFdRUkdWalVYR1N0SFk0NGE1dFQyNXZXRTBoU2FCK29yY3A2RkJBQUFBZ1FDVlVOZVpqTGRaWnhSZGljVEUKSWNTRG43QVRDcHdaN29xc0tKTXd4SjJCZWtMMExUeGlBTTJRYnV0Q0UxTHZTSy9JNm5razlZcXhiSVJLUUc0VAo5Wk4vR05RZW1MckRVeStEVGg4WlFlbUU0NHJBZzlPQTdMVmxQOWs5S0tNREN0TTNaMm5kbHdmOGRCaHozbktLCjNKSkZIbFZkSTY1VzNITjdWSFdmZHh0SmtRQUFBQkJ5YzJFdGEyVjVMVEl3TWpRd056QXlBUUlEQkFVR0J3Z0oKQ2dzTURRPT0KLS0tLS1FTkQgT1BFTlNTSCBQUklWQVRFIEtFWS0tLS0tCg=="
+  PROJECT_PATH: "$CI_PROJECT_DIR"
+  APP_OUTPUT_PATH: "$CI_PROJECT_DIR/dist/browser"
+  NPM_REGISTRY: "http://gdml.internal.ausl.bologna.it:4873/"
+  ENVIRONMENT: "stage"
+  BROWSER_APP_PATH: "pec"
+  TARGET_USER: "nodejs"
+  TARGET_SERVER_NAME: "gdml.internal.ausl.bologna.it"
+  TARGET_DIST_PATH: "/opt/uis/shpeck-ui/dist"
+
+# Configuration shared for all jobs
+default:
+  # It saves ~10 sec to pull image from project container registry
+  # instead of the default docker.io registry
+  image: node:20.14
+  tags:
+    - babel
+
+# Define an hidden job to be used with extends
+# Better than default to avoid activating cache for all jobs
+.dependencies_cache:
+  cache:
+    key:
+      files:
+        - package.json
+    paths:
+      - node_modules
+    policy: pull
+
+install_dependencies:
+  stage: install
+  script:
+    - npm config set registry $NPM_REGISTRY -g
+    - npm config set fetch-retry-mintimeout 5 -g
+    - npm config set fetch-retry-maxtimeout 5 -g
+    - yarn install
+    # Redefine cache to have default pull-push policy
+  extends: .dependencies_cache
+  cache:
+    policy: pull-push
+  only:
+    changes:
+      - package.json
+      - force_deploy
+
+build_app:
+  stage: build
+  script:
+    - yarn build --configuration $ENVIRONMENT --base-href /$BROWSER_APP_PATH/ --output-path dist
+  artifacts:
+    name: "dist-files"
+    paths:
+      - $APP_OUTPUT_PATH
+  extends: .dependencies_cache
+
+deploy_app:
+  stage: deploy
+  script:
+    - (echo "$SSH_PRIVATE_KEY" | base64 -d) > key.pk
+    - chmod 600 key.pk
+    - ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -o IdentityFile=key.pk $TARGET_USER@$TARGET_SERVER_NAME  "rm -rf $TARGET_DIST_PATH/*"
+    - scp -r -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -o IdentityFile=key.pk $APP_OUTPUT_PATH/* $TARGET_USER@$TARGET_SERVER_NAME:$TARGET_DIST_PATH/
+  dependencies:
+    - build_app

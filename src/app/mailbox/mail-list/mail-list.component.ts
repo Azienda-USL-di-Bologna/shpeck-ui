@@ -2112,6 +2112,7 @@ export class MailListComponent implements OnInit, OnDestroy, AfterViewInit {
   public iconRegistrationClicked(event: any, message: Message, registrationStatus: string, openAlternativeMenu = false) {
     const messageTag: any = null;
     if (message) {
+      this.mailListService.selectedMessages = [message];
       switch (registrationStatus) {
         case "REGISTERED":
           // apro la popup con le informazioni sul tag
