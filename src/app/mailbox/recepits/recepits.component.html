@@ -24,21 +24,6 @@
     let-columns="columns"
   >
     <tr>
-      <!-- <td *ngFor="let col of columns" [ngStyle]="col.style">
-          <nextsdr-primeng-table-column-body *ngIf="!(['address','button'].indexOf(col.field) > -1)"
-            [column]="col" 
-            [rowData]="rowData">
-          </nextsdr-primeng-table-column-body>
-          <div *ngIf="col.field === 'address'">
-            {{calculateAddress(rowData)}}
-          </div>
-          <button pButton *ngIf="col.field === 'button'"
-            icon="pi pi-download" 
-            (click)="dowloadRecepit(rowData)"
-            pTooltip="Scarica la ricevuta"
-            class="download-button">
-          </button>
-        </td> -->
       <td
         style="width: 8.438rem"
         class="align-center"
@@ -63,7 +48,6 @@
           icon="pi pi-download"
           (click)="dowloadRecepit(rowData)"
           pTooltip="Scarica la ricevuta"
-          class="download-button"
         ></button>
       </td>
     </tr>

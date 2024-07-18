@@ -1,195 +1,300 @@
-.container {
-  display: flex;
-  flex-direction: column;
-  flex: 1;
-}
-
-.box {
-  background-color: #cce4f7;
-  text-align: center;
-  display: flex;
-  flex: 1;
-}
-
-.buttons-bar {
-  display: block;
-  width: 100%;
-}
-
-.oldslider {
-  position: absolute;
-  left: 0;
-  top: 0;
-  bottom: 0;
-  width: 0.938rem;
-  cursor: w-resize;
-  text-align: center;
-  justify-content: center;
-}
-
-.oldslider > div {
-  border: dotted 0.06rem grey;
-  width: 0.19rem;
-  border-top: none;
-  border-bottom: none;
-  height: 100%;
-  display: inline-block;
-}
-
-.slider {
-  position: relative;
-  cursor: w-resize;
-  border: solid 0.06rem grey;
-  width: 0.3rem;
-  border-top: none;
-  border-bottom: none;
-  height: 100%;
-  display: inline-block;
-  overflow: hidden;
-}
-
-.slider::before {
-  content: "";
-  border: dotted 0.13rem grey;
-  position: absolute;
-  left: 0;
-  width: 0rem;
-  height: 1.125rem;
-  top: 50%;
-  transform: translateY(-50%);
-}
-
-.hidden {
-  display: none !important;
-}
-
-.content-left {
-  display: block;
-  width: 18.75rem;
-  overflow-x: hidden;
-  overflow-y: auto;
-  &:focus {
-    border: 0.06rem solid black;
-  }
-}
-
-.content-right {
-  position: relative;
-  display: block;
-  flex: 1;
-  &:focus {
-    border: 0.06rem solid black;
-  }
-}
-
-.d-flex {
-  display: flex;
-}
-
-.mail-container {
-  display: flex;
-  flex: 1;
-  position: relative;
-  flex-direction: row;
-  margin-top: 0.3rem;
-  min-height: 0;
-}
 :host {
-  width: 100%;
-  display: flex;
-}
-.flex-1 {
-  flex: 1;
-}
-.text-center {
-  text-align: center;
-}
-/* ========= MAIL LIST ========== */
-app-mail-list,
-app-mail-drafts {
-  overflow: hidden;
-}
-.mail-list {
-  display: flex;
-  flex: 1;
-  padding: 0.3rem;
-  overflow: hidden;
   height: 100%;
   display: flex;
   flex-direction: column;
-}
-.mail-list:hover {
-  overflow: auto;
-}
-.filter-box {
-  background-color: #eaecef;
-  border-bottom: 0.06rem solid #96a4b2;
-  display: flex;
-  flex: 1;
-  flex-wrap: nowrap;
-  justify-content: space-between;
-  max-height: min-content;
-  flex-direction: row;
-  font-size: 0.75rem;
-  .filter-box-left,
-  .filter-box-right {
-    padding: 0.313rem 0.6rem;
-  }
-  .filter-box-left {
-    font-weight: bold;
-  }
-  .filter-box-right {
-    position: relative;
-    cursor: pointer;
-    padding-right: 1rem;
-  }
-  .filter-box-right:hover {
-    background-color: #d5dae0 !important;
-  }
-  .filter-box-right::before {
-    content: "";
-    width: 0;
-    height: 0;
-    border-style: solid;
-    border-width: 0.4rem 0.3rem 0 0.3rem;
-    border-color: #848484 transparent transparent transparent;
-    position: absolute;
-    right: 0.19rem;
-    top: 0.688rem;
-  }
-  &:focus {
-    border: 0.06rem solid black;
-  }
-}
-.general-font-size-small .filter-box {
-  font-size: 0.75rem;
-}
-.general-font-size-medium .filter-box {
-  font-size: 0.813rem;
-}
-.general-font-size-big .filter-box {
-  font-size: 0.813rem;
+  overflow: hidden;
 }
 
-/* ========= MAIL DETAIL ========== */
-.mail-detail {
+::ng-deep .container-mailbox-component {
+  height: 100%;
   display: flex;
-  flex: 1;
-  padding-left: 0.25rem;
-  position: relative;
+  flex-direction: column;
   overflow: hidden;
-  &:focus {
-    border: 0.06rem solid black;
+
+  app-toolbar {
+    display: block;
+    width: 100%;
+  }
+
+  p-splitter {
+    flex: 1 1 0;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+
+    //height: calc(100% - 44.5px); // 44.5px è l'altezza della generic-caption-table
+    .splitter-padre,
+    .splitter-figlio {
+      height: 100%;
+
+      .p-splitter-panel {
+        width: 100%;
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+        overflow: hidden;
+      }
+    }
+
+    .splitter-figlio {
+      .p-splitter-panel {
+        .mail-list {
+          height: 100%;
+          display: flex;
+          flex-direction: column;
+          overflow: hidden;
+
+          .filter-box {
+            background-color: #eaecef;
+            border-bottom: 0.06rem solid #96a4b2;
+            display: flex;
+            flex-wrap: nowrap;
+            justify-content: space-between;
+            max-height: min-content;
+            flex-direction: row;
+            font-size: 0.75rem;
+
+            .filter-box-left,
+            .filter-box-right {
+              padding: 0.313rem 0.6rem;
+            }
+
+            .filter-box-left {
+              font-weight: bold;
+            }
+
+            .filter-box-right {
+              position: relative;
+              cursor: pointer;
+              padding-right: 1rem;
+
+              &:hover {
+                background-color: #d5dae0 !important;
+              }
+
+              &::before {
+                content: "";
+                width: 0;
+                height: 0;
+                border-style: solid;
+                border-width: 0.4rem 0.3rem 0 0.3rem;
+                border-color: #848484 transparent transparent transparent;
+                position: absolute;
+                right: 0.19rem;
+                top: 0.688rem;
+              }
+            }
+          }
+
+          app-mail-list,
+          app-mail-drafts,
+          app-mail-outbox {
+            flex: 1 1 0;
+          }
+        }
+
+        .mail-detail {
+          display: flex;
+          flex: 1;
+          padding-left: 0.25rem;
+          position: relative;
+          overflow: hidden;
+
+          &:focus {
+            border: 0.06rem solid black;
+          }
+
+          &:hover {
+            overflow: overlay;
+          }
+        }
+      }
+    }
   }
 }
-.mail-detail:hover {
-  overflow: overlay;
-}
-.overlap-div {
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  z-index: 100;
-}
+
+// .mail-container {
+//   flex: 1 1 0;
+//   //position: relative;
+//   padding-top: 0.3rem;
+//   //min-height: 0;
+//   height: 100%;
+//   display: flex;
+//   flex-direction: row;
+//   overflow: hidden;
+
+//   .mail-folder-container {
+//     display: block;
+//     width: 18.75rem;
+//     overflow-x: hidden;
+//     overflow-y: auto;
+
+//     &:focus {
+//       border: 0.06rem solid black;
+//     }
+//   }
+// }
+
+
+
+
+// .slider {
+//   position: relative;
+//   cursor: w-resize;
+//   border: solid 0.06rem grey;
+//   width: 0.3rem;
+//   border-top: none;
+//   border-bottom: none;
+//   height: 100%;
+//   display: inline-block;
+//   overflow: hidden;
+// }
+
+// .slider::before {
+//   content: "";
+//   border: dotted 0.13rem grey;
+//   position: absolute;
+//   left: 0;
+//   width: 0rem;
+//   height: 1.125rem;
+//   top: 50%;
+//   transform: translateY(-50%);
+// }
+
+// .hidden {
+//   display: none !important;
+// }
+
+
+
+// .content-right {
+//   position: relative;
+//   display: block;
+//   flex: 1;
+
+//   &:focus {
+//     border: 0.06rem solid black;
+//   }
+// }
+
+// .d-flex {
+//   display: flex;
+// }
+
+
+
+
+
+// .flex-1 {
+//   flex: 1;
+// }
+
+// .text-center {
+//   text-align: center;
+// }
+
+// /* ========= MAIL LIST ========== */
+// app-mail-list,
+// app-mail-drafts {
+//   overflow: hidden;
+// }
+
+// .mail-list {
+//   display: flex;
+//   flex: 1;
+//   padding: 0.3rem;
+//   overflow: hidden;
+//   height: 100%;
+//   display: flex;
+//   flex-direction: column;
+// }
+
+// .mail-list:hover {
+//   overflow: auto;
+// }
+
+// .filter-box {
+//   background-color: #eaecef;
+//   border-bottom: 0.06rem solid #96a4b2;
+//   display: flex;
+//   flex: 1;
+//   flex-wrap: nowrap;
+//   justify-content: space-between;
+//   max-height: min-content;
+//   flex-direction: row;
+//   font-size: 0.75rem;
+
+//   .filter-box-left,
+//   .filter-box-right {
+//     padding: 0.313rem 0.6rem;
+//   }
+
+//   .filter-box-left {
+//     font-weight: bold;
+//   }
+
+//   .filter-box-right {
+//     position: relative;
+//     cursor: pointer;
+//     padding-right: 1rem;
+//   }
+
+//   .filter-box-right:hover {
+//     background-color: #d5dae0 !important;
+//   }
+
+//   .filter-box-right::before {
+//     content: "";
+//     width: 0;
+//     height: 0;
+//     border-style: solid;
+//     border-width: 0.4rem 0.3rem 0 0.3rem;
+//     border-color: #848484 transparent transparent transparent;
+//     position: absolute;
+//     right: 0.19rem;
+//     top: 0.688rem;
+//   }
+
+//   &:focus {
+//     border: 0.06rem solid black;
+//   }
+// }
+
+// .general-font-size-small .filter-box {
+//   font-size: 0.75rem;
+// }
+
+// .general-font-size-medium .filter-box {
+//   font-size: 0.813rem;
+// }
+
+// .general-font-size-big .filter-box {
+//   font-size: 0.813rem;
+// }
+
+// /* ========= MAIL DETAIL ========== */
+// .mail-detail {
+//   display: flex;
+//   flex: 1;
+//   padding-left: 0.25rem;
+//   position: relative;
+//   overflow: hidden;
+
+//   &:focus {
+//     border: 0.06rem solid black;
+//   }
+// }
+
+// .mail-detail:hover {
+//   overflow: overlay;
+// }
+
+// .overlap-div {
+//   position: absolute;
+//   top: 0;
+//   left: 0;
+//   right: 0;
+//   bottom: 0;
+//   z-index: 100;
+// }

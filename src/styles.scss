@@ -83,3 +83,33 @@ body .custom-secondary-button {
     font-size: 70%;
   }
 }
+
+// -----------CUSTOM SCROLLBAR----------------- //
+// CHROME
+
+::-webkit-scrollbar {
+  width: 0.625rem;
+  height: 0.625rem;
+}
+
+::-webkit-scrollbar-track {
+  background: #f1f1f1;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #88888857;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #8888889c;
+}
+
+// FIREFOX
+* {
+  scrollbar-color: #88888857 #f1f1f1;
+  scrollbar-width: thin;
+}
+
+*:hover {
+  scrollbar-color: #8888889c #f1f1f1;
+}
