@@ -19,6 +19,11 @@ body,
   font-family: "Open Sans", "Helvetica Neue", sans-serif !important;
 }
 
+app-mail-list .p-datatable-table.p-datatable-scrollable-table {
+  table-layout: fixed;
+}
+
+
 //body a {
 //color: deepskyblue;
 //}
