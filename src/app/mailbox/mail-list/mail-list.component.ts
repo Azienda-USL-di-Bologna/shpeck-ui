@@ -60,7 +60,6 @@ import { ContextMenu } from "primeng/contextmenu";
 })
 export class MailListComponent implements OnInit, OnDestroy, AfterViewInit {
   public lazy: boolean = false;
-  public messages: Message[] = Array.from({ length: 40 });
   constructor(
     public mailListService: MailListService,
     private messageService: ShpeckMessageService,
@@ -96,7 +95,7 @@ export class MailListComponent implements OnInit, OnDestroy, AfterViewInit {
   // @ViewChild("ordermenu") private ordermenu: Menu;
 
   // serve per mandarlo al mailbox-component
-  private pecFolderSelected: PecFolder;
+  public pecFolderSelected: PecFolder;
 
   public actualStringSearch: string = null;
 
@@ -340,37 +339,17 @@ export class MailListComponent implements OnInit, OnDestroy, AfterViewInit {
       subscription: this.mailFoldersService.pecFolderSelected.subscribe((pecFolderSelected: PecFolder) => {
         // this.tempSelectedMessages = null;
         this.mailListService.selectedMessages = [];
-        this.pecFolderSelected = pecFolderSelected;
+
         if (pecFolderSelected) {
-          this.resetMessagesArrayLenght = true;
-          if (pecFolderSelected.type === PecFolderType.FOLDER) {
-            const selectedFolder: Folder = pecFolderSelected.data as Folder;
-            if (selectedFolder.type !== FolderType.DRAFT && selectedFolder.type !== FolderType.OUTBOX) {
-              this._selectedPecId = selectedFolder.fk_idPec.id;
-              this._selectedPec = pecFolderSelected.pec;
-              console.log("selezionata ", selectedFolder);
-              this.setFolder(selectedFolder);
-              this.cmItems.map((element) => {
-                if (element.id === "MessageDelete" && selectedFolder.type === FolderType.TRASH) {
-                  element.label = "Elimina definitivamente";
-                } else if (element.id === "MessageDelete") {
-                  element.label = "Elimina";
-                }
-              });
-            }
-          } else if (pecFolderSelected.type === PecFolderType.TAG) {
-            const selectedTag: Tag = pecFolderSelected.data as Tag;
-            this._selectedPecId = selectedTag.fk_idPec.id;
-            this._selectedPec = pecFolderSelected.pec;
-            this.setTag(selectedTag);
-          } else {
-            const pec: Pec = pecFolderSelected.data as Pec;
-            this._selectedPec = pec;
-            this._selectedPecId = pec.id;
-            this.setFolder(null);
-            //this.lazyLoad(null);
-            this.reloadTable();
+          if (this.mailListService.messages.length === 0) {
+            this.mailListService.messages = Array.from({ length: this.rowsNumber });
           }
+          setTimeout(() => {
+            this.pecFolderSelected = pecFolderSelected;
+            this.managePecFolderSelection();
+          }, 100);
+        } else {
+          this.pecFolderSelected = null;
         }
       }),
     });
@@ -469,6 +448,38 @@ export class MailListComponent implements OnInit, OnDestroy, AfterViewInit {
     setTimeout(() => {
       this.setAccessibilityProperties(false);
     }, 0);
+  }
+
+  private managePecFolderSelection() {
+    this.resetMessagesArrayLenght = true;
+    if (this.pecFolderSelected.type === PecFolderType.FOLDER) {
+      const selectedFolder: Folder = this.pecFolderSelected.data as Folder;
+      if (selectedFolder.type !== FolderType.DRAFT && selectedFolder.type !== FolderType.OUTBOX) {
+        this._selectedPecId = selectedFolder.fk_idPec.id;
+        this._selectedPec = this.pecFolderSelected.pec;
+        console.log("selezionata ", selectedFolder);
+        this.setFolder(selectedFolder);
+        this.cmItems.map((element) => {
+          if (element.id === "MessageDelete" && selectedFolder.type === FolderType.TRASH) {
+            element.label = "Elimina definitivamente";
+          } else if (element.id === "MessageDelete") {
+            element.label = "Elimina";
+          }
+        });
+      }
+    } else if (this.pecFolderSelected.type === PecFolderType.TAG) {
+      const selectedTag: Tag = this.pecFolderSelected.data as Tag;
+      this._selectedPecId = selectedTag.fk_idPec.id;
+      this._selectedPec = this.pecFolderSelected.pec;
+      this.setTag(selectedTag);
+    } else {
+      const pec: Pec = this.pecFolderSelected.data as Pec;
+      this._selectedPec = pec;
+      this._selectedPecId = pec.id;
+      this.setFolder(null);
+      //this.lazyLoad(null);
+      this.reloadTable();
+    }
   }
 
   /**
@@ -1264,30 +1275,20 @@ export class MailListComponent implements OnInit, OnDestroy, AfterViewInit {
             }
           }
           //trigger change detection
-          this.storedLazyLoadEvent.forceUpdate();
-          window.dispatchEvent(new Event("resize"));
+          // this.storedLazyLoadEvent.forceUpdate();
+          // //window.dispatchEvent(new Event("resize"));
+
+          // this.dt.scroller.setSize();
+          // this.dt.scroller.setSpacerSize();
 
           this.dt.scroller.setSize();
+          //this.dt.scroller.calculateOptions();
           this.dt.scroller.setSpacerSize();
-          //this.mailListService.messages = [...this.mailListService.messages];
+          //this.dt.scroller.bindResizeListener();
+
+          this.storedLazyLoadEvent.forceUpdate();
 
           this.loading = false;
-
-          /* this.showLoadingDiv = true;
-          window.dispatchEvent(new Event("resize"));
-          //this.showLoadingDiv = false;
-          setTimeout(() => {
-            this.showLoadingDiv = false;
-            this.loading = false;
-            //window.dispatchEvent(new Event("resize"));
-          }, 100); */
-
-          //this.setAccessibilityProperties(true);
-
-          /* if (this.primavolta) {
-            this.primavolta = false;
-            this.mostratable = true;
-          } */
         }),
     });
   }
@@ -1344,32 +1345,25 @@ export class MailListComponent implements OnInit, OnDestroy, AfterViewInit {
       return;
     } */
 
-    if (event && event.rows === 0) {
+    /* if (event && event.rows === 0) {
       this.storedLazyLoadEvent = event;
-      /* event.forceUpdate();
-      this.dt.scroller.setSize();
-      this.dt.scroller.setSpacerSize();
-      window.dispatchEvent(new Event("resize")); */
       this.showLoadingDiv = true;
-      window.dispatchEvent(new Event("resize"));
-      //this.showLoadingDiv = false;
+      //window.dispatchEvent(new Event("resize"));
       setTimeout(() => {
         this.showLoadingDiv = false;
-
-        //window.dispatchEvent(new Event("resize"));
       }, 100);
       return;
-    }
+    } */
 
     //console.log("lazyLoad di mailList Component", event);
     const eventFilters: { [s: string]: FilterMetadata } = this.buildTableEventFilters(this._filters);
     this.previousFilter = this._filters;
     if (!event) {
       this.resetMessagesArrayLenght = true;
-      this.storedLazyLoadEvent.forceUpdate();
+      /* this.storedLazyLoadEvent.forceUpdate();
       this.dt.scroller.setSize();
-      this.dt.scroller.setSpacerSize();
-      window.dispatchEvent(new Event("resize"));
+      this.dt.scroller.setSpacerSize(); */
+      //window.dispatchEvent(new Event("resize"));
       event = this.storedLazyLoadEvent;
       event.rows = this.rowsNumber;
       event.first = 0;

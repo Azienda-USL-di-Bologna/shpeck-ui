@@ -62,7 +62,7 @@ import { DialogService } from "primeng/dynamicdialog";
   providedIn: "root",
 })
 export class MailListService {
-  public messages: Message[] = Array.from({ length: 40 });
+  public messages: Message[] = [];
   public folders: Folder[] = [];
   public tags: Tag[] = [];
   public trashFolder: Folder;
@@ -109,6 +109,7 @@ export class MailListService {
     private httpClient: HttpClient,
     private configurazioneService: ConfigurazioneService
   ) {
+    //this.messages = Array.from({ length: 20 });
     this.subscriptions.push(
       this.loginService.loggedUser$.subscribe((utente: UtenteUtilities) => {
         if (utente) {
@@ -544,7 +545,6 @@ export class MailListService {
         .moveMessagesToFolder(messagesFolder, idFolder, this.loggedUser.getUtente().id)
         .subscribe((res) => {
           if (this.pecFolderSelected.type === PecFolderType.FOLDER) {
-            debugger;
             this.messages = Utils.arrayDiff(this.messages, this.selectedMessages, "id");
             this.mailFoldersService.doReloadFolder(messagesFolder[0].idFolder.id);
             this.mailFoldersService.doReloadFolder(idFolder);
