@@ -1041,9 +1041,9 @@ export class NewMailComponent implements OnInit, AfterViewInit, OnDestroy {
       }
       if (this.config.data.action === TOOLBAR_ACTIONS.EDIT) {
         this.editor.quill.clipboard.dangerouslyPasteHTML(body);
-        this.mailForm.patchValue({
-          body: this.editor.quill.root["innerHTML"],
-        });
+        // this.mailForm.patchValue({
+        //   body: this.editor.quill.root["innerHTML"],
+        // });
       } else {
         const message: Message = this.config.data.fullMessage.message;
         this.buildBody(message, body);
