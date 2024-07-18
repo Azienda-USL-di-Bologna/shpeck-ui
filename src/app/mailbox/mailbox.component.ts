@@ -41,8 +41,8 @@ export class MailboxComponent implements OnInit, AfterViewInit, AfterViewChecked
   @ViewChild("mailContainer", {}) private mailContainer: ElementRef;
   @ViewChild("mailList", {}) private mailList: ElementRef;
   @ViewChild("mailDetail", {}) private mailDetail: ElementRef;
-  @ViewChild("rightSlider", {}) private rightSlider: ElementRef;
-  @ViewChild("leftSlider", {}) private leftSlider: ElementRef;
+  // @ViewChild("rightSlider", {}) private rightSlider: ElementRef;
+  // @ViewChild("leftSlider", {}) private leftSlider: ElementRef;
 
   public rightSideVisible: boolean;
   public flexGridClass = "p-col-8";
@@ -338,7 +338,7 @@ export class MailboxComponent implements OnInit, AfterViewInit, AfterViewChecked
   } */
 
   private setLook(): void {
-    this.setResponsiveSliders();
+    //this.setResponsiveSliders();
     if (this.settingsService.getImpostazioniVisualizzazione()) {
       this.hideDetail = this.settingsService.getHideDetail() === "true";
       const fontSize = this.settingsService.getFontSize();
@@ -346,7 +346,7 @@ export class MailboxComponent implements OnInit, AfterViewInit, AfterViewChecked
     }
   }
 
-  private setResponsiveSliders(): void {
+  /* private setResponsiveSliders(): void {
     const that = this;
     this.rightSlider.nativeElement.onmousedown = function (event: MouseEvent) {
       that.sliding = true;
@@ -387,7 +387,7 @@ export class MailboxComponent implements OnInit, AfterViewInit, AfterViewChecked
         }
       };
     };
-  }
+  } */
 
   onKeyUpMoveFocus(event: any) {
     // console.log("mailbox onKeyUpMoveFocus", event);

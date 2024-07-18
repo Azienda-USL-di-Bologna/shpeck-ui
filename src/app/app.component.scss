@@ -1,21 +1,19 @@
-/* -----------CONTENT WRAPPER--------------- */
-.full-width {
-  width: 100%;
-}
-.page-wrapper {
+:host {
+  height: 100%;
   display: flex;
   flex-direction: column;
+  overflow: hidden;
+}
+
+.content {
+  flex: 1 1 0;
+}
+
+
+/* ::ng-deep .content-wrapper>app-mailbox {
   width: 100%;
   height: 100%;
-}
-.content-wrapper {
-  flex: 1;
-  min-height: 0;
-}
-::ng-deep .content-wrapper > app-mailbox {
-  width: 100%;
-  height: 100%;
-}
+} */
 
 /* ------------TEMPLATE GENERALE---------------------- */
 /* --- RIGHE P-TABLE --- */
@@ -34,7 +32,7 @@
   color: white;
 }
 
-::ng-deep body .p-datatable .p-datatable-tbody > tr.p-highlight {
+::ng-deep body .p-datatable .p-datatable-tbody>tr.p-highlight {
   background-color: #fcf9bf !important;
   color: black !important;
 }
@@ -50,47 +48,8 @@
   justify-content: space-around;
 }
 
-/* Download button */
-::ng-deep .download-button {
-  background-color: transparent !important;
-  border: none !important;
-  color: black !important;
-  font-size: 0.938rem !important;
-}
-::ng-deep .download-button:hover {
-  background-color: #c8c8c8 !important;
-  border-color: #c8c8c8 !important;
-}
-
-/* -----------CUSTOM SCROLLBAR----------------- */
-/* CHROME */
-
-::ng-deep ::-webkit-scrollbar {
-  width: 0.625rem;
-  height: 0.625rem;
-}
-::ng-deep ::-webkit-scrollbar-track {
-  background: #f1f1f1;
-}
-::ng-deep ::-webkit-scrollbar-thumb {
-  background: #88888857;
-}
-::ng-deep ::-webkit-scrollbar-thumb:hover {
-  background: #8888889c;
-}
-
-/* FIREFOX*/
-::ng-deep * {
-  scrollbar-color: #88888857 #f1f1f1;
-  scrollbar-width: thin;
-}
-::ng-deep *:hover {
-  scrollbar-color: #8888889c #f1f1f1;
-}
-
-@media only screen and (max-height: 50.063rem) {
-  /* For low resolutions */
+/* @media only screen and (max-height: 50.063rem) {
   ::ng-deep .new-draft .p-dialog-content.p-widget-content {
     height: 91vh !important;
   }
-}
+} */

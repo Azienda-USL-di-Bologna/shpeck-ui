@@ -1,49 +1,60 @@
-:host {
-  height: 100%;
-}
+:host {}
+
 ::ng-deep .toolbar-pec button {
   margin-right: 0.25em;
 }
+
 ::ng-deep .toolbar-pec button .ui-button-icon-left {
   color: #2e4a65;
 }
+
 ::ng-deep .toolbar-pec .rotate .ui-button-icon-left {
   transform: rotate(-90deg);
 }
+
 ::ng-deep .toolbar-pec .button-new-mail .ui-button-icon-left {
   color: white !important;
 }
+
 ::ng-deep .p-toolbar {
   padding: 0.571em 1em;
 }
+
 .toolbar-container {
   display: flex;
   justify-content: space-between;
   width: 100%;
 }
+
 .d-flex {
   display: flex;
 }
+
 .toolbar-pec {
+
   .button-new-mail,
   .button-styles {
     width: auto;
     white-space: nowrap;
+
     &:focus {
       ::ng-deep .ui-button-text {
         border: 0.06rem solid black !important;
       }
     }
   }
+
   .button-new-mail {
     color: #ffffff !important;
   }
+
   .images-pos {
     position: absolute;
     top: 15%;
     left: 5%;
     width: 1.313rem;
   }
+
   .input-find {
     width: 100%;
     margin-left: auto;
@@ -52,10 +63,12 @@
     background-color: #f4f4f4;
   }
 }
-::ng-deep .margin-l-15 > span {
+
+::ng-deep .margin-l-15>span {
   margin-left: 0.938rem;
 }
-::ng-deep .move-menu > div {
+
+::ng-deep .move-menu>div {
   max-height: 20.625rem;
   overflow-y: auto;
   width: fit-content !important;
@@ -64,9 +77,11 @@
   max-width: 18.75rem;
   overflow-x: hidden;
 }
+
 .buttons {
   width: 3.875rem !important;
 }
+
 .close-icon {
   align-self: center;
   font-size: 0.938rem;
@@ -76,6 +91,7 @@
   vertical-align: middle;
   outline: 0;
   cursor: pointer;
+
   &:after {
     display: block;
     width: 0.938rem;
@@ -100,7 +116,8 @@
 .search-wrapper {
   position: relative;
 }
-.input-find:not(:valid) ~ .close-icon {
+
+.input-find:not(:valid)~.close-icon {
   display: none !important;
 }
 
@@ -114,6 +131,7 @@
   font-size: 1.25em;
   border: 0rem;
 }
+
 .search-wrapper {
   display: flex;
   box-sizing: border-box;
@@ -124,10 +142,12 @@
   border-left: 0.06rem solid transparent;
   border-right: 0.06rem solid transparent;
   transition: border 0.3s ease-out;
+
   &:hover {
     border: 0.06rem solid #223446 !important;
   }
 }
+
 .cerca-box {
   width: 21.25rem;
 }

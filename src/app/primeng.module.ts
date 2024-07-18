@@ -29,7 +29,7 @@ import { CalendarModule } from "primeng/calendar";
 import { TooltipModule } from "primeng/tooltip";
 import { DropdownModule } from "primeng/dropdown";
 import { OverlayPanelModule } from "primeng/overlaypanel";
-
+import { SplitterModule } from "primeng/splitter";
 @NgModule({
   declarations: [],
   imports: [
@@ -63,6 +63,7 @@ import { OverlayPanelModule } from "primeng/overlaypanel";
     SliderModule,
     ColorPickerModule,
     InplaceModule,
+    SplitterModule,
   ],
   exports: [
     DynamicDialogModule,
@@ -95,6 +96,7 @@ import { OverlayPanelModule } from "primeng/overlaypanel";
     SliderModule,
     ColorPickerModule,
     InplaceModule,
+    SplitterModule,
   ],
 })
 export class PrimengModule {}
