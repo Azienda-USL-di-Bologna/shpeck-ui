@@ -1,5 +1,5 @@
 <div
-  class="container"
+  class="container-mailbox-component"
   [ngClass]="
     fontSize === 'small'
       ? 'general-font-size-small'
@@ -9,112 +9,90 @@
   "
 >
   <app-toolbar></app-toolbar>
-  <div
-    #mailContainer
-    class="mail-container"
-  >
-    <!-- Left side -->
-    <div
-      #mailFolder
-      class="mail-folder-container"
-    >
+
+  <p-splitter 
+    [panelSizes]="[20,80]" 
+    [minSizes]="[10, 50]"
+    styleClass="splitter-padre">
+    <ng-template pTemplate>
       <app-mail-folders></app-mail-folders>
-    </div>
-
-    <div
-      #leftSlider
-      class="slider text-center"
-    >
-      <div></div>
-    </div>
-
-    <!-- Right side -->
-    <div
-      #rightSide
-      class="content-right d-flex"
-    >
-      <div
-        #mailList
-        class="mail-list"
-        [attr.aria-label]="
-          _selectedFolder
-            ? 'La lista dei messagi nella cartella'
-            : _selectedTag
-            ? 'La lista dei messagi nell etichetta'
-            : 'Lista messaggi vuota'
-        "
-      >
-        <!-- <app-mail-list
-          [folder] = "folderSelected"
-          [filters] = "filtersSelected"
-          (messageClicked)="messageClicked($event)">
-        </app-mail-list> -->
-        <div
-          class="filter-box"
-          aria-hidden="true"
-        >
-          <div class="filter-box-left">
-            {{
-              _selectedFolder ? _selectedFolder.description : _selectedTag ? _selectedTag.description : _selectedPec?.indirizzo
-            }}
-          </div>
-          <!--  {{totalMessageNumberDescriptor? '(' + totalMessageNumberDescriptor.messageNumber + ')': ''}} -->
+    </ng-template>
+    <ng-template pTemplate>
+      <p-splitter
+        [panelSizes]="[50,50]" 
+        [minSizes]="[20, 20]"
+        styleClass="splitter-figlio">
+        <ng-template pTemplate>
           <div
-            class="filter-box-right"
-            (click)="sortingmenu.toggle($event)"
-            [pTooltip]="tooltipSorting"
+            #mailList
+            class="mail-list"
+            [attr.aria-label]="
+              _selectedFolder
+                ? 'La lista dei messagi nella cartella'
+                : _selectedTag
+                ? 'La lista dei messagi nell etichetta'
+                : 'Lista messaggi vuota'
+            "
           >
-            {{ sortingLabel }}
+            <div
+              class="filter-box"
+              aria-hidden="true"
+            >
+              <div class="filter-box-left">
+                {{
+                  _selectedFolder ? _selectedFolder.description : _selectedTag ? _selectedTag.description : _selectedPec?.indirizzo
+                }}
+              </div>
+              <!--  {{totalMessageNumberDescriptor? '(' + totalMessageNumberDescriptor.messageNumber + ')': ''}} -->
+              <div
+                class="filter-box-right"
+                (click)="sortingmenu.toggle($event)"
+                [pTooltip]="tooltipSorting"
+              >
+                {{ sortingLabel }}
+              </div>
+            </div>
+            <p-menu
+              #sortingmenu
+              appendTo="body"
+              [showTransitionOptions]="'0ms'"
+              [hideTransitionOptions]="'0ms'"
+              [popup]="true"
+              [model]="sortMenuItem"
+            ></p-menu>
+            <app-mail-list
+              *ngIf="componentToLoad === 'mail-list'"
+              (messageClicked)="messageClicked($event)"
+            >
+            </app-mail-list>
+            <app-mail-drafts
+              *ngIf="componentToLoad === 'mail-draft'"
+              [pecId]="_selectedPecId"
+            ></app-mail-drafts>
+            <app-mail-outbox
+              *ngIf="componentToLoad === 'mail-outbox'"
+              [pecId]="_selectedPecId"
+            ></app-mail-outbox>
           </div>
-        </div>
-        <p-menu
-          #sortingmenu
-          appendTo="body"
-          [showTransitionOptions]="'0ms'"
-          [hideTransitionOptions]="'0ms'"
-          [popup]="true"
-          [model]="sortMenuItem"
-        ></p-menu>
-        <app-mail-list
-          *ngIf="componentToLoad === 'mail-list'"
-          (messageClicked)="messageClicked($event)"
-        >
-        </app-mail-list>
-        <app-mail-drafts
-          *ngIf="componentToLoad === 'mail-draft'"
-          [pecId]="_selectedPecId"
-        ></app-mail-drafts>
-        <app-mail-outbox
-          *ngIf="componentToLoad === 'mail-outbox'"
-          [pecId]="_selectedPecId"
-        ></app-mail-outbox>
-      </div>
-
-      <div
-        [ngClass]="hideDetail ? 'hidden' : 'slider'"
-        #rightSlider
-        class="text-center"
-      >
-        <div></div>
-      </div>
-
-      <!-- (keyup.Control)="onKeyUpMoveFocus($event)"  -->
-      <!-- role="region" -->
-      <div
-        [ngClass]="hideDetail ? 'hidden' : 'mail-detail'"
-        #mailDetail
-        tabindex="0"
-        aria-label="Dettaglio del messaggio selezionato"
-      >
-        <div [ngClass]="{ 'overlap-div': sliding }"></div>
-        <app-mail-detail
-          [message]="message"
-          [versioneAccessibile]="false"
-        >
-        </app-mail-detail>
-      </div>
-    </div>
-  </div>
+        </ng-template>
+        <ng-template pTemplate>
+          <div
+            [ngClass]="hideDetail ? 'hidden' : 'mail-detail'"
+            #mailDetail
+            tabindex="0"
+            aria-label="Dettaglio del messaggio selezionato"
+          >
+            <div [ngClass]="{ 'overlap-div': sliding }"></div>
+            <app-mail-detail
+              [message]="message"
+              [versioneAccessibile]="false"
+            >
+            </app-mail-detail>
+          </div>
+        </ng-template>
+      </p-splitter>
+    </ng-template>
+  </p-splitter>
 </div>
 
 <p-toast position="top-right"></p-toast>
