@@ -189,6 +189,7 @@ export class NewMailComponent implements OnInit, AfterViewInit, OnDestroy {
     }
     /* Inizializzazione della form, funziona per tutte le actions ed é l'oggetto che contiene tutti i campi
      * che saranno inviati al server */
+
     this.mailFormInit(hideRecipients, subject, message, action, messageRelatedType);
   }
 
@@ -1044,9 +1045,9 @@ export class NewMailComponent implements OnInit, AfterViewInit, OnDestroy {
         const message: Message = this.config.data.fullMessage.message;
         this.buildBody(message, body);
       }
-      /* this.mailForm.patchValue({
+      this.mailForm.patchValue({
         body: this.editor.quill.root["innerHTML"],
-      }); */
+      });
     }
     /* Disabilito la compilazione automatica degli indirizzi */
     this.setAttribute("toInputId", "autocomplete", "false");
