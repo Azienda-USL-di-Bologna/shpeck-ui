@@ -1056,7 +1056,7 @@ export class NewMailComponent implements OnInit, AfterViewInit, OnDestroy {
         const message: Message = this.config.data.fullMessage.message;
         this.buildBody(message, body);
         // this.mailForm.get("body").setValue(this.editor.quill.root["innerHTML"]);
-        this.editor.quill.update("api");
+        // this.editor.quill.update("api");
       }
     }
     /* Disabilito la compilazione automatica degli indirizzi */
