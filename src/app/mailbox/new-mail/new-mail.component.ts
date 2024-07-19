@@ -792,6 +792,9 @@ export class NewMailComponent implements OnInit, AfterViewInit, OnDestroy {
       .replace(/<\/tbody.[^]*?<\/table>/, "")
       .replace(/<tr>/g, "<br>");
     this.editor.quill.clipboard.dangerouslyPasteHTML(this.editor.quill.getLength(), bodyTableClean);
+    const asd = this.editor.quill.root["innerHTML"];
+    this.mailForm.get("body").setValue(asd);
+    this.editor.quill.clipboard.dangerouslyPasteHTML(asd);
   }
 
   buildFormToSend(): FormData {
@@ -1052,7 +1055,8 @@ export class NewMailComponent implements OnInit, AfterViewInit, OnDestroy {
       } else {
         const message: Message = this.config.data.fullMessage.message;
         this.buildBody(message, body);
-        this.mailForm.get("body").setValue(this.editor.quill.root["innerHTML"]);
+        // this.mailForm.get("body").setValue(this.editor.quill.root["innerHTML"]);
+        // this.editor.quill.update("api");
       }
     }
     /* Disabilito la compilazione automatica degli indirizzi */
