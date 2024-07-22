@@ -1,6 +1,6 @@
 {
   "name": "shpeck-ui",
-  "version": "1.0.0",
+  "version": "18.0.0",
   "scripts": {
     "ng": "ng",
     "start": "ng serve",
@@ -40,6 +40,7 @@
     "primeicons": "7.0.0",
     "primeng": "17.18.0",
     "rxjs": "7.8.1",
+    "tslib": "2.6.3",
     "zone.js": "0.14.7",
     "quill": "2.0.2"
   },
