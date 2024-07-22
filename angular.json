@@ -31,7 +31,7 @@
             "index": "src/index.html",
             "polyfills": ["src/polyfills.ts"],
             "tsConfig": "src/tsconfig.app.json",
-            "aot": false,
+            
             "browser": "src/main.ts",
             "assets": ["src/favicon.ico", "src/assets", "src/app"],
             "styles": [
@@ -94,7 +94,6 @@
                 "hidden": false
               },
               "namedChunks": true,
-              "aot": false
             }
           },
           "defaultConfiguration": "production"
