@@ -503,7 +503,7 @@ export class MailListService {
   }
 
   public loggedUserHasPermission(permission: PecPermission): boolean {
-    return this.loggedUser.hasPecPermission(this.idPec, permission);
+    return this.loggedUser?.hasPecPermission(this.idPec, permission);
   }
 
   /**
@@ -1257,7 +1257,7 @@ export class MailListService {
   private getCodiciMieAziendeProtocollabili(message: Message): string[] {
     let mieAziendeProtocollabili: string[] = [];
     if (message) {
-      const aziendeWithFluxPermission = this.loggedUser.getAziendeWithPermission(FluxPermission.REDIGE);
+      const aziendeWithFluxPermission = this.loggedUser?.getAziendeWithPermission(FluxPermission.REDIGE);
       if (aziendeWithFluxPermission && aziendeWithFluxPermission.length > 0) {
         const mieAziendeGiaProtocoll: string[] = this.loggedUser
           .getUtente()
