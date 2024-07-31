@@ -1,6 +1,7 @@
 <!-- <button (click)="mostratable = true">mostra</button> -->
 <!-- *ngIf="mostratable && (_selectedTag || _selectedFolder || _filters)" -->
-<p-table *ngIf="pecFolderSelected && mailListService.loggedUser"
+<p-table
+  *ngIf="pecFolderSelected && mailListService.loggedUser"
   #dt
   id="pec-mail-list"
   [lazy]="true"
