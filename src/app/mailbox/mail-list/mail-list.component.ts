@@ -1379,6 +1379,11 @@ export class MailListComponent implements OnInit, OnDestroy, AfterViewInit {
       console.log(`Offset non corretto, non cairco i dati`);
       return;
     }
+    if (event.rows === 0) {
+      console.log(`Limit non corretto, non cairco i dati`);
+      this.storedLazyLoadEvent = event;
+      return;
+    }
     this.pageConf.conf = {
       limit: event.rows,
       offset: event.first,
