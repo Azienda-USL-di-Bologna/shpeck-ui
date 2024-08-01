@@ -18,7 +18,7 @@ import { DialogService } from "primeng/dynamicdialog";
 })
 export class ToolBarService {
   private subscriptions: Subscription[] = [];
-  private _filter: BehaviorSubject<string> = new BehaviorSubject<string>(null);
+  private _userFilters: BehaviorSubject<UserFilters> = new BehaviorSubject<UserFilters>(null);
 
   public messageEvent: MessageEvent;
   public selectedMessages: Message[];
@@ -204,12 +204,12 @@ export class ToolBarService {
     }
   }
 
-  public setFilterTyped(filter: string): void {
-    this._filter.next(filter);
+  public setUserFilters(filter: UserFilters): void {
+    this._userFilters.next(filter);
   }
 
-  public get getFilterTyped(): Observable<string> {
-    return this._filter.asObservable();
+  public get getUserFilters(): Observable<UserFilters> {
+    return this._userFilters.asObservable();
   }
 
   public handleDelete() {
@@ -308,4 +308,14 @@ export class ToolBarService {
       });
     }
   }
+}
+
+export interface UserFilters {
+  searchString: string;
+  ricercaAvanzataFilters: RicercaAvanzataFilters;
+}
+
+export interface RicercaAvanzataFilters {
+  messageDate: { startDate: string; endDate: string };
+  soloReindirizzati: boolean;
 }

@@ -143,6 +143,13 @@
       <!-- Non metto role="search" perché altrimenti legge "Punto di riferimento" .. e invece l'ho messo.. mah -->
       <!--  -->
       <div class="search-wrapper">
+        <button
+          class="custom-search-button icon-button pi pi-search"
+          aria-label="Ricerca"
+          (click)="onSearch(search.value, true)"
+          pTooltip="Ricerca"
+          tooltipPosition="bottom"
+        ></button>
         <input
           #search
           [attr.aria-label]="getDescrizioneCerca()"
@@ -157,23 +164,56 @@
           [pTooltip]="
             (toolBarService.buttonObs.get('searchActive') | async) ? 'Inserire almeno 3 caratteri e premere invio' : null
           "
+          tooltipPosition="bottom"
           minlength="3"
           [disabled]="!(toolBarService.buttonObs.get('searchActive') | async)"
         />
         <button
-          class="material-icons close-icon"
-          type="reset"
+          class="reset-filters-icon icon-button pi pi-times"
+          [ngClass]="{'hide': (numeroFiltriApplicati === '0' && (search.value == null || search.value.length === 0))}"
           aria-label="Cancella ricerca"
-          (click)="clearInput()"
+          pTooltip="Cancella ricerca"
+          tooltipPosition="bottom"
+          (click)="clearInput(true)"
         >
-          close
         </button>
-        <button
-          class="custom-search-button pi pi-search"
-          aria-label="Ricerca"
-          (click)="onSearch(search.value, true)"
-        ></button>
+        <p-button 
+          class="button-ricerca-avanzata button-styles ui-button-raised ui-button-secondary custom-border rotate"
+          [badge]="numeroFiltriApplicati" 
+          [pTooltip]="stringaElencoFiltriApplicati === '' ? 'Mostra opzioni di ricerca' : 'Filtri attualmente inseriti:\n' + stringaElencoFiltriApplicati"
+          tooltipPosition="bottom"
+          badgeClass="p-badge-contrast" 
+          [icon]="iconaRicercaAvanzata"
+          [ngClass]="{'ricerca-in-corso': numeroFiltriApplicati !== '0'}"
+          outlined="true" 
+          (onClick)="op.toggle($event)"/>
       </div>
+      <p-overlayPanel #op class="panel-ricerca-avanzata" [style]="{ width: '70rem;' }"><!-- (onHide)="" -->
+        <div class="panel-ricerca-avanzata-content">
+          <div class="filtro calendari">
+            <label>Filtra per data ricezione/invio</label>
+            <custom-calendar
+              (intervalDateSelected)="intervalDateSelected($event)"
+            ></custom-calendar>
+          </div>
+          <div class="filtro box-reindirizzati">
+            <p-checkbox
+              [binary]="true"
+              [(ngModel)]="ricercaAvanzataFilters.soloReindirizzati"
+              inputId="soloReindirizzatiId"
+            ></p-checkbox>
+            <label for="soloReindirizzatiId">Solo messaggi reindirizzati</label>
+          </div>
+          <div class="footer">
+            <p-button 
+              class="button-cerca button-styles ui-button-raised ui-button-secondary custom-border rotate"
+              label="Cerca" 
+              outlined="true" 
+              (onClick)="avviaRicercaAvanzata(); op.toggle($event)"/>
+          </div>
+        </div>
+        
+      </p-overlayPanel>
     </div>
   </div>
 </p-toolbar>

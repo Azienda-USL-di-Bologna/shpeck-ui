@@ -5,12 +5,13 @@ import { TOOLBAR_ACTIONS } from "src/environments/app-constants";
 import { Pec, Folder, FolderType, Tag } from "@bds/internauta-model";
 import { PecService } from "src/app/services/pec.service";
 import { FilterDefinition, FILTER_TYPES, SORT_MODES } from "@bds/next-sdr";
-import { ToolBarService } from "./toolbar.service";
+import { RicercaAvanzataFilters, ToolBarService, UserFilters } from "./toolbar.service";
 import { MailFoldersService, PecFolderType } from "../mail-folders/mail-folders.service";
 import { MailListService } from "../mail-list/mail-list.service";
 import { Menu } from "primeng/menu";
 import { DialogService } from "primeng/dynamicdialog";
 import { MailboxService, Sorting } from "../mailbox.service";
+import { DatePipe } from "@angular/common";
 
 @Component({
   selector: "app-toolbar",
@@ -25,6 +26,13 @@ export class ToolbarComponent implements OnDestroy, AfterViewInit {
   private selectedFolder: Folder;
   private _selectedPec: Pec;
   private searchString: string;
+  public numeroFiltriApplicati: string = "0";
+  public stringaElencoFiltriApplicati: string = "";
+  public ricercaAvanzataFilters: RicercaAvanzataFilters = {
+    messageDate: null,
+    soloReindirizzati: false,
+  };
+  public iconaRicercaAvanzata = "pi pi-filter";
 
   public buttonObs: Map<string, Observable<boolean>>;
   public moveMenuItems: MenuItem[];
@@ -45,7 +53,8 @@ export class ToolbarComponent implements OnDestroy, AfterViewInit {
     private mailFoldersService: MailFoldersService,
     private mailListService: MailListService,
     private confirmationService: ConfirmationService,
-    private mailboxService: MailboxService
+    private mailboxService: MailboxService,
+    private datePipe: DatePipe
   ) {
     this.askConfirmationBeforeArchiviation = this.askConfirmationBeforeArchiviation.bind(this);
   }
@@ -233,31 +242,104 @@ export class ToolbarComponent implements OnDestroy, AfterViewInit {
 
     if (enter) {
       if (value && value.length >= 3) {
-        this.toolBarService.setFilterTyped(value);
-
-        const sort: Sorting = {
-          field: "ranking",
-          sortMode: SORT_MODES.desc,
-        };
-
-        this.mailboxService.setSorting(sort);
+        this.applyFilters();
       } else {
         this.toggleDialogAndAddFocus();
       }
     }
   }
 
+  private applyFilters() {
+    const userFilters: UserFilters = {
+      searchString: this.searchString,
+      ricercaAvanzataFilters: Object.assign({}, this.ricercaAvanzataFilters),
+    };
+
+    this.toolBarService.setUserFilters(userFilters);
+    let sort: Sorting;
+    if (this.searchString && this.searchString != "") {
+      sort = {
+        field: "ranking",
+        sortMode: SORT_MODES.desc,
+      };
+    } else {
+      sort = {
+        field: "receiveTime",
+        sortMode: SORT_MODES.desc,
+        reset: false,
+      };
+    }
+
+    this.mailboxService.setSorting(sort);
+  }
+
   /**
    * Metodo che si occupa di resettare la ricerca contatti quando si preme la x
    */
-  public clearInput(): void {
+  public clearInput(clearRicercaAvanzata = false): void {
     this.searchField.nativeElement.value = "";
+    if (clearRicercaAvanzata) {
+      this.ricercaAvanzataFilters = {
+        messageDate: null,
+        soloReindirizzati: false,
+      };
+    }
     const sort: Sorting = {
       field: "receiveTime",
       sortMode: SORT_MODES.desc,
       reset: true,
     };
     this.mailboxService.setSorting(sort);
+    this.updateInfoFiltriApplicati();
+  }
+
+  public intervalDateSelected(event: { startDate: Date; endDate: Date }): void {
+    console.log("ricercaAvanzataFilters", this.ricercaAvanzataFilters);
+    if (event.startDate != null && event.endDate != null) {
+      this.ricercaAvanzataFilters.messageDate = {
+        startDate: this.datePipe.transform(event.startDate, "yyyy-MM-dd'T'HH:mm:ss.SSSSSSZZZZZ"),
+        endDate: this.datePipe.transform(event.endDate, "yyyy-MM-dd'T'HH:mm:ss.SSSSSSZZZZZ"),
+      };
+    } else {
+      this.ricercaAvanzataFilters.messageDate = null;
+    }
+  }
+
+  /**
+   *
+   */
+  public avviaRicercaAvanzata(): void {
+    this.updateInfoFiltriApplicati();
+    this.applyFilters();
+  }
+
+  /**
+   * Updates the number of applied filters based on the values in the `ricercaAvanzataFilters` object.
+   * The `numeroFiltriApplicati` property is set to a string representation of the number of applied filters.
+   */
+  private updateInfoFiltriApplicati(): void {
+    let n = 0;
+    this.stringaElencoFiltriApplicati = "";
+    if (this.ricercaAvanzataFilters.messageDate) {
+      n++;
+      //this.stringaElencoFiltriApplicati += "Data messaggio: " + this.ricercaAvanzataFilters.messageDate.startDate + " - " + this.ricercaAvanzataFilters.messageDate.endDate + "\n";
+      this.stringaElencoFiltriApplicati += "- data messaggio,\n";
+    }
+    if (this.ricercaAvanzataFilters.soloReindirizzati) {
+      n++;
+      this.stringaElencoFiltriApplicati += "- solo reindirizzati,\n";
+    }
+    this.stringaElencoFiltriApplicati = this.stringaElencoFiltriApplicati.substring(
+      0,
+      this.stringaElencoFiltriApplicati.length - 2
+    );
+    this.numeroFiltriApplicati = n.toString();
+
+    if (this.numeroFiltriApplicati === "0") {
+      this.iconaRicercaAvanzata = "pi pi-filter";
+    } else {
+      this.iconaRicercaAvanzata = "pi pi-filter-fill";
+    }
   }
 
   ngOnDestroy() {

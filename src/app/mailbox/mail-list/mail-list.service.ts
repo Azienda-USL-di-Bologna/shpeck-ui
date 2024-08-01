@@ -57,6 +57,7 @@ import { TagService } from "src/app/services/tag.service";
 import { MailboxService, TotalMessageNumberDescriptor, Sorting } from "../mailbox.service";
 import { HttpClient } from "@angular/common/http";
 import { DialogService } from "primeng/dynamicdialog";
+import { UserFilters } from "../toolbar/toolbar.service";
 
 @Injectable({
   providedIn: "root",
@@ -1458,55 +1459,99 @@ export class MailListService {
    * @param selectedPecId
    * @returns
    */
-  public buildInitialFilterAndSort(folder: Folder, tag: Tag, selectedPecId: number, actualStringSearch: string): FiltersAndSorts {
+  public buildInitialFilterAndSort(
+    folder: Folder,
+    tag: Tag,
+    selectedPecId: number,
+    userFilters: UserFilters,
+    pec: Pec
+  ): FiltersAndSorts {
     const filtersAndSorts: FiltersAndSorts = new FiltersAndSorts();
+    let soloReindirizzati = false;
+    const readdressOutTagId = pec.tagList.find((tag) => tag.name === "readdressed_out")?.id;
 
-    // Se l'utente sta cercando inserisco un filtro sulla tscol
-    if (actualStringSearch && actualStringSearch.length > 0) {
-      filtersAndSorts.addFilter(new FilterDefinition("tscol", FILTER_TYPES.not_string.equals, actualStringSearch));
-      /*       if (this.sorting.field === "ranking") {
-        filtersAndSorts.addSort(new SortDefinition("ranking", SORT_MODES.desc));
-      } */
+    if (userFilters) {
+      // Se l'utente sta cercando inserisco un filtro sulla tscol
+      if (userFilters.searchString && userFilters.searchString.length > 0) {
+        filtersAndSorts.addFilter(new FilterDefinition("tscol", FILTER_TYPES.not_string.equals, userFilters.searchString));
+      }
+      if (userFilters.ricercaAvanzataFilters && userFilters.ricercaAvanzataFilters.messageDate) {
+        const campoReceiveTime = tag ? "messageTagReceiveTime" : "messageFolderReceiveTime";
+        filtersAndSorts.addFilter(
+          new FilterDefinition(
+            campoReceiveTime,
+            FILTER_TYPES.not_string.equals,
+            userFilters.ricercaAvanzataFilters.messageDate.startDate
+          )
+        );
+        filtersAndSorts.addFilter(
+          new FilterDefinition(
+            campoReceiveTime,
+            FILTER_TYPES.not_string.equals,
+            userFilters.ricercaAvanzataFilters.messageDate.endDate
+          )
+        );
+      }
+      if (userFilters.ricercaAvanzataFilters && userFilters.ricercaAvanzataFilters.soloReindirizzati) {
+        soloReindirizzati = true;
+      }
     }
-
     // Innanzitutto i filtri standard:
     filtersAndSorts.addFilter(new FilterDefinition("idPec.id", FILTER_TYPES.not_string.equals, selectedPecId));
     filtersAndSorts.addFilter(new FilterDefinition("messageType", FILTER_TYPES.not_string.equals, MessageType.MAIL));
     filtersAndSorts.addFilter(new FilterDefinition("messageFolderDeleted", FILTER_TYPES.not_string.equals, false));
 
-    if (folder) {
-      this.dynamicPrjectionForLoadData = "ProjectedMessageWithPlainFields";
-      this.dynamicServiceForLoadData = this.projectedMessageService;
-      filtersAndSorts.addFilter(new FilterDefinition("folderId", FILTER_TYPES.not_string.equals, folder.id));
-
-      if (this.sorting.field === "receiveTime") {
-        filtersAndSorts.addSort(new SortDefinition("messageFolderReceiveTime", this.sorting.sortMode));
-      } else {
-        filtersAndSorts.addSort(new SortDefinition(this.sorting.field, this.sorting.sortMode));
-      }
-    } else if (tag) {
-      this.dynamicPrjectionForLoadData = "ProjectedMessageForTagFilterWithPlainFields";
-      this.dynamicServiceForLoadData = this.projectedMessageForTagFilterService;
-      filtersAndSorts.addFilter(new FilterDefinition("tagId", FILTER_TYPES.not_string.equals, tag.id));
-
-      if (this.sorting.field === "receiveTime") {
-        filtersAndSorts.addSort(new SortDefinition("messageTagReceiveTime", this.sorting.sortMode));
-      } else {
-        filtersAndSorts.addSort(new SortDefinition(this.sorting.field, this.sorting.sortMode));
-      }
-    } else if (tag === null && folder === null) {
+    if (folder && !soloReindirizzati) {
+      this.buildFilterPerFolder(filtersAndSorts, folder.id);
+    } else if (folder && soloReindirizzati) {
+      this.buildFilterPerTag(filtersAndSorts, readdressOutTagId, folder.id);
+    } else if (tag && !soloReindirizzati) {
+      this.buildFilterPerTag(filtersAndSorts, tag.id);
+    } else if (tag && soloReindirizzati) {
+      // La ricerca è su due tag, allora vado su un tag e al backend chiedo di aggiungere un ulteriore filtro per il secodno tag
+      this.buildFilterPerTag(filtersAndSorts, tag.id);
+      filtersAndSorts.addAdditionalData(new AdditionalDataDefinition("OperationRequested", "FiltraSuListaTag"));
+      filtersAndSorts.addAdditionalData(new AdditionalDataDefinition("ListaTagToFilter", readdressOutTagId.toString()));
+    } else if (tag === null && folder === null && !soloReindirizzati) {
       // Sto effettuando una ricerca generica (avendo selezionato la casella), qui non vengano considerate le mail nel cestino
-      this.dynamicPrjectionForLoadData = "ProjectedMessageWithPlainFields";
-      this.dynamicServiceForLoadData = this.projectedMessageService;
+      this.buildFilterPerFolder(filtersAndSorts);
       filtersAndSorts.addAdditionalData(new AdditionalDataDefinition("OperationRequested", "FiltraSuTuttiFolderTranneTrash"));
-      if (this.sorting.field === "receiveTime") {
-        filtersAndSorts.addSort(new SortDefinition("messageFolderReceiveTime", this.sorting.sortMode));
-      } else {
-        filtersAndSorts.addSort(new SortDefinition(this.sorting.field, this.sorting.sortMode));
-      }
+    } else if (tag === null && folder === null && soloReindirizzati) {
+      this.buildFilterPerTag(filtersAndSorts, readdressOutTagId);
     }
 
     return filtersAndSorts;
+  }
+
+  private buildFilterPerFolder(filtersAndSorts: FiltersAndSorts, idFolder?: number): void {
+    this.dynamicPrjectionForLoadData = "ProjectedMessageWithPlainFields";
+    this.dynamicServiceForLoadData = this.projectedMessageService;
+
+    if (idFolder) {
+      filtersAndSorts.addFilter(new FilterDefinition("folderId", FILTER_TYPES.not_string.equals, idFolder));
+    }
+
+    if (this.sorting.field === "receiveTime") {
+      filtersAndSorts.addSort(new SortDefinition("messageFolderReceiveTime", this.sorting.sortMode));
+    } else {
+      filtersAndSorts.addSort(new SortDefinition(this.sorting.field, this.sorting.sortMode));
+    }
+  }
+
+  private buildFilterPerTag(filtersAndSorts: FiltersAndSorts, idTag: number, idFolder?: number): void {
+    this.dynamicPrjectionForLoadData = "ProjectedMessageForTagFilterWithPlainFields";
+    this.dynamicServiceForLoadData = this.projectedMessageForTagFilterService;
+    filtersAndSorts.addFilter(new FilterDefinition("tagId", FILTER_TYPES.not_string.equals, idTag));
+
+    if (idFolder) {
+      filtersAndSorts.addFilter(new FilterDefinition("folderId", FILTER_TYPES.not_string.equals, idFolder));
+    }
+
+    if (this.sorting.field === "receiveTime") {
+      filtersAndSorts.addSort(new SortDefinition("messageTagReceiveTime", this.sorting.sortMode));
+    } else {
+      filtersAndSorts.addSort(new SortDefinition(this.sorting.field, this.sorting.sortMode));
+    }
   }
 
   public getSubscriptionReadyForLoadData(
@@ -1515,9 +1560,10 @@ export class MailListService {
     _selectedPecId: number,
     lazyFilterAndSort: FiltersAndSorts,
     pageConf: PagingConf,
-    actualStringSearch: string
+    userFilters: UserFilters,
+    pec: Pec
   ) {
-    const filtersAndSorts = this.buildInitialFilterAndSort(folder, tag, _selectedPecId, actualStringSearch);
+    const filtersAndSorts = this.buildInitialFilterAndSort(folder, tag, _selectedPecId, userFilters, pec);
     return this.dynamicServiceForLoadData.getData(this.dynamicPrjectionForLoadData, filtersAndSorts, lazyFilterAndSort, pageConf);
   }
 }

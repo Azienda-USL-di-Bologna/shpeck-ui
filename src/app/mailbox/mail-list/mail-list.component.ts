@@ -32,7 +32,7 @@ import { BaseUrls, BaseUrlType, EMLSOURCE, FONTSIZE, TOOLBAR_ACTIONS } from "src
 import { ConfirmationService, FilterMetadata, LazyLoadEvent, MenuItem, MessageService } from "primeng/api";
 import { Utils } from "src/app/utils/utils";
 import { MailFoldersService, PecFolder, PecFolderType } from "../mail-folders/mail-folders.service";
-import { ToolBarService } from "../toolbar/toolbar.service";
+import { ToolBarService, UserFilters } from "../toolbar/toolbar.service";
 import { MailListService } from "./mail-list.service";
 import { NoteService } from "src/app/services/note.service";
 import { JwtLoginService, UtenteUtilities } from "@bds/jwt-login";
@@ -97,7 +97,8 @@ export class MailListComponent implements OnInit, OnDestroy, AfterViewInit {
   // serve per mandarlo al mailbox-component
   public pecFolderSelected: PecFolder;
 
-  public actualStringSearch: string = null;
+  //public actualStringSearch: string = null;
+  public userFilters: UserFilters = null;
 
   public _selectedTag: Tag;
   public _selectedFolder: Folder;
@@ -355,10 +356,11 @@ export class MailListComponent implements OnInit, OnDestroy, AfterViewInit {
     });
     this.subscriptions.push({
       id: null,
-      type: "getFilterTyped",
-      subscription: this.toolBarService.getFilterTyped.subscribe((stringToSearch: string) => {
+      type: "getUserFilters",
+      subscription: this.toolBarService.getUserFilters.subscribe((userFilters: UserFilters) => {
         this.resetMessagesArrayLenght = true;
-        this.actualStringSearch = stringToSearch;
+        //this.actualStringSearch = userFilters.searchString;
+        this.userFilters = userFilters;
         //if (stringToSearch) {
         // global è lo standard per usare la tscol e ottenere l'ordinamento per ranking
         this.reloadTable();
@@ -424,7 +426,8 @@ export class MailListComponent implements OnInit, OnDestroy, AfterViewInit {
           if (sorting.reset) {
             // Reset è un valore a true quando l'utente ha fatto il reset della ricerca
             // in questo caso viene reimpostato il sorting di default e eliminata la stringa di ricerca.
-            this.actualStringSearch = null;
+            // this.actualStringSearch = null;
+            this.userFilters = null;
             this.reloadTable();
           } else {
             // Sorting modificato, faccio partire la lezyload.
@@ -1126,9 +1129,9 @@ export class MailListComponent implements OnInit, OnDestroy, AfterViewInit {
       }
       this.dt.filteredValue = null;
       this.dt.first = 0;
-      if (this.actualStringSearch || this._selectedFolder || this._selectedTag) {
+      if (this.userFilters?.searchString?.length > 0 || this._selectedFolder || this._selectedTag) {
         // Se non sto cercando e non sono ne in un folder ne in una pec allora non carico nulla perché nono ho nulla da mostrare
-
+        // Anche nel caso in cui sto filtrando usando la ricerca avanzata non carico nulla, le info sono troppo poche ed è meglio non far partire una ricerca
         this.lazyLoad(null);
       }
     }
@@ -1199,7 +1202,15 @@ export class MailListComponent implements OnInit, OnDestroy, AfterViewInit {
       id: folderSelected.data.id,
       type: "folder_message",
       subscription: this.mailListService
-        .getSubscriptionReadyForLoadData(folder, tag, this._selectedPecId, lazyFilterAndSort, pageConf, this.actualStringSearch)
+        .getSubscriptionReadyForLoadData(
+          folder,
+          tag,
+          this._selectedPecId,
+          lazyFilterAndSort,
+          pageConf,
+          this.userFilters,
+          this._selectedPec
+        )
         .subscribe((data) => {
           if (data && data.results) {
             this.mailListService.totalRecords = data.page.totalElements;
@@ -1341,29 +1352,20 @@ export class MailListComponent implements OnInit, OnDestroy, AfterViewInit {
   } */
 
   public lazyLoad(event: LazyLoadEvent) {
-    /* if (!this.mostratable) {
+    if (!(this.userFilters?.searchString?.length > 0 || this._selectedFolder || this._selectedTag)) {
+      // L'utente è posizionato sulla radice. Ma non ha inserito un filtro di ricerca come stringa.
+      // I filtri della ricerca avanzata in questa condizione non li guardo nemmeno. Da soli non li
+      // reputo sufficienti per far partire una ricerca.
+      if (!this.storedLazyLoadEvent && event) {
+        this.storedLazyLoadEvent = event;
+      }
       return;
-    } */
+    }
 
-    /* if (event && event.rows === 0) {
-      this.storedLazyLoadEvent = event;
-      this.showLoadingDiv = true;
-      //window.dispatchEvent(new Event("resize"));
-      setTimeout(() => {
-        this.showLoadingDiv = false;
-      }, 100);
-      return;
-    } */
-
-    //console.log("lazyLoad di mailList Component", event);
     const eventFilters: { [s: string]: FilterMetadata } = this.buildTableEventFilters(this._filters);
     this.previousFilter = this._filters;
     if (!event) {
       this.resetMessagesArrayLenght = true;
-      /* this.storedLazyLoadEvent.forceUpdate();
-      this.dt.scroller.setSize();
-      this.dt.scroller.setSpacerSize(); */
-      //window.dispatchEvent(new Event("resize"));
       event = this.storedLazyLoadEvent;
       event.rows = this.rowsNumber;
       event.first = 0;
@@ -1386,36 +1388,6 @@ export class MailListComponent implements OnInit, OnDestroy, AfterViewInit {
     const filtersAndSorts: FiltersAndSorts = buildLazyEventFiltersAndSorts(event as LazyLoadEvent, this.cols, this.datepipe);
     this.storedLazyLoadEvent = event;
     this.loadData(this.pageConf, filtersAndSorts, this._selectedFolder, this._selectedTag, event);
-
-    // vecchio codice
-    {
-      // if (event) {
-      //   if (eventFilters && Object.entries(eventFilters).length > 0) {
-      //     event.filters = eventFilters;
-      //   }
-      //   // questo if è il modo più sicuro per fare "event.first === Nan"
-      //   if (event.first !== event.first) {
-      //     event.first = 0;
-      //   }
-      //   const filtersAndSorts: FiltersAndSorts = buildLazyEventFiltersAndSorts(event, this.cols, this.datepipe);
-      //   this.loadData(this.pageConf, filtersAndSorts, this._selectedFolder, this._selectedTag, event);
-      //   /* } */
-      // } else {
-      //   event = {
-      //     rows: this.rowsNmber,
-      //     first: 0,
-      //   };
-      //   if (eventFilters) {
-      //     event["filters"] = eventFilters;
-      //   }
-      //   this.pageConf.conf = {
-      //     limit: this.rowsNmber,
-      //     offset: 0,
-      //   };
-      //   const filtersAndSorts: FiltersAndSorts = buildLazyEventFiltersAndSorts(event, this.cols, this.datepipe);
-      //   this.loadData(this.pageConf, filtersAndSorts, this._selectedFolder, this._selectedTag, event);
-      // }
-    }
   }
 
   trackByFn(index: any, item: any) {

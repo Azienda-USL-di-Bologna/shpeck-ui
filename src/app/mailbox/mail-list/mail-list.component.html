@@ -487,28 +487,42 @@
   >
     <tr>
       <td
-        *ngIf="_selectedTag || _selectedFolder || actualStringSearch"
         [attr.colspan]="columns.length"
         class="flex-1 message-align flex-direction-col cella-no-elementi"
       >
-        <p
-          *ngIf="actualStringSearch"
-          style="margin: 0"
-        >
-          Nessun messaggio trovato corrispondente alla ricerca:
-          <span class="highligth-actual-string-search">"{{ actualStringSearch }}"</span>
-        </p>
-        <p
-          *ngIf="!actualStringSearch && _selectedFolder"
-          style="margin: 0"
-        >
-          La cartella selezionata non contiene messaggi
-        </p>
-        <p
-          *ngIf="!actualStringSearch && _selectedTag"
-          style="margin: 0"
-        >
-          L'etichetta selezionata non contiene messaggi
+        <p style="margin: 0">
+          @if (userFilters?.searchString) {
+            Nessun messaggio trovato corrispondente alla ricerca:
+            <ul>
+              <li class="highligth-actual-string-search">"{{ userFilters?.searchString }}"</li>
+              <li *ngIf="userFilters?.ricercaAvanzataFilters?.soloReindirizzati" class="highligth-actual-string-search">solo messaggi reindirizzati</li>
+              <li *ngIf="userFilters?.ricercaAvanzataFilters?.messageDate">
+                arrivati nell'intervallo
+                <span class="highligth-actual-string-search">
+                  {{userFilters.ricercaAvanzataFilters.messageDate.startDate | date: "dd/MM/yyyy"}} - {{userFilters.ricercaAvanzataFilters.messageDate.endDate | date: "dd/MM/yyyy"}}
+                </span>
+              </li>
+            </ul>
+          } @else if ((userFilters?.ricercaAvanzataFilters?.messageDate || userFilters?.ricercaAvanzataFilters?.soloReindirizzati) && (_selectedFolder || _selectedTag)) {
+            Nessun messaggio trovato corrispondente alla ricerca:
+            <ul>
+              <li *ngIf="userFilters?.ricercaAvanzataFilters?.soloReindirizzati"  class="highligth-actual-string-search"> solo messaggi reindirizzati</li>
+              <li *ngIf="userFilters?.ricercaAvanzataFilters?.messageDate">
+                arrivati nell'intervallo
+                <span class="highligth-actual-string-search">
+                  {{userFilters.ricercaAvanzataFilters.messageDate.startDate | date: "dd/MM/yyyy"}} - {{userFilters.ricercaAvanzataFilters.messageDate.endDate | date: "dd/MM/yyyy"}}
+                </span>
+              </li>
+            </ul>
+          } @else if (_selectedFolder) {
+            La cartella selezionata non contiene messaggi
+          } @else if (_selectedTag) {
+            L'etichetta selezionata non contiene messaggi
+          } @else if (!_selectedFolder && !_selectedTag) {
+            Usa la ricerca per trovare messaggi in tutta la casella PEC (escluso il Cestino)
+          } @else {
+            {{_selectedFolder | json}} - {{_selectedTag | json}}
+          }
         </p>
       </td>
     </tr>
