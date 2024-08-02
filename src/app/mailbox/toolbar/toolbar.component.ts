@@ -278,21 +278,22 @@ export class ToolbarComponent implements OnDestroy, AfterViewInit {
    */
   public clearInput(clearRicercaAvanzata = false): void {
     this.searchField.nativeElement.value = "";
+    this.searchString = null;
     if (clearRicercaAvanzata) {
       this.ricercaAvanzataFilters = {
         messageDate: null,
         soloReindirizzati: false,
       };
     }
-    const sort: Sorting = {
-      field: "receiveTime",
-      sortMode: SORT_MODES.desc,
-      reset: true,
-    };
-    this.mailboxService.setSorting(sort);
+
     this.updateInfoFiltriApplicati();
+    this.applyFilters();
   }
 
+  /**
+   * Metodo usato dal template, quando l'utente sceglie la data sulla ricerca avanzata questa viene
+   * scritta dentro this.ricercaAvanzataFilters
+   */
   public intervalDateSelected(event: { startDate: Date; endDate: Date }): void {
     console.log("ricercaAvanzataFilters", this.ricercaAvanzataFilters);
     if (event.startDate != null && event.endDate != null) {

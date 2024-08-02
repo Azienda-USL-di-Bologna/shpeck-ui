@@ -498,7 +498,7 @@
               <li class="highligth-actual-string-search">"{{ userFilters?.searchString }}"</li>
               <li *ngIf="userFilters?.ricercaAvanzataFilters?.soloReindirizzati" class="highligth-actual-string-search">solo messaggi reindirizzati</li>
               <li *ngIf="userFilters?.ricercaAvanzataFilters?.messageDate">
-                arrivati nell'intervallo
+                nell'intervallo
                 <span class="highligth-actual-string-search">
                   {{userFilters.ricercaAvanzataFilters.messageDate.startDate | date: "dd/MM/yyyy"}} - {{userFilters.ricercaAvanzataFilters.messageDate.endDate | date: "dd/MM/yyyy"}}
                 </span>
@@ -509,7 +509,7 @@
             <ul>
               <li *ngIf="userFilters?.ricercaAvanzataFilters?.soloReindirizzati"  class="highligth-actual-string-search"> solo messaggi reindirizzati</li>
               <li *ngIf="userFilters?.ricercaAvanzataFilters?.messageDate">
-                arrivati nell'intervallo
+                nell'intervallo
                 <span class="highligth-actual-string-search">
                   {{userFilters.ricercaAvanzataFilters.messageDate.startDate | date: "dd/MM/yyyy"}} - {{userFilters.ricercaAvanzataFilters.messageDate.endDate | date: "dd/MM/yyyy"}}
                 </span>
