@@ -1351,10 +1351,16 @@ export class MailListComponent implements OnInit, OnDestroy, AfterViewInit {
   } */
 
   public lazyLoad(event: LazyLoadEvent) {
-    if (!(this.userFilters?.searchString?.length > 0 || this._selectedFolder || this._selectedTag)) {
-      // L'utente è posizionato sulla radice. Ma non ha inserito un filtro di ricerca come stringa.
-      // I filtri della ricerca avanzata in questa condizione non li guardo nemmeno. Da soli non li
-      // reputo sufficienti per far partire una ricerca.
+    if (
+      !(
+        this.userFilters?.searchString?.length > 0 ||
+        this.userFilters?.ricercaAvanzataFilters?.messageDate ||
+        this.userFilters?.ricercaAvanzataFilters?.soloReindirizzati ||
+        this._selectedFolder ||
+        this._selectedTag
+      )
+    ) {
+      // L'utente è posizionato sulla radice. Ma non ha inserito alcun filtro. Allora non faccio partire nulla
       if (!this.storedLazyLoadEvent && event) {
         this.storedLazyLoadEvent = event;
       }

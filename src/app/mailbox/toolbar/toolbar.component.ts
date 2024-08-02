@@ -12,6 +12,7 @@ import { Menu } from "primeng/menu";
 import { DialogService } from "primeng/dynamicdialog";
 import { MailboxService, Sorting } from "../mailbox.service";
 import { DatePipe } from "@angular/common";
+import { CustomCalendarComponent } from "@bds/common-components";
 
 @Component({
   selector: "app-toolbar",
@@ -33,6 +34,8 @@ export class ToolbarComponent implements OnDestroy, AfterViewInit {
     soloReindirizzati: false,
   };
   public iconaRicercaAvanzata = "pi pi-filter";
+  public startDateSelected: Date;
+  public endDateSelected: Date;
 
   public buttonObs: Map<string, Observable<boolean>>;
   public moveMenuItems: MenuItem[];
@@ -45,6 +48,7 @@ export class ToolbarComponent implements OnDestroy, AfterViewInit {
   @ViewChild("search", {}) searchField: ElementRef;
   @ViewChild("moveMenu", {}) private moveMenu: Menu;
   @ViewChild("archiveMenu", {}) private archiveMenu: Menu;
+  @ViewChild("calendarRicercaAvanzata") public calendarRicercaAvanzata: CustomCalendarComponent;
 
   constructor(
     public dialogService: DialogService,
@@ -284,10 +288,20 @@ export class ToolbarComponent implements OnDestroy, AfterViewInit {
         messageDate: null,
         soloReindirizzati: false,
       };
+      this.clearCalendar(this.calendarRicercaAvanzata);
     }
 
     this.updateInfoFiltriApplicati();
     this.applyFilters();
+  }
+
+  private clearCalendar(calendar: CustomCalendarComponent) {
+    if (calendar) {
+      calendar.startDateSelected = null;
+      calendar.endDateSelected = null;
+      calendar.calendarStartDate.writeValue(null);
+      calendar.calendarEndDate.writeValue(null);
+    }
   }
 
   /**
