@@ -384,7 +384,8 @@ export class MailListComponent implements OnInit, OnDestroy, AfterViewInit {
             this.reloadTable();
           } else {
             // Sorting modificato, faccio partire la lezyload.
-            this.lazyLoad(null);
+            //this.lazyLoad(null);
+            this.resetPaginationAndLoadData();
           }
         }
       }),
@@ -1038,7 +1039,8 @@ export class MailListComponent implements OnInit, OnDestroy, AfterViewInit {
     setTimeout(() => {
       this._selectedTag = tag;
       if (tag) {
-        this.lazyLoad(null);
+        //this.lazyLoad(null);
+        this.resetPaginationAndLoadData();
       }
     }, 0);
   }
@@ -1053,7 +1055,8 @@ export class MailListComponent implements OnInit, OnDestroy, AfterViewInit {
     setTimeout(() => {
       this._selectedFolder = folder;
       if (folder) {
-        this.lazyLoad(null);
+        //this.lazyLoad(null);
+        this.resetPaginationAndLoadData();
       }
     }, 0);
   }
@@ -1074,7 +1077,8 @@ export class MailListComponent implements OnInit, OnDestroy, AfterViewInit {
       if (this.userFilters?.searchString?.length > 0 || this._selectedFolder || this._selectedTag) {
         // Se non sto cercando e non sono ne in un folder ne in una pec allora non carico nulla perché nono ho nulla da mostrare
         // Anche nel caso in cui sto filtrando usando la ricerca avanzata non carico nulla, le info sono troppo poche ed è meglio non far partire una ricerca
-        this.lazyLoad(null);
+        //this.lazyLoad(null);
+        this.resetPaginationAndLoadData();
       }
     }
   }
@@ -1110,8 +1114,13 @@ export class MailListComponent implements OnInit, OnDestroy, AfterViewInit {
    * @param tag
    * @param event
    */
-  private loadData(pageConf: PagingConf, lazyFilterAndSort?: FiltersAndSorts, folder?: Folder, tag?: Tag, event?: any) {
+  private loadData(/* pageConf: PagingConf, lazyFilterAndSort?: FiltersAndSorts, folder?: Folder, tag?: Tag, event?: any */) {
     this.loading = true;
+    this.pageConf.conf = {
+      limit: this.storedLazyLoadEvent.rows,
+      offset: this.storedLazyLoadEvent.first,
+    };
+    const lazyFilterAndSort: FiltersAndSorts = buildLazyEventFiltersAndSorts(event as LazyLoadEvent, this.cols, this.datepipe);
     // mi devo salvare la folder/tag selezionata al momento del caricamento,
     // perché nella subscribe quando la invio al mailbox-component per scrivere il numero di messaggi
     // la selezione potrebbe essere cambiata e quindi manderei un dato errato
@@ -1129,6 +1138,7 @@ export class MailListComponent implements OnInit, OnDestroy, AfterViewInit {
     if (currentSubscription >= 0) {
       if (this.subscriptions[currentSubscription].subscription) {
         this.subscriptions[currentSubscription].subscription.unsubscribe();
+        this.subscriptions[currentSubscription].subscription = null;
       }
       this.subscriptions.splice(currentSubscription, 1);
     }
@@ -1145,11 +1155,11 @@ export class MailListComponent implements OnInit, OnDestroy, AfterViewInit {
       type: "folder_message",
       subscription: this.mailListService
         .getSubscriptionReadyForLoadData(
-          folder,
-          tag,
+          this._selectedFolder,
+          this._selectedTag,
           this._selectedPecId,
           lazyFilterAndSort,
-          pageConf,
+          this.pageConf,
           this.userFilters,
           this._selectedPec
         )
@@ -1274,6 +1284,18 @@ export class MailListComponent implements OnInit, OnDestroy, AfterViewInit {
     }
   }
 
+  private resetPaginationAndLoadData(): void {
+    this.resetMessagesArrayLenght = true;
+    if (!!!this.storedLazyLoadEvent) {
+      this.storedLazyLoadEvent = {};
+    }
+    this.storedLazyLoadEvent.first = 0;
+    this.storedLazyLoadEvent.last = 0;
+    this.storedLazyLoadEvent.rows = this.rowsNumber;
+    //this.docsSelected = [];
+    this.loadData();
+  }
+
   public lazyLoad(event: LazyLoadEvent) {
     if (
       !(
@@ -1294,6 +1316,7 @@ export class MailListComponent implements OnInit, OnDestroy, AfterViewInit {
     const eventFilters: { [s: string]: FilterMetadata } = this.buildTableEventFilters(this._filters);
 
     if (!event) {
+      console.log("Attenzione, qui non dovrei mai entrare");
       this.resetMessagesArrayLenght = true;
       event = this.storedLazyLoadEvent;
       event.rows = this.rowsNumber;
@@ -1310,18 +1333,18 @@ export class MailListComponent implements OnInit, OnDestroy, AfterViewInit {
       console.log(`Offset non corretto, non cairco i dati`);
       return;
     }
-    /* if (event.rows === 0) {
-      console.log(`Limit non corretto, non cairco i dati`);
-      this.storedLazyLoadEvent = event;
+
+    if (event.first === 0 && event.rows === this.rowsNumber) {
+      this.resetMessagesArrayLenght = true;
+    }
+    if (event.rows === 0) {
+      console.log(`Limit non corretto, non carico i dati`);
+      //this.storedLazyLoadEvent = event;
       return;
-    } */
-    this.pageConf.conf = {
-      limit: event.rows,
-      offset: event.first,
-    };
-    const filtersAndSorts: FiltersAndSorts = buildLazyEventFiltersAndSorts(event as LazyLoadEvent, this.cols, this.datepipe);
+    }
+
     this.storedLazyLoadEvent = event;
-    this.loadData(this.pageConf, filtersAndSorts, this._selectedFolder, this._selectedTag, event);
+    this.loadData(/* this.pageConf, filtersAndSorts, this._selectedFolder, this._selectedTag, event */);
   }
 
   trackByFn(index: any, item: any) {
