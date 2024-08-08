@@ -5,7 +5,7 @@ import { SettingsService } from "src/app/services/settings.service";
 import { ShpeckMessageService, MessageEvent } from "src/app/services/shpeck-message.service";
 import { MailFoldersService, PecFolder, PecFolderType } from "../../mail-folders/mail-folders.service";
 import { MailListService } from "../../mail-list/mail-list.service";
-import { ToolBarService } from "../../toolbar/toolbar.service";
+import { ToolBarService, UserFilters } from "../../toolbar/toolbar.service";
 import { AppCustomization } from "src/environments/app-customization";
 import { BaseUrls, BaseUrlType, EMLSOURCE, FONTSIZE, TOOLBAR_ACTIONS } from "src/environments/app-constants";
 import { MailboxService, Sorting } from "../../mailbox.service";
@@ -119,7 +119,8 @@ export class AccessibilitaMailListComponent implements OnInit, OnDestroy {
   @ViewChild("archiviationMenu", {}) private archiviationMenu: Menu;
   @ViewChild("tagMenu", {}) private tagMenu: Menu;
 
-  private actualStringSearch: string = null;
+  //private actualStringSearch: string = null;
+  public userFilters: UserFilters = null;
 
   public folderTypeOutbox: String = FolderType.OUTBOX;
   public folderTypeSent: String = FolderType.SENT;
@@ -199,10 +200,11 @@ export class AccessibilitaMailListComponent implements OnInit, OnDestroy {
 
     this.subscriptions.push({
       id: null,
-      type: "getFilterTyped",
-      subscription: this.toolBarService.getFilterTyped.subscribe((stringToSearch: string) => {
-        this.actualStringSearch = stringToSearch;
-        if (stringToSearch) {
+      type: "getUserFilters",
+      subscription: this.toolBarService.getUserFilters.subscribe((userFilters: UserFilters) => {
+        //this.actualStringSearch = stringToSearch;
+        this.userFilters = userFilters;
+        if (this.userFilters.searchString) {
           // global è lo standard per usare la tscol e ottenere l'ordinamento per ranking
           this.reloadTable();
         }
@@ -246,13 +248,13 @@ export class AccessibilitaMailListComponent implements OnInit, OnDestroy {
       type: "sorting",
       subscription: this.mailboxService.sorting.subscribe((sorting: Sorting) => {
         if (sorting && sorting.field !== "ranking") {
-          // Se sto ordinando per ranking allora è una ricerca e la subscribe che farà partire la getData è quella del getFilterTyped
+          // Se sto ordinando per ranking allora è una ricerca e la subscribe che farà partire la getData è quella del getUserFilters
           this.mailListService.sorting = sorting;
           if (this.dt && this.dt.el && this.dt.el.nativeElement) {
             this.dt.el.nativeElement.getElementsByClassName("p-datatable-virtual-scrollable-body")[0].scrollTop = 0;
           }
           if (!sorting.reset) {
-            // Se non sto resettando faccio la load altrimenti, il reset farà scattare il getFilterTyped
+            // Se non sto resettando faccio la load altrimenti, il reset farà scattare il getUserFilters
             this.lazyLoad(null);
           }
         }
@@ -640,7 +642,8 @@ export class AccessibilitaMailListComponent implements OnInit, OnDestroy {
       folder,
       tag,
       this._selectedPecId,
-      this.actualStringSearch
+      this.userFilters,
+      this._selectedPec
     );
     this.subscriptions.push({
       id: folderSelected.data.id,
