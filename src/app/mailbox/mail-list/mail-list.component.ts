@@ -59,29 +59,6 @@ import { ContextMenu } from "primeng/contextmenu";
   providers: [ConfirmationService],
 })
 export class MailListComponent implements OnInit, OnDestroy, AfterViewInit {
-  public lazy: boolean = false;
-  constructor(
-    public mailListService: MailListService,
-    private messageService: ShpeckMessageService,
-    private tagService: TagService,
-    private mailFoldersService: MailFoldersService,
-    private toolBarService: ToolBarService,
-    private datepipe: DatePipe,
-    public confirmationService: ConfirmationService,
-    private messagePrimeService: MessageService,
-    private noteService: NoteService,
-    private settingsService: SettingsService,
-    private loginService: JwtLoginService,
-    private mailboxService: MailboxService,
-    private intimusClient: IntimusClientService,
-    private detector: ChangeDetectorRef
-  ) {
-    this.mailListService.messages = Array.from({ length: this.rowsNumber });
-
-    this.selectedContextMenuItem = this.selectedContextMenuItem.bind(this);
-    this.showNewTagPopup = this.showNewTagPopup.bind(this);
-  }
-
   @Output() public messageClicked = new EventEmitter<Message>();
 
   @ViewChild("selRow", {}) private selRow: ElementRef;
@@ -92,14 +69,10 @@ export class MailListComponent implements OnInit, OnDestroy, AfterViewInit {
   @ViewChild("alternativeMenu", {}) private alternativeMenu: Menu;
   @ViewChild("archiviationMenu", {}) private archiviationMenu: Menu;
   @ViewChild("tagMenu", {}) private tagMenu: Menu;
-  // @ViewChild("ordermenu") private ordermenu: Menu;
 
   // serve per mandarlo al mailbox-component
   public pecFolderSelected: PecFolder;
-
-  //public actualStringSearch: string = null;
   public userFilters: UserFilters = null;
-
   public _selectedTag: Tag;
   public _selectedFolder: Folder;
   public _selectedPecId: number;
@@ -107,8 +80,6 @@ export class MailListComponent implements OnInit, OnDestroy, AfterViewInit {
   public _filters: FilterDefinition[];
   private storedLazyLoadEvent: LazyLoadEvent;
   private resetMessagesArrayLenght: boolean = false;
-
-  // private tempSelectedMessages: Message[] = null;
 
   private pageConf: PagingConf = {
     mode: "LIMIT_OFFSET_NO_COUNT",
@@ -123,7 +94,6 @@ export class MailListComponent implements OnInit, OnDestroy, AfterViewInit {
     type: string;
     subscription: Subscription;
   }[] = [];
-  private previousFilter: FilterDefinition[] = [];
   private foldersSubCmItems: MenuItem[] = null;
   private registerMessageEvent: any = null;
   private loggedUser: UtenteUtilities;
@@ -245,8 +215,6 @@ export class MailListComponent implements OnInit, OnDestroy, AfterViewInit {
     },
   ];
 
-  //private primavolta = true;
-  /* public mostratable: boolean = false; */
   public displayNote: boolean = false;
   public displayNewTagPopup: boolean = false;
   public displayProtocollaDialog = false;
@@ -282,20 +250,9 @@ export class MailListComponent implements OnInit, OnDestroy, AfterViewInit {
     medium: 84,
     big: 89,
   };
-  // private SMALL_SIZE_VIRTUAL_ROW_HEIGHT = 77;
-  // private MEDIUM_SIZE_VIRTUAL_ROW_HEIGHT = 83;
-  // private LARGE_SIZE_VIRTUAL_ROW_HEIGHT = 89;
   public virtualRowHeight: number = this.VIRTUAL_ROW_HEIGHTS[FONTSIZE.BIG];
   public rowsNumber = 40;
-  public cols: ColonnaBds[] = [
-    /* {
-      field: "subject",
-      header: "Oggetto",
-      filterMatchMode: FILTER_TYPES.string.containsIgnoreCase,
-      width: "5.313rem",
-      minWidth: "5.313rem",
-    }, */
-  ];
+  public cols: ColonnaBds[] = [];
 
   @ViewChild("cm", {}) private contextMenu: ContextMenu;
   private tagsMenuOpened = {
@@ -305,35 +262,31 @@ export class MailListComponent implements OnInit, OnDestroy, AfterViewInit {
   };
   public loggedUserIsSuperD: boolean = false;
 
-  /*  @HostListener('window:keyup', ['$event'])
-  keyEvent(event: KeyboardEvent) {
-    console.log(event);
-    
-    if (event.altKey == true && event.code == "KeyN") { 
-      console.log("creo nuova mail");
-      this.toolBarService.newMail("new");
-    }
-    
-    if (event.altKey == true && event.code == "KeyR") { 
-      this.toolBarService.newMail("reply");
-    }
+  constructor(
+    public mailListService: MailListService,
+    private messageService: ShpeckMessageService,
+    private tagService: TagService,
+    private mailFoldersService: MailFoldersService,
+    private toolBarService: ToolBarService,
+    private datepipe: DatePipe,
+    public confirmationService: ConfirmationService,
+    private messagePrimeService: MessageService,
+    private noteService: NoteService,
+    private settingsService: SettingsService,
+    private loginService: JwtLoginService,
+    private mailboxService: MailboxService,
+    private intimusClient: IntimusClientService,
+    private detector: ChangeDetectorRef
+  ) {
+    this.mailListService.messages = Array.from({ length: this.rowsNumber });
 
-    if (event.altKey == true && event.code == "KeyA") { 
-      this.toolBarService.newMail("reply_all");
-    }
+    this.selectedContextMenuItem = this.selectedContextMenuItem.bind(this);
+    this.showNewTagPopup = this.showNewTagPopup.bind(this);
+  }
 
-    if (event.altKey == true && event.code == "KeyI") { 
-      this.toolBarService.newMail("forward");
-    }
+  ngOnInit() {}
 
-    if (event.altKey == true && event.code == "KeyC") { 
-      this.toolBarService.handleDelete();
-    }
-    
-    
-  } */
-
-  ngOnInit() {
+  ngAfterViewInit() {
     this.subscriptions.push({
       id: null,
       type: "pecFolderSelected",
@@ -445,9 +398,7 @@ export class MailListComponent implements OnInit, OnDestroy, AfterViewInit {
         // }, 5000);
       }),
     });
-  }
 
-  ngAfterViewInit() {
     setTimeout(() => {
       this.setAccessibilityProperties(false);
     }, 0);
@@ -1102,14 +1053,6 @@ export class MailListComponent implements OnInit, OnDestroy, AfterViewInit {
     setTimeout(() => {
       this._selectedFolder = folder;
       if (folder) {
-        //this.lazy = true;
-        //this.lazyLoad(null);
-        // if (this.primavolta) {
-        //   this.lazyLoad(null);
-        //   this.primavolta = false;
-        //   //this.mostratable = true;
-        // } else {
-        // }
         this.lazyLoad(null);
       }
     }, 0);
@@ -1331,25 +1274,6 @@ export class MailListComponent implements OnInit, OnDestroy, AfterViewInit {
     }
   }
 
-  /* private needLoading(event: LazyLoadEvent): boolean {
-    let needLoading = this.pageConf.conf.limit !== event.rows ||
-      this.pageConf.conf.offset !== event.first;
-    if (!needLoading) {
-      if (this._filters && !this.previousFilter || !this._filters && this.previousFilter) {
-        needLoading = true;
-      } else if (this._filters && this.previousFilter) {
-        for (const filter of this._filters) {
-          if (this.previousFilter.findIndex(e =>
-            e.field === filter.field && e.filterMatchMode === filter.filterMatchMode && e.value === filter.value) === -1) {
-            needLoading = true;
-            break;
-          }
-        }
-      }
-    }
-    return needLoading;
-  } */
-
   public lazyLoad(event: LazyLoadEvent) {
     if (
       !(
@@ -1368,7 +1292,7 @@ export class MailListComponent implements OnInit, OnDestroy, AfterViewInit {
     }
 
     const eventFilters: { [s: string]: FilterMetadata } = this.buildTableEventFilters(this._filters);
-    this.previousFilter = this._filters;
+
     if (!event) {
       this.resetMessagesArrayLenght = true;
       event = this.storedLazyLoadEvent;
@@ -1386,11 +1310,11 @@ export class MailListComponent implements OnInit, OnDestroy, AfterViewInit {
       console.log(`Offset non corretto, non cairco i dati`);
       return;
     }
-    if (event.rows === 0) {
+    /* if (event.rows === 0) {
       console.log(`Limit non corretto, non cairco i dati`);
       this.storedLazyLoadEvent = event;
       return;
-    }
+    } */
     this.pageConf.conf = {
       limit: event.rows,
       offset: event.first,
