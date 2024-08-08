@@ -82,72 +82,158 @@
   width: 3.875rem !important;
 }
 
-.close-icon {
-  align-self: center;
-  font-size: 0.938rem;
-  border: 0.063rem solid transparent;
-  background-color: #f4f4f4;
-  display: inline-block;
-  vertical-align: middle;
-  outline: 0;
-  cursor: pointer;
 
-  &:after {
-    display: block;
-    width: 0.938rem;
-    height: 0.938rem;
-    position: absolute;
-    z-index: 1;
-    right: 2.188rem;
-    top: 0;
-    bottom: 0;
-    margin: auto;
-    padding: 0.13rem;
-    text-align: center;
-    color: #203142;
-    font-weight: normal;
-    font-size: 0.75rem;
+
+::ng-deep .cerca-box {
+  .reset-filters-icon {
+    align-self: center;
+    font-size: 0.938rem;
+    border: 0.063rem solid transparent;
+    background-color: #f4f4f4;
+    display: inline-block;
+    vertical-align: middle;
+    outline: 0;
     cursor: pointer;
+
+    &:after {
+      display: block;
+      width: 0.938rem;
+      height: 0.938rem;
+      position: absolute;
+      z-index: 1;
+      right: 2.188rem;
+      top: 0;
+      bottom: 0;
+      margin: auto;
+      padding: 0.13rem;
+      text-align: center;
+      color: #203142;
+      font-weight: normal;
+      font-size: 0.75rem;
+      cursor: pointer;
+    }
   }
+
+  .input-find,
+  .reset-filters-icon,
+  .search-wrapper {
+    position: relative;
+
+    &:focus-within {
+      background-color: white;
+
+      &.input-find {
+        background-color: white;
+      }
+
+      .icon-button,
+      .button-ricerca-avanzata .p-button {
+        background-color: white !important;
+
+
+      }
+
+
+    }
+  }
+
+  .input-find {
+    &.p-inputtext:enabled:focus {
+      box-shadow: none
+    }
+  }
+
+  //.input-find:not(:valid)~.reset-filters-icon {
+  .reset-filters-icon.hide {
+    //display: none !important;
+    visibility: hidden;
+  }
+
+  .icon-button,
+  .button-ricerca-avanzata .p-button {
+    text-align: center;
+    color: #223446 !important;
+    background-color: #f4f4f4 !important;
+    font-family: "primeicons" !important;
+    line-height: 1;
+    display: inline-block;
+    font-size: 1.25em;
+    border: 0rem !important;
+    cursor: pointer;
+    transition: color 0s;
+
+    .p-button-icon {
+      font-size: 1.25rem;
+    }
+
+    .p-badge-contrast {
+      color: #f4f4f4;
+      background-color: #223446;
+    }
+  }
+
+  .button-ricerca-avanzata.ricerca-in-corso .p-button {
+    color: darkorange !important;
+    color: darkcyan !important;
+
+    .p-badge-contrast {
+      background-color: darkorange;
+      background-color: darkcyan;
+    }
+  }
+
+  .search-wrapper {
+    display: flex;
+    box-sizing: border-box;
+    flex-grow: 3;
+    background-color: #f4f4f4;
+    border-bottom: 0.06rem solid #223446;
+    border-top: 0.06rem solid transparent;
+    border-left: 0.06rem solid transparent;
+    border-right: 0.06rem solid transparent;
+    transition: border 0.3s ease-out;
+
+    &:hover,
+    &:focus-within {
+      border: 0.06rem solid #223446 !important;
+    }
+  }
+
+  .button-ricerca-avanzata {
+    .p-button {
+      width: 3rem;
+    }
+  }
+
+  /* .button-rimuovi-filtri-ricerca-avanzata {
+    background-color: orange !important;
+    margin-left: 4px;
+    border: 1px solid darkorange !important;
+    color: black !important;
+  } */
 }
 
-.input-find,
-.close-icon,
-.search-wrapper {
-  position: relative;
-}
-
-.input-find:not(:valid)~.close-icon {
-  display: none !important;
-}
-
-.custom-search-button {
-  text-align: center;
-  color: #223446;
-  background-color: #f4f4f4;
-  font-family: "primeicons";
-  line-height: 1;
-  display: inline-block;
-  font-size: 1.25em;
-  border: 0rem;
-}
-
-.search-wrapper {
+::ng-deep .panel-ricerca-avanzata-content {
   display: flex;
-  box-sizing: border-box;
-  flex-grow: 3;
-  background-color: #f4f4f4;
-  border-bottom: 0.06rem solid #223446;
-  border-top: 0.06rem solid transparent;
-  border-left: 0.06rem solid transparent;
-  border-right: 0.06rem solid transparent;
-  transition: border 0.3s ease-out;
+  flex-direction: column;
+  gap: 1.5rem;
+  padding: 1rem 0;
 
-  &:hover {
-    border: 0.06rem solid #223446 !important;
+  .filtro {
+    &.box-reindirizzati {
+      label {
+        margin-left: 0.2rem;
+      }
+    }
   }
-}
 
-.cerca-box {
-  width: 21.25rem;
+  .footer {
+    display: flex;
+    justify-content: space-around;
+    justify-content: flex-end;
+
+    .button-cerca {}
+
+    .button-annulla {}
+  }
 }

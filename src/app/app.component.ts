@@ -10,6 +10,7 @@ import { ActivatedRoute, Router, Params } from "@angular/router";
 import { getInternautaUrl, BaseUrlType } from "@bds/internauta-model";
 import Quill from "quill";
 import { DialogService } from "primeng/dynamicdialog";
+import { MailListService } from "./mailbox/mail-list/mail-list.service";
 
 @Component({
   selector: "app-root",
@@ -29,7 +30,8 @@ export class AppComponent implements OnInit {
     private route: ActivatedRoute,
     private router: Router,
     private intimusClient: IntimusClientService,
-    private popupMessaggiService: PopupMessaggiService
+    private popupMessaggiService: PopupMessaggiService,
+    private mailListService: MailListService
   ) {}
 
   ngOnInit() {
