@@ -38,9 +38,9 @@
 }
 
 /* Vale per tutto gli autocomplete, la dropdown sarà largo quanto l'input */
-::ng-deep .p-autocomplete-panel {
+/* ::ng-deep .p-autocomplete-panel {
   width: min-content !important;
-}
+} */
 
 /* tutti i footer  */
 ::ng-deep p-footer {
