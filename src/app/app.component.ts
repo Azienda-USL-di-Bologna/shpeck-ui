@@ -10,6 +10,7 @@ import { ActivatedRoute, Router, Params } from "@angular/router";
 import { getInternautaUrl, BaseUrlType } from "@bds/internauta-model";
 import Quill from "quill";
 import { DialogService } from "primeng/dynamicdialog";
+import { MailListService } from "./mailbox/mail-list/mail-list.service";
 
 @Component({
   selector: "app-root",
@@ -29,12 +30,13 @@ export class AppComponent implements OnInit {
     private route: ActivatedRoute,
     private router: Router,
     private intimusClient: IntimusClientService,
-    private popupMessaggiService: PopupMessaggiService
+    private popupMessaggiService: PopupMessaggiService,
+    private mailListService: MailListService
   ) {}
 
   ngOnInit() {
-    const Link = Quill.import("formats/link");
-    Link.sanitize = function (url) {
+    let Link = Quill.import("formats/link");
+    Link = function (url) {
       if (!url.startsWith("http://") && !url.startsWith("https://")) {
         url = "https://" + url;
       }

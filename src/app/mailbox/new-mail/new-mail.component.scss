@@ -4,27 +4,33 @@
   padding: 0;
   margin: 0;
 }
+
 label {
   font-size: medium;
   font-weight: bold;
 }
+
 ul {
   flex: 1 0 auto;
   height: 94%;
 }
+
 li {
   margin: 0 0 0.625rem;
 }
+
 .oggetto {
   input {
     width: 100%;
   }
 }
+
 .d-flex,
 ul,
 li {
   display: flex;
 }
+
 .flex-dir-col,
 ul {
   flex-direction: column;
@@ -32,12 +38,14 @@ ul {
 
 /******* Chips *******/
 ::ng-deep #attachments .p-chips {
-  > ul.p-inputtext,
-  > ul.p-inputtext:focus {
+
+  >ul.p-inputtext,
+  >ul.p-inputtext:focus {
     min-height: 2.063rem;
     max-height: 6.25rem;
     overflow-y: auto;
   }
+
   .p-chips-input-token {
     display: none;
   }
@@ -49,9 +57,13 @@ ul {
   min-width: 8.438rem;
 }
 
-.ui-fileupload-choose:not(.p-state-disabled):hover {
-  background-color: #c8c8c8 !important;
+.ui-fileupload-choose {
+  cursor: pointer !important;
 }
+
+/* .ui-fileupload-choose:not(.p-state-disabled):hover {
+  background-color: #c8c8c8 !important;
+} */
 .inputfile {
   position: absolute;
   top: 0;
@@ -79,7 +91,7 @@ ul {
 }
 
 /******* Attachments and Address chips *******/
-::ng-deep body .p-chips > ul.p-inputtext .p-chips-token,
+::ng-deep body .p-chips>ul.p-inputtext .p-chips-token,
 ::ng-deep body .p-autocomplete.p-autocomplete-multiple .p-autocomplete-multiple-container .p-autocomplete-token {
   background-color: rgb(235, 235, 235);
   border-radius: 0.3rem;
@@ -87,11 +99,13 @@ ul {
   margin: 0.06rem;
   color: black;
 }
+
 ::ng-deep body .p-autocomplete.p-autocomplete-multiple .p-autocomplete-multiple-container {
   max-height: 5.063rem;
   overflow: auto;
   width: 100%;
 }
+
 .attachment:hover {
   background-color: rgb(206, 206, 206);
 }
@@ -146,17 +160,21 @@ input:focus {
 ::ng-deep .p-editor-content.ql-container.ql-snow {
   min-height: 1.25rem;
 }
+
 ::ng-deep .ql-align.ql-picker.ql-icon-picker.ql-expanded .ql-picker-options .ql-picker-item {
   padding: 0 !important;
 }
+
 .min-height-0 {
   min-height: 0;
 }
-::ng-deep p-editor > div {
+
+::ng-deep p-editor>div {
   height: 100%;
   display: flex;
   flex-flow: column;
 }
+
 /******* Close button *******/
 .close-button {
   position: absolute;
@@ -164,10 +182,12 @@ input:focus {
   right: 1.5rem;
   color: white;
 }
+
 /******* Dialog classes ******/
 .confirm-buttons {
   margin: 0 0.25em 0 0.25em !important;
 }
+
 .warn-class {
   margin: 0 0.5em 0 0.5em;
 }

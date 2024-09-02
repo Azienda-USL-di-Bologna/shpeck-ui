@@ -14,7 +14,6 @@ import { InputTextModule } from "primeng/inputtext";
 import { EditorModule } from "primeng/editor";
 import { FileUploadModule } from "primeng/fileupload";
 import { ChipsModule } from "primeng/chips";
-import { LightboxModule } from "primeng/lightbox";
 import { ContextMenuModule } from "primeng/contextmenu";
 import { MenuModule } from "primeng/menu";
 import { ToastModule } from "primeng/toast";
@@ -30,7 +29,7 @@ import { CalendarModule } from "primeng/calendar";
 import { TooltipModule } from "primeng/tooltip";
 import { DropdownModule } from "primeng/dropdown";
 import { OverlayPanelModule } from "primeng/overlaypanel";
-
+import { SplitterModule } from "primeng/splitter";
 @NgModule({
   declarations: [],
   imports: [
@@ -54,7 +53,6 @@ import { OverlayPanelModule } from "primeng/overlaypanel";
     EditorModule,
     FileUploadModule,
     ChipsModule,
-    LightboxModule,
     ContextMenuModule,
     MenuModule,
     ToastModule,
@@ -65,6 +63,7 @@ import { OverlayPanelModule } from "primeng/overlaypanel";
     SliderModule,
     ColorPickerModule,
     InplaceModule,
+    SplitterModule,
   ],
   exports: [
     DynamicDialogModule,
@@ -87,7 +86,6 @@ import { OverlayPanelModule } from "primeng/overlaypanel";
     EditorModule,
     FileUploadModule,
     ChipsModule,
-    LightboxModule,
     ContextMenuModule,
     MenuModule,
     ToastModule,
@@ -98,6 +96,7 @@ import { OverlayPanelModule } from "primeng/overlaypanel";
     SliderModule,
     ColorPickerModule,
     InplaceModule,
+    SplitterModule,
   ],
 })
 export class PrimengModule {}

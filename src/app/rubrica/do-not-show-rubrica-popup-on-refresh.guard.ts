@@ -1,10 +1,10 @@
 import { Injectable } from "@angular/core";
-import { ActivatedRouteSnapshot, RouterStateSnapshot, UrlTree, CanActivate, Router, PRIMARY_OUTLET } from "@angular/router";
+import { ActivatedRouteSnapshot, RouterStateSnapshot, UrlTree, Router, PRIMARY_OUTLET } from "@angular/router";
 
 @Injectable({
   providedIn: "root",
 })
-export class DoNotShowRubricaPopupOnRefreshGuard implements CanActivate {
+export class DoNotShowRubricaPopupOnRefreshGuard  {
   private router: Router;
 
   constructor(router: Router) {

@@ -1,15 +1,5 @@
-import {
-  Component,
-  OnInit,
-  ViewChild,
-  AfterViewInit,
-  OnDestroy,
-  SystemJsNgModuleLoaderConfig,
-  Input,
-  Renderer2,
-  ElementRef,
-} from "@angular/core";
-import { FormGroup, FormControl, FormBuilder, Validators, FormArray } from "@angular/forms";
+import { Component, OnInit, ViewChild, AfterViewInit, OnDestroy, ChangeDetectorRef } from "@angular/core";
+import { UntypedFormGroup, UntypedFormControl, Validators, UntypedFormArray } from "@angular/forms";
 import { ConfirmationService, MessageService } from "primeng/api";
 import {
   Message,
@@ -29,7 +19,6 @@ import {
   CategoriaContatto,
   DettaglioContatto,
   ConfigurazioneService,
-  ParametroAziende,
   Email,
 } from "@bds/internauta-model";
 import { Editor } from "primeng/editor";
@@ -46,16 +35,10 @@ import {
   SORT_MODES,
   SortDefinition,
 } from "@bds/next-sdr";
-import { ActivatedRoute, Router } from "@angular/router";
+import { Router } from "@angular/router";
 import { UtenteUtilities, JwtLoginService } from "@bds/jwt-login";
 import { Subscription } from "rxjs";
-import {
-  CustomContactService,
-  GroupModifyContactsComponent,
-  ProgressBarEvent,
-  SelectedContact,
-  SelectedContactType,
-} from "@bds/rubrint";
+import { CustomContactService, GroupModifyContactsComponent, SelectedContact, SelectedContactType } from "@bds/rubrint";
 import { AutoComplete } from "primeng/autocomplete";
 import { DialogService, DynamicDialogConfig, DynamicDialogRef } from "primeng/dynamicdialog";
 import { FilteredContactMultiple } from "../mailbox.service";
@@ -75,12 +58,12 @@ export class NewMailComponent implements OnInit, AfterViewInit, OnDestroy {
   private ccAddressesForLabel: string[] = [];
   private toAddresses: any[] = [];
   private ccAddresses: any[] = [];
-  private toFormControl: FormControl[] = [];
-  private ccFormControl: FormControl[] = [];
+  private toFormControl: UntypedFormControl[] = [];
+  private ccFormControl: UntypedFormControl[] = [];
 
   public suggestion: number = 688300;
   public attachments: any[] = [];
-  public mailForm: FormGroup;
+  public mailForm: UntypedFormGroup;
   public selectedPec: Pec;
   public display = false;
   // emailRegex = new RegExp(/^([\w])+([\w-_\.]+)+([\w])@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.)|(([\w-]+\.)+))([a-zA-Z]{2,4}|[0-9]{1,3})(\]?)$/);
@@ -126,6 +109,7 @@ export class NewMailComponent implements OnInit, AfterViewInit, OnDestroy {
     private loginService: JwtLoginService,
     private customContactService: CustomContactService,
     private contattoService: ContattoService,
+    private detector: ChangeDetectorRef,
     private configurazioneService: ConfigurazioneService
   ) {
     // Mi salvo l'elenco di aziende che vogliono la funzionalità "recuperaDomicilioDigitaleInad"
@@ -205,6 +189,7 @@ export class NewMailComponent implements OnInit, AfterViewInit, OnDestroy {
     }
     /* Inizializzazione della form, funziona per tutte le actions ed é l'oggetto che contiene tutti i campi
      * che saranno inviati al server */
+
     this.mailFormInit(hideRecipients, subject, message, action, messageRelatedType);
   }
 
@@ -225,30 +210,30 @@ export class NewMailComponent implements OnInit, AfterViewInit, OnDestroy {
   ) {
     if (this.toAddresses && this.toAddresses.length > 0) {
       //console.log("qui ci entro", this.toAddresses);
-      this.toAddresses.forEach((el) => this.toFormControl.push(new FormControl(el, Validators.pattern(this.emailRegex))));
+      this.toAddresses.forEach((el) => this.toFormControl.push(new UntypedFormControl(el, Validators.pattern(this.emailRegex))));
       this.toFormControl = [...this.toFormControl];
       // this.mailForm.get("to").setValue([...this.toFormControl]);
       this.toAutoComplete.writeValue(this.toAddresses);
     }
 
     if (this.ccAddresses && this.ccAddresses.length > 0) {
-      this.ccAddresses.forEach((el) => this.ccFormControl.push(new FormControl(el, Validators.pattern(this.emailRegex))));
+      this.ccAddresses.forEach((el) => this.ccFormControl.push(new UntypedFormControl(el, Validators.pattern(this.emailRegex))));
       this.ccFormControl = [...this.ccFormControl];
       // this.mailForm.get("cc").setValue([...this.ccFormControl]);
       this.ccAutoComplete.writeValue(this.ccAddresses);
     }
 
-    this.mailForm = new FormGroup({
-      idDraftMessage: new FormControl(this.config.data.idDraft),
-      idPec: new FormControl(this.selectedPec.id),
-      to: new FormArray(this.toFormControl, Validators.required),
-      cc: new FormArray(this.ccFormControl),
-      hideRecipients: new FormControl(hideRecipients),
-      subject: new FormControl(subject),
-      attachments: new FormControl(this.attachments),
-      body: new FormControl(""), // Il body viene inizializzato nell'afterViewInit perché l'editor non è ancora istanziato
-      idMessageRelated: new FormControl(message && action !== TOOLBAR_ACTIONS.EDIT ? message.id : ""),
-      messageRelatedType: new FormControl(messageRelatedType),
+    this.mailForm = new UntypedFormGroup({
+      idDraftMessage: new UntypedFormControl(this.config.data.idDraft),
+      idPec: new UntypedFormControl(this.selectedPec.id),
+      to: new UntypedFormArray(this.toFormControl, Validators.required),
+      cc: new UntypedFormArray(this.ccFormControl),
+      hideRecipients: new UntypedFormControl(hideRecipients),
+      subject: new UntypedFormControl(subject),
+      attachments: new UntypedFormControl(this.attachments),
+      body: new UntypedFormControl(""), // Il body viene inizializzato nell'afterViewInit perché l'editor non è ancora istanziato
+      idMessageRelated: new UntypedFormControl(message && action !== TOOLBAR_ACTIONS.EDIT ? message.id : ""),
+      messageRelatedType: new UntypedFormControl(messageRelatedType),
       // idMessageRelatedAttachments: new FormControl(this.attachments)
     });
     // if it is a draft update input state
@@ -264,28 +249,29 @@ export class NewMailComponent implements OnInit, AfterViewInit, OnDestroy {
 
   ngAfterViewInit() {
     /* Inizializzazione del body per le risposte e l'inoltra */
-
-    if (this.config.data.action !== TOOLBAR_ACTIONS.NEW) {
-      let body = "";
-      if (this.config.data.fullMessage.emlData) {
-        body = this.config.data.fullMessage.emlData.displayBody;
-      } else if (this.config.data.fullMessage.body) {
-        body = this.config.data.fullMessage.body;
-      }
-      if (this.config.data.action === TOOLBAR_ACTIONS.EDIT) {
-        this.editor.quill.clipboard.dangerouslyPasteHTML(body);
-      } else {
-        const message: Message = this.config.data.fullMessage.message;
-        this.buildBody(message, body);
-      }
-      this.mailForm.patchValue({
-        body: this.editor.quill.root["innerHTML"],
-      });
-    }
-    /* Disabilito la compilazione automatica degli indirizzi */
-    this.setAttribute("toInputId", "autocomplete", "false");
-    this.setAttribute("ccInputId", "autocomplete", "false");
-    this.toAutoComplete.focusInput();
+    setTimeout(() => {
+      // if (this.config.data.action !== TOOLBAR_ACTIONS.NEW) {
+      //   let body = "";
+      //   if (this.config.data.fullMessage.emlData) {
+      //     body = this.config.data.fullMessage.emlData.displayBody;
+      //   } else if (this.config.data.fullMessage.body) {
+      //     body = this.config.data.fullMessage.body;
+      //   }
+      //   if (this.config.data.action === TOOLBAR_ACTIONS.EDIT) {
+      //     this.editor.quill.clipboard.dangerouslyPasteHTML(body);
+      //   } else {
+      //     const message: Message = this.config.data.fullMessage.message;
+      //     this.buildBody(message, body);
+      //   }
+      //   this.mailForm.patchValue({
+      //     body: this.editor.quill.root["innerHTML"],
+      //   });
+      // }
+      // /* Disabilito la compilazione automatica degli indirizzi */
+      // this.setAttribute("toInputId", "autocomplete", "false");
+      // this.setAttribute("ccInputId", "autocomplete", "false");
+      // this.toAutoComplete.focused = true;
+    }, 0);
   }
 
   /**
@@ -610,7 +596,8 @@ export class NewMailComponent implements OnInit, AfterViewInit, OnDestroy {
    * @param formField
    */
   private onSelectOrOnEnter(item: FilteredContactMultiple, formField: string): void {
-    const form = formField === "to" ? (this.mailForm.get("to") as FormArray) : (this.mailForm.get("cc") as FormArray);
+    const form =
+      formField === "to" ? (this.mailForm.get("to") as UntypedFormArray) : (this.mailForm.get("cc") as UntypedFormArray);
     const autocomplete = formField === "to" ? this.toAutoComplete : this.ccAutoComplete;
     if (item) {
       if (item.tipo !== "GRUPPO") {
@@ -619,7 +606,7 @@ export class NewMailComponent implements OnInit, AfterViewInit, OnDestroy {
         if (form.value.indexOf(item.descrizioneDettaglioContatto) === -1) {
           // INSERISCO L'ELEMENTO NEL FORM
           form.push(
-            new FormControl(item.descrizioneDettaglioContatto, {
+            new UntypedFormControl(item.descrizioneDettaglioContatto, {
               validators: Validators.pattern(this.emailRegex),
               updateOn: "blur",
             })
@@ -676,12 +663,12 @@ export class NewMailComponent implements OnInit, AfterViewInit, OnDestroy {
    * il check dei destinatari privati
    * @param item L'oggetto rimosso
    */
-  onUnselect(item, formField) {
+  onUnselect(item: any, formField: any) {
     if (item && formField === "to") {
-      const toForm = this.mailForm.get("to") as FormArray;
+      const toForm = this.mailForm.get("to") as UntypedFormArray;
       toForm.removeAt(toForm.value.indexOf(item));
     } else if (item && formField === "cc") {
-      const ccForm = this.mailForm.get("cc") as FormArray;
+      const ccForm = this.mailForm.get("cc") as UntypedFormArray;
       ccForm.removeAt(ccForm.value.indexOf(item));
       if (ccForm.value && ccForm.value.length === 0) {
         const hideRecipients = this.mailForm.get("hideRecipients");
@@ -704,12 +691,12 @@ export class NewMailComponent implements OnInit, AfterViewInit, OnDestroy {
   } */
 
   /* Gestione allegati */
-  onFileChange(event, fileinput) {
+  onFileChange(event: any, fileinput: any) {
     const fileForm = this.mailForm.get("attachments");
     for (const file of event.target.files) {
-      if (!fileForm.value.find((element) => element.name === file.name)) {
+      if (!fileForm.value.find((element: any) => element.name === file.name)) {
         const maxFilesSize = fileForm.value.reduce(
-          (tot, element) => (element.id ? tot + element.size * 0.71 : tot + element.size),
+          (tot: any, element: any) => (element.id ? tot + element.size * 0.71 : tot + element.size),
           0
         );
         if (file.size && maxFilesSize + file.size <= MAX_FILE_SIZE_UPLOAD) {
@@ -796,6 +783,7 @@ export class NewMailComponent implements OnInit, AfterViewInit, OnDestroy {
       { insert: message.subject },
       { insert: "\n\n" }
     );
+
     this.editor.quill.setContents(editorContent);
     /* Mi vergogno di questa cosa ma per adesso devo fare per forza così
      * in attesa del supporto alle table dell'editor Quill nella versione 2.0 */
@@ -804,6 +792,9 @@ export class NewMailComponent implements OnInit, AfterViewInit, OnDestroy {
       .replace(/<\/tbody.[^]*?<\/table>/, "")
       .replace(/<tr>/g, "<br>");
     this.editor.quill.clipboard.dangerouslyPasteHTML(this.editor.quill.getLength(), bodyTableClean);
+    const asd = this.editor.quill.root["innerHTML"];
+    this.mailForm.get("body").setValue(asd);
+    this.editor.quill.clipboard.dangerouslyPasteHTML(asd);
   }
 
   buildFormToSend(): FormData {
@@ -812,7 +803,7 @@ export class NewMailComponent implements OnInit, AfterViewInit, OnDestroy {
       if (key === "attachments") {
         // Gli allegati vanno aggiunti singolarmente
         const files = this.mailForm.get(key).value;
-        files.forEach((file) => {
+        files.forEach((file: any) => {
           if (file.id || file.id === 0) {
             // I file che hanno l'id sono presi dall'eml già salvato sul DB
             formToSend.append("idMessageRelatedAttachments", file.id);
@@ -833,7 +824,7 @@ export class NewMailComponent implements OnInit, AfterViewInit, OnDestroy {
   checkMaxPostSize() {
     const fileForm = this.mailForm.get("attachments");
     const maxFilesSize = fileForm.value.reduce(
-      (tot, element) => (element.id ? tot + element.size * 0.71 : tot + element.size),
+      (tot: any, element: any) => (element.id ? tot + element.size * 0.71 : tot + element.size),
       0
     );
     const bodyForm = this.mailForm.get("body");
@@ -887,7 +878,7 @@ export class NewMailComponent implements OnInit, AfterViewInit, OnDestroy {
     this.dynamicDialogRef.close();
   }
 
-  formatSize(bytes, originalBytes?) {
+  formatSize(bytes: any, originalBytes?: any) {
     const originalTotalSize = bytes;
     if (!originalBytes) {
       bytes = bytes * 0.71;
@@ -914,7 +905,7 @@ export class NewMailComponent implements OnInit, AfterViewInit, OnDestroy {
   //   this.filteredAddressSingle = this.filterAddress(query, this.indirizziTest);
   // }
 
-  public filterAddressMultiple(event): void {
+  public filterAddressMultiple(event: any): void {
     const query = event.query;
     if (this.checkIfRubricaInternautaShouldBeEnabled()) {
       this.filteredAddressMultiple.splice(0, this.filteredAddressMultiple.length);
@@ -997,7 +988,7 @@ export class NewMailComponent implements OnInit, AfterViewInit, OnDestroy {
       this.contattoService.getData(projection, filtersAndSorts).subscribe(
         (res) => {
           if (res.results.length > 0) {
-            res.results.forEach((contattoGruppo) => {
+            res.results.forEach((contattoGruppo: any) => {
               const groupContact = new FilteredContactMultiple();
               groupContact.descrizione = contattoGruppo.descrizione + " [ GRUPPO ] ";
               groupContact.descrizioneDettaglioContatto = contattoGruppo.descrizione;
@@ -1021,7 +1012,7 @@ export class NewMailComponent implements OnInit, AfterViewInit, OnDestroy {
     );
   }
 
-  filterAddress(query, addresses: any[]): any[] {
+  filterAddress(query: any, addresses: any[]): any[] {
     const filtered: any[] = [];
     for (let i = 0; i < addresses.length; i++) {
       const address = addresses[i];
@@ -1032,7 +1023,7 @@ export class NewMailComponent implements OnInit, AfterViewInit, OnDestroy {
     return filtered;
   }
 
-  private setAttribute(feild, attribute, value): void {
+  private setAttribute(feild: any, attribute: any, value: any): void {
     const field = document.getElementById(feild);
     field.setAttribute(attribute, value);
   }
@@ -1043,7 +1034,35 @@ export class NewMailComponent implements OnInit, AfterViewInit, OnDestroy {
     this.displayRubricaPopup = false;
   }
 
-  editorInit(event) {
+  editorInit(event: any) {
+    if (this.config.data.action !== TOOLBAR_ACTIONS.NEW) {
+      let body = "";
+      if (this.config.data.fullMessage.emlData) {
+        body = this.config.data.fullMessage.emlData.displayBody;
+      } else if (this.config.data.fullMessage.body) {
+        body = this.config.data.fullMessage.body;
+      }
+      if (this.config.data.action === TOOLBAR_ACTIONS.EDIT) {
+        //this.editor.quill.setContents([{ insert: "\n" }]);
+        this.mailForm.get("body").setValue(body);
+        this.editor.quill.clipboard.dangerouslyPasteHTML(body);
+        //this.editor.quill.update();
+        // this.mailForm.patchValue({
+        //   body: this.editor.quill.getSemanticHTML(),
+        // });
+        // this.editor.quill.root["innerHTML"],
+        // this.mailForm.get("body").setValue(this.editor.quill.getSemanticHTML());
+      } else {
+        const message: Message = this.config.data.fullMessage.message;
+        this.buildBody(message, body);
+        // this.mailForm.get("body").setValue(this.editor.quill.root["innerHTML"]);
+        // this.editor.quill.update("api");
+      }
+    }
+    /* Disabilito la compilazione automatica degli indirizzi */
+    this.setAttribute("toInputId", "autocomplete", "false");
+    this.setAttribute("ccInputId", "autocomplete", "false");
+    this.toAutoComplete.focused = true;
     // console.log("inside Quill", event);
     const quill = event.editor;
     const toolbar = quill.getModule("toolbar");
@@ -1100,9 +1119,9 @@ export class NewMailComponent implements OnInit, AfterViewInit, OnDestroy {
       image: "Inserisci immagini incorporate",
       "code-block": "Blocco di codice",
       clean: "Rimuovi formattazione",
-    };
+    } as any;
 
-    const showTooltip = (el) => {
+    const showTooltip = (el: any) => {
       const tool = el.className.replace("ql-", "");
       if (tooltips[tool]) {
         el.setAttribute("title", tooltips[tool]);
@@ -1143,7 +1162,7 @@ export class NewMailComponent implements OnInit, AfterViewInit, OnDestroy {
     }
   }
 
-  handleOnHideRubricaPopup(event) {
+  handleOnHideRubricaPopup(event: any) {
     // console.log("handleOnHideRubricaPopup", event);
     this.onCloseRubricaPopup();
   }
@@ -1283,7 +1302,7 @@ export class NewMailComponent implements OnInit, AfterViewInit, OnDestroy {
 
   private handleConfermaAddToAddressTO() {
     if (this.toAutoComplete.value && this.toAutoComplete.value.length > 0) {
-      this.toAutoComplete.value.forEach((email) => this.onUnselect(email, "to"));
+      this.toAutoComplete.value.forEach((email: any) => this.onUnselect(email, "to"));
     }
     this.toAutoComplete.value = [];
     if (
@@ -1320,7 +1339,7 @@ export class NewMailComponent implements OnInit, AfterViewInit, OnDestroy {
 
   private handleConfermaAddToAddressCC() {
     if (this.ccAutoComplete.value && this.ccAutoComplete.value.length > 0) {
-      this.ccAutoComplete.value.forEach((email) => this.onUnselect(email, "cc"));
+      this.ccAutoComplete.value.forEach((email: any) => this.onUnselect(email, "cc"));
     }
     this.ccAutoComplete.value = [];
     if (
@@ -1360,7 +1379,8 @@ export class NewMailComponent implements OnInit, AfterViewInit, OnDestroy {
    * @param formField
    */
   private ControlAreAllMailInGroup(gruppoItem: any, formField: string) {
-    const form = formField === "to" ? (this.mailForm.get("to") as FormArray) : (this.mailForm.get("cc") as FormArray);
+    const form =
+      formField === "to" ? (this.mailForm.get("to") as UntypedFormArray) : (this.mailForm.get("cc") as UntypedFormArray);
     const autocomplete = formField === "to" ? this.toAutoComplete : this.ccAutoComplete;
     const projection = ENTITIES_STRUCTURE.rubrica.contatto.customProjections.CustomContattoGruppoDetail;
     const filtersAndSorts: FiltersAndSorts = new FiltersAndSorts();

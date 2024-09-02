@@ -49,68 +49,69 @@ import { RubricaContainerComponent } from "./rubrica/rubrica-container/rubrica-c
 import { DialogService } from "primeng/dynamicdialog";
 import { MailFoldersModule } from "./mailbox/mail-folders/mail-folders.module";
 
-import { RouteReuseStrategy } from "@angular/router";
+import { RouteReuseStrategy, RouterModule } from "@angular/router";
 import { CustomReuseStrategy } from "./custom-reuse-strategy";
 import { MailDetailModule } from "./mailbox/mail-detail/mail-detail.module";
 import { LandingRoutingComponent } from "./landing-routing/landing-routing.component";
 import { MatMenuModule } from "@angular/material/menu";
 import { ShpeckToolbarModule } from "./mailbox/toolbar/shpeck-toolbar.module";
+import { NgIdleKeepaliveModule } from "@ng-idle/keepalive";
 
 registerLocaleData(localeIt, "it-IT", localeItExtra);
 
 @NgModule({
-  declarations: [
-    AppComponent,
-    MailboxComponent,
-    MailListComponent,
-    SettingsComponent,
-    NewMailComponent,
-    MailDraftsComponent,
-    StripeHtmlPipe,
-    ReaddressComponent,
-    SearchContactComponent,
-    MailOutboxComponent,
-    RubricaContainerComponent,
-    LandingRoutingComponent,
-  ],
-  imports: [
-    JwtLoginModule.forRoot(loginModuleConfig),
-    BrowserModule,
-    BrowserAnimationsModule,
-    FormsModule,
-    ReactiveFormsModule,
-    AppRoutingModule,
-    MatIconModule,
-    MatMenuModule,
-    PrimengModule,
-    NextSdrModule,
-    PrimengPluginModule,
-    CommonComponentsModule,
-    HeaderModule,
-    HeaderFeaturesModule,
-    RubrintModule,
-    ShpeckToolbarModule,
-    MailFoldersModule,
-    MailDetailModule,
-  ],
-  providers: [
-    { provide: LOCALE_ID, useValue: "it-IT" },
-    { provide: RouteReuseStrategy, useClass: CustomReuseStrategy },
-    DialogService,
-    DatePipe,
-    PecService,
-    TagService,
-    DraftService,
-    OutboxService,
-    FolderService,
-    MessageService,
-    ShpeckMessageService,
-    MessageFolderService,
-    MailListService,
-    ConfirmationService,
-  ],
-  bootstrap: [AppComponent],
-  entryComponents: [SettingsComponent, NewMailComponent, ReaddressComponent],
-  exports: [],
+    declarations: [
+        AppComponent,
+        MailboxComponent,
+        MailListComponent,
+        SettingsComponent,
+        NewMailComponent,
+        MailDraftsComponent,
+        StripeHtmlPipe,
+        ReaddressComponent,
+        SearchContactComponent,
+        MailOutboxComponent,
+        RubricaContainerComponent,
+        LandingRoutingComponent,
+    ],
+    imports: [
+        JwtLoginModule.forRoot(loginModuleConfig),
+        BrowserModule,
+        BrowserAnimationsModule,
+        FormsModule,
+        ReactiveFormsModule,
+        AppRoutingModule,
+        MatIconModule,
+        MatMenuModule,
+        PrimengModule,
+        NextSdrModule,
+        PrimengPluginModule,
+        CommonComponentsModule,
+        HeaderModule,
+        HeaderFeaturesModule,
+        RubrintModule,
+        ShpeckToolbarModule,
+        MailFoldersModule,
+        MailDetailModule,
+        NgIdleKeepaliveModule.forRoot(),
+    ],
+    providers: [
+        { provide: LOCALE_ID, useValue: "it-IT" },
+        { provide: RouteReuseStrategy, useClass: CustomReuseStrategy },
+        DialogService,
+        DatePipe,
+        PecService,
+        TagService,
+        DraftService,
+        OutboxService,
+        FolderService,
+        MessageService,
+        ShpeckMessageService,
+        MessageFolderService,
+        MailListService,
+        ConfirmationService,
+    ],
+    bootstrap: [AppComponent],
+    exports: []
 })
 export class AppModule {}

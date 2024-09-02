@@ -18,7 +18,7 @@ import { DialogService } from "primeng/dynamicdialog";
 })
 export class ToolBarService {
   private subscriptions: Subscription[] = [];
-  private _filter: BehaviorSubject<string> = new BehaviorSubject<string>(null);
+  private _userFilters: BehaviorSubject<UserFilters> = new BehaviorSubject<UserFilters>(null);
 
   public messageEvent: MessageEvent;
   public selectedMessages: Message[];
@@ -190,7 +190,7 @@ export class ToolBarService {
     return this.mailListService.buildMoveMenuItems(this.folders, this.selectedFolder, this.move);
   }
 
-  public buildArchiveMenuItems(command) {
+  public buildArchiveMenuItems(command: any) {
     return this.mailListService.buildAziendeUtenteMenuItems(this._selectedPec, command);
   }
 
@@ -198,18 +198,18 @@ export class ToolBarService {
     this.mailListService.archiveMessage(event);
   } */
 
-  private move(event) {
+  private move(event: any) {
     if (event.item.queryParams.folder) {
       this.mailListService.moveMessages(event.item.queryParams.folder.id);
     }
   }
 
-  public setFilterTyped(filter: string): void {
-    this._filter.next(filter);
+  public setUserFilters(filter: UserFilters): void {
+    this._userFilters.next(filter);
   }
 
-  public get getFilterTyped(): Observable<string> {
-    return this._filter.asObservable();
+  public get getUserFilters(): Observable<UserFilters> {
+    return this._userFilters.asObservable();
   }
 
   public handleDelete() {
@@ -224,7 +224,7 @@ export class ToolBarService {
     }
   }
 
-  public newMail(action) {
+  public newMail(action: string) {
     if (this._selectedPec.attiva) {
       const draftMessage = new Draft();
       draftMessage.idPec = { id: this._selectedPec.id } as Pec;
@@ -308,4 +308,14 @@ export class ToolBarService {
       });
     }
   }
+}
+
+export interface UserFilters {
+  searchString: string;
+  ricercaAvanzataFilters: RicercaAvanzataFilters;
+}
+
+export interface RicercaAvanzataFilters {
+  messageDate: { startDate: string; endDate: string };
+  soloReindirizzati: boolean;
 }

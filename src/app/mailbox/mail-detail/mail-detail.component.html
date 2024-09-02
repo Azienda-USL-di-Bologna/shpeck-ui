@@ -6,7 +6,7 @@
 </div>
 <div
   class="detail-container"
-  *ngIf="numberOfMessageSelected === null || numberOfMessageSelected <= 1"
+  *ngIf="(numberOfMessageSelected === null || numberOfMessageSelected <= 1) && fullMessage"
 >
   <h3
     #subject
@@ -287,7 +287,6 @@
 <p-dialog
   header="Ricevute"
   [(visible)]="recepitsVisible"
-  [responsive]="true"
   [modal]="true"
   [maximizable]="true"
   styleClass="recepit-dialog"

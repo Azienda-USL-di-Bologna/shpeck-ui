@@ -2,6 +2,7 @@
   height: 100%;
   display: flex;
   flex-direction: column;
+  overflow: hidden;
 }
 
 .flex-1 {
@@ -96,6 +97,7 @@
     //height: 100%;
     .p-datatable-tbody>tr>td {
       border: none !important;
+      flex: content !important;
     }
   }
 }
@@ -126,12 +128,14 @@
 }
 
 .riga-tabella {
-  height: 4.938rem !important;
 
+  //height: 4.938rem !important;
   .row-main-content {
     display: block;
-    width: 90%;
+    width: 99% !important;
   }
+
+  height: 89px;
 }
 
 .cella-no-elementi {
@@ -241,17 +245,20 @@
 }
 
 ::ng-deep .general-font-size-small .delete-icon {
+  margin-right: 0.25rem !important;
   font-size: 1.25rem !important;
   cursor: pointer;
 }
 
 ::ng-deep .general-font-size-medium .delete-icon {
   font-size: 1.313rem !important;
+  margin-right: 0.25rem !important;
   cursor: pointer;
 }
 
 ::ng-deep .general-font-size-big .delete-icon {
   font-size: 1.375rem !important;
+  margin-right: 0.25rem !important;
   cursor: pointer;
 }
 
@@ -505,9 +512,10 @@
   font-size: 1.1em !important;
 }
 
-::ng-deep .d-inline-flex {
+/* ::ng-deep .d-inline-flex {
   display: inline-flex !important;
-}
+} */
+::ng-deep .item-menu-lungo {}
 
 ::ng-deep .popup-mail-detail {
   width: 56.25rem !important;

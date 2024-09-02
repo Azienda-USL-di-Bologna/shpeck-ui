@@ -5,7 +5,7 @@ import { SettingsService } from "src/app/services/settings.service";
 import { ShpeckMessageService, MessageEvent } from "src/app/services/shpeck-message.service";
 import { MailFoldersService, PecFolder, PecFolderType } from "../../mail-folders/mail-folders.service";
 import { MailListService } from "../../mail-list/mail-list.service";
-import { ToolBarService } from "../../toolbar/toolbar.service";
+import { ToolBarService, UserFilters } from "../../toolbar/toolbar.service";
 import { AppCustomization } from "src/environments/app-customization";
 import { BaseUrls, BaseUrlType, EMLSOURCE, FONTSIZE, TOOLBAR_ACTIONS } from "src/environments/app-constants";
 import { MailboxService, Sorting } from "../../mailbox.service";
@@ -19,18 +19,9 @@ import {
   RefreshMailsParamsOperations,
 } from "@bds/common-tools";
 import { ConfirmationService, FilterMetadata, LazyLoadEvent, MenuItem, MessageService } from "primeng/api";
-import {
-  BatchOperation,
-  BatchOperationTypes,
-  FILTER_TYPES,
-  FilterDefinition,
-  FiltersAndSorts,
-  PagingConf,
-  SortDefinition,
-  AdditionalDataDefinition,
-} from "@bds/next-sdr";
+import { BatchOperation, BatchOperationTypes, FILTER_TYPES, FilterDefinition, FiltersAndSorts, PagingConf } from "@bds/next-sdr";
 import { buildLazyEventFiltersAndSorts } from "@bds/primeng-plugin";
-import { DatePipe, Location } from "@angular/common";
+import { DatePipe } from "@angular/common";
 import {
   Azienda,
   ENTITIES_STRUCTURE,
@@ -39,13 +30,12 @@ import {
   Menu,
   Message,
   MessageTag,
-  MessageType,
   Note,
   Pec,
   Tag,
 } from "@bds/internauta-model";
 import { ContextMenu } from "primeng/contextmenu";
-import { FormControl, FormGroup, Validators } from "@angular/forms";
+import { UntypedFormControl, UntypedFormGroup, Validators } from "@angular/forms";
 import { Utils } from "src/app/utils/utils";
 import { NoteService } from "src/app/services/note.service";
 import { Router, ActivatedRoute, NavigationStart, NavigationEnd } from "@angular/router";
@@ -129,7 +119,8 @@ export class AccessibilitaMailListComponent implements OnInit, OnDestroy {
   @ViewChild("archiviationMenu", {}) private archiviationMenu: Menu;
   @ViewChild("tagMenu", {}) private tagMenu: Menu;
 
-  private actualStringSearch: string = null;
+  //private actualStringSearch: string = null;
+  public userFilters: UserFilters = null;
 
   public folderTypeOutbox: String = FolderType.OUTBOX;
   public folderTypeSent: String = FolderType.SENT;
@@ -209,10 +200,11 @@ export class AccessibilitaMailListComponent implements OnInit, OnDestroy {
 
     this.subscriptions.push({
       id: null,
-      type: "getFilterTyped",
-      subscription: this.toolBarService.getFilterTyped.subscribe((stringToSearch: string) => {
-        this.actualStringSearch = stringToSearch;
-        if (stringToSearch) {
+      type: "getUserFilters",
+      subscription: this.toolBarService.getUserFilters.subscribe((userFilters: UserFilters) => {
+        //this.actualStringSearch = stringToSearch;
+        this.userFilters = userFilters;
+        if (this.userFilters.searchString) {
           // global è lo standard per usare la tscol e ottenere l'ordinamento per ranking
           this.reloadTable();
         }
@@ -256,13 +248,13 @@ export class AccessibilitaMailListComponent implements OnInit, OnDestroy {
       type: "sorting",
       subscription: this.mailboxService.sorting.subscribe((sorting: Sorting) => {
         if (sorting && sorting.field !== "ranking") {
-          // Se sto ordinando per ranking allora è una ricerca e la subscribe che farà partire la getData è quella del getFilterTyped
+          // Se sto ordinando per ranking allora è una ricerca e la subscribe che farà partire la getData è quella del getUserFilters
           this.mailListService.sorting = sorting;
           if (this.dt && this.dt.el && this.dt.el.nativeElement) {
             this.dt.el.nativeElement.getElementsByClassName("p-datatable-virtual-scrollable-body")[0].scrollTop = 0;
           }
           if (!sorting.reset) {
-            // Se non sto resettando faccio la load altrimenti, il reset farà scattare il getFilterTyped
+            // Se non sto resettando faccio la load altrimenti, il reset farà scattare il getUserFilters
             this.lazyLoad(null);
           }
         }
@@ -280,13 +272,8 @@ export class AccessibilitaMailListComponent implements OnInit, OnDestroy {
       id: null,
       type: "router.events",
       subscription: this.router.events.subscribe((event) => {
-        if (
-          event instanceof NavigationStart &&
-          event.url !== this.lastRoute &&
-          this.dt &&
-          this.dt.virtualScrollBody /* scrollableViewChild */
-        ) {
-          let dtToGetScrollTop = this.dt.virtualScrollBody.elementRef /* scrollableViewChild.scrollBodyViewChild */ as ElementRef;
+        if (event instanceof NavigationStart && event.url !== this.lastRoute && this.dt /* scrollableViewChild */) {
+          let dtToGetScrollTop = this.dt.el /* scrollableViewChild.scrollBodyViewChild */ as ElementRef;
           // console.log("DT", dtToGetScrollTop.nativeElement.scrollTop);
           this.lastRoute = this.router.url;
           this.lastPosition = dtToGetScrollTop.nativeElement.scrollTop; // get the scrollTop property
@@ -634,6 +621,11 @@ export class AccessibilitaMailListComponent implements OnInit, OnDestroy {
     // la selezione potrebbe essere cambiata e quindi manderei un dato errato
     const folderSelected = this.pecFolderSelected;
 
+    if (!folderSelected) {
+      console.log("no folder selected");
+      return;
+    }
+
     /* mi devo dissottoscrivere dalla precedente sottoscrizione di richiesta dei dati prima di sottoscrivermi alla nuova
      * per farlo mi metto come tipo della sottocrizione "folder_message" in modo da rintracciarla nell'array delle sottoscrizioni e rimuoverla
      */
@@ -650,7 +642,8 @@ export class AccessibilitaMailListComponent implements OnInit, OnDestroy {
       folder,
       tag,
       this._selectedPecId,
-      this.actualStringSearch
+      this.userFilters,
+      this._selectedPec
     );
     this.subscriptions.push({
       id: folderSelected.data.id,
@@ -1271,8 +1264,8 @@ export class AccessibilitaMailListComponent implements OnInit, OnDestroy {
   }
 
   private showNewTagPopup() {
-    this.tagForm = new FormGroup({
-      tagName: new FormControl("", Validators.required),
+    this.tagForm = new UntypedFormGroup({
+      tagName: new UntypedFormControl("", Validators.required),
     });
     this.displayNewTagPopup = true;
     setTimeout(() => {

@@ -1,7 +1,7 @@
 import { Component, OnInit, ViewChild, ElementRef, Output, EventEmitter } from "@angular/core";
 import { HttpClient } from "@angular/common/http";
 import { RubricaService } from "../services/rubrica.service";
-import { FormGroup, Validators, FormControl } from "@angular/forms";
+import { UntypedFormGroup, Validators, UntypedFormControl } from "@angular/forms";
 import { AutoComplete } from "primeng/autocomplete";
 import { MessageService } from "primeng/api";
 
@@ -12,7 +12,7 @@ import { MessageService } from "primeng/api";
 })
 export class SearchContactComponent implements OnInit {
   public filteredContacts: any[];
-  public contactForm: FormGroup;
+  public contactForm: UntypedFormGroup;
   // public contact: any;
 
   @ViewChild("search", {}) searchField: AutoComplete;
@@ -20,19 +20,15 @@ export class SearchContactComponent implements OnInit {
   @Output() addressChosedByBook = new EventEmitter<any>();
   @Output() closeRubricaPopup = new EventEmitter<any>();
 
-  constructor(
-    protected http: HttpClient,
-    protected rubricaService: RubricaService,
-    protected messageService: MessageService
-  ) {}
+  constructor(protected http: HttpClient, protected rubricaService: RubricaService, protected messageService: MessageService) {}
 
   ngOnInit() {
-    this.contactForm = new FormGroup({
-      contatto: new FormControl("", [Validators.required]),
+    this.contactForm = new UntypedFormGroup({
+      contatto: new UntypedFormControl("", [Validators.required]),
     });
 
     setTimeout(() => {
-      this.searchField.focusInput();
+      this.searchField.focused = true;
     }, 0);
 
     /* Alla selezione di un contatto con Enter, questo metodo non scatta in automatico come avviene con il click
@@ -46,14 +42,14 @@ export class SearchContactComponent implements OnInit {
 
   /* Brutto quanto vuoi. Ma funziona. Se trovi altro modo dimmelo grassie(gus) */
   public onBlur() {
-    this.searchField.focusInput();
+    this.searchField.focused = true;
   }
 
   public getField() {
     return "emails[0]['email']";
   }
 
-  public filterContacts(event) {
+  public filterContacts(event: any) {
     console.log("event", event);
     if (event.query.length > 2) {
       this.rubricaService.searchEmailContact(event.query).subscribe(

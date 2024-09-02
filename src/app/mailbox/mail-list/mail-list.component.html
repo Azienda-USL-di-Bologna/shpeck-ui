@@ -1,36 +1,35 @@
+<!-- <button (click)="mostratable = true">mostra</button> -->
 <!-- *ngIf="mostratable && (_selectedTag || _selectedFolder || _filters)" -->
 <p-table
-  *ngIf="mostratable"
+  *ngIf="pecFolderSelected && mailListService.loggedUser"
   #dt
   id="pec-mail-list"
   [lazy]="true"
-  (onLazyLoad)="lazyLoad($event)"
+  (onLazyLoad)="lazyLoad($any($event))"
   [value]="mailListService.messages"
   [(selection)]="mailListService.selectedMessages"
   dataKey="id"
-  [lazyLoadOnInit]="true"
   [columns]="cols"
-  [paginator]="false"
   [loading]="loading"
-  [autoLayout]="true"
-  [responsive]="true"
-  [totalRecords]="mailListService.totalRecords"
   contextMenuSelectionMode="joint"
   selectionMode="multiple"
   [metaKeySelection]="true"
-  [rows]="rowsNmber"
+  [rows]="rowsNumber"
   [rowTrackBy]="trackByFn"
   [contextMenu]="cm"
   [scrollable]="true"
   scrollHeight="flex"
   [virtualScroll]="true"
   [virtualScrollDelay]="150"
+  [virtualScrollItemSize]="89"
   (onRowSelect)="handleEvent('onRowSelect', $event)"
   (onRowUnselect)="handleEvent('onRowUnselect', $event)"
   (mouseenter)="handleEvent('onMouseEnter', $event)"
   (onContextMenuSelect)="handleEvent('onContextMenuSelect', $event)"
   [ngClass]="mailListService?.totalRecords > 0 ? '' : 'no-records-found'"
->
+  ><!-- [paginator]="false" 
+  [totalRecords]="mailListService.totalRecords"  [autoLayout]="true"
+  [responsive]="true" -->
   <ng-template
     pTemplate="body"
     let-rowData
@@ -489,34 +488,40 @@
   >
     <tr>
       <td
-        *ngIf="_selectedTag || _selectedFolder || actualStringSearch"
         [attr.colspan]="columns.length"
         class="flex-1 message-align flex-direction-col cella-no-elementi"
       >
-        <p
-          *ngIf="actualStringSearch"
-          style="margin: 0"
-        >
-          Nessun messaggio trovato corrispondente alla ricerca:
-          <span class="highligth-actual-string-search">"{{ actualStringSearch }}"</span>
-        </p>
-        <p
-          *ngIf="!actualStringSearch && _selectedFolder"
-          style="margin: 0"
-        >
-          La cartella selezionata non contiene messaggi
-        </p>
-        <p
-          *ngIf="!actualStringSearch && _selectedTag"
-          style="margin: 0"
-        >
-          L'etichetta selezionata non contiene messaggi
+        <p style="margin: 0">
+          @if (userFilters?.searchString || userFilters?.ricercaAvanzataFilters?.messageDate || userFilters?.ricercaAvanzataFilters?.soloReindirizzati) {
+            Nessun messaggio trovato corrispondente alla ricerca:
+            <ul>
+              <li *ngIf="userFilters.searchString" class="highligth-actual-string-search">"{{ userFilters?.searchString }}"</li>
+              <li *ngIf="userFilters.ricercaAvanzataFilters?.soloReindirizzati" class="highligth-actual-string-search">solo messaggi reindirizzati</li>
+              <li *ngIf="userFilters.ricercaAvanzataFilters?.messageDate">
+                nell'intervallo
+                <span class="highligth-actual-string-search">
+                  {{userFilters.ricercaAvanzataFilters.messageDate.startDate | date: "dd/MM/yyyy"}} - {{userFilters.ricercaAvanzataFilters.messageDate.endDate | date: "dd/MM/yyyy"}}
+                </span>
+              </li>
+            </ul>
+          } @else if (_selectedFolder) {
+            La cartella selezionata non contiene messaggi
+          } @else if (_selectedTag) {
+            L'etichetta selezionata non contiene messaggi
+          } @else if (!_selectedFolder && !_selectedTag) {
+            Usa la ricerca per trovare messaggi in tutta la casella PEC (escluso il Cestino)
+          }
         </p>
       </td>
     </tr>
   </ng-template>
 </p-table>
-
+<div
+  *ngIf="showLoadingDiv"
+  style="height: 100px"
+>
+  _ loading _
+</div>
 <p-contextMenu
   #cm
   [model]="cmItems"
