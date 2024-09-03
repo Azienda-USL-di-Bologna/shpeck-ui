@@ -8,6 +8,9 @@ import { PecFolderType, PecFolder } from "./mail-folders/mail-folders.service";
 export class MailboxService {
   private _sorting: BehaviorSubject<Sorting> = new BehaviorSubject<Sorting>(null);
   private _totalMessageNumberDescriptor$: Subject<TotalMessageNumberDescriptor> = new Subject<TotalMessageNumberDescriptor>();
+  private _moveSelectedMessages$: BehaviorSubject<number> = new BehaviorSubject<number>(null);
+  private _moveMessagesToTrash$ = new Subject<void>();
+  private _deleteSelectedMessageFromTrash$ = new Subject<void>();
 
   public get sorting(): Observable<Sorting> {
     return this._sorting.asObservable();
@@ -23,6 +26,30 @@ export class MailboxService {
 
   public setTotalMessageNumberDescriptor(totalMessageNumberDescriptor: TotalMessageNumberDescriptor) {
     this._totalMessageNumberDescriptor$.next(totalMessageNumberDescriptor);
+  }
+
+  public get moveSelectedMessages(): Observable<number> {
+    return this._moveSelectedMessages$.asObservable();
+  }
+
+  public setMoveSelectedMessages(idFolderDestination: number) {
+    this._moveSelectedMessages$.next(idFolderDestination);
+  }
+
+  public get moveMessagesToTrash(): Observable<void> {
+    return this._moveMessagesToTrash$.asObservable();
+  }
+
+  public setMoveMessagesToTrash() {
+    this._moveMessagesToTrash$.next();
+  }
+
+  public get deleteSelectedMessageFromTrash(): Observable<void> {
+    return this._deleteSelectedMessageFromTrash$.asObservable();
+  }
+
+  public setDeleteSelectedMessageFromTrash() {
+    this._deleteSelectedMessageFromTrash$.next();
   }
 }
 

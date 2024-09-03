@@ -2,7 +2,7 @@
   #dt
   tabindex="0"
   *ngIf="mostratable && (_selectedTag || _selectedFolder || _filters)"
-  [value]="mailListService.messages"
+  [value]="messages"
   (onLazyLoad)="lazyLoad($any($event))"
   [lazy]="true"
   [lazyLoadOnInit]="true"

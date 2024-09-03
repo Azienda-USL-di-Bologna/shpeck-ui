@@ -108,6 +108,7 @@ export class AccessibilitaMailListComponent implements OnInit, OnDestroy {
   public first = 0;
   public rows = 10;
   public last = 0;
+  public messages: Message[] = [];
   public rowsNmber = 50;
 
   @ViewChild("dt", {}) private dt: Table;
@@ -119,7 +120,6 @@ export class AccessibilitaMailListComponent implements OnInit, OnDestroy {
   @ViewChild("archiviationMenu", {}) private archiviationMenu: Menu;
   @ViewChild("tagMenu", {}) private tagMenu: Menu;
 
-  //private actualStringSearch: string = null;
   public userFilters: UserFilters = null;
 
   public folderTypeOutbox: String = FolderType.OUTBOX;
@@ -292,6 +292,27 @@ export class AccessibilitaMailListComponent implements OnInit, OnDestroy {
         }
       }),
     });
+    this.subscriptions.push({
+      id: null,
+      type: "moveSelectedMessages",
+      subscription: this.mailboxService.moveSelectedMessages.subscribe((idFolder) => {
+        this.mailListService.moveMessages(this.messages, idFolder);
+      }),
+    });
+    this.subscriptions.push({
+      id: null,
+      type: "moveMessagesToTrash",
+      subscription: this.mailboxService.moveMessagesToTrash.subscribe(() => {
+        this.mailListService.moveMessagesToTrash(this.messages);
+      }),
+    });
+    this.subscriptions.push({
+      id: null,
+      type: "deleteSelectedMessageFromTrash",
+      subscription: this.mailboxService.deleteSelectedMessageFromTrash.subscribe(() => {
+        this.mailListService.deleteSelectedMessageFromTrash(this.messages);
+      }),
+    });
   }
 
   private setFolder(folder: Folder) {
@@ -299,7 +320,7 @@ export class AccessibilitaMailListComponent implements OnInit, OnDestroy {
     this._selectedTag = null;
     this._filters = null;
     this.mailListService.selectedMessages = [];
-    this.mailListService.messages = [];
+    this.messages = [];
     // trucco per far si che la table vanga tolta e rimessa nel dom (in modo da essere resettata) altrimenti sminchia
     // NB: nell'html la visualizzazione della table è controllata da un *ngIf
     setTimeout(() => {
@@ -319,7 +340,7 @@ export class AccessibilitaMailListComponent implements OnInit, OnDestroy {
     this._selectedFolder = null;
     this._filters = null;
     this.mailListService.selectedMessages = [];
-    this.mailListService.messages = [];
+    this.messages = [];
     // trucco per far si che la table vanga tolta e rimessa nel dom (in modo da essere resettata) altrimenti sminchia
     // NB: nell'html la visualizzazione della table è controllata da un *ngIf
     setTimeout(() => {
@@ -342,18 +363,18 @@ export class AccessibilitaMailListComponent implements OnInit, OnDestroy {
   }
 
   isLastPage(): boolean {
-    return this.mailListService.messages ? this.first === this.mailListService.messages.length - this.rows : true;
+    return this.messages ? this.first === this.messages.length - this.rows : true;
   }
 
   isFirstPage(): boolean {
-    return this.mailListService.messages ? this.first === 0 : true;
+    return this.messages ? this.first === 0 : true;
   }
 
   private reloadTable(/* filters: FilterDefinition[] */) {
     this.mostratable = false;
     this._filters = null;
     this.mailListService.selectedMessages = [];
-    this.mailListService.messages = [];
+    this.messages = [];
     setTimeout(() => {
       //this._filters = filters;
       this.mostratable = true;
@@ -474,15 +495,15 @@ export class AccessibilitaMailListComponent implements OnInit, OnDestroy {
             const newMessage = data.results[0];
             // cerco il messaggio perché potrebbe essere già nella cartella disabilitato (ad esempio se qualcuno l'ha spostato e poi rispostato in questa cartella mentre io la guardo)
             console.log("searching message in list...");
-            const messageIndex = this.mailListService.messages.findIndex((m) => m.id === idMessage);
+            const messageIndex = this.messages.findIndex((m) => m.id === idMessage);
             if (messageIndex >= 0) {
               // se lo trovo lo riabilito
               console.log("message found, updating...");
-              this.mailListService.messages.splice(messageIndex, 1, newMessage);
+              this.messages.splice(messageIndex, 1, newMessage);
             } else {
               // se non lo trovo lo inserisco in testa
               console.log("message not found in list, pushing on top...");
-              this.mailListService.messages.unshift(newMessage);
+              this.messages.unshift(newMessage);
 
               this.mailListService.totalRecords++; // ho aggiunto un messaggio per cui aumento di uno il numero dei messaggi visualizzati
               // mando l'evento con il numero di messaggi (serve a mailbox-component perché lo deve scrivere nella barra superiore)
@@ -655,12 +676,12 @@ export class AccessibilitaMailListComponent implements OnInit, OnDestroy {
             this.mailListService.totalRecords = data.page.totalElements;
             // mando l'evento con il numero di messaggi (serve a mailbox-component perché lo deve scrivere nella barra superiore)
             this.mailListService.refreshAndSendTotalMessagesNumber(0, folderSelected);
-            this.mailListService.messages = data.results;
-            // Array.prototype.splice.apply(this.mailListService.messages, [...[event.first, event.rows], ...data.results]);
+            this.messages = data.results;
+            // Array.prototype.splice.apply(this.messages, [...[event.first, event.rows], ...data.results]);
             //trigger change detection
-            // this.mailListService.messages = [...this.mailListService.messages];
-            console.log("this.mailListService.messages", this.mailListService.messages);
-            this.mailListService.setMailTagVisibility(this.mailListService.messages);
+            // this.messages = [...this.messages];
+            console.log("this.messages", this.messages);
+            this.mailListService.setMailTagVisibility(this.messages);
             //this.mailFoldersService.doReloadTag(this.mailListService.tags.find(t => t.name === "in_error").id);
           }
           this.loading = false;
@@ -669,9 +690,9 @@ export class AccessibilitaMailListComponent implements OnInit, OnDestroy {
           // Altimenti la table non li evidenzia
           let index;
           for (let i = 0; i < this.mailListService.selectedMessages.length; i++) {
-            index = this.isMessageinList(this.mailListService.selectedMessages[i].id, this.mailListService.messages);
+            index = this.isMessageinList(this.mailListService.selectedMessages[i].id, this.messages);
             if (index !== -1) {
-              this.mailListService.selectedMessages[i] = this.mailListService.messages[index];
+              this.mailListService.selectedMessages[i] = this.messages[index];
             }
           }
           //this.setAccessibilityProperties(true);
@@ -734,15 +755,15 @@ export class AccessibilitaMailListComponent implements OnInit, OnDestroy {
        * questo perché può essere che arrivi una callback relativa ad un'operazione precedente, che ora non sarebbe più valida455
        */
       this.unsubscribeFromMessage(idMessage);
-      const messageIndex = this.mailListService.messages.findIndex((message) => message.id === idMessage);
-      if (messageIndex >= 0 && !!!this.mailListService.messages[messageIndex]["moved"]) {
+      const messageIndex = this.messages.findIndex((message) => message.id === idMessage);
+      if (messageIndex >= 0 && !!!this.messages[messageIndex]["moved"]) {
         if (
           this.mailListService.selectedMessages.length > 0 &&
           this.mailListService.selectedMessages.find((m) => m.id === idMessage)
         ) {
           let messageToShowPreview = null;
           if (this.mailListService.selectedMessages.length === 1 && this.mailListService.selectedMessages[0].id === idMessage) {
-            messageToShowPreview = this.mailListService.messages[messageIndex];
+            messageToShowPreview = this.messages[messageIndex];
           }
           // filtro i messaggi selezionati togliendo quello che sto disabilitando, devo per forza riassegnare l'array e non fare un semplice splice perché
           // altrimenti angular non si accorgerebbe che l'array è cambiato e non mi scatterebbero gli eventi di deselezione della tabella
@@ -750,7 +771,7 @@ export class AccessibilitaMailListComponent implements OnInit, OnDestroy {
           this.messageService.manageMessageEvent(null, messageToShowPreview, this.mailListService.selectedMessages);
         }
         // per disabilitare il messaggio gli setto la proprietà "moved" a true
-        this.mailListService.messages[messageIndex]["moved"] = true;
+        this.messages[messageIndex]["moved"] = true;
         // in movedInfo metto una stringa che spiega cosa è successo al messaggio, sarà poi visualizzata in un tooltip
         let movedInfo: string = null;
         if (permanentDelete) {
@@ -787,9 +808,9 @@ export class AccessibilitaMailListComponent implements OnInit, OnDestroy {
             movedInfo = `il messaggio è appena stato rimosso dalla cartella ${params["folder_description"]} da ${params["persona"]}`;
           }
         }
-        this.mailListService.messages[messageIndex]["movedInfo"] = movedInfo;
+        this.messages[messageIndex]["movedInfo"] = movedInfo;
         // this.refreshBadges(params);
-        // this.mailListService.messages.splice(messageIndex, 1);
+        // this.messages.splice(messageIndex, 1);
       }
     } else if (
       (params.newRow && params.newRow["id_utente"] !== this.loggedUser.getUtente().id) ||
@@ -888,7 +909,7 @@ export class AccessibilitaMailListComponent implements OnInit, OnDestroy {
   }
 
   private reloadMessage(idMessage: number, params: RefreshMailsParams) {
-    const messageIndex = this.mailListService.messages.findIndex((m) => m.id === idMessage);
+    const messageIndex = this.messages.findIndex((m) => m.id === idMessage);
     let reload: boolean = false; // indica se il messaggio anrà ricaricato
     if (messageIndex >= 0) {
       // se il messaggio è presente della lista
@@ -901,7 +922,7 @@ export class AccessibilitaMailListComponent implements OnInit, OnDestroy {
           // e il tag nuovo non è quello che sto guardando
           if (params.newRow["id_tag"] !== this.pecFolderSelected.data.id) {
             // devo ricaricare il messaggio solo se il messaggio non è disabilitato
-            reload = !!!this.mailListService.messages[messageIndex]["moved"];
+            reload = !!!this.messages[messageIndex]["moved"];
           } // se ho fatto un update di una folder e sto guardando una folder
         } else if (
           params.entity === RefreshMailsParamsEntities.MESSAGE_FOLDER &&
@@ -917,11 +938,11 @@ export class AccessibilitaMailListComponent implements OnInit, OnDestroy {
           }
         } else {
           // sempre se è un update, ma non è un caso dei precedenti, lo devo ricaricare se il messaggio non è disabilitato
-          reload = !!!this.mailListService.messages[messageIndex]["moved"];
+          reload = !!!this.messages[messageIndex]["moved"];
         }
       } else {
         // se non è un operazione di update, lo devo ricaricare se il messaggio non è disabilitato
-        reload = !!!this.mailListService.messages[messageIndex]["moved"];
+        reload = !!!this.messages[messageIndex]["moved"];
       }
     }
 
@@ -944,7 +965,7 @@ export class AccessibilitaMailListComponent implements OnInit, OnDestroy {
             this.mailListService.setMailTagVisibility([newMessage]);
 
             // aggiorno il messaggio nella lista inserendo quello ricaricato
-            this.mailListService.messages[messageIndex] = newMessage;
+            this.messages[messageIndex] = newMessage;
 
             // se il messaggio è anche presente nei messaggi selezioni, lo sostituisco anche lì
             const smIndex = this.mailListService.selectedMessages.findIndex((sm) => sm.id === newMessage.id);
@@ -1205,13 +1226,13 @@ export class AccessibilitaMailListComponent implements OnInit, OnDestroy {
       case "MessageDelete":
         const selectedFolder: Folder = this.pecFolderSelected.data as Folder;
         if (selectedFolder.type === FolderType.TRASH) {
-          this.mailListService.deleteSelectedMessageFromTrash();
+          this.mailListService.deleteSelectedMessageFromTrash(this.messages);
         } else {
           this.deletingConfirmation();
         }
         break;
       case "MessageMove":
-        this.mailListService.moveMessages(event.item.queryParams.folder.id);
+        this.mailListService.moveMessages(this.messages, event.item.queryParams.folder.id);
         break;
       case "MessageLabels":
         this.checkTagAndConfirm(event.item.queryParams);
@@ -1238,22 +1259,22 @@ export class AccessibilitaMailListComponent implements OnInit, OnDestroy {
         this.noteHandler();
         break;
       case "ToggleErrorTrue":
-        this.mailListService.toggleError(true);
+        this.mailListService.toggleError(this.messages, true);
         break;
       case "ToggleErrorFalse":
-        this.mailListService.toggleError(false);
+        this.mailListService.toggleError(this.messages, false);
         break;
       case "MessageUndelete":
         let idPreviousFolder = this.mailListService.selectedMessages[0].messageFolderList[0].idPreviousFolderTransient;
         const received = this.mailListService.selectedMessages[0].inOut === "IN" ? true : false;
         if (idPreviousFolder === null && received === true) {
           idPreviousFolder = this._selectedPec.folderList.filter((folder) => folder.type === "INBOX")[0].id;
-          this.mailListService.moveMessages(idPreviousFolder);
+          this.mailListService.moveMessages(this.messages, idPreviousFolder);
         } else if (idPreviousFolder === null && received === false) {
           idPreviousFolder = this._selectedPec.folderList.filter((folder) => folder.type === "SENT")[0].id;
-          this.mailListService.moveMessages(idPreviousFolder);
+          this.mailListService.moveMessages(this.messages, idPreviousFolder);
         } else {
-          this.mailListService.moveMessages(idPreviousFolder);
+          this.mailListService.moveMessages(this.messages, idPreviousFolder);
         }
         break;
       case "MessageArchive":
@@ -1281,7 +1302,7 @@ export class AccessibilitaMailListComponent implements OnInit, OnDestroy {
       header: "Conferma",
       icon: "pi pi-exclamation-triangle",
       accept: () => {
-        this.mailListService.moveMessagesToTrash();
+        this.mailListService.moveMessagesToTrash(this.messages);
       },
       reject: () => {},
     });
@@ -1300,12 +1321,12 @@ export class AccessibilitaMailListComponent implements OnInit, OnDestroy {
         header: "Conferma",
         icon: "pi pi-exclamation-triangle",
         accept: () => {
-          this.mailListService.toggleTag(queryParams.tag, true);
+          this.mailListService.toggleTag(this.messages, queryParams.tag, true);
         },
         reject: () => {},
       });
     } else {
-      this.mailListService.toggleTag(queryParams.tag, true);
+      this.mailListService.toggleTag(this.messages, queryParams.tag, true);
     }
   }
 
