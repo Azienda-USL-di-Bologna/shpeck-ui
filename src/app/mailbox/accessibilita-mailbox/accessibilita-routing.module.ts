@@ -13,10 +13,12 @@ const routes: Routes = [
       {
         path: "mail-list",
         component: AccessibilitaMailListComponent,
+        pathMatch: "full",
       },
       {
         path: "mail-detail",
         component: AccessibilitaMailDetailComponent,
+        pathMatch: "full",
       },
     ],
   },

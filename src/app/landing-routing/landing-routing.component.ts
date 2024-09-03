@@ -9,10 +9,7 @@ import { ACCESSIBLE_MAILBOX_ROUTE, MAILBOX_ROUTE } from "src/environments/app-co
   styleUrls: ["./landing-routing.component.scss"],
 })
 export class LandingRoutingComponent implements OnInit {
-  constructor(
-    private loginService: JwtLoginService,
-    private router: Router
-  ) {}
+  constructor(private loginService: JwtLoginService, private router: Router) {}
 
   ngOnInit(): void {
     this.loginService.loggedUser$.subscribe(
