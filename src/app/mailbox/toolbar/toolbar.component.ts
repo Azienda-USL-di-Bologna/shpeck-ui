@@ -154,7 +154,8 @@ export class ToolbarComponent implements OnDestroy, AfterViewInit {
         ? "Almeno uno dei messaggi selezionati è <b>in errore</b>, sei sicuro di volerli eliminare? Se eliminato verrà segnato come errore visto"
         : "Sei sicuro di voler eliminare i messaggi selezionati?";
       if (this.toolBarService.selectedFolder.type === FolderType.TRASH) {
-        this.mailListService.deleteSelectedMessageFromTrash();
+        //this.mailListService.deleteSelectedMessageFromTrash();
+        this.mailboxService.setDeleteSelectedMessageFromTrash();
       } else {
         if (this.toolBarService.selectedFolder.type === FolderType.DRAFT) {
           message = "Vuoi eliminare definitivamente la bozza selezionata?";
