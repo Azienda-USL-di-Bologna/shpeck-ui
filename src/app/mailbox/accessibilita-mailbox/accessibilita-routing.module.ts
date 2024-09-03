@@ -9,7 +9,7 @@ const routes: Routes = [
     path: "",
     component: AccessibilitaMailboxComponent,
     children: [
-      { path: "", redirectTo: "mail-list" },
+      { path: "", redirectTo: "mail-list", pathMatch: "full" },
       {
         path: "mail-list",
         component: AccessibilitaMailListComponent,

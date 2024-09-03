@@ -1532,7 +1532,7 @@ export class MailListService {
     }
 
     if (this.sorting.field === "receiveTime") {
-      filtersAndSorts.addSort(new SortDefinition("messageFolderReceiveTime", this.sorting.sortMode));
+      filtersAndSorts.addSort(new SortDefinition("receiveTime", this.sorting.sortMode));
     } else {
       filtersAndSorts.addSort(new SortDefinition(this.sorting.field, this.sorting.sortMode));
     }
