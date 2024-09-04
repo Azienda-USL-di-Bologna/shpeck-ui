@@ -37,7 +37,6 @@ const routes: Routes = [
     loadChildren: () =>
       import("./mailbox/accessibilita-mailbox/accessibilita-mailbox.module").then((m) => m.AccessibilitaMailboxModule),
     canActivate: [RefreshLoggedUserGuard, LoginGuard],
-    pathMatch: "full",
   },
   { path: LOGGED_OUT_ROUTE, component: LoggedOutPageComponent },
   { path: "", redirectTo: LANDING_ROUTE, pathMatch: "full" },

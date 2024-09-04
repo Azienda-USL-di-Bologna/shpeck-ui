@@ -204,7 +204,7 @@ export class AccessibilitaMailListComponent implements OnInit, OnDestroy {
       subscription: this.toolBarService.getUserFilters.subscribe((userFilters: UserFilters) => {
         //this.actualStringSearch = stringToSearch;
         this.userFilters = userFilters;
-        if (this.userFilters.searchString) {
+        if (this.userFilters?.searchString) {
           // global è lo standard per usare la tscol e ottenere l'ordinamento per ranking
           this.reloadTable();
         }
