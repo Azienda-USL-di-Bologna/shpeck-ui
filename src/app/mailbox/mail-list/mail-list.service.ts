@@ -63,7 +63,7 @@ import { UserFilters } from "../toolbar/toolbar.service";
   providedIn: "root",
 })
 export class MailListService {
-  public messages: Message[] = [];
+  // public messages: Message[] = [];
   public folders: Folder[] = [];
   public tags: Tag[] = [];
   public trashFolder: Folder;
@@ -535,7 +535,7 @@ export class MailListService {
    * Questa funzione si occupa di spostare i selectedMessages nel folder passato
    * @param idFolder di folder passato ( fk_idPreviousFolder )
    */
-  public moveMessages(idFolder: number): void {
+  public moveMessages(messages: Message[], idFolder: number): void {
     if (idFolder && typeof idFolder === "number") {
       const numberOfSelectedMessages: number = this.selectedMessages.length;
       console.log("dentro move message:", this.selectedMessages[0].messageFolderList);
@@ -546,7 +546,7 @@ export class MailListService {
         .moveMessagesToFolder(messagesFolder, idFolder, this.loggedUser.getUtente().id)
         .subscribe((res) => {
           if (this.pecFolderSelected.type === PecFolderType.FOLDER) {
-            this.messages = Utils.arrayDiff(this.messages, this.selectedMessages, "id");
+            messages = Utils.arrayDiff(messages, this.selectedMessages, "id");
             this.mailFoldersService.doReloadFolder(messagesFolder[0].idFolder.id);
             this.mailFoldersService.doReloadFolder(idFolder);
             this.selectedMessages = [];
@@ -560,17 +560,17 @@ export class MailListService {
             });
             this.messageService.getData(this.selectedProjection, filter, null, null).subscribe((data: any) => {
               (data.results as Message[]).forEach((reloadedMessage) => {
-                const messageIndex = this.messages.findIndex((m) => m.id === reloadedMessage.id);
+                const messageIndex = messages.findIndex((m) => m.id === reloadedMessage.id);
                 if (messageIndex >= 0) {
                   this.setMailTagVisibility([reloadedMessage]);
                   this.mailFoldersService.doReloadTag(this.tags.find((t) => t.name === "in_error").id);
-                  this.messages.splice(messageIndex, 1, reloadedMessage);
+                  messages.splice(messageIndex, 1, reloadedMessage);
                   if (idFolder === this.trashFolder.id) {
-                    this.messages = this.messages.filter((ab) => ab.id != reloadedMessage.id);
+                    messages = messages.filter((ab) => ab.id != reloadedMessage.id);
                   }
                 }
               });
-              this.messages = [...this.messages];
+              messages = [...messages];
               this.selectedMessages = [];
               this.messageService.manageMessageEvent(null, null, this.selectedMessages);
             });
@@ -638,20 +638,20 @@ export class MailListService {
    * @param selectedMessages
    * @param loggedUser
    */
-  public moveMessagesToTrash(): void {
+  public moveMessagesToTrash(messages: Message[]): void {
     if (this.selectedMessages.some((m) => m.messageTagList)) {
       if (this.selectedMessages.some((m) => m.messageTagList.some((mt) => mt.idTag.name === "in_error"))) {
-        this.toggleError(false);
+        this.toggleError(messages, false);
       }
     }
-    this.moveMessages(this.trashFolder.id);
+    this.moveMessages(messages, this.trashFolder.id);
   }
 
-  public createAndApplyTag(tagName: any) {
+  public createAndApplyTag(messages: Message[], tagName: any) {
     this.createTag(tagName).subscribe((res: Tag) => {
       this._newTagInserted$.next(res);
       // this.tags.push(res);
-      this.toggleTag(res);
+      this.toggleTag(messages, res);
       this.messagePrimeService.add({
         severity: "success",
         summary: "Successo",
@@ -676,7 +676,7 @@ export class MailListService {
    * Questa funzione applica/rimuove il tag passato come parametro ai messaggi selezionati.
    * @param tag Il tag da applicare o rimuovere.
    */
-  public toggleTag(tag: Tag, showMessage?: boolean) {
+  public toggleTag(messages: Message[], tag: Tag, showMessage?: boolean) {
     const messageTagOperations: BatchOperation[] = [];
     let messagesWithTag: any[] = [];
     messagesWithTag = this.filterMessagesWithTag(tag);
@@ -694,7 +694,7 @@ export class MailListService {
       if (messageTagOperations.length > 0) {
         this.messageService.batchHttpCall(messageTagOperations).subscribe(
           (res: BatchOperation[]) => {
-            this.updateMessageTagList(mtp, res);
+            this.updateMessageTagList(messages, mtp, res);
             if (showMessage) {
               this.messagePrimeService.add({
                 severity: "success",
@@ -720,7 +720,7 @@ export class MailListService {
       const url = getInternautaUrl(BaseUrlType.Shpeck) + "/" + CUSTOM_SERVER_METHODS.deleteMessageTagCustom;
       if (idMessageTagToDelete.length > 0) {
         this.httpClient.post(url, idMessageTagToDelete).subscribe(() => {
-          this.updateMessageTagList(mtp, []);
+          this.updateMessageTagList(messages, mtp, []);
           if (showMessage) {
             this.messagePrimeService.add({
               severity: "success",
@@ -733,7 +733,7 @@ export class MailListService {
     }
   }
 
-  public deleteSelectedMessageFromTrash(): void {
+  public deleteSelectedMessageFromTrash(messages: Message[]): void {
     const messageFolderOperations: BatchOperation[] = [];
     let idFolder: any;
     // const mfp: MessageFolderOp[] = []; // Credo non serva
@@ -748,7 +748,7 @@ export class MailListService {
     if (messageFolderOperations.length > 0) {
       this.messageService.batchHttpCall(messageFolderOperations).subscribe(
         (res: BatchOperation[]) => {
-          this.messages = this.messages.filter((m) => this.selectedMessages.find((sm) => sm.id !== m.id));
+          messages = messages.filter((m) => this.selectedMessages.find((sm) => sm.id !== m.id));
           this.mailFoldersService.doReloadFolder(idFolder);
           this.selectedMessages = [];
           this.messageService.manageMessageEvent(null, null, this.selectedMessages);
@@ -837,7 +837,7 @@ export class MailListService {
    * Questa funzione si occupa di settare i messaggi come visti o non visti.
    * @param menuItem
    */
-  public setSeen(seen: boolean, reloadUnSeen: boolean = false): void {
+  public setSeen(messages: Message[], seen: boolean, reloadUnSeen: boolean = false): void {
     console.log("setseen messaggi: ", this.selectedMessages);
     const messagesToUpdate: BatchOperation[] = [];
     let messaggioDaInviare: Message = null;
@@ -872,12 +872,12 @@ export class MailListService {
             if (index >= 0) {
               this.selectedMessages.splice(index, 1, updatedMessage);
             }
-            index = this.messages.findIndex((m) => m.id === bacthOperation.id);
+            index = messages.findIndex((m) => m.id === bacthOperation.id);
             if (index >= 0) {
               //this.messages.splice(index, 1, updatedMessage);
-              this.messages[index].seen = updatedMessage.seen;
-              this.messages[index].version = updatedMessage.version;
-              updatedMessage = this.messages[index];
+              messages[index].seen = updatedMessage.seen;
+              messages[index].version = updatedMessage.version;
+              updatedMessage = messages[index];
             }
             if (!map[updatedMessage.messageFolderList[0].idFolder.id]) {
               this.mailFoldersService.doReloadFolder(updatedMessage.messageFolderList[0].idFolder.id);
@@ -893,7 +893,7 @@ export class MailListService {
    * Questa funzione si occupa di aggiungere o rimuovere il tag in Errore ad uno o più messaggi
    * @param toInsert Boolean per aggiungere il tag Errore (true) o toglierlo (false)
    */
-  public toggleError(toInsert: boolean): void {
+  public toggleError(messages: Message[], toInsert: boolean): void {
     const messageTagOperations: BatchOperation[] = [];
     const mtp: MessageTagOp[] = [];
     let idTag: number;
@@ -908,7 +908,7 @@ export class MailListService {
         this.messageService.batchHttpCall(messageTagOperations).subscribe(
           (res: BatchOperation[]) => {
             this.mailFoldersService.doReloadTag(idTag);
-            this.updateMessageTagList(mtp, res);
+            this.updateMessageTagList(messages, mtp, res);
           },
           (err) => console.log("error during the operation -> ", err)
         );
@@ -927,7 +927,7 @@ export class MailListService {
         const url = getInternautaUrl(BaseUrlType.Shpeck) + "/" + CUSTOM_SERVER_METHODS.deleteMessageTagCustom;
         this.httpClient.post(url, idMessageTagToDelete).subscribe(() => {
           this.mailFoldersService.doReloadTag(idTag);
-          this.updateMessageTagList(mtp, []);
+          this.updateMessageTagList(messages, mtp, []);
         });
       }
     }
@@ -939,7 +939,7 @@ export class MailListService {
    * @param mTagOp Array delle operazioni fatte sui messaggi
    * @param result Il risultato della chiamata al backend che contiene le entità aggiornate
    */
-  private updateMessageTagList(mTagOp: MessageTagOp[], result: BatchOperation[]) {
+  private updateMessageTagList(messages: Message[], mTagOp: MessageTagOp[], result: BatchOperation[]) {
     mTagOp.forEach((item) => {
       if (item.operation === "INSERT" && result) {
         const messageTagToPush: MessageTag = result.find(
@@ -955,7 +955,7 @@ export class MailListService {
         this.setIconsVisibility(item.message);
 
         if (this.selectedTag && this.selectedTag.id === item.messageTag.idTag.id) {
-          this.messages.splice(this.messages.indexOf(this.messages.find((m) => m.id === item.messageTag.idMessage.id)), 1);
+          messages.splice(messages.indexOf(messages.find((m) => m.id === item.messageTag.idMessage.id)), 1);
           this.totalRecords--;
           // mando l'evento con il numero di messaggi (serve a mailbox-component perché lo deve scrivere nella barra superiore)
           this.refreshAndSendTotalMessagesNumber(0, this.pecFolderSelected);
@@ -964,7 +964,7 @@ export class MailListService {
     });
   }
 
-  private updateMessageFolderList(mFolderOp: MessageFolderOp[], result: BatchOperation[]) {
+  private updateMessageFolderList(messages: Message[], mFolderOp: MessageFolderOp[], result: BatchOperation[]) {
     mFolderOp.forEach((item) => {
       if (item.operation === "INSERT" && result) {
         const messageFolderToPush: MessageFolder = result.find(
@@ -980,7 +980,7 @@ export class MailListService {
         this.setIconsVisibility(item.message);
 
         if (this.pecFolderSelected && (this.pecFolderSelected.data as any)["FOLDER"] === item.messageFolder.idFolder.id) {
-          this.messages.splice(this.messages.indexOf(this.messages.find((m) => m.id === item.messageFolder.fk_idMessage.id)), 1);
+          messages.splice(messages.indexOf(messages.find((m) => m.id === item.messageFolder.fk_idMessage.id)), 1);
         }
       }
     });
@@ -1419,7 +1419,7 @@ export class MailListService {
     return this.selectedMessages.some((mess) => {
       if (mess.messageStatus === MessageStatus.ERROR || mess.messageStatus === MessageStatus.CONFIRMED) {
         if (mess.messageTagList) {
-          const aaa = this.messages;
+          //const aaa = this.messages;
           return mess.messageTagList.find((messageTag) => messageTag.idTag.name === "in_error") !== undefined;
         } else {
           return false;
@@ -1532,7 +1532,7 @@ export class MailListService {
     }
 
     if (this.sorting.field === "receiveTime") {
-      filtersAndSorts.addSort(new SortDefinition("messageFolderReceiveTime", this.sorting.sortMode));
+      filtersAndSorts.addSort(new SortDefinition("receiveTime", this.sorting.sortMode));
     } else {
       filtersAndSorts.addSort(new SortDefinition(this.sorting.field, this.sorting.sortMode));
     }

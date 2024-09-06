@@ -1,3 +1,4 @@
+import { MailboxService } from "./../mailbox.service";
 import { Injectable } from "@angular/core";
 import { BehaviorSubject, Observable, Subscription, Observer, of } from "rxjs";
 import { FilterDefinition } from "@bds/next-sdr";
@@ -55,7 +56,8 @@ export class ToolBarService {
     private mailFoldersService: MailFoldersService,
     private pecService: PecService,
     private mailListService: MailListService,
-    private loginService: JwtLoginService
+    private loginService: JwtLoginService,
+    private mailboxService: MailboxService
   ) {
     this.move = this.move.bind(this);
     // this.archive = this.archive.bind(this);
@@ -200,7 +202,8 @@ export class ToolBarService {
 
   private move(event: any) {
     if (event.item.queryParams.folder) {
-      this.mailListService.moveMessages(event.item.queryParams.folder.id);
+      //this.mailListService.moveMessages(event.item.queryParams.folder.id);
+      this.mailboxService.setMoveSelectedMessages(event.item.queryParams.folder.id);
     }
   }
 
@@ -220,7 +223,8 @@ export class ToolBarService {
         this.draftService.deleteDrafts(this.draftEvent.selectedDrafts, true);
       }
     } else {
-      this.mailListService.moveMessagesToTrash();
+      //this.mailListService.moveMessagesToTrash();
+      this.mailboxService.setMoveMessagesToTrash();
     }
   }
 
