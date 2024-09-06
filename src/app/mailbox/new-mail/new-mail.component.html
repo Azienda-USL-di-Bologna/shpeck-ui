@@ -24,23 +24,26 @@
         <span class="ui-fluid flex-1 margin-lr-5">
           <p-autoComplete
             #toAutoComplete
+            type="email"
             [required]="true"
             [autofocus]="true"
             [delay]="500"
             inputId="toInputId"
-            type="email"
             id="to"
             formControlArray="to"
             [suggestions]="filteredAddressMultiple"
             (completeMethod)="filterAddressMultiple($event)"
             (keyup.enter)="onKeyUpNew($event, 'to')"
             (onSelect)="onSelectNew($event.value, 'to')"
-            (onUnselect)="onUnselect($event, 'to')"
+            (onUnselect)="onUnselect($event.value, 'to')"
             (onBlur)="onKeyUpNew($event, 'to')"
-            [minLength]="1"
             placeholder="Seleziona contatti..."
+            [minLength]="1"
             [multiple]="true"
           >
+            <ng-template pTemplate="empty"
+              >Indirizzo non trovato, premere invio per inserire un indirizzo estermporaneo
+            </ng-template>
             <ng-template
               let-value
               pTemplate="selectedItem"
@@ -96,10 +99,10 @@
       <li>
         <label for="cc">CC: </label>
         <span class="ui-fluid flex-1 margin-lr-5">
+          <!-- field="descrizione" -->
           <p-autoComplete
             #ccAutoComplete
             type="email"
-            field="descrizione"
             [delay]="500"
             inputId="ccInputId"
             id="cc"
@@ -108,13 +111,16 @@
             (completeMethod)="filterAddressMultiple($event)"
             (keyup.enter)="onKeyUpNew($event, 'cc')"
             (onSelect)="onSelectNew($event.value, 'cc')"
-            (onUnselect)="onUnselect($event, 'cc')"
+            (onUnselect)="onUnselect($event.value, 'cc')"
             (onBlur)="onKeyUpNew($event, 'cc')"
             [pTooltip]="mailForm.get('hideRecipients')?.value ? ccTooltip : ''"
-            [disabled]="mailForm.get('hideRecipients')?.value"
             [minLength]="1"
             [multiple]="true"
+            [disabled]="mailForm.get('hideRecipients')?.value"
           >
+            <ng-template pTemplate="empty"
+              >Indirizzo non trovato, premere invio per inserire un indirizzo estermporaneo
+            </ng-template>
             <ng-template
               let-value
               pTemplate="selectedItem"
@@ -135,17 +141,17 @@
               let-value
               pTemplate="item"
             >
-              <span class="token-label item-contatto"
-                ><i
+              <span class="token-label item-contatto">
+                <i
                   pTooltip=""
                   tooltipPosition="top"
                   *ngIf="value.isDomicilioDigitale"
                   class="tooltip pi pi-id-card icon-item-contatto"
-                ></i
-                ><span
-                  >{{ value.tipo == "GRUPPO" ? "[GRUPPO] " : "" }}{{ value.descrizioneContatto }} -
-                  {{ value.descrizioneDettaglioContatto }}</span
-                >
+                ></i>
+                <span>
+                  {{ value.tipo == "GRUPPO" ? "[GRUPPO] " : "" }}{{ value.descrizioneContatto }} -
+                  {{ value.descrizioneDettaglioContatto }}
+                </span>
               </span>
             </ng-template>
           </p-autoComplete>
