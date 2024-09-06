@@ -145,7 +145,7 @@ export class ToolbarComponent implements OnDestroy, AfterViewInit {
       const almenoUnoConTag = this.mailListService.selectedMessages.some((m) => m.messageTagList);
       if (almenoUnoConTag) {
         var almenoUnoInErrore = this.mailListService.selectedMessages.some((m) =>
-          m.messageTagList.some((mt) => mt.idTag.name === "in_error")
+          m.messageTagList?.some((mt) => mt.idTag.name === "in_error")
         );
       } else {
         almenoUnoInErrore = false;
