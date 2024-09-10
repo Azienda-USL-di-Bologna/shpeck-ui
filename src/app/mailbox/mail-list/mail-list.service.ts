@@ -546,7 +546,7 @@ export class MailListService {
         .moveMessagesToFolder(messagesFolder, idFolder, this.loggedUser.getUtente().id)
         .subscribe((res) => {
           if (this.pecFolderSelected.type === PecFolderType.FOLDER) {
-            messages = Utils.arrayDiff(messages, this.selectedMessages, "id");
+            this.mailboxService.setMessages(Utils.arrayDiff(messages, this.selectedMessages, "id"));
             this.mailFoldersService.doReloadFolder(messagesFolder[0].idFolder.id);
             this.mailFoldersService.doReloadFolder(idFolder);
             this.selectedMessages = [];
@@ -566,11 +566,11 @@ export class MailListService {
                   this.mailFoldersService.doReloadTag(this.tags.find((t) => t.name === "in_error").id);
                   messages.splice(messageIndex, 1, reloadedMessage);
                   if (idFolder === this.trashFolder.id) {
-                    messages = messages.filter((ab) => ab.id != reloadedMessage.id);
+                    this.mailboxService.setMessages(messages.filter((ab) => ab.id != reloadedMessage.id));
                   }
                 }
               });
-              messages = [...messages];
+              this.mailboxService.setMessages([...messages]);
               this.selectedMessages = [];
               this.messageService.manageMessageEvent(null, null, this.selectedMessages);
             });
