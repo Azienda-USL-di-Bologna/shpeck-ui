@@ -418,6 +418,15 @@ export class MailListComponent implements OnInit, OnDestroy, AfterViewInit {
         this.mailListService.deleteSelectedMessageFromTrash(this.messages);
       }),
     });
+    this.subscriptions.push({
+      id: null,
+      type: "setMessages",
+      subscription: this.mailboxService.messages.subscribe((messages) => {
+        if (messages) {
+          this.messages = [...messages, ...Array.from({ length: this.messages.length - messages.length })] as Message[];
+        }
+      }),
+    });
 
     setTimeout(() => {
       this.setAccessibilityProperties(false);
