@@ -1,6 +1,7 @@
 import { Injectable } from "@angular/core";
 import { BehaviorSubject, Observable, Subject } from "rxjs";
 import { PecFolderType, PecFolder } from "./mail-folders/mail-folders.service";
+import { Message } from "@bds/internauta-model";
 
 @Injectable({
   providedIn: "root",
@@ -11,6 +12,7 @@ export class MailboxService {
   private _moveSelectedMessages$: BehaviorSubject<number> = new BehaviorSubject<number>(null);
   private _moveMessagesToTrash$ = new Subject<void>();
   private _deleteSelectedMessageFromTrash$ = new Subject<void>();
+  private _messages$ = new BehaviorSubject<Message[]>(null);
 
   public get sorting(): Observable<Sorting> {
     return this._sorting.asObservable();
@@ -50,6 +52,14 @@ export class MailboxService {
 
   public setDeleteSelectedMessageFromTrash() {
     this._deleteSelectedMessageFromTrash$.next();
+  }
+
+  public get messages(): Observable<Message[]> {
+    return this._messages$.asObservable();
+  }
+
+  public setMessages(messages: Message[]) {
+    this._messages$.next(messages);
   }
 }
 
