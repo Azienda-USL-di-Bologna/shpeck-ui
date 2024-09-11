@@ -1694,7 +1694,7 @@ export class MailListComponent implements OnInit, OnDestroy, AfterViewInit {
     const menuItem: MenuItem = event.item;
     switch (menuItem.id) {
       case "MessageSeen":
-        this.mailListService.setSeen(menuItem.queryParams.seen, true);
+        this.mailListService.setSeen(this.messages, menuItem.queryParams.seen, true);
         break;
       case "MessageDelete":
         const selectedFolder: Folder = this.pecFolderSelected.data as Folder;
