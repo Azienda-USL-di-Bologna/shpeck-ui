@@ -748,7 +748,7 @@ export class MailListService {
     if (messageFolderOperations.length > 0) {
       this.messageService.batchHttpCall(messageFolderOperations).subscribe(
         (res: BatchOperation[]) => {
-          messages = messages.filter((m) => this.selectedMessages.find((sm) => sm.id !== m.id));
+          this.mailboxService.setMessages(messages.filter((m) => this.selectedMessages.find((sm) => sm.id !== m.id)));
           this.mailFoldersService.doReloadFolder(idFolder);
           this.selectedMessages = [];
           this.messageService.manageMessageEvent(null, null, this.selectedMessages);
