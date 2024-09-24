@@ -748,7 +748,9 @@ export class MailListService {
     if (messageFolderOperations.length > 0) {
       this.messageService.batchHttpCall(messageFolderOperations).subscribe(
         (res: BatchOperation[]) => {
-          messages = messages.filter((m) => this.selectedMessages.find((sm) => sm.id !== m.id));
+          const idMessaggiSelezionati = this.selectedMessages.map((message) => message.id);
+          messages = messages.filter((m) => !m || !idMessaggiSelezionati.includes(m.id)); // Tengo anche quando m è undefined perché sono gli slot vuoti che servono al virtual scrolling
+          this.mailboxService.setMessages(messages);
           this.mailFoldersService.doReloadFolder(idFolder);
           this.selectedMessages = [];
           this.messageService.manageMessageEvent(null, null, this.selectedMessages);
