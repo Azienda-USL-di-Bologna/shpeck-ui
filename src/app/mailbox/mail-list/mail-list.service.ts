@@ -839,7 +839,7 @@ export class MailListService {
    * Questa funzione si occupa di settare i messaggi come visti o non visti.
    * @param menuItem
    */
-  public setSeen(messages: Message[], seen: boolean, reloadUnSeen: boolean = false): void {
+  public setSeen(allMessages: Message[], seen: boolean, reloadUnSeen: boolean = false): void {
     console.log("setseen messaggi: ", this.selectedMessages);
     const messagesToUpdate: BatchOperation[] = [];
     let messaggioDaInviare: Message = null;
@@ -874,12 +874,12 @@ export class MailListService {
             if (index >= 0) {
               this.selectedMessages.splice(index, 1, updatedMessage);
             }
-            index = messages.findIndex((m) => m.id === bacthOperation.id);
+            index = allMessages.findIndex((m) => m.id === bacthOperation.id);
             if (index >= 0) {
               //this.messages.splice(index, 1, updatedMessage);
-              messages[index].seen = updatedMessage.seen;
-              messages[index].version = updatedMessage.version;
-              updatedMessage = messages[index];
+              allMessages[index].seen = updatedMessage.seen;
+              allMessages[index].version = updatedMessage.version;
+              updatedMessage = allMessages[index];
             }
             if (!map[updatedMessage.messageFolderList[0].idFolder.id]) {
               this.mailFoldersService.doReloadFolder(updatedMessage.messageFolderList[0].idFolder.id);
