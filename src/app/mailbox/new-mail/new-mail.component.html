@@ -41,6 +41,9 @@
             [minLength]="1"
             [multiple]="true"
           >
+            <ng-template pTemplate="empty"
+              >Indirizzo non trovato, premere invio per inserire un indirizzo estermporaneo
+            </ng-template>
             <ng-template
               let-value
               pTemplate="selectedItem"
@@ -74,10 +77,6 @@
                 >
               </span>
             </ng-template>
-            <ng-template
-              pTemplate="empty"
-            >Indirizzo non trovato, premere invio per inserire un indirizzo estermporaneo
-          </ng-template>
           </p-autoComplete>
         </span>
         <span>
@@ -104,7 +103,6 @@
           <p-autoComplete
             #ccAutoComplete
             type="email"
-            
             [delay]="500"
             inputId="ccInputId"
             id="cc"
@@ -119,8 +117,10 @@
             [minLength]="1"
             [multiple]="true"
             [disabled]="mailForm.get('hideRecipients')?.value"
-
           >
+            <ng-template pTemplate="empty"
+              >Indirizzo non trovato, premere invio per inserire un indirizzo estermporaneo
+            </ng-template>
             <ng-template
               let-value
               pTemplate="selectedItem"
@@ -154,10 +154,6 @@
                 </span>
               </span>
             </ng-template>
-            <ng-template
-            pTemplate="empty"
-          >Indirizzo non trovato, premere invio per inserire un indirizzo estermporaneo
-        </ng-template>
           </p-autoComplete>
         </span>
         <span>

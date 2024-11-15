@@ -170,29 +170,39 @@
         />
         <button
           class="reset-filters-icon icon-button pi pi-times"
-          [ngClass]="{'hide': (numeroFiltriApplicati === '0' && (search.value == null || search.value.length === 0))}"
+          [ngClass]="{ hide: numeroFiltriApplicati === '0' && (search.value == null || search.value.length === 0) }"
           aria-label="Cancella ricerca"
           pTooltip="Cancella ricerca"
           tooltipPosition="bottom"
           (click)="clearInput(true)"
-        >
-        </button>
-        <p-button 
+        ></button>
+        <p-button
+          aria-hidden="true"
           class="button-ricerca-avanzata button-styles ui-button-raised ui-button-secondary custom-border rotate"
-          [badge]="numeroFiltriApplicati" 
-          [pTooltip]="stringaElencoFiltriApplicati === '' ? 'Mostra opzioni di ricerca' : 'Filtri attualmente inseriti:\n' + stringaElencoFiltriApplicati"
+          [badge]="numeroFiltriApplicati"
+          [pTooltip]="
+            stringaElencoFiltriApplicati === ''
+              ? 'Mostra opzioni di ricerca'
+              : 'Filtri attualmente inseriti:\n' + stringaElencoFiltriApplicati
+          "
           tooltipPosition="bottom"
-          badgeClass="p-badge-contrast" 
+          badgeClass="p-badge-contrast"
           [icon]="iconaRicercaAvanzata"
-          [ngClass]="{'ricerca-in-corso': numeroFiltriApplicati !== '0'}"
-          outlined="true" 
-          (onClick)="op.toggle($event)"/>
+          [ngClass]="{ 'ricerca-in-corso': numeroFiltriApplicati !== '0' }"
+          outlined="true"
+          (onClick)="op.toggle($event)"
+        />
       </div>
-      <p-overlayPanel #op class="panel-ricerca-avanzata" [style]="{ width: '70rem;' }"><!-- (onHide)="" -->
+      <p-overlayPanel
+        #op
+        class="panel-ricerca-avanzata"
+        [style]="{ width: '70rem;' }"
+        ><!-- (onHide)="" -->
         <div class="panel-ricerca-avanzata-content">
           <div class="filtro calendari">
             <label>Filtra per data ricezione/invio</label>
-            <custom-calendar #calendarRicercaAvanzata
+            <custom-calendar
+              #calendarRicercaAvanzata
               (intervalDateSelected)="intervalDateSelected($event)"
             ></custom-calendar>
           </div>
@@ -205,14 +215,14 @@
             <label for="soloReindirizzatiId">Solo messaggi reindirizzati</label>
           </div>
           <div class="footer">
-            <p-button 
+            <p-button
               class="button-cerca button-styles ui-button-raised ui-button-secondary custom-border rotate"
-              label="Cerca" 
-              outlined="true" 
-              (onClick)="avviaRicercaAvanzata(); op.toggle($event)"/>
+              label="Cerca"
+              outlined="true"
+              (onClick)="avviaRicercaAvanzata(); op.toggle($event)"
+            />
           </div>
         </div>
-        
       </p-overlayPanel>
     </div>
   </div>

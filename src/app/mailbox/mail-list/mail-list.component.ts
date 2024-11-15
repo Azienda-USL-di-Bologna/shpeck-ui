@@ -70,7 +70,8 @@ export class MailListComponent implements OnInit, OnDestroy, AfterViewInit {
   @ViewChild("archiviationMenu", {}) private archiviationMenu: Menu;
   @ViewChild("tagMenu", {}) private tagMenu: Menu;
 
-  // serve per mandarlo al mailbox-component
+  public rowsNumber = 60;
+  public messages: Message[] = Array.from({ length: this.rowsNumber });
   public pecFolderSelected: PecFolder;
   public userFilters: UserFilters = null;
   public _selectedTag: Tag;
@@ -251,7 +252,7 @@ export class MailListComponent implements OnInit, OnDestroy, AfterViewInit {
     big: 89,
   };
   public virtualRowHeight: number = this.VIRTUAL_ROW_HEIGHTS[FONTSIZE.BIG];
-  public rowsNumber = 40;
+
   public cols: ColonnaBds[] = [];
 
   @ViewChild("cm", {}) private contextMenu: ContextMenu;
@@ -278,8 +279,6 @@ export class MailListComponent implements OnInit, OnDestroy, AfterViewInit {
     private intimusClient: IntimusClientService,
     private detector: ChangeDetectorRef
   ) {
-    this.mailListService.messages = Array.from({ length: this.rowsNumber });
-
     this.selectedContextMenuItem = this.selectedContextMenuItem.bind(this);
     this.showNewTagPopup = this.showNewTagPopup.bind(this);
   }
@@ -295,8 +294,8 @@ export class MailListComponent implements OnInit, OnDestroy, AfterViewInit {
         this.mailListService.selectedMessages = [];
 
         if (pecFolderSelected) {
-          if (this.mailListService.messages.length === 0) {
-            this.mailListService.messages = Array.from({ length: this.rowsNumber });
+          if (this.messages.length === 0) {
+            this.messages = Array.from({ length: this.rowsNumber });
           }
           setTimeout(() => {
             this.pecFolderSelected = pecFolderSelected;
@@ -359,8 +358,8 @@ export class MailListComponent implements OnInit, OnDestroy, AfterViewInit {
         // console.log("in messageEvent", messageEvent);
         // if (messageEvent && (!messageEvent.selectedMessages || messageEvent.selectedMessages.length === 0)) {
         //   console.log("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa ", messageEvent);
-        //   this.mailListService.selectedMessages.push(this.mailListService.messages[1]);
-        //   this.mailListService.selectedMessages.push(this.mailListService.messages[2]);
+        //   this.mailListService.selectedMessages.push(this.messages[1]);
+        //   this.mailListService.selectedMessages.push(this.messages[2]);
         // }
       }),
     });
@@ -384,7 +383,6 @@ export class MailListComponent implements OnInit, OnDestroy, AfterViewInit {
             this.reloadTable();
           } else {
             // Sorting modificato, faccio partire la lezyload.
-            //this.lazyLoad(null);
             this.resetPaginationAndLoadData();
           }
         }
@@ -397,6 +395,36 @@ export class MailListComponent implements OnInit, OnDestroy, AfterViewInit {
         this.manageIntimusCommand(command);
         // setTimeout(() => {
         // }, 5000);
+      }),
+    });
+    this.subscriptions.push({
+      id: null,
+      type: "moveSelectedMessages",
+      subscription: this.mailboxService.moveSelectedMessages.subscribe((idFolder) => {
+        this.mailListService.moveMessages(this.messages, idFolder);
+      }),
+    });
+    this.subscriptions.push({
+      id: null,
+      type: "moveMessagesToTrash",
+      subscription: this.mailboxService.moveMessagesToTrash.subscribe(() => {
+        this.mailListService.moveMessagesToTrash(this.messages);
+      }),
+    });
+    this.subscriptions.push({
+      id: null,
+      type: "deleteSelectedMessageFromTrash",
+      subscription: this.mailboxService.deleteSelectedMessageFromTrash.subscribe(() => {
+        this.mailListService.deleteSelectedMessageFromTrash(this.messages);
+      }),
+    });
+    this.subscriptions.push({
+      id: null,
+      type: "setMessages",
+      subscription: this.mailboxService.messages.subscribe((messages) => {
+        if (messages) {
+          this.messages = [...messages, ...Array.from({ length: this.messages.length - messages.length })] as Message[];
+        }
       }),
     });
 
@@ -524,15 +552,15 @@ export class MailListComponent implements OnInit, OnDestroy, AfterViewInit {
             const newMessage = data.results[0];
             // cerco il messaggio perché potrebbe essere già nella cartella disabilitato (ad esempio se qualcuno l'ha spostato e poi rispostato in questa cartella mentre io la guardo)
             console.log("searching message in list...");
-            const messageIndex = this.mailListService.messages.findIndex((m) => m.id === idMessage);
+            const messageIndex = this.messages.findIndex((m) => m.id === idMessage);
             if (messageIndex >= 0) {
               // se lo trovo lo riabilito
               console.log("message found, updating...");
-              this.mailListService.messages.splice(messageIndex, 1, newMessage);
+              this.messages.splice(messageIndex, 1, newMessage);
             } else {
               // se non lo trovo lo inserisco in testa
               console.log("message not found in list, pushing on top...");
-              this.mailListService.messages.unshift(newMessage);
+              this.messages.unshift(newMessage);
 
               this.mailListService.totalRecords++; // ho aggiunto un messaggio per cui aumento di uno il numero dei messaggi visualizzati
               // mando l'evento con il numero di messaggi (serve a mailbox-component perché lo deve scrivere nella barra superiore)
@@ -632,15 +660,15 @@ export class MailListComponent implements OnInit, OnDestroy, AfterViewInit {
        * questo perché può essere che arrivi una callback relativa ad un'operazione precedente, che ora non sarebbe più valida455
        */
       this.unsubscribeFromMessage(idMessage);
-      const messageIndex = this.mailListService.messages.findIndex((message) => message.id === idMessage);
-      if (messageIndex >= 0 && !!!(this.mailListService.messages[messageIndex] as any)["moved"]) {
+      const messageIndex = this.messages.findIndex((message) => message.id === idMessage);
+      if (messageIndex >= 0 && !!!(this.messages[messageIndex] as any)["moved"]) {
         if (
           this.mailListService.selectedMessages.length > 0 &&
           this.mailListService.selectedMessages.find((m) => m.id === idMessage)
         ) {
           let messageToShowPreview = null;
           if (this.mailListService.selectedMessages.length === 1 && this.mailListService.selectedMessages[0].id === idMessage) {
-            messageToShowPreview = this.mailListService.messages[messageIndex];
+            messageToShowPreview = this.messages[messageIndex];
           }
           // filtro i messaggi selezionati togliendo quello che sto disabilitando, devo per forza riassegnare l'array e non fare un semplice splice perché
           // altrimenti angular non si accorgerebbe che l'array è cambiato e non mi scatterebbero gli eventi di deselezione della tabella
@@ -648,7 +676,7 @@ export class MailListComponent implements OnInit, OnDestroy, AfterViewInit {
           this.messageService.manageMessageEvent(null, messageToShowPreview, this.mailListService.selectedMessages);
         }
         // per disabilitare il messaggio gli setto la proprietà "moved" a true
-        (this.mailListService.messages[messageIndex] as any)["moved"] = true;
+        (this.messages[messageIndex] as any)["moved"] = true;
         // in movedInfo metto una stringa che spiega cosa è successo al messaggio, sarà poi visualizzata in un tooltip
         let movedInfo: string = null;
         if (permanentDelete) {
@@ -689,9 +717,9 @@ export class MailListComponent implements OnInit, OnDestroy, AfterViewInit {
             }`;
           }
         }
-        (this.mailListService.messages[messageIndex] as any)["movedInfo"] = movedInfo;
+        (this.messages[messageIndex] as any)["movedInfo"] = movedInfo;
         // this.refreshBadges(params);
-        // this.mailListService.messages.splice(messageIndex, 1);
+        // this.messages.splice(messageIndex, 1);
       }
     } else if (
       (params.newRow && params.newRow["id_utente"] !== this.loggedUser.getUtente().id) ||
@@ -795,7 +823,7 @@ export class MailListComponent implements OnInit, OnDestroy, AfterViewInit {
    * @param idMessage il messaggio da ricaricare
    */
   private reloadMessage(idMessage: number, params: RefreshMailsParams) {
-    const messageIndex = this.mailListService.messages.findIndex((m) => m.id === idMessage);
+    const messageIndex = this.messages.findIndex((m) => m.id === idMessage);
     let reload: boolean = false; // indica se il messaggio anrà ricaricato
     if (messageIndex >= 0) {
       // se il messaggio è presente della lista
@@ -808,7 +836,7 @@ export class MailListComponent implements OnInit, OnDestroy, AfterViewInit {
           // e il tag nuovo non è quello che sto guardando
           if (params.newRow["id_tag"] !== this.pecFolderSelected.data.id) {
             // devo ricaricare il messaggio solo se il messaggio non è disabilitato
-            reload = !!!(this.mailListService.messages[messageIndex] as any)["moved"];
+            reload = !!!(this.messages[messageIndex] as any)["moved"];
           } // se ho fatto un update di una folder e sto guardando una folder
         } else if (
           params.entity === RefreshMailsParamsEntities.MESSAGE_FOLDER &&
@@ -824,11 +852,11 @@ export class MailListComponent implements OnInit, OnDestroy, AfterViewInit {
           }
         } else {
           // sempre se è un update, ma non è un caso dei precedenti, lo devo ricaricare se il messaggio non è disabilitato
-          reload = !!!(this.mailListService.messages[messageIndex] as any)["moved"];
+          reload = !!!(this.messages[messageIndex] as any)["moved"];
         }
       } else {
         // se non è un operazione di update, lo devo ricaricare se il messaggio non è disabilitato
-        reload = !!!(this.mailListService.messages[messageIndex] as any)["moved"];
+        reload = !!!(this.messages[messageIndex] as any)["moved"];
       }
     }
 
@@ -851,7 +879,7 @@ export class MailListComponent implements OnInit, OnDestroy, AfterViewInit {
             this.mailListService.setMailTagVisibility([newMessage]);
 
             // aggiorno il messaggio nella lista inserendo quello ricaricato
-            this.mailListService.messages[messageIndex] = newMessage;
+            this.messages[messageIndex] = newMessage;
 
             // se il messaggio è anche presente nei messaggi selezioni, lo sostituisco anche lì
             const smIndex = this.mailListService.selectedMessages.findIndex((sm) => sm.id === newMessage.id);
@@ -1034,12 +1062,11 @@ export class MailListComponent implements OnInit, OnDestroy, AfterViewInit {
     this._selectedFolder = null;
     this._filters = null;
     this.mailListService.selectedMessages = [];
-    this.mailListService.messages = [];
+    this.messages = [];
 
     setTimeout(() => {
       this._selectedTag = tag;
       if (tag) {
-        //this.lazyLoad(null);
         this.resetPaginationAndLoadData();
       }
     }, 0);
@@ -1050,12 +1077,11 @@ export class MailListComponent implements OnInit, OnDestroy, AfterViewInit {
     this._selectedTag = null;
     this._filters = null;
     this.mailListService.selectedMessages = [];
-    this.mailListService.messages = [];
+    this.messages = [];
 
     setTimeout(() => {
       this._selectedFolder = folder;
       if (folder) {
-        //this.lazyLoad(null);
         this.resetPaginationAndLoadData();
       }
     }, 0);
@@ -1067,7 +1093,7 @@ export class MailListComponent implements OnInit, OnDestroy, AfterViewInit {
   private reloadTable(/* filters: FilterDefinition[] */) {
     this._filters = null;
     this.mailListService.selectedMessages = [];
-    this.mailListService.messages = [];
+    this.messages = [];
     if (this.dt) {
       for (const key in this.dt.filters) {
         (this.dt.filters as any)[key]["value"] = null;
@@ -1077,7 +1103,6 @@ export class MailListComponent implements OnInit, OnDestroy, AfterViewInit {
       if (this.userFilters?.searchString?.length > 0 || this._selectedFolder || this._selectedTag) {
         // Se non sto cercando e non sono ne in un folder ne in una pec allora non carico nulla perché nono ho nulla da mostrare
         // Anche nel caso in cui sto filtrando usando la ricerca avanzata non carico nulla, le info sono troppo poche ed è meglio non far partire una ricerca
-        //this.lazyLoad(null);
         this.resetPaginationAndLoadData();
       }
     }
@@ -1120,16 +1145,6 @@ export class MailListComponent implements OnInit, OnDestroy, AfterViewInit {
       limit: this.storedLazyLoadEvent.rows,
       offset: this.storedLazyLoadEvent.first,
     };
-    const lazyFilterAndSort: FiltersAndSorts = buildLazyEventFiltersAndSorts(event as LazyLoadEvent, this.cols, this.datepipe);
-    // mi devo salvare la folder/tag selezionata al momento del caricamento,
-    // perché nella subscribe quando la invio al mailbox-component per scrivere il numero di messaggi
-    // la selezione potrebbe essere cambiata e quindi manderei un dato errato
-    const folderSelected = this.pecFolderSelected;
-
-    if (!folderSelected) {
-      console.log("no folder selected");
-      return;
-    }
 
     /* mi devo dissottoscrivere dalla precedente sottoscrizione di richiesta dei dati prima di sottoscrivermi alla nuova
      * per farlo mi metto come tipo della sottocrizione "folder_message" in modo da rintracciarla nell'array delle sottoscrizioni e rimuoverla
@@ -1143,10 +1158,21 @@ export class MailListComponent implements OnInit, OnDestroy, AfterViewInit {
       this.subscriptions.splice(currentSubscription, 1);
     }
 
+    const lazyFilterAndSort: FiltersAndSorts = buildLazyEventFiltersAndSorts(event as LazyLoadEvent, this.cols, this.datepipe);
+    // mi devo salvare la folder/tag selezionata al momento del caricamento,
+    // perché nella subscribe quando la invio al mailbox-component per scrivere il numero di messaggi
+    // la selezione potrebbe essere cambiata e quindi manderei un dato errato
+    const folderSelected = this.pecFolderSelected;
+
+    if (!folderSelected) {
+      console.log("no folder selected");
+      return;
+    }
+
     if (this.resetMessagesArrayLenght) {
       this.resetMessagesArrayLenght = false;
-      if (this.mailListService.messages.length !== this.rowsNumber) {
-        this.mailListService.messages = Array.from({ length: this.rowsNumber });
+      if (this.messages.length !== this.rowsNumber) {
+        this.messages = Array.from({ length: this.rowsNumber });
       }
     }
 
@@ -1172,23 +1198,21 @@ export class MailListComponent implements OnInit, OnDestroy, AfterViewInit {
             const elementiCaricati = data.results;
 
             const existAnotherElementNext: boolean = data.page.totalPages > 1;
-            if (this.storedLazyLoadEvent.first + this.rowsNumber === this.mailListService.messages.length) {
+            if (this.storedLazyLoadEvent.first + this.rowsNumber === this.messages.length) {
               console.log(`Sto riempendo l'intero array, forse dovrò espanderlo`);
               // Se la lunghezza dei dati caricati è uguale a quanto richiesto, allora ho caricato tutti i dati richiesti
               if (elementiCaricati.length === this.storedLazyLoadEvent.rows) {
                 if (existAnotherElementNext) {
                   // Devo espandere l'array di altri this.rowsNumber posti perchè non ho ancora caricato tutti i dati
-                  console.log(
-                    `In questo momento l'array è lungo ${this.mailListService.messages.length}, gli do altri ${this.rowsNumber} posti`
-                  );
-                  Array.prototype.splice.apply(this.mailListService.messages, [
+                  console.log(`In questo momento l'array è lungo ${this.messages.length}, gli do altri ${this.rowsNumber} posti`);
+                  Array.prototype.splice.apply(this.messages, [
                     this.storedLazyLoadEvent.first,
                     this.storedLazyLoadEvent.rows,
                     ...[...elementiCaricati, ...Array.from({ length: this.rowsNumber })],
                   ]);
                 } else {
-                  console.log(`In questo momento l'array è lungo ${this.mailListService.messages.length}, ha raggiunto la fine`);
-                  Array.prototype.splice.apply(this.mailListService.messages, [
+                  console.log(`In questo momento l'array è lungo ${this.messages.length}, ha raggiunto la fine`);
+                  Array.prototype.splice.apply(this.messages, [
                     this.storedLazyLoadEvent.first,
                     this.storedLazyLoadEvent.rows,
                     ...elementiCaricati,
@@ -1197,33 +1221,33 @@ export class MailListComponent implements OnInit, OnDestroy, AfterViewInit {
               } else {
                 // Ho trovato meno righe di quante cercate, ho raggiuto il fondo della lista
                 console.log(
-                  `In questo momento l'array è lungo ${
-                    this.mailListService.messages.length
-                  }, ma sono arrivato in fondo devo togliergli ${this.rowsNumber - elementiCaricati.length} posti`
+                  `In questo momento l'array è lungo ${this.messages.length}, ma sono arrivato in fondo devo togliergli ${
+                    this.rowsNumber - elementiCaricati.length
+                  } posti`
                 );
-                Array.prototype.splice.apply(this.mailListService.messages, [
+                Array.prototype.splice.apply(this.messages, [
                   this.storedLazyLoadEvent.first,
                   this.rowsNumber,
                   ...elementiCaricati,
                 ]);
-                console.log(`Adesso l'array è lungo ${this.mailListService.messages.length}`);
+                console.log(`Adesso l'array è lungo ${this.messages.length}`);
               }
             } else {
-              console.log(`Caricamento semplice, l'array è già lungo ${this.mailListService.messages.length}`);
-              Array.prototype.splice.apply(this.mailListService.messages, [
+              console.log(`Caricamento semplice, l'array è già lungo ${this.messages.length}`);
+              Array.prototype.splice.apply(this.messages, [
                 this.storedLazyLoadEvent.first,
                 this.storedLazyLoadEvent.rows,
                 ...elementiCaricati,
               ]);
             }
 
-            // Array.prototype.splice.apply(this.mailListService.messages, [event.first, event.rows, ...data.results]);
+            // Array.prototype.splice.apply(this.messages, [event.first, event.rows, ...data.results]);
 
             // //trigger change detection
-            // this.mailListService.messages = [...this.mailListService.messages];
+            // this.messages = [...this.messages];
 
-            //console.log("this.mailListService.messages", this.mailListService.messages);
-            this.mailListService.setMailTagVisibility(this.mailListService.messages);
+            //console.log("this.messages", this.messages);
+            this.mailListService.setMailTagVisibility(this.messages);
             this.mailFoldersService.doReloadTag(this.mailListService.tags.find((t) => t.name === "in_error").id);
           }
 
@@ -1232,9 +1256,9 @@ export class MailListComponent implements OnInit, OnDestroy, AfterViewInit {
           // Altimenti la table non li evidenzia
           let index: number;
           for (let i = 0; i < this.mailListService.selectedMessages.length; i++) {
-            index = this.isMessageinList(this.mailListService.selectedMessages[i].id, this.mailListService.messages);
+            index = this.isMessageinList(this.mailListService.selectedMessages[i].id, this.messages);
             if (index !== -1) {
-              this.mailListService.selectedMessages[i] = this.mailListService.messages[index];
+              this.mailListService.selectedMessages[i] = this.messages[index];
             }
           }
           //trigger change detection
@@ -1297,6 +1321,17 @@ export class MailListComponent implements OnInit, OnDestroy, AfterViewInit {
   }
 
   public lazyLoad(event: LazyLoadEvent) {
+    if (this.loading) {
+      if (!this.storedLazyLoadEvent?.forceUpdate && event) {
+        this.storedLazyLoadEvent = event;
+      }
+      return;
+    }
+    if (event.rows === 0) {
+      console.log(`Limit non corretto, non carico i dati`);
+      return;
+    }
+
     if (
       !(
         this.userFilters?.searchString?.length > 0 ||
@@ -1315,13 +1350,14 @@ export class MailListComponent implements OnInit, OnDestroy, AfterViewInit {
 
     const eventFilters: { [s: string]: FilterMetadata } = this.buildTableEventFilters(this._filters);
 
-    if (!event) {
+    /* if (!event) {
+      debugger;
       console.log("Attenzione, qui non dovrei mai entrare");
       this.resetMessagesArrayLenght = true;
       event = this.storedLazyLoadEvent;
       event.rows = this.rowsNumber;
       event.first = 0;
-    }
+    } */
     if (eventFilters && Object.entries(eventFilters).length > 0) {
       event["filters"] = eventFilters;
     }
@@ -1336,11 +1372,7 @@ export class MailListComponent implements OnInit, OnDestroy, AfterViewInit {
 
     if (event.first === 0 && event.rows === this.rowsNumber) {
       this.resetMessagesArrayLenght = true;
-    }
-    if (event.rows === 0) {
-      console.log(`Limit non corretto, non carico i dati`);
-      //this.storedLazyLoadEvent = event;
-      return;
+      this.mailListService.selectedMessages = [];
     }
 
     this.storedLazyLoadEvent = event;
@@ -1662,7 +1694,7 @@ export class MailListComponent implements OnInit, OnDestroy, AfterViewInit {
     const menuItem: MenuItem = event.item;
     switch (menuItem.id) {
       case "MessageSeen":
-        this.mailListService.setSeen(menuItem.queryParams.seen, true);
+        this.mailListService.setSeen(this.messages, menuItem.queryParams.seen, true);
         break;
       case "MessageDelete":
         const selectedFolder: Folder = this.pecFolderSelected.data as Folder;
@@ -1672,7 +1704,7 @@ export class MailListComponent implements OnInit, OnDestroy, AfterViewInit {
             header: "Conferma",
             icon: "pi pi-exclamation-triangle",
             accept: () => {
-              this.mailListService.deleteSelectedMessageFromTrash();
+              this.mailListService.deleteSelectedMessageFromTrash(this.messages);
             },
             reject: () => {},
           });
@@ -1681,7 +1713,7 @@ export class MailListComponent implements OnInit, OnDestroy, AfterViewInit {
         }
         break;
       case "MessageMove":
-        this.mailListService.moveMessages(event.item.queryParams.folder.id);
+        this.mailListService.moveMessages(this.messages, event.item.queryParams.folder.id);
         break;
       case "MessageLabels":
         this.checkTagAndConfirm(event.item.queryParams);
@@ -1708,22 +1740,22 @@ export class MailListComponent implements OnInit, OnDestroy, AfterViewInit {
         this.noteHandler();
         break;
       case "ToggleErrorTrue":
-        this.mailListService.toggleError(true);
+        this.mailListService.toggleError(this.messages, true);
         break;
       case "ToggleErrorFalse":
-        this.mailListService.toggleError(false);
+        this.mailListService.toggleError(this.messages, false);
         break;
       case "MessageUndelete":
         let idPreviousFolder = this.mailListService.selectedMessages[0].messageFolderList[0].idPreviousFolderTransient;
         const received = this.mailListService.selectedMessages[0].inOut === "IN" ? true : false;
         if (idPreviousFolder === null && received === true) {
           idPreviousFolder = this._selectedPec.folderList.filter((folder) => folder.type === "INBOX")[0].id;
-          this.mailListService.moveMessages(idPreviousFolder);
+          this.mailListService.moveMessages(this.messages, idPreviousFolder);
         } else if (idPreviousFolder === null && received === false) {
           idPreviousFolder = this._selectedPec.folderList.filter((folder) => folder.type === "SENT")[0].id;
-          this.mailListService.moveMessages(idPreviousFolder);
+          this.mailListService.moveMessages(this.messages, idPreviousFolder);
         } else {
-          this.mailListService.moveMessages(idPreviousFolder);
+          this.mailListService.moveMessages(this.messages, idPreviousFolder);
         }
         break;
       case "MessageArchive":
@@ -1766,12 +1798,12 @@ export class MailListComponent implements OnInit, OnDestroy, AfterViewInit {
         header: "Conferma",
         icon: "pi pi-exclamation-triangle",
         accept: () => {
-          this.mailListService.toggleTag(queryParams.tag, true);
+          this.mailListService.toggleTag(this.messages, queryParams.tag, true);
         },
         reject: () => {},
       });
     } else {
-      this.mailListService.toggleTag(queryParams.tag, true);
+      this.mailListService.toggleTag(this.messages, queryParams.tag, true);
     }
   }
 
@@ -1851,7 +1883,7 @@ export class MailListComponent implements OnInit, OnDestroy, AfterViewInit {
         header: "Conferma",
         icon: "pi pi-exclamation-triangle",
         accept: () => {
-          this.mailListService.moveMessagesToTrash();
+          this.mailListService.moveMessagesToTrash(this.messages);
         },
         reject: () => {},
       });
@@ -1924,7 +1956,7 @@ export class MailListComponent implements OnInit, OnDestroy, AfterViewInit {
 
   public onNewTag(tagName: string) {
     console.log("WEV = ", tagName);
-    this.mailListService.createAndApplyTag(tagName);
+    this.mailListService.createAndApplyTag(this.messages, tagName);
     this.displayNewTagPopup = false;
   }
 
@@ -2414,7 +2446,7 @@ export class MailListComponent implements OnInit, OnDestroy, AfterViewInit {
           });
 
           // fai reload message
-          const messageIndex = this.mailListService.messages.findIndex((m) => m.id === message.id);
+          const messageIndex = this.messages.findIndex((m) => m.id === message.id);
 
           this.unsubscribeFromMessage(message.id); // disabilito le sottoscrizioni relative al messaggio da ricaricare
           // console.log("message found, refreshing...");
@@ -2433,8 +2465,8 @@ export class MailListComponent implements OnInit, OnDestroy, AfterViewInit {
                   this.mailListService.setMailTagVisibility([newMessage]);
 
                   // aggiorno il messaggio nella lista inserendo quello ricaricato
-                  this.mailListService.messages[messageIndex] = newMessage;
-                  this.mailListService.messages = [...this.mailListService.messages];
+                  this.messages[messageIndex] = newMessage;
+                  this.messages = [...this.messages];
 
                   // se il messaggio è anche presente nei messaggi selezioni, lo sostituisco anche lì
                   const smIndex = this.mailListService.selectedMessages.findIndex((sm) => sm.id === newMessage.id);
@@ -2476,26 +2508,24 @@ export class MailListComponent implements OnInit, OnDestroy, AfterViewInit {
   public arrowPress(direction: string) {
     console.log("qua ci sono");
     if (this.mailListService.selectedMessages.length > 0) {
-      const actualMessageIndex: number = this.mailListService.messages.findIndex(
-        (m) => m.id === this.mailListService.selectedMessages[0].id
-      );
+      const actualMessageIndex: number = this.messages.findIndex((m) => m.id === this.mailListService.selectedMessages[0].id);
       if (actualMessageIndex >= 0) {
         switch (direction) {
           case "up":
             if (actualMessageIndex > 0) {
               setTimeout(() => {
-                this.mailListService.selectedMessages = [this.mailListService.messages[actualMessageIndex - 1]];
+                this.mailListService.selectedMessages = [this.messages[actualMessageIndex - 1]];
                 this.mailListService.selectedMessages = [...this.mailListService.selectedMessages];
-                this.setRowFocused(this.mailListService.messages[actualMessageIndex - 1].id);
+                this.setRowFocused(this.messages[actualMessageIndex - 1].id);
                 this.manageMessageSelection(this.mailListService.selectedMessages[0]);
               }, 0);
             }
             break;
           case "down":
-            if (actualMessageIndex < this.mailListService.messages.length - 1) {
-              this.mailListService.selectedMessages = [this.mailListService.messages[actualMessageIndex + 1]];
+            if (actualMessageIndex < this.messages.length - 1) {
+              this.mailListService.selectedMessages = [this.messages[actualMessageIndex + 1]];
               this.mailListService.selectedMessages = [...this.mailListService.selectedMessages];
-              this.setRowFocused(this.mailListService.messages[actualMessageIndex + 1].id);
+              this.setRowFocused(this.messages[actualMessageIndex + 1].id);
               this.manageMessageSelection(this.mailListService.selectedMessages[0]);
             }
             break;
@@ -2548,7 +2578,7 @@ export class MailListComponent implements OnInit, OnDestroy, AfterViewInit {
     if (!rowData.seen) {
       this.timeoutOnFocusEvent = setTimeout(() => {
         if (this.mailListService.selectedMessages.length === 1) {
-          this.mailListService.setSeen(true, true);
+          this.mailListService.setSeen(this.messages, true, true);
         }
       }, 350);
     }
@@ -2628,8 +2658,8 @@ export class MailListComponent implements OnInit, OnDestroy, AfterViewInit {
                 const message = data.results[0] as Message;
                 this.mailListService.setMailTagVisibility([message]);
                 this.mailListService.selectedMessages[0] = message;
-                this.mailListService.messages[this.mailListService.messages.findIndex((m) => m.id === message.id)] = message;
-                this.mailListService.messages = [...this.mailListService.messages];
+                this.messages[this.messages.findIndex((m) => m.id === message.id)] = message;
+                this.messages = [...this.messages];
               }
             });
         },
