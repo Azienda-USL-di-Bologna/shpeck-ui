@@ -1000,7 +1000,7 @@ export class MailListService {
     const utente = new Utente();
     utente.id = this.loggedUser.getUtente().id;
     utente.version = this.loggedUser.getUtente().version;
-    noteObj.idUtente = utente;
+    // noteObj.idUtente = utente;
     noteObj.memo = noteObj.memo.trim();
     if (noteObj.id && noteObj.memo !== "") {
       batchOperations.push({
