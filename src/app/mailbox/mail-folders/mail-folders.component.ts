@@ -590,6 +590,9 @@ export class MailFoldersComponent implements OnInit, OnDestroy {
           }, 0);
           this.selectedNode.expanded = true;
           this.selectedNode = this.selectedNode.children[this.selectedNode.children.length - 2];
+          if (!this.selectedNode) {
+            debugger;
+          }
           break;
         case "RenameFolder":
           const folderToRename: Folder = this.selectedNode.data.data as Folder;
@@ -604,7 +607,12 @@ export class MailFoldersComponent implements OnInit, OnDestroy {
           const folderToDelete: Folder = this.selectedNode.data.data as Folder;
           if (folderToDelete.type === FolderType.CUSTOM) {
             this.mailFoldersService
-              .countMessageInFolder(folderToDelete.id, false, folderToDelete.type, folderToDelete.idPec.id)
+              .countMessageInFolder(
+                folderToDelete.id,
+                false,
+                folderToDelete.type,
+                folderToDelete.idPec ? folderToDelete.idPec.id : folderToDelete.fk_idPec.id
+              )
               .subscribe((messageNumber) => {
                 if (messageNumber === 0) {
                   this.deleteFolder(folderToDelete);
@@ -915,6 +923,11 @@ export class MailFoldersComponent implements OnInit, OnDestroy {
         break;
       case "onNodeUnselect": // TODO: capire perché non scatta
         this.previousSelectedNode = this.selectedNode;
+        /* if (this.selectedNode.editable) {
+          // sto editando e quindi non voglio la deselezione
+          event.originalEvent.stopPropagation();
+          event.originalEvent.preventDefault(); 
+        } */
         break;
       //   if ((event as TreeNode).type === PecTreeNodeType.PEC) {
       //     this.showPecContextMenu = true;
@@ -1024,6 +1037,9 @@ export class MailFoldersComponent implements OnInit, OnDestroy {
   public saveNode(newLabel?: string) {
     console.log("SAVE event", newLabel);
     if (!this._abortSaveFolder) {
+      if (!this.selectedNode && this.previousSelectedNode.editable) {
+        this.selectedNode = this.previousSelectedNode;
+      }
       const node: any = this.selectedNode.data.data; // Può essere un Folder o un Tag
       const nodeType: PecFolderType = this.selectedNode.data.type;
       const inserting: boolean = !node.id ? true : false;
