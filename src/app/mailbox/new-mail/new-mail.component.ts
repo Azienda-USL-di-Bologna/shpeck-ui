@@ -44,9 +44,10 @@ import { DialogService, DynamicDialogConfig, DynamicDialogRef } from "primeng/dy
 import { FilteredContactMultiple } from "../mailbox.service";
 
 @Component({
-  selector: "app-new-mail",
-  templateUrl: "./new-mail.component.html",
-  styleUrls: ["./new-mail.component.scss"],
+    selector: "app-new-mail",
+    templateUrl: "./new-mail.component.html",
+    styleUrls: ["./new-mail.component.scss"],
+    standalone: false
 })
 export class NewMailComponent implements OnInit, AfterViewInit, OnDestroy {
   @ViewChild("toAutoComplete", { static: true }) toAutoComplete: AutoComplete;

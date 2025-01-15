@@ -53,10 +53,11 @@ import {
 import { ContextMenu } from "primeng/contextmenu";
 
 @Component({
-  selector: "app-mail-list",
-  templateUrl: "./mail-list.component.html",
-  styleUrls: ["./mail-list.component.scss"],
-  providers: [ConfirmationService],
+    selector: "app-mail-list",
+    templateUrl: "./mail-list.component.html",
+    styleUrls: ["./mail-list.component.scss"],
+    providers: [ConfirmationService],
+    standalone: false
 })
 export class MailListComponent implements OnInit, OnDestroy, AfterViewInit {
   @Output() public messageClicked = new EventEmitter<Message>();
