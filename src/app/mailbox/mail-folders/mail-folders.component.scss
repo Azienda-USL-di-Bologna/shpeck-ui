@@ -31,7 +31,7 @@
 }
 
 ::ng-deep .general-style-icon {
-  color: #2e4a65 !important;
+  //color: #2e4a65 !important;
   font-size: 1.125rem;
 }
 
@@ -86,17 +86,17 @@
   padding: 0 !important;
 }
 
-::ng-deep .tree-node-style.p-treenode-leaf .p-treenode-label {
+/* ::ng-deep .tree-node-style.p-treenode-leaf .p-treenode-label {
   background-color: white !important;
-}
+} */
 
-::ng-deep body .p-tree .p-tree-container .p-treenode .p-treenode-content.p-highlight,
+/* ::ng-deep body .p-tree .p-tree-container .p-treenode .p-treenode-content.p-highlight,
 ::ng-deep body .p-tree .p-tree-container .p-treenode .p-treenode-content.p-highlight .p-treenode-label,
 ::ng-deep body .p-tree .p-tree-container .p-treenode .p-treenode-content.p-treenode-selectable:not(.p-highlight):hover .p-treenode-label {
   background-color: #eaeaea !important;
   color: black;
   font-weight: bold;
-}
+} */
 
 ::ng-deep body .p-tree .p-tree-container .p-treenode .p-treenode-content.p-highlight .p-tree-toggler {
   color: initial !important;

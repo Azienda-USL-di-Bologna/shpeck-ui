@@ -1,15 +1,16 @@
 <section class="height-100">
-  <a
-    [ngClass]="'ui-dialog-titlebar-icon ui-dialog-titlebar-close ui-corner-all close-button'"
+  <p-button
+    [rounded]="true" 
+    [text]="true" 
+    class="close-button"
     tabindex="0"
-    role="button"
     (click)="checkAndClose()"
+    icon="pi pi-times"
   >
-    <span class="pi pi-times"></span>
-  </a>
+  </p-button>
   <!-- <div class="height-100"> -->
   <!-- Prevent default on form to avoid auto submit -->
-  <form
+  <form 
     class="height-100 d-flex flex-dir-col"
     [formGroup]="mailForm"
   >
@@ -22,7 +23,7 @@
           >A:
         </label>
         <span class="ui-fluid flex-1 margin-lr-5">
-          <p-autoComplete
+          <p-autocomplete
             #toAutoComplete
             type="email"
             [required]="true"
@@ -41,12 +42,12 @@
             [minLength]="1"
             [multiple]="true"
           >
-            <ng-template pTemplate="empty"
-              >Indirizzo non trovato, premere invio per inserire un indirizzo estermporaneo
+            <ng-template #empty>
+              Indirizzo non trovato, premere invio per inserire un indirizzo estermporaneo
             </ng-template>
             <ng-template
               let-value
-              pTemplate="selectedItem"
+              #selectedItem
             >
               <span
                 class="token-label"
@@ -60,12 +61,9 @@
                 >Inserimento gruppo ..
               </span>
             </ng-template>
-            <ng-template
-              let-value
-              pTemplate="item"
-            >
-              <span class="token-label item-contatto"
-                ><i
+            <ng-template let-value #item>
+              <span class="token-label item-contatto">
+                <i
                   pTooltip=""
                   tooltipPosition="top"
                   *ngIf="value.isDomicilioDigitale"
@@ -77,7 +75,7 @@
                 >
               </span>
             </ng-template>
-          </p-autoComplete>
+          </p-autocomplete>
         </span>
         <span>
           <button
@@ -118,12 +116,12 @@
             [multiple]="true"
             [disabled]="mailForm.get('hideRecipients')?.value"
           >
-            <ng-template pTemplate="empty"
+            <ng-template #empty
               >Indirizzo non trovato, premere invio per inserire un indirizzo estermporaneo
             </ng-template>
             <ng-template
               let-value
-              pTemplate="selectedItem"
+              #selectedItem
             >
               <span
                 class="token-label"
@@ -139,7 +137,7 @@
             </ng-template>
             <ng-template
               let-value
-              pTemplate="item"
+              #item
             >
               <span class="token-label item-contatto">
                 <i
@@ -199,45 +197,43 @@
       </li>
       <!-- Allegati -->
       <li>
-        <span
-          class="ui-fileupload-choose ui-button-secondary custom-border"
-          style="height: 2.063rem; min-width: 5.204rem"
-          label="Allega"
-          icon="pi pi-paperclip"
-          pButton
+        <p-fileUpload
+          #fileUpload
+          [auto]="true"
+          [customUpload]="true"
+          (uploadHandler)="onFileUpload($event)"
+          [multiple]="true"
+          [showUploadButton]="false"
+          [showCancelButton]="true"
+          chooseLabel="Allega"
+          cancelLabel="Svuota"
+          [chooseIcon]="'pi pi-paperclip'"
+          styleClass="custom-upload"
+          [maxFileSize]="MAX_FILE_SIZE_UPLOAD"
+          (onClear)="clearAttachmentsField()"
+          (onRemoveUploadedFile)="removeFile($event)"
         >
-          <input
-            #fileinput
-            class="inputfile"
-            type="file"
-            (change)="onFileChange($event, fileinput)"
-            multiple="multiple"
-          />
-        </span>
-        <span class="ui-fluid flex-1 margin-lr-5">
-          <p-chips
-            id="attachments"
-            formControlName="attachments"
-          >
-            <ng-template
-              let-item
-              pTemplate="item"
-            >
-              {{ item.name ? item.name : item.displayName }} ({{ item.id ? formatSize(item.size) : formatSize(item.size, true) }})
-              <i style="margin-right: 1.5em"></i>
-            </ng-template>
-          </p-chips>
-        </span>
-        <span>
-          <button
-            pButton
-            type="button"
-            icon="pi pi-times"
-            class="ui-button-raised custom-primary-button"
-            (click)="clearAttachmentsField()"
-            pTooltip="Svuota allegati"
-          ></button>
-        </span>
+          <ng-template #file></ng-template>
+          <ng-template #content let-files let-uploadedFiles="uploadedFiles"  let-removeUploadedFileCallback="removeUploadedFileCallback">
+            <div class="box-files">
+              <ul>
+                @for (file of uploadedFiles; track file; let index = $index) {
+                  <p-chip 
+                    [label]="(file.name ? file.name : file.displayName) + ' (' + (file.id ? formatSize(file.originalSize) : formatSize(file.size, true)) + ')'" 
+                    [removable]="true"
+                    (onRemove)="removeUploadedFileCallback(index)" />
+                }
+              </ul>
+            </div>
+            <p-button
+              icon="pi pi-times"
+              class="ui-button-raised custom-primary-button"
+              (click)="clearAttachmentsField()"
+              label="Svuota Allegati"
+              pTooltip="Svuota allegati"
+            ></p-button>
+          </ng-template>
+        </p-fileUpload>
       </li>
       <!-- Testo Mail -->
       <li
@@ -296,7 +292,7 @@
 >
   <i class="fas fa-exclamation-triangle warn-class"></i>
   <p class="d-inline-block">Vuoi salvare il messaggio corrente?</p>
-  <p-footer class="d-flex justify-c-c">
+  <ng-template #footer class="d-flex justify-c-c">
     <button
       type="button"
       class="confirm-buttons ui-button-raised ui-button-secondary custom-secondary-button"
@@ -321,10 +317,10 @@
       (click)="display = false"
       label="Annulla"
     ></button>
-  </p-footer>
+  </ng-template>
 </p-dialog>
 
-<p-confirmDialog
+<p-confirmdialog
   #cd2
   key="cd2"
   acceptLabel="Continua"
@@ -332,27 +328,27 @@
   appendTo="body"
   [style]="{ width: '50vw' }"
 >
-  <p-footer>
+  <!-- <ng-template #footer let-onAccept="onAccept" let-onReject="onReject">
     <button
       type="button"
       pButton
       icon="pi pi-check"
       label="Continua"
-      (click)="cd2.accept()"
+      (click)="onAccept()"
       class="confirm-buttons ui-button-raised ui-button-secondary custom-secondary-button"
     ></button>
     <button
       type="button"
       pButton
-      icon="pi pi-pencil "
+      icon="pi pi-pencil"
       label="Modifica Gruppo"
-      (click)="cd2.reject()"
+      (click)="onReject()"
       class="confirm-buttons ui-button-raised ui-button-secondary custom-secondary-button"
     ></button>
-  </p-footer>
-</p-confirmDialog>
+  </ng-template> -->
+</p-confirmdialog>
 
-<p-confirmDialog
+<p-confirmdialog
   #cd3
   key="proponiDomicilioDigitaleOnContactSelection"
   acceptLabel="Sì"
@@ -360,51 +356,46 @@
   appendTo="body"
   [style]="{ width: '20vw' }"
 >
-  <p-footer>
+  <!-- <ng-template #footer let-onAccept="onAccept" let-onReject="onReject">
     <button
       type="button"
       pButton
       icon="pi pi-check"
       label="Sì"
-      (click)="cd3.accept()"
+      (click)="onAccept()"
+      class="confirm-buttons ui-button-raised ui-button-secondary custom-secondary-button"
     ></button>
     <button
       type="button"
       pButton
       icon="pi pi-times "
       label="No"
-      (click)="cd3.reject()"
+      (click)="onReject()"
+      class="confirm-buttons ui-button-raised ui-button-secondary custom-secondary-button"
     ></button>
-  </p-footer>
-</p-confirmDialog>
+  </ng-template> -->
+</p-confirmdialog>
 
-<p-confirmDialog
+<p-confirmdialog
   #cd
   key="cd"
   acceptLabel="Sì"
   rejectLabel="No"
   appendTo="body"
-  [style]="{ width: '20vw', top: '40%' }"
 >
-  <p-footer>
-    <button
-      type="button"
-      pButton
+  <!-- <ng-template #footer let-onAccept="onAccept" let-onReject="onReject">
+    <p-button
       icon="pi pi-check"
       label="Sì"
-      (click)="cd.accept()"
-      class="confirm-buttons ui-button-raised ui-button-secondary custom-secondary-button"
-    ></button>
-    <button
-      type="button"
-      pButton
+      (click)="onAccept()"
+    ></p-button>
+    <p-button
       icon="pi pi-times "
       label="No"
-      (click)="cd.reject()"
-      class="confirm-buttons ui-button-raised ui-button-secondary custom-secondary-button"
-    ></button>
-  </p-footer>
-</p-confirmDialog>
+      (click)="onReject()"
+    ></p-button>
+  </ng-template> -->
+</p-confirmdialog>
 
 <p-dialog
   appendTo="body"
@@ -417,39 +408,40 @@
       ? { height: '70vh', 'max-height': '70vh', width: '92vw' }
       : null
   "
+  header="Aggiungi destinatario"
 >
-  <p-header> Aggiungi destinatario </p-header>
+  @if (!utenteConnesso.aziendaLogin.parametriAzienda?.rubricaInternauta) {
+    <app-search-contact
+      (addressChosedByBook)="onAddressChosedByBook($event)"
+      (closeRubricaPopup)="displayRubricaPopup = false"
+    >
+    </app-search-contact>
+  }
 
-  <app-search-contact
-    *ngIf="!utenteConnesso.aziendaLogin.parametriAzienda?.rubricaInternauta"
-    (addressChosedByBook)="onAddressChosedByBook($event)"
-    (closeRubricaPopup)="displayRubricaPopup = false"
-  >
-  </app-search-contact>
+  @if (utenteConnesso.aziendaLogin.parametriAzienda?.rubricaInternauta) {
+    <app-rubrica-container
+      (closeRubricaPopup)="displayRubricaPopup = false"
+    ></app-rubrica-container>
 
-  <app-rubrica-container
-    *ngIf="utenteConnesso.aziendaLogin.parametriAzienda?.rubricaInternauta"
-    (closeRubricaPopup)="displayRubricaPopup = false"
-  ></app-rubrica-container>
-
-  <p-footer *ngIf="utenteConnesso.aziendaLogin.parametriAzienda?.rubricaInternauta">
-    <button
-      type="button"
-      pButton
-      icon="pi pi-check"
-      label="Conferma Destinatari Selezionati"
-      (click)="onConfermaDestinatari()"
-      [disabled]="checkIfExistDestinatariSelezionati()"
-      class="ui-button-raised ui-button-secondary custom-secondary-button"
-    ></button>
-    <button
-      type="button"
-      pButton
-      icon="pi pi-times"
-      label="Annulla"
-      (click)="onCloseRubricaPopup()"
-      [disabled]="disableButtonsConfermaDestinatariSelezionati"
-      class="confirm-buttons ui-button-raised ui-button-secondary custom-secondary-button"
-    ></button>
-  </p-footer>
+    <ng-template #footer>
+      <button
+        type="button"
+        pButton
+        icon="pi pi-check"
+        label="Conferma Destinatari Selezionati"
+        (click)="onConfermaDestinatari()"
+        [disabled]="checkIfExistDestinatariSelezionati()"
+        class="ui-button-raised ui-button-secondary custom-secondary-button"
+      ></button>
+      <button
+        type="button"
+        pButton
+        icon="pi pi-times"
+        label="Annulla"
+        (click)="onCloseRubricaPopup()"
+        [disabled]="disableButtonsConfermaDestinatariSelezionati"
+        class="confirm-buttons ui-button-raised ui-button-secondary custom-secondary-button"
+      ></button>
+    </ng-template>
+  }
 </p-dialog>

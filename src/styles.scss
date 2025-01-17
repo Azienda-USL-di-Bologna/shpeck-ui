@@ -1,12 +1,34 @@
-/* You can add global styles to this file, and also import other style files */
-@import "../node_modules/primeng/resources/themes/nova/theme.css";
-@import "../node_modules/primeng/resources/primeng.min.css";
-@import "../node_modules/primeicons/primeicons.css";
-@import "../node_modules/primeflex/primeflex.css";
-@import "../node_modules/@bds/common-components/assets/bds-styles/primeng.scss";
-@import "../node_modules/@bds/common-components/assets/bds-styles/material-icons.scss";
-@import "../node_modules/@bds/common-components/assets/bds-styles/custom-classes.scss";
-@import "../node_modules/@bds/common-components/assets/bds-styles/basic.scss";
+//@import "../node_modules/primeng/resources/themes/nova/theme.css";
+//@import "../node_modules/primeng/resources/primeng.min.css";
+@use "../node_modules/primeicons/primeicons.css" as *;
+//@import "../node_modules/primeflex/primeflex.css";
+//@import "../node_modules/@bds/common-components/assets/bds-styles/primeng.scss";
+@use "../node_modules/@bds/common-components/assets/bds-styles/material-icons.scss" as *;
+@use "../node_modules/@bds/common-components/assets/bds-styles/custom-classes.scss" as *;
+@use "../node_modules/@bds/common-components/assets/bds-styles/basic.scss" as *;
+
+// Per le icone bottone
+.bds-icon-btn {
+  cursor: pointer;
+  color: #203142;
+
+  &:hover {
+    color: #936;
+  }
+}
+
+.p-treetable-row-selected,
+.p-datatable-row-selected {
+  .bds-icon-btn {
+    cursor: pointer;
+    color: white;
+
+    &:hover {
+      color: #d385b1;
+    }
+  }
+}
+
 
 html,
 body {
@@ -19,14 +41,82 @@ body,
   font-family: "Open Sans", "Helvetica Neue", sans-serif !important;
 }
 
+
 app-mail-list .p-datatable-table.p-datatable-scrollable-table {
   table-layout: fixed;
 }
 
 
-//body a {
-//color: deepskyblue;
-//}
+*:focus {
+  box-shadow: none !important;
+  box-sizing: border-box;
+}
+
+p-dropdown,
+.p-datepicker,
+.p-autocomplete {
+  //width: initial !important;
+  width: 100% !important;
+}
+
+p-table,
+.p-datatable,
+.p-datatable-table-container,
+p-scroller,
+.p-datatable-flex-scrollable p-scroller {
+  height: 100%;
+  width: 100%;
+}
+
+p-tab {
+  padding: 0.557rem 1rem !important;
+}
+
+.p-dialog-content {
+  height: 100%;
+}
+
+p-columnfilterformelement+p-button,
+.pcColumnfilterClearButton,
+.p-column-filter-clear-button {
+  display: none !important;
+}
+
+p-columnfilter p-columnfilterformelement {
+  width: 100%;
+  display: flex;
+  flex-direction: row;
+  flex-wrap: nowrap;
+
+  p-select,
+  p-multiselect,
+  p-treeselect,
+  p-autocomplete {
+    width: 100%;
+  }
+}
+
+.p-datepicker-panel {
+  width: auto !important;
+}
+
+.p-datatable-scrollable .p-datatable-tbody>tr.p-datatable-selectable-row .p-datatable-frozen-column {
+  background: var(--p-datatable-row-background) !important;
+}
+
+.p-datatable-scrollable .p-datatable-tbody>tr.p-datatable-row-selected .p-datatable-frozen-column {
+  background: var(--p-datatable-row-selected-background) !important;
+}
+
+.p-datatable-scrollable.p-datatable-hoverable .p-datatable-tbody>tr:not(.p-datatable-row-selected):hover .p-datatable-frozen-column {
+  background: var(--p-datatable-row-hover-background) !important;
+}
+
+.p-datatable-header {
+  //padding: 0.313rem 0.625313rem !important;
+  padding: 0 !important;
+}
+
 // CLASSI NOSTRE
 ::ng-deep body .custom-primary-button {
   border: 0.06rem solid #000000 !important;

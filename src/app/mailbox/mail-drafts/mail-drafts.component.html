@@ -94,18 +94,18 @@
     </tr>
   </ng-template>
 </p-table>
-<p-confirmDialog
+<p-confirmdialog
   #cd
-  [style]="{ width: '22.5vw', top: '40%' }"
->
-  <p-footer>
+  acceptLabel="Sì"
+  rejectLabel="No">
+<!-- <ng-template #footer let-onAccept="onAccept" let-onReject="onReject">
     <button
       type="button"
       class="buttons ui-button-raised ui-button-secondary custom-secondary-button"
       pButton
       icon="fas fa-check"
       label="Sì"
-      (click)="cd.accept()"
+      (click)="onAccept()"
     ></button>
     <button
       type="button"
@@ -113,10 +113,10 @@
       pButton
       icon="fas fa-times"
       label="No"
-      (click)="cd.reject()"
+      (click)="onReject()"
     ></button>
-  </p-footer>
-</p-confirmDialog>
+  </ng-template> -->
+</p-confirmdialog>
 
 <div
   *ngIf="totalRecords === 0 && !!!loading"
@@ -133,7 +133,7 @@
 >
   <p-header> Dettaglio </p-header>
   <app-mail-detail [versioneAccessibile]="false"></app-mail-detail>
-  <p-footer>
+  <ng-template #footer>
     <button
       type="button"
       pButton
@@ -141,5 +141,5 @@
       label="Chiudi"
       class="ui-button-raised ui-button-secondary button-styles custom-secondary-button"
     ></button>
-  </p-footer>
+  </ng-template>
 </p-dialog>

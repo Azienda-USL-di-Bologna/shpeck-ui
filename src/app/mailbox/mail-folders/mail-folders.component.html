@@ -34,20 +34,21 @@
     />
 
     <!-- Versione nodo in modalità sola lettura -->
-    <div
-      #actualTarget
-      aria-label="cartella"
-      *ngIf="!!!node.editable"
-      [ngStyle]="{ 'font-style': node.data.type === 'pec' && !node.data.data.attiva ? 'italic' : 'normal' }"
-      pTooltip="{{ buildTooltipForNode(node) }}"
-      tooltipPosition="top"
-    >
-      {{ node.label + (node.unreadMessages > 0 ? " (" + node.unreadMessages + ")" : "") }}
-      {{ node.data.type === "pec" && !node.data.data.attiva ? "- disattivata" : "" }}
-    </div>
+    @if (!node.editable) {
+      <div
+        #actualTarget
+        aria-label="cartella"
+        [ngStyle]="{ 'font-style': node.data.type === 'pec' && !node.data.data.attiva ? 'italic' : 'normal' }"
+        pTooltip="{{ buildTooltipForNode(node) }}"
+        tooltipPosition="top"
+      >
+        {{ node.label + (node.unreadMessages > 0 ? " (" + node.unreadMessages + ")" : "") }}
+        {{ node.data.type === "pec" && !node.data.data.attiva ? "- disattivata" : "" }}
+      </div>
+    }
 
     <!-- Pannello del cambia colore a icona -->
-    <p-overlayPanel
+    <p-popover
       #op
       appendTo="body"
       (onHide)="pickerOverlayHiding()"
@@ -90,7 +91,7 @@
           label="Chiudi"
         ></button>
       </div>
-    </p-overlayPanel>
+    </p-popover>
   </ng-template>
 </p-tree>
 
