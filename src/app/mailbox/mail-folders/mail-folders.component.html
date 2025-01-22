@@ -31,6 +31,7 @@
       (keyup.enter)="onEnterPressed($event, folderInput.value)"
       (keydown.esc)="onEscPressed($event)"
       [attr.disabled]="node.editable ? null : ''"
+      (keydown)="$event.stopPropagation()"
     />
 
     <!-- Versione nodo in modalità sola lettura -->
