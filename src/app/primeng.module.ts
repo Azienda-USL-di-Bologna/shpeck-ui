@@ -23,9 +23,9 @@ import { SliderModule } from "primeng/slider";
 import { ColorPickerModule } from "primeng/colorpicker";
 import { InplaceModule } from "primeng/inplace";
 import { DynamicDialogModule } from "primeng/dynamicdialog";
-import { CalendarModule } from "primeng/calendar";
+import { DatePickerModule } from "primeng/datepicker";
 import { TooltipModule } from "primeng/tooltip";
-import { DropdownModule } from "primeng/dropdown";
+import { SelectModule } from "primeng/select";
 import { OverlayPanelModule } from "primeng/overlaypanel";
 import { SplitterModule } from "primeng/splitter";
 import { PopoverModule } from "primeng/popover";
@@ -39,9 +39,9 @@ import { ChipModule } from "primeng/chip";
     TreeModule,
     AccordionModule,
     TableModule,
-    CalendarModule,
+    DatePickerModule,
     TooltipModule,
-    DropdownModule,
+    SelectModule,
     ToolbarModule,
     SplitButtonModule,
     DialogModule,
@@ -72,9 +72,9 @@ import { ChipModule } from "primeng/chip";
     TreeModule,
     AccordionModule,
     TableModule,
-    CalendarModule,
+    DatePickerModule,
     TooltipModule,
-    DropdownModule,
+    SelectModule,
     ToolbarModule,
     SplitButtonModule,
     DialogModule,
