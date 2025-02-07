@@ -43,9 +43,10 @@ import { CustomReuseStrategy } from "src/app/custom-reuse-strategy";
 import { COMMON_MENU_ITEMS } from "src/app/classes/common-menu-items";
 
 @Component({
-  selector: "accessibilita-mail-list",
-  templateUrl: "./accessibilita-mail-list.component.html",
-  styleUrls: ["./accessibilita-mail-list.component.scss"],
+    selector: "accessibilita-mail-list",
+    templateUrl: "./accessibilita-mail-list.component.html",
+    styleUrls: ["./accessibilita-mail-list.component.scss"],
+    standalone: false
 })
 export class AccessibilitaMailListComponent implements OnInit, OnDestroy {
   public cmItems: MenuItem[] = COMMON_MENU_ITEMS;

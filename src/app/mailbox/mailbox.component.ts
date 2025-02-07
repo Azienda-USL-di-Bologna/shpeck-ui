@@ -22,9 +22,10 @@ import { JwtLoginService, UtenteUtilities } from "@bds/jwt-login";
 import { ToolBarService } from "./toolbar/toolbar.service";
 
 @Component({
-  selector: "app-mailbox",
-  templateUrl: "./mailbox.component.html",
-  styleUrls: ["./mailbox.component.scss"],
+    selector: "app-mailbox",
+    templateUrl: "./mailbox.component.html",
+    styleUrls: ["./mailbox.component.scss"],
+    standalone: false
 })
 export class MailboxComponent implements OnInit, AfterViewInit, AfterViewChecked, OnChanges, OnDestroy {
   public pecFolderSelected: PecFolder;

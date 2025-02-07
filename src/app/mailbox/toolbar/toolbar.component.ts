@@ -15,10 +15,11 @@ import { DatePipe } from "@angular/common";
 import { CustomCalendarComponent } from "@bds/common-components";
 
 @Component({
-  selector: "app-toolbar",
-  templateUrl: "./toolbar.component.html",
-  providers: [ConfirmationService],
-  styleUrls: ["./toolbar.component.scss"],
+    selector: "app-toolbar",
+    templateUrl: "./toolbar.component.html",
+    providers: [ConfirmationService],
+    styleUrls: ["./toolbar.component.scss"],
+    standalone: false
 })
 export class ToolbarComponent implements OnDestroy, AfterViewInit {
   private subscriptions: Subscription[] = [];

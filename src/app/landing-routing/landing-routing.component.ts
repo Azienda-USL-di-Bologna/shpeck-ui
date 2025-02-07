@@ -4,9 +4,10 @@ import { Router } from "@angular/router";
 import { ACCESSIBLE_MAILBOX_ROUTE, MAILBOX_ROUTE } from "src/environments/app-constants";
 
 @Component({
-  selector: "app-landing-routing",
-  templateUrl: "./landing-routing.component.html",
-  styleUrls: ["./landing-routing.component.scss"],
+    selector: "app-landing-routing",
+    templateUrl: "./landing-routing.component.html",
+    styleUrls: ["./landing-routing.component.scss"],
+    standalone: false
 })
 export class LandingRoutingComponent implements OnInit {
   constructor(private loginService: JwtLoginService, private router: Router) {}

@@ -2,9 +2,10 @@ import { Component, OnInit, Output, EventEmitter, ViewChild } from "@angular/cor
 import { Router, ActivatedRoute, RouterOutlet, ActivationStart } from "@angular/router";
 
 @Component({
-  selector: "app-rubrica-container",
-  templateUrl: "./rubrica-container.component.html",
-  styleUrls: ["./rubrica-container.component.scss"],
+    selector: "app-rubrica-container",
+    templateUrl: "./rubrica-container.component.html",
+    styleUrls: ["./rubrica-container.component.scss"],
+    standalone: false
 })
 export class RubricaContainerComponent implements OnInit {
   @Output() closeRubricaPopup = new EventEmitter<any>();

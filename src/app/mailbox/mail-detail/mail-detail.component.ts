@@ -12,9 +12,10 @@ import { DraftService, DraftEvent } from "src/app/services/draft.service";
 import { OutboxService, OutboxEvent } from "src/app/services/outbox.service";
 
 @Component({
-  selector: "app-mail-detail",
-  templateUrl: "./mail-detail.component.html",
-  styleUrls: ["./mail-detail.component.scss"],
+    selector: "app-mail-detail",
+    templateUrl: "./mail-detail.component.html",
+    styleUrls: ["./mail-detail.component.scss"],
+    standalone: false
 })
 export class MailDetailComponent implements OnInit, OnDestroy {
   public showLogs = false;

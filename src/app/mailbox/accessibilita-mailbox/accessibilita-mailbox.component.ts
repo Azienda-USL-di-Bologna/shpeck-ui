@@ -3,9 +3,10 @@ import { FONTSIZE } from "src/environments/app-constants";
 import { RouterOutlet, ActivationStart, Router } from "@angular/router";
 
 @Component({
-  selector: "app-accessibilita-mailbox",
-  templateUrl: "./accessibilita-mailbox.component.html",
-  styleUrls: ["./accessibilita-mailbox.component.scss"],
+    selector: "app-accessibilita-mailbox",
+    templateUrl: "./accessibilita-mailbox.component.html",
+    styleUrls: ["./accessibilita-mailbox.component.scss"],
+    standalone: false
 })
 export class AccessibilitaMailboxComponent implements OnInit {
   public fontSize = FONTSIZE.BIG;

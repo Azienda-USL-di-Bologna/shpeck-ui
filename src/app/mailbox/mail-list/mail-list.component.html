@@ -1,6 +1,6 @@
 <!-- <button (click)="mostratable = true">mostra</button> -->
 <!-- *ngIf="mostratable && (_selectedTag || _selectedFolder || _filters)" -->
-<p-table
+<p-table stripedRows
   *ngIf="pecFolderSelected && mailListService.loggedUser"
   #dt
   id="pec-mail-list"
@@ -86,7 +86,7 @@
           >
             <!-- ICONE AZIONE -->
             <!-- protocollato-->
-            <span class="mail-icon first-icon-left">
+            <span class="mail-icon bds-icon-btn first-icon-left">
               <ng-template
                 #registrationTemplate
                 let-registrationstatus
@@ -112,7 +112,7 @@
                   }"
                   [ngStyle]="
                     !message['moved'] &&
-                    ((registrationstatus === 'REGISTERED' && { color: 'darkcyan' }) ||
+                    ((registrationstatus === 'REGISTERED' && { color: '#09a3a3' }) ||
                       (registrationstatus === 'IN_REGISTRATION' && { color: 'orange' }))
                   "
                   (click)="!message['moved'] ? iconRegistrationClicked($event, message, registrationstatus) : null"
@@ -156,7 +156,7 @@
               </p-menu>
             </span>
             <!-- reindirizzato -->
-            <span class="mail-icon">
+            <span class="mail-icon bds-icon-btn">
               <ng-template
                 #readdressTemplate
                 let-readdressstatus
@@ -182,7 +182,7 @@
                     !message['moved'] &&
                     (readdressstatus === 'FULL_READDRESSED' ||
                       readdressstatus === 'READDRESSED_IN' ||
-                      readdressstatus === 'READDRESSED_OUT') && { color: 'darkcyan' }
+                      readdressstatus === 'READDRESSED_OUT') && { color: '#09a3a3' }
                   "
                   (click)="!message['moved'] ? iconReaddressClicked($event, message, readdressstatus) : null"
                 >
@@ -207,7 +207,7 @@
                   [pTooltip]="message['moved'] ? null : annotatedstatus ? 'Visualizza la nota' : 'Aggiungi una nota'"
                   tooltipPosition="top"
                   class="material-icons-outlined mail-icons icon-enabled"
-                  [ngStyle]="annotatedstatus && { color: 'darkcyan' }"
+                  [ngStyle]="annotatedstatus && { color: '#09a3a3' }"
                   [ngClass]="{ 'message-disabled': message['moved'] }"
                   (click)="!message['moved'] ? noteHandler(message) : null"
                 >
@@ -245,7 +245,7 @@
                       archivedstatus === 'NOT_ARCHIVABLE' || archivedstatus === 'TEMPORARILY_NOT_ARCHIVABLE' || message['moved'],
                     'icon-used': archivedstatus === 'ARCHIVED'
                   }"
-                  [ngStyle]="archivedstatus === 'ARCHIVED' && !message['moved'] && { color: 'darkcyan' }"
+                  [ngStyle]="archivedstatus === 'ARCHIVED' && !message['moved'] && { color: '#09a3a3' }"
                   (click)="!message['moved'] ? iconArchiveClicked($event, message, archivedstatus) : null"
                 >
                 </i>
@@ -280,7 +280,7 @@
                   [pTooltip]="message['moved'] ? null : taggedstatus ? taggedstatus.tooltip : 'Gestisci etichette'"
                   tooltipPosition="top"
                   class="material-icons local-offer-icon mail-icons icon-enabled mi-fist-line"
-                  [ngStyle]="taggedstatus && { color: 'darkcyan' }"
+                  [ngStyle]="taggedstatus && { color: '#09a3a3' }"
                   [ngClass]="{ 'message-disabled': message['moved'] }"
                   (click)="!message['moved'] ? iconTaggedClicked($event, message, taggedstatus) : null"
                 >
@@ -529,31 +529,31 @@
 ></p-contextMenu>
 
 <!-- Questa serve per chiedere conferma all'utente sul dove vuole protocollare -->
-<p-confirmDialog
+<p-confirmdialog
   #cd
   acceptLabel="Sì"
   rejectLabel="No"
-  [style]="{ width: '20vw' }"
->
-  <p-footer>
+  
+><!-- [style]="{ width: '20vw' }" -->
+  <!-- <ng-template #footer let-onAccept="onAccept" let-onReject="onReject">
     <button
       type="button"
       pButton
       icon="pi pi-check"
       label="Sì"
-      (click)="cd.accept()"
+      (click)="onAccept()"
       class="confirm-buttons ui-button-raised ui-button-secondary custom-secondary-button"
     ></button>
     <button
       type="button"
       pButton
-      icon="pi pi-times "
+      icon="pi pi-times"
       label="No"
-      (click)="cd.reject()"
+      (click)="onReject()"
       class="confirm-buttons ui-button-raised ui-button-secondary custom-secondary-button"
     ></button>
-  </p-footer>
-</p-confirmDialog>
+  </ng-template> -->
+</p-confirmdialog>
 
 <p-dialog
   header="Nota messaggio"
@@ -577,7 +577,7 @@
       [(ngModel)]="noteObject.memo"
     ></textarea>
   </div>
-  <p-footer>
+  <ng-template #footer>
     <button
       type="button"
       pButton
@@ -594,7 +594,7 @@
       label="Annulla"
       class="confirm-buttons ui-button-raised ui-button-secondary custom-secondary-button"
     ></button>
-  </p-footer>
+  </ng-template>
 </p-dialog>
 
 <!-- DIALOG DI PROTOCOLLAZIONE -->
@@ -606,7 +606,7 @@
   <div style="height: 3.125rem; padding-top: 0.625rem">
     Vuoi creare un nuovo documento, oppure aggiungere ad una bozza già creata?
   </div>
-  <p-footer>
+  <ng-template #footer>
     <div class="p-grid p-justify-even">
       <button
         type="button"
@@ -623,7 +623,7 @@
         class="ui-button-raised ui-button-secondary custom-secondary-button"
       ></button>
     </div>
-  </p-footer>
+  </ng-template>
 </p-dialog>
 
 <!-- DIALOG CHE MOSTRA IL DETTAGLIO DELLA PROTOCOLLAZIONE -->
@@ -650,7 +650,7 @@
       </p>
     </li>
   </ul>
-  <p-footer>
+  <ng-template #footer>
     <button
       *ngIf="registrationDetail.buttonRegistration"
       type="button"
@@ -666,7 +666,7 @@
       label="Ok"
       class="ui-button-raised ui-button-secondary button-styles custom-secondary-button"
     ></button>
-  </p-footer>
+  </ng-template>
 </p-dialog>
 
 <!-- <button *ngIf="archiviationDetail.buttonArchivable" type="button" pButton
@@ -691,7 +691,7 @@ class="ui-button-raised ui-button-secondary button-styles custom-secondary-butto
     *ngIf="readdressDetail.testo?.out"
     [innerHTML]="readdressDetail.testo.out"
   ></li>
-  <p-footer class="button-centopx">
+  <ng-template class="button-centopx">
     <button
       *ngIf="readdressDetail.buttonReaddress"
       type="button"
@@ -708,7 +708,7 @@ class="ui-button-raised ui-button-secondary button-styles custom-secondary-butto
       label="Ok"
       class="ui-button-raised ui-button-secondary button-styles custom-secondary-button"
     ></button>
-  </p-footer>
+  </ng-template>
 </p-dialog>
 
 <!-- DIALOG CHE MOSTRA IL DETTAGLIO DELLA FASCICOLAZIONE -->
@@ -724,7 +724,7 @@ class="ui-button-raised ui-button-secondary button-styles custom-secondary-butto
       </li>
     </div>
   </div>
-  <p-footer>
+  <ng-template #footer>
     <button
       *ngIf="archiviationDetail.buttonArchivable"
       type="button"
@@ -740,7 +740,7 @@ class="ui-button-raised ui-button-secondary button-styles custom-secondary-butto
       label="Ok"
       class="ui-button-raised ui-button-secondary button-styles custom-secondary-button"
     ></button>
-  </p-footer>
+  </ng-template>
 </p-dialog>
 
 <!-- POPUP DEL DETAIL -->
@@ -751,7 +751,7 @@ class="ui-button-raised ui-button-secondary button-styles custom-secondary-butto
 >
   <p-header> Dettaglio </p-header>
   <app-mail-detail [versioneAccessibile]="false"></app-mail-detail>
-  <p-footer>
+  <ng-template #footer>
     <button
       type="button"
       pButton
@@ -759,7 +759,7 @@ class="ui-button-raised ui-button-secondary button-styles custom-secondary-butto
       label="Chiudi"
       class="ui-button-raised ui-button-secondary button-styles custom-secondary-button"
     ></button>
-  </p-footer>
+  </ng-template>
 </p-dialog>
 
 <!-- POPUP AGGIUNTA TAG -->
@@ -786,7 +786,7 @@ class="ui-button-raised ui-button-secondary button-styles custom-secondary-butto
       />
       <label for="float-input">Inserisci un nome per la nuova etichetta</label>
     </span>
-    <p-footer>
+    <ng-template #footer>
       <button
         type="submit"
         [disabled]="tagForm.invalid"
@@ -804,7 +804,7 @@ class="ui-button-raised ui-button-secondary button-styles custom-secondary-butto
         (click)="displayNewTagPopup = false"
         label="Annulla"
       ></button>
-    </p-footer>
+    </ng-template>
   </form>
 </p-dialog>
 
