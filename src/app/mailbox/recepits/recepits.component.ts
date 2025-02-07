@@ -5,9 +5,10 @@ import { ShpeckMessageService } from "src/app/services/shpeck-message.service";
 import { EMLSOURCE } from "src/environments/app-constants";
 
 @Component({
-  selector: "app-recepits",
-  templateUrl: "./recepits.component.html",
-  styleUrls: ["./recepits.component.scss"],
+    selector: "app-recepits",
+    templateUrl: "./recepits.component.html",
+    styleUrls: ["./recepits.component.scss"],
+    standalone: false
 })
 export class RecepitsComponent implements OnInit {
   public recepits: Message[];

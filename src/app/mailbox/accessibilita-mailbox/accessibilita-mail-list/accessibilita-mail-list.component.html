@@ -1,4 +1,4 @@
-<p-table
+<p-table stripedRows
   #dt
   tabindex="0"
   *ngIf="mostratable && (_selectedTag || _selectedFolder || _filters)"
@@ -96,7 +96,7 @@
   class="popup-mail-detail"
 >
   <p-header> Dettaglio </p-header>
-  <p-footer>
+  <ng-template #footer>
     <button
       type="button"
       pButton
@@ -104,5 +104,5 @@
       label="Chiudi"
       class="ui-button-raised ui-button-secondary button-styles custom-secondary-button"
     ></button>
-  </p-footer>
+  </ng-template>
 </p-dialog>

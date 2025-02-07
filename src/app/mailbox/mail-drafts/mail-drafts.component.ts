@@ -22,9 +22,10 @@ import {
 } from "@bds/common-tools";
 
 @Component({
-  selector: "app-mail-drafts",
-  templateUrl: "./mail-drafts.component.html",
-  styleUrls: ["./mail-drafts.component.scss"],
+    selector: "app-mail-drafts",
+    templateUrl: "./mail-drafts.component.html",
+    styleUrls: ["./mail-drafts.component.scss"],
+    standalone: false
 })
 export class MailDraftsComponent implements OnInit, OnDestroy {
   public _selectedPecId: number;

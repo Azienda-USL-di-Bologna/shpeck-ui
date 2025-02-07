@@ -1,4 +1,5 @@
-import { Component, OnInit, ViewChild, AfterViewInit, OnDestroy, ChangeDetectorRef } from "@angular/core";
+import { map } from "rxjs/operators";
+import { Component, OnInit, ViewChild, AfterViewInit, OnDestroy, ChangeDetectorRef, forwardRef } from "@angular/core";
 import { UntypedFormGroup, UntypedFormControl, Validators, UntypedFormArray } from "@angular/forms";
 import { ConfirmationService, MessageService } from "primeng/api";
 import {
@@ -42,11 +43,14 @@ import { CustomContactService, GroupModifyContactsComponent, SelectedContact, Se
 import { AutoComplete } from "primeng/autocomplete";
 import { DialogService, DynamicDialogConfig, DynamicDialogRef } from "primeng/dynamicdialog";
 import { FilteredContactMultiple } from "../mailbox.service";
+import { NG_VALUE_ACCESSOR } from "@angular/forms";
+import { FileRemoveEvent, FileUpload, RemoveUploadedFileEvent } from "primeng/fileupload";
 
 @Component({
   selector: "app-new-mail",
   templateUrl: "./new-mail.component.html",
   styleUrls: ["./new-mail.component.scss"],
+  standalone: false,
 })
 export class NewMailComponent implements OnInit, AfterViewInit, OnDestroy {
   @ViewChild("toAutoComplete", { static: true }) toAutoComplete: AutoComplete;
@@ -88,6 +92,8 @@ export class NewMailComponent implements OnInit, AfterViewInit, OnDestroy {
   public item1 = FilteredContactMultiple;
   public isInserimentoInCorso: boolean = false;
   private idAziendeConRecuperaDomicilioDigitaleInadAttivo: number[] = [];
+  @ViewChild("fileUpload") fileUpload: FileUpload;
+  readonly MAX_FILE_SIZE_UPLOAD = MAX_FILE_SIZE_UPLOAD; // 50MB in bytes
 
   get addressesTO() {
     return this.mailForm.get("to");
@@ -118,9 +124,6 @@ export class NewMailComponent implements OnInit, AfterViewInit, OnDestroy {
 
     // vincolo la funzione che customizza l'azione della dialog del domicilio digitale a questa istanza del componente, così quando viene usata 'this' non è undefined
     this.responseDialogPresenteDomicilioDigitaleCustom = this.responseDialogPresenteDomicilioDigitaleCustom.bind(this);
-  }
-
-  ngOnInit() {
     this.subscriptions.push(
       this.loginService.loggedUser$.subscribe((utente: UtenteUtilities) => {
         if (utente) {
@@ -129,9 +132,6 @@ export class NewMailComponent implements OnInit, AfterViewInit, OnDestroy {
         }
       })
     );
-
-    this.prepareMessageOrDraft();
-
     if (this.checkIfRubricaInternautaShouldBeEnabled()) {
       const fakeDestinatariforAppPEC = '{"mode":"DESTINATARI","app":"pec","codiceAzienda":"","guid":""}';
       this.customContactService._callerData = JSON.parse(fakeDestinatariforAppPEC);
@@ -142,6 +142,12 @@ export class NewMailComponent implements OnInit, AfterViewInit, OnDestroy {
       };
       this.customContactService.manageCallerApp(Apps.PEC);
     }
+  }
+
+  ngOnInit() {
+    this.prepareMessageOrDraft();
+    /* setTimeout(() => {
+    }, 0); */
   }
 
   private prepareMessageOrDraft() {
@@ -167,7 +173,17 @@ export class NewMailComponent implements OnInit, AfterViewInit, OnDestroy {
         hideRecipients.disabled = this.ccAddresses && this.ccAddresses.length > 0;
         /* Può esserci l'emlData null nel caso di una draft creata e non salvata correttamente */
         if (this.config.data.fullMessage.emlData) {
-          Object.assign(this.attachments, this.config.data.fullMessage.emlData.attachments);
+          //Object.assign(this.attachments, this.config.data.fullMessage.emlData.attachments);
+          //console.log("this.config.data.fullMessage.emlData.attachments", this.config.data.fullMessage.emlData.attachments);
+          this.attachments = this.config.data.fullMessage.emlData.attachments.map((a) => {
+            const f = new File([a.fileName], a.fileName, {
+              type: a.contentType,
+            });
+            f["id"] = a.id;
+            f["originalSize"] = a.size;
+            return f;
+          });
+          //this.fileUpload.files = this.attachments;
         }
         break;
       case TOOLBAR_ACTIONS.REPLY: // REPLY
@@ -184,7 +200,16 @@ export class NewMailComponent implements OnInit, AfterViewInit, OnDestroy {
         subject = "Fwd: ".concat(message.subject);
         messageRelatedType = MessageRelatedType.FORWARDED;
         this.fillAddressesArray(message, null, false, action);
-        Object.assign(this.attachments, this.config.data.fullMessage.emlData.attachments);
+        //Object.assign(this.attachments, this.config.data.fullMessage.emlData.attachments);
+        //this.fileUpload.files = this.attachments;
+        this.attachments = this.config.data.fullMessage.emlData.attachments.map((a) => {
+          const f = new File([a.fileName], a.fileName, {
+            type: a.contentType,
+          });
+          f["id"] = a.id;
+          f["originalSize"] = a.size;
+          return f;
+        });
         break;
     }
     /* Inizializzazione della form, funziona per tutte le actions ed é l'oggetto che contiene tutti i campi
@@ -250,6 +275,13 @@ export class NewMailComponent implements OnInit, AfterViewInit, OnDestroy {
   ngAfterViewInit() {
     /* Inizializzazione del body per le risposte e l'inoltra */
     setTimeout(() => {
+      //const a: File;
+      console.log("this.attachments", this.attachments);
+      if (this.attachments) {
+        this.fileUpload.files = this.attachments;
+        //this.fileUpload.uploadedFiles = this.attachments;
+        this.fileUpload.uploader();
+      }
       // if (this.config.data.action !== TOOLBAR_ACTIONS.NEW) {
       //   let body = "";
       //   if (this.config.data.fullMessage.emlData) {
@@ -691,7 +723,7 @@ export class NewMailComponent implements OnInit, AfterViewInit, OnDestroy {
   } */
 
   /* Gestione allegati */
-  onFileChange(event: any, fileinput: any) {
+  /* onFileChange(event: any, fileinput: any) {
     const fileForm = this.mailForm.get("attachments");
     for (const file of event.target.files) {
       if (!fileForm.value.find((element: any) => element.name === file.name)) {
@@ -720,6 +752,57 @@ export class NewMailComponent implements OnInit, AfterViewInit, OnDestroy {
       }
     }
     fileinput.value = null; // Reset dell'input
+  } */
+
+  onFileUpload(event: any) {
+    const fileForm = this.mailForm.get("attachments");
+    const files = event.files;
+    for (const file of files) {
+      if (!fileForm.value.find((element: any) => element.name === file.name)) {
+        const maxFilesSize = fileForm.value.reduce(
+          (tot: any, element: any) => (element.id ? tot + element.size * 0.71 : tot + element.size),
+          0
+        );
+
+        if (file.size && maxFilesSize + file.size <= MAX_FILE_SIZE_UPLOAD) {
+          fileForm.value.push(file);
+          fileForm.setValue([...fileForm.value]);
+          if (this.mailForm.pristine) {
+            this.mailForm.markAsDirty();
+          }
+        } else {
+          this.draftService.messagePrimeService.add({
+            severity: "warn",
+            summary: "Attenzione",
+            detail: `Il file ${file.name} non è stato caricato. La dimensione massima degli allegati supera quella consentita (50 Mb).`,
+            life: 10000,
+          });
+        }
+      }
+    }
+    //this.fileUpload.uploader();
+    this.fileUpload.uploadedFiles = [...fileForm.value];
+    this.fileUpload.cd.markForCheck();
+  }
+
+  removeFile(fileRemoveEvent: RemoveUploadedFileEvent) {
+    const attachments = this.mailForm.get("attachments");
+    const currentFiles = attachments.value;
+    const index = currentFiles.findIndex((f) => f === fileRemoveEvent.file);
+    if (index != -1) {
+      currentFiles.splice(index, 1);
+      attachments.setValue([...currentFiles]);
+      attachments.markAsDirty();
+      this.fileUpload.clearInputElement();
+      this.fileUpload.files.splice(index, 1);
+    } else {
+      this.draftService.messagePrimeService.add({
+        severity: "error",
+        summary: "Attenzione",
+        detail: `Qualcosa è andato storto`,
+        life: 10000,
+      });
+    }
   }
 
   clearAttachmentsField() {
@@ -735,6 +818,8 @@ export class NewMailComponent implements OnInit, AfterViewInit, OnDestroy {
           if (this.mailForm.pristine) {
             this.mailForm.markAsDirty();
           }
+          this.fileUpload.clear();
+          this.fileUpload.uploadedFiles = [];
         },
         reject: () => {},
       });
@@ -801,9 +886,11 @@ export class NewMailComponent implements OnInit, AfterViewInit, OnDestroy {
     const formToSend = new FormData();
     Object.keys(this.mailForm.controls).forEach((key) => {
       if (key === "attachments") {
+        debugger;
         // Gli allegati vanno aggiunti singolarmente
         const files = this.mailForm.get(key).value;
         files.forEach((file: any) => {
+          console.log("file", file);
           if (file.id || file.id === 0) {
             // I file che hanno l'id sono presi dall'eml già salvato sul DB
             formToSend.append("idMessageRelatedAttachments", file.id);

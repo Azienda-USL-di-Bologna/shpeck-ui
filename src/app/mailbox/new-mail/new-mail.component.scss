@@ -37,7 +37,7 @@ ul {
 }
 
 /******* Chips *******/
-::ng-deep #attachments .p-chips {
+/* ::ng-deep #attachments .p-chips {
 
   >ul.p-inputtext,
   >ul.p-inputtext:focus {
@@ -49,7 +49,7 @@ ul {
   .p-chips-input-token {
     display: none;
   }
-}
+} */
 
 /******* Buttons *******/
 .button-styles {
@@ -212,4 +212,95 @@ input:focus {
 .icon-item-contatto {
   padding-right: 1rem;
   padding-left: 0.2rem;
+}
+
+
+:host ::ng-deep {
+  p-fileupload {
+    width: 100%;
+  }
+
+  .custom-upload {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: nowrap;
+    align-items: center;
+    width: 100%;
+
+    .p-fileupload-buttonbar {
+      background: none;
+      border: none;
+      padding: 0;
+    }
+
+    .p-fileupload-header {
+      padding: 0;
+    }
+
+    .p-fileupload-content {
+      background: none;
+      border: none;
+      padding: 0;
+      display: flex;
+      align-items: center;
+      width: 100%;
+      flex-direction: row;
+      flex-wrap: nowrap;
+      justify-content: space-between;
+
+
+      p-progressbar {
+        display: none;
+      }
+
+      .p-fileupload-file-list {
+        display: none;
+      }
+
+      .box-files {
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        flex-wrap: wrap;
+        margin: 0 1rem;
+        padding: 0.5rem 0;
+        //max-height: 6.25rem;
+        width: 100%;
+
+        ul {
+          display: flex;
+          flex-direction: row;
+          align-items: center;
+          flex-wrap: wrap;
+          padding: 0.5rem;
+          border: 1px solid #a6a6a6;
+          max-height: 6.25rem;
+          overflow-y: auto;
+          height: 100%;
+          width: 100%;
+
+          .box-fileitem {
+            align-items: center;
+            display: flex;
+            flex-direction: row;
+            flex-wrap: nowrap;
+            background: var(--p-chip-background);
+          }
+        }
+
+      }
+
+      p-button {
+        width: 10.32rem;
+        min-width: 10.32rem;
+      }
+    }
+
+    .p-button.p-fileupload-choose {
+      height: 2.063rem;
+      min-width: 5.204rem;
+      background: var(--secondary-color);
+      border: 1px solid var(--secondary-color);
+    }
+  }
 }

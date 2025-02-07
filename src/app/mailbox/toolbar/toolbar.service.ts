@@ -1,8 +1,7 @@
 import { MailboxService } from "./../mailbox.service";
 import { Injectable } from "@angular/core";
-import { BehaviorSubject, Observable, Subscription, Observer, of } from "rxjs";
-import { FilterDefinition } from "@bds/next-sdr";
-import { Draft, Pec, Folder, Message, FolderType, Tag, PecPermission } from "@bds/internauta-model";
+import { BehaviorSubject, Observable, Subscription } from "rxjs";
+import { Draft, Pec, Folder, Message, FolderType, Tag } from "@bds/internauta-model";
 import { NewMailComponent } from "../new-mail/new-mail.component";
 import { MessageService, MenuItem } from "primeng/api";
 import { MessageEvent, ShpeckMessageService } from "src/app/services/shpeck-message.service";

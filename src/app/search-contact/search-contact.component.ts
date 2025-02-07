@@ -6,9 +6,10 @@ import { AutoComplete } from "primeng/autocomplete";
 import { MessageService } from "primeng/api";
 
 @Component({
-  selector: "app-search-contact",
-  templateUrl: "./search-contact.component.html",
-  styleUrls: ["./search-contact.component.scss"],
+    selector: "app-search-contact",
+    templateUrl: "./search-contact.component.html",
+    styleUrls: ["./search-contact.component.scss"],
+    standalone: false
 })
 export class SearchContactComponent implements OnInit {
   public filteredContacts: any[];

@@ -11,9 +11,10 @@ import { HttpClient } from "@angular/common/http";
 import { CUSTOM_SERVER_METHODS, BaseUrlType, getInternautaUrl } from "src/environments/app-constants";
 
 @Component({
-  selector: "app-readdress",
-  templateUrl: "./readdress.component.html",
-  styleUrls: ["./readdress.component.scss"],
+    selector: "app-readdress",
+    templateUrl: "./readdress.component.html",
+    styleUrls: ["./readdress.component.scss"],
+    standalone: false
 })
 export class ReaddressComponent implements OnInit, OnDestroy {
   private subscriptions: Subscription[] = [];

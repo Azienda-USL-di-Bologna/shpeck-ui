@@ -1,4 +1,4 @@
-<p-table
+<p-table stripedRows
   #ot
   *ngIf="_selectedPecId && totalRecords > 0"
   [lazy]="true"
@@ -93,7 +93,7 @@
 >
   <p-header> Dettaglio </p-header>
   <app-mail-detail [versioneAccessibile]="false"></app-mail-detail>
-  <p-footer>
+  <ng-template #footer>
     <button
       type="button"
       pButton
@@ -101,5 +101,5 @@
       label="Chiudi"
       class="ui-button-raised ui-button-secondary button-styles custom-secondary-button"
     ></button>
-  </p-footer>
+  </ng-template>
 </p-dialog>

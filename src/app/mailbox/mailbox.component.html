@@ -14,15 +14,15 @@
     [panelSizes]="[20,80]" 
     [minSizes]="[10, 50]"
     styleClass="splitter-padre">
-    <ng-template pTemplate>
+    <ng-template #panel>
       <app-mail-folders></app-mail-folders>
     </ng-template>
-    <ng-template pTemplate>
+    <ng-template #panel>
       <p-splitter
         [panelSizes]="[50,50]" 
         [minSizes]="[20, 20]"
         styleClass="splitter-figlio">
-        <ng-template pTemplate>
+        <ng-template #panel>
           <div
             #mailList
             class="mail-list"
@@ -75,7 +75,7 @@
             ></app-mail-outbox>
           </div>
         </ng-template>
-        <ng-template pTemplate>
+        <ng-template #panel>
           <div
             [ngClass]="hideDetail ? 'hidden' : 'mail-detail'"
             #mailDetail

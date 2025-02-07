@@ -193,7 +193,7 @@
           (onClick)="op.toggle($event)"
         />
       </div>
-      <p-overlayPanel
+      <p-popover
         #op
         class="panel-ricerca-avanzata"
         [style]="{ width: '70rem;' }"
@@ -223,22 +223,23 @@
             />
           </div>
         </div>
-      </p-overlayPanel>
+      </p-popover>
     </div>
   </div>
 </p-toolbar>
-<p-confirmDialog
+<p-confirmdialog
   #cd
-  [style]="{ width: '22.5vw' }"
+  acceptLabel="Sì"
+  rejectLabel="No"
 >
-  <p-footer>
+  <!-- <ng-template #footer let-onAccept="onAccept" let-onReject="onReject">
     <button
       type="button"
       class="buttons ui-button-raised ui-button-secondary custom-secondary-button"
       pButton
       icon="fas fa-check"
       label="Sì"
-      (click)="cd.accept()"
+      (click)="onAccept()"
     ></button>
     <button
       type="button"
@@ -246,10 +247,10 @@
       pButton
       icon="fas fa-times"
       label="No"
-      (click)="cd.reject()"
+      (click)="onReject()"
     ></button>
-  </p-footer>
-</p-confirmDialog>
+  </ng-template> -->
+</p-confirmdialog>
 
 <p-dialog
   header="Attenzione"
@@ -259,7 +260,7 @@
   [focusTrap]="true"
 >
   <p>Inserire almeno 3 caratteri e premere invio!</p>
-  <p-footer>
+  <ng-template #footer>
     <button
       #closeDialog
       pButton
@@ -269,5 +270,5 @@
       class="ui-button-secondary"
       autofocus
     ></button>
-  </p-footer>
+  </ng-template>
 </p-dialog>

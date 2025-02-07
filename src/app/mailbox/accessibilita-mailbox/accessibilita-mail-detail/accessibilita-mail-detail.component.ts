@@ -10,9 +10,10 @@ import { Menu } from "primeng/menu";
 import { MenuItem } from "primeng/api";
 
 @Component({
-  selector: "app-accessibilita-mail-detail",
-  templateUrl: "./accessibilita-mail-detail.component.html",
-  styleUrls: ["./accessibilita-mail-detail.component.scss"],
+    selector: "app-accessibilita-mail-detail",
+    templateUrl: "./accessibilita-mail-detail.component.html",
+    styleUrls: ["./accessibilita-mail-detail.component.scss"],
+    standalone: false
 })
 export class AccessibilitaMailDetailComponent implements OnInit {
   private subscriptions: any = [];
