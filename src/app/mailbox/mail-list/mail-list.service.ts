@@ -1198,6 +1198,7 @@ export class MailListService {
     codiciAziende.forEach((codiceAzienda) => {
       const azienda = this.loggedUser.getUtente().aziende.find((a) => a.codice === codiceAzienda);
       let item = new ItemMenu();
+      item.id = azienda.id;
       item.commandType = CommandType.URL;
       item.descrizione = longDescriptionItem ? azienda.descrizione : azienda.nome;
       item.openCommand = codiceAzienda;

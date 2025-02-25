@@ -1,19 +1,18 @@
 import { Component, OnInit, ViewChild } from "@angular/core";
 import { Router, ActivatedRoute } from "@angular/router";
 import { CustomReuseStrategy } from "src/app/custom-reuse-strategy";
-import { ShpeckMessageService, MessageEvent, MessageCommand } from "src/app/services/shpeck-message.service";
+import { ShpeckMessageService, MessageEvent } from "src/app/services/shpeck-message.service";
 import { ItemMenu, Message, Pec } from "@bds/internauta-model";
 import { JwtLoginService } from "@bds/jwt-login";
 import { MailListService } from "../../mail-list/mail-list.service";
 import { MailFoldersService, PecFolder, PecFolderType } from "../../mail-folders/mail-folders.service";
 import { Menu } from "primeng/menu";
-import { MenuItem } from "primeng/api";
 
 @Component({
-    selector: "app-accessibilita-mail-detail",
-    templateUrl: "./accessibilita-mail-detail.component.html",
-    styleUrls: ["./accessibilita-mail-detail.component.scss"],
-    standalone: false
+  selector: "app-accessibilita-mail-detail",
+  templateUrl: "./accessibilita-mail-detail.component.html",
+  styleUrls: ["./accessibilita-mail-detail.component.scss"],
+  standalone: false,
 })
 export class AccessibilitaMailDetailComponent implements OnInit {
   private subscriptions: any = [];
@@ -32,7 +31,7 @@ export class AccessibilitaMailDetailComponent implements OnInit {
     private mailFoldersService: MailFoldersService,
     public mailListService: MailListService
   ) {
-    this.doAction = this.doAction.bind(this);
+    //this.doAction = this.doAction.bind(this);
     this.onDoProtocolla = this.onDoProtocolla.bind(this);
   }
 
@@ -78,7 +77,7 @@ export class AccessibilitaMailDetailComponent implements OnInit {
     const items = this.mailListService.buildRegistrationBdsMenuItems(
       this.selectedMessages[0],
       this._selectedPec,
-      this.doAction,
+      null, //this.doAction, // gus: 25-02-2025, non ci capisco na sega. ma pare che sto doAction sia passato per non essere mai usato. quindi metto null
       true
     );
 
@@ -101,12 +100,9 @@ export class AccessibilitaMailDetailComponent implements OnInit {
   public onDoProtocolla(event: ItemMenu) {
     this.mailListService.checkCurrentStatusAndRegister(() => {
       let urlNewDoc = "";
+      // Dato che sta usando questo ItemMenu che non ha grandi posti dove mettere dei dati utili, ho usato l'id per mettere l'idAzienda
       urlNewDoc =
-        this.getFrontedAppUrl("scripta") +
-        "/doc?from=internauta&command=NEW&idMessage=" +
-        this.selectedMessages[0].id +
-        "&azienda=" +
-        event.openCommand;
+        this.getFrontedAppUrl("scripta") + "/nav/new-doc?idMessage=" + this.selectedMessages[0].id + "&idAzienda=" + event.id;
       const encodeParams = false;
       const addPassToken = true;
       const addRichiestaParam = false;
@@ -116,14 +112,6 @@ export class AccessibilitaMailDetailComponent implements OnInit {
           console.log("urlAperto:", url);
         });
     }, event.openCommand);
-
-    /* if (this.aziendeProtocollabiliMenuItems.length === 1) {
-      this.doAction({
-        item: this.aziendeProtocollabiliMenuItems[0]
-      });
-    } else {
-      this.protocollamenu.toggle(event);
-    } */
   }
 
   /*  Gestisce le azioni (per il momento solo il 'MessageRegistration') 
@@ -132,19 +120,17 @@ export class AccessibilitaMailDetailComponent implements OnInit {
                 - crea l'url della pagina che vuole aprire di scripta, passando il comando NEW e l'idpec come parametro
                 - apre la pagina di scripta 
   */
-  public doAction(comando: any): void {
+  /* public doAction(comando: any): void {
     console.log("comando", comando);
-    console.log(this.selectedMessages);
-    console.log(this.isRegistrationActive);
     switch (comando.item.id) {
       case MessageCommand.MessageRegistration:
         this.mailListService.checkCurrentStatusAndRegister(() => {
           let urlNewDoc = "";
           urlNewDoc =
             this.getFrontedAppUrl("scripta") +
-            "/doc?command=NEW&idMessage=" +
+            "/nav/new-doc?idMessage=" +
             this.selectedMessages[0].id +
-            "&azienda=" +
+            "&idAzienda=" +
             comando.item.queryParams.codiceAzienda;
           const encodeParams = false;
           const addPassToken = true;
@@ -157,7 +143,7 @@ export class AccessibilitaMailDetailComponent implements OnInit {
         }, comando.item.queryParams.codiceAzienda);
         break;
     }
-  }
+  } */
 
   /**
    * Crea l'url di una app frontend
