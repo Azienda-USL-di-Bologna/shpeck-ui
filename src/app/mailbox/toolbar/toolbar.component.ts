@@ -70,6 +70,7 @@ export class ToolbarComponent implements OnDestroy, AfterViewInit {
     private activatedRoute: ActivatedRoute
   ) {
     this.askConfirmationBeforeArchiviation = this.askConfirmationBeforeArchiviation.bind(this);
+    this.onDoProtocolla = this.onDoProtocolla.bind(this);
   }
 
   ngAfterViewInit() {}
@@ -346,12 +347,13 @@ export class ToolbarComponent implements OnDestroy, AfterViewInit {
   public onDoProtocolla(event: ItemMenu) {
     this.mailListService.checkCurrentStatusAndRegister(() => {
       let urlNewDoc = "";
+      // Dato che sta usando questo ItemMenu che non ha grandi posti dove mettere dei dati utili, ho usato l'id per mettere l'idAzienda
       urlNewDoc =
         this.getFrontedAppUrl("scripta") +
-        "/doc?from=internauta&command=NEW&idMessage=" +
+        "/nav/new-doc?idMessage=" +
         this.toolBarService.selectedMessages[0].id +
-        "&azienda=" +
-        event.openCommand;
+        "&idAzienda=" +
+        event.id;
       const encodeParams = false;
       const addPassToken = true;
       const addRichiestaParam = false;
@@ -361,14 +363,6 @@ export class ToolbarComponent implements OnDestroy, AfterViewInit {
           console.log("urlAperto:", url);
         });
     }, event.openCommand);
-
-    /* if (this.aziendeProtocollabiliMenuItems.length === 1) {
-      this.doAction({
-        item: this.aziendeProtocollabiliMenuItems[0]
-      });
-    } else {
-      this.protocollamenu.toggle(event);
-    } */
   }
 
   /**
