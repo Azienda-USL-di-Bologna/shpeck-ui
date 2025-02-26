@@ -17,6 +17,7 @@ export class MailFoldersService {
   constructor(private http: HttpClient) {}
 
   public selectedPecFolder(node: PecFolder, folders: Folder[], tags: Tag[]): void {
+    console.log("Numero di subscribers:", this._pecFoldersAndTags.observers.length);
     this._pecFolderSelected.next(node);
     this.setPecFoldersAndTags(folders, tags);
   }
@@ -26,10 +27,13 @@ export class MailFoldersService {
   }
 
   public setPecFoldersAndTags(folders: Folder[], tags: Tag[]): void {
+    console.log("Valore attuale prima del next:", this._pecFoldersAndTags.value);
     this._pecFoldersAndTags.next({
       folders: folders,
       tags: tags,
     });
+    console.log("Valore attuale dopo del next:", this._pecFoldersAndTags.value);
+    console.log("Numero di subscribers:", this._pecFoldersAndTags.observers.length);
   }
 
   public getReloadTag(idTag: number): Observable<number> {

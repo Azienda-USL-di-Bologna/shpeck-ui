@@ -7,3 +7,9 @@
 app-mail-list .p-datatable-table.p-datatable-scrollable-table {
   table-layout: fixed;
 }
+
+p-paginator {
+  p-select {
+    width: initial !important;
+  }
+}
