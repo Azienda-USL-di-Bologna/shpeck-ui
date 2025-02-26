@@ -1,6 +1,10 @@
 :host {
   height: 100%;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
 }
+
 ::ng-deep .shpeck-mail-list-accessibile .p-datatable-wrapper {
   overflow-y: scroll !important;
 }

@@ -1,8 +1,8 @@
-import { Component, OnDestroy, ViewChild, ElementRef, AfterViewInit } from "@angular/core";
+import { Component, OnDestroy, ViewChild, ElementRef, AfterViewInit, Input } from "@angular/core";
 import { ConfirmationService, MenuItem } from "primeng/api";
 import { Subscription, Observable } from "rxjs";
 import { TOOLBAR_ACTIONS } from "src/environments/app-constants";
-import { Pec, Folder, FolderType, Tag } from "@bds/internauta-model";
+import { Pec, Folder, FolderType, Tag, ItemMenu } from "@bds/internauta-model";
 import { PecService } from "src/app/services/pec.service";
 import { FilterDefinition, FILTER_TYPES, SORT_MODES } from "@bds/next-sdr";
 import { RicercaAvanzataFilters, ToolBarService, UserFilters } from "./toolbar.service";
@@ -13,13 +13,16 @@ import { DialogService } from "primeng/dynamicdialog";
 import { MailboxService, Sorting } from "../mailbox.service";
 import { DatePipe } from "@angular/common";
 import { CustomCalendarComponent } from "@bds/common-components";
+import { CustomReuseStrategy } from "@bds/common-tools";
+import { ActivatedRoute, Router } from "@angular/router";
+import { JwtLoginService } from "@bds/jwt-login";
 
 @Component({
-    selector: "app-toolbar",
-    templateUrl: "./toolbar.component.html",
-    providers: [ConfirmationService],
-    styleUrls: ["./toolbar.component.scss"],
-    standalone: false
+  selector: "app-toolbar",
+  templateUrl: "./toolbar.component.html",
+  providers: [ConfirmationService],
+  styleUrls: ["./toolbar.component.scss"],
+  standalone: false,
 })
 export class ToolbarComponent implements OnDestroy, AfterViewInit {
   private subscriptions: Subscription[] = [];
@@ -45,6 +48,8 @@ export class ToolbarComponent implements OnDestroy, AfterViewInit {
 
   public showErrorDialog: boolean = false;
 
+  @Input("mode") mode: string = "standard"; // altri valori: intestazione-accessibilita (mostra solo Nuovo Messsaggio) dentro-messaggio-accessibilita (mostra i vari bottoni tranne Nuovo messaggio)
+
   @ViewChild("closeDialog", {}) closeField: ElementRef;
   @ViewChild("search", {}) searchField: ElementRef;
   @ViewChild("moveMenu", {}) private moveMenu: Menu;
@@ -59,7 +64,10 @@ export class ToolbarComponent implements OnDestroy, AfterViewInit {
     private mailListService: MailListService,
     private confirmationService: ConfirmationService,
     private mailboxService: MailboxService,
-    private datePipe: DatePipe
+    private datePipe: DatePipe,
+    private router: Router,
+    private loginService: JwtLoginService,
+    private activatedRoute: ActivatedRoute
   ) {
     this.askConfirmationBeforeArchiviation = this.askConfirmationBeforeArchiviation.bind(this);
   }
@@ -101,6 +109,11 @@ export class ToolbarComponent implements OnDestroy, AfterViewInit {
         this.archiveMenu.hide();
         break;
     }
+  }
+
+  tornaIndietro() {
+    CustomReuseStrategy.componentsReuseList.push("*");
+    this.router.navigate(["../mail-list"], { relativeTo: this.activatedRoute });
   }
 
   private askConfirmationBeforeArchiviation(event: any) {
@@ -328,6 +341,52 @@ export class ToolbarComponent implements OnDestroy, AfterViewInit {
   public avviaRicercaAvanzata(): void {
     this.updateInfoFiltriApplicati();
     this.applyFilters();
+  }
+
+  public onDoProtocolla(event: ItemMenu) {
+    this.mailListService.checkCurrentStatusAndRegister(() => {
+      let urlNewDoc = "";
+      urlNewDoc =
+        this.getFrontedAppUrl("scripta") +
+        "/doc?from=internauta&command=NEW&idMessage=" +
+        this.toolBarService.selectedMessages[0].id +
+        "&azienda=" +
+        event.openCommand;
+      const encodeParams = false;
+      const addPassToken = true;
+      const addRichiestaParam = false;
+      this.loginService
+        .buildInterAppUrl(urlNewDoc, encodeParams, addRichiestaParam, addPassToken, true)
+        .subscribe((url: string) => {
+          console.log("urlAperto:", url);
+        });
+    }, event.openCommand);
+
+    /* if (this.aziendeProtocollabiliMenuItems.length === 1) {
+      this.doAction({
+        item: this.aziendeProtocollabiliMenuItems[0]
+      });
+    } else {
+      this.protocollamenu.toggle(event);
+    } */
+  }
+
+  /**
+   * Crea l'url di una app frontend
+   * */
+  public getFrontedAppUrl(app: string): string {
+    const wl = window.location;
+    let port = wl.port;
+    app = "/" + app;
+    //port = wl.port;
+    if (wl.hostname === "localhost") {
+      //return "https://gdml.internal.ausl.bologna.it/" + app;
+      port = "4200";
+      app = "";
+    }
+
+    const out: string = wl.protocol + "//" + wl.hostname + (port ? ":" + port : "") + app;
+    return out;
   }
 
   /**
