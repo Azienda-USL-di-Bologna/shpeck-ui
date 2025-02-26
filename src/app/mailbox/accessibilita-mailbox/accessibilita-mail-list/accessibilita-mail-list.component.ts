@@ -43,10 +43,10 @@ import { CustomReuseStrategy } from "src/app/custom-reuse-strategy";
 import { COMMON_MENU_ITEMS } from "src/app/classes/common-menu-items";
 
 @Component({
-    selector: "accessibilita-mail-list",
-    templateUrl: "./accessibilita-mail-list.component.html",
-    styleUrls: ["./accessibilita-mail-list.component.scss"],
-    standalone: false
+  selector: "accessibilita-mail-list",
+  templateUrl: "./accessibilita-mail-list.component.html",
+  styleUrls: ["./accessibilita-mail-list.component.scss"],
+  standalone: false,
 })
 export class AccessibilitaMailListComponent implements OnInit, OnDestroy {
   public cmItems: MenuItem[] = COMMON_MENU_ITEMS;
@@ -670,34 +670,44 @@ export class AccessibilitaMailListComponent implements OnInit, OnDestroy {
     this.subscriptions.push({
       id: folderSelected.data.id,
       type: "folder_message",
-      subscription: this.messageService
-        .getData(this.mailListService.selectedProjection, filtersAndSorts, lazyFilterAndSort, pageConf)
-        .subscribe((data) => {
-          if (data && data.results) {
-            this.mailListService.totalRecords = data.page.totalElements;
-            // mando l'evento con il numero di messaggi (serve a mailbox-component perché lo deve scrivere nella barra superiore)
-            this.mailListService.refreshAndSendTotalMessagesNumber(0, folderSelected);
-            this.messages = data.results;
-            // Array.prototype.splice.apply(this.messages, [...[event.first, event.rows], ...data.results]);
-            //trigger change detection
-            // this.messages = [...this.messages];
-            console.log("this.messages", this.messages);
-            this.mailListService.setMailTagVisibility(this.messages);
-            //this.mailFoldersService.doReloadTag(this.mailListService.tags.find(t => t.name === "in_error").id);
-          }
-          this.loading = false;
-          // I selected messages sono quelli che sono.
-          // Ma dopo il caricamento devo far puntare tra i messages quelli che sono selected
-          // Altimenti la table non li evidenzia
-          let index;
-          for (let i = 0; i < this.mailListService.selectedMessages.length; i++) {
-            index = this.isMessageinList(this.mailListService.selectedMessages[i].id, this.messages);
-            if (index !== -1) {
-              this.mailListService.selectedMessages[i] = this.messages[index];
+      subscription:
+        //this.messageService.getData(this.mailListService.selectedProjection, filtersAndSorts, lazyFilterAndSort, pageConf)
+        this.mailListService
+          .getSubscriptionReadyForLoadData(
+            this._selectedFolder,
+            this._selectedTag,
+            this._selectedPecId,
+            lazyFilterAndSort,
+            this.pageConf,
+            this.userFilters,
+            this._selectedPec
+          )
+          .subscribe((data) => {
+            if (data && data.results) {
+              this.mailListService.totalRecords = data.page.totalElements;
+              // mando l'evento con il numero di messaggi (serve a mailbox-component perché lo deve scrivere nella barra superiore)
+              this.mailListService.refreshAndSendTotalMessagesNumber(0, folderSelected);
+              this.messages = data.results;
+              // Array.prototype.splice.apply(this.messages, [...[event.first, event.rows], ...data.results]);
+              //trigger change detection
+              // this.messages = [...this.messages];
+              console.log("this.messages", this.messages);
+              this.mailListService.setMailTagVisibility(this.messages);
+              //this.mailFoldersService.doReloadTag(this.mailListService.tags.find(t => t.name === "in_error").id);
             }
-          }
-          //this.setAccessibilityProperties(true);
-        }),
+            this.loading = false;
+            // I selected messages sono quelli che sono.
+            // Ma dopo il caricamento devo far puntare tra i messages quelli che sono selected
+            // Altimenti la table non li evidenzia
+            let index;
+            for (let i = 0; i < this.mailListService.selectedMessages.length; i++) {
+              index = this.isMessageinList(this.mailListService.selectedMessages[i].id, this.messages);
+              if (index !== -1) {
+                this.mailListService.selectedMessages[i] = this.messages[index];
+              }
+            }
+            //this.setAccessibilityProperties(true);
+          }),
     });
   }
 

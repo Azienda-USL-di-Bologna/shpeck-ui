@@ -1,24 +1,47 @@
 <p-toolbar>
-  <!-- (keyup.Control)="onKeyUpMoveFocus($event)" -->
-  <div class="toolbar-container">
-    <div
-      class="d-flex toolbar-pec"
-      aria-hidden="true"
-      tabindex="-1"
-    >
+  <ng-template #start>
       @if (mode === 'standard' || mode === 'intestazione-accessibilita') {
         <!-- Nuova Pec -->
         <button
           pButton
           type="button"
           label="Nuova PEC"
-          tabindex="-1"
           icon="pi pi-plus"
           class="button-new-mail ui-button-raised ui-button-primary custom-primary-button"
           (click)="handleEvent($event, 'new'); this.toolBarService.isDialogOpen = true"
           onclick="this.blur()"
           [disabled]="!(toolBarService.buttonObs.get('newMailActive') | async) || this.toolBarService.isDialogOpen"
         ></button>
+      }
+      @if (mode === 'dentro-messaggio-accessibilita') {
+        <!-- Torna indietro -->
+        <button
+          pButton
+          autofocus
+          (click)="tornaIndietro()"
+          aria-label="Torna alla lista messaggi"
+          label="Torna alla lista messaggi"
+        ></button>
+        @if ((toolBarService.buttonObs.get('registrationActive') | async) && toolBarService.aziendeProtocollabiliMenuItems.length > 0) {
+          <bds-menu
+            [items]="toolBarService.aziendeProtocollabiliMenuItems"
+            [executeAction]="onDoProtocolla"
+          >
+          </bds-menu>
+        }
+        @else if (!(toolBarService.buttonObs.get('registrationActive') | async)) {
+          <button
+            pButton
+            [attr.aria-label]="'Protocolla: ' + toolBarService.infoNonProtocollabile"
+            [label]="'Protocolla: ' + toolBarService.infoNonProtocollabile"
+            disabled
+          ></button>
+        }
+        <!-- <span
+          *ngIf="!isRegistrationActive"
+          tabindex="0"
+          >{{ infoNonProtocollabile }}</span
+        > -->
       }
       @if (mode === 'standard' || mode === 'dentro-messaggio-accessibilita') {
         <!-- Modifica -->
@@ -27,7 +50,6 @@
           pButton
           type="button"
           label="Modifica"
-          tabindex="-1"
           icon="fa fa-pen"
           class="button-styles ui-button-raised ui-button-secondary custom-border"
           (click)="handleEvent($event, 'edit'); this.toolBarService.isDialogOpen = true"
@@ -41,7 +63,6 @@
           pButton
           type="button"
           label="Rispondi"
-          tabindex="-1"
           icon="fa fa-reply"
           class="button-styles ui-button-raised ui-button-secondary custom-border"
           (click)="handleEvent($event, 'reply'); this.toolBarService.isDialogOpen = true"
@@ -55,7 +76,6 @@
           pButton
           type="button"
           label="Rispondi a tutti"
-          tabindex="-1"
           icon="fa fa-reply-all"
           class="button-styles ui-button-raised ui-button-secondary custom-border"
           (click)="handleEvent($event, 'reply_all'); this.toolBarService.isDialogOpen = true"
@@ -69,7 +89,6 @@
           pButton
           type="button"
           label="Inoltra"
-          tabindex="-1"
           icon="fa fa-share"
           class="button-styles ui-button-raised ui-button-secondary custom-border"
           (click)="handleEvent($event, 'forward'); this.toolBarService.isDialogOpen = true"
@@ -83,24 +102,26 @@
           pButton
           type="button"
           [label]="toolBarService.deleteLabel | async"
-          tabindex="-1"
           icon="fa fa-trash"
           class="button-styles ui-button-raised ui-button-secondary custom-border"
           (click)="handleEvent($event, 'delete')"
           [disabled]="!(toolBarService.buttonObs.get('deleteActive') | async)"
         ></button>
+        
+        
+      }
+      @if (mode === 'standard') {
         <!-- Sposta -->
         <button
           pButton
           type="button"
           label="Sposta"
-          tabindex="-1"
           icon="fa fa-folder"
           class="button-styles ui-button-raised ui-button-secondary custom-border"
           (click)="handleEvent($event, 'move')"
           [disabled]="!(toolBarService.buttonObs.get('moveActive') | async)"
         >
-          <!-- <img class="images-pos" src="assets/images/icons/folder_export.png" width="" alt="Sposta in">     margin-l-15-->
+        <!-- <img class="images-pos" src="assets/images/icons/folder_export.png" width="" alt="Sposta in">     margin-l-15-->
         </button>
         <p-menu
           #moveMenu
@@ -108,13 +129,13 @@
           class="move-menu"
           [popup]="true"
           [model]="moveMenuItems"
+          appendTo="body"
         ></p-menu>
         <!-- Fascicola -->
         <button
           pButton
           type="button"
           label="Fascicola"
-          tabindex="-1"
           icon="fa fa-server"
           class="button-styles ui-button-raised ui-button-secondary custom-border rotate"
           (click)="handleEvent($event, 'archive')"
@@ -125,20 +146,21 @@
           (mouseleave)="handleEvent($event, 'mouseout')"
           [popup]="true"
           [model]="archiveMenuItems"
+          appendTo="body"
         ></p-menu>
-        <!-- SPINNER GENERICO DA ATTIVARE ALL'OCCORRENZA-->
-        <span *ngIf="toolBarService.loadingSpinner">
-          <p-progressSpinner
-            [style]="{ width: '2rem', height: '2rem', marginRight: '0.438rem' }"
-            strokeWidth="8"
-            fill="#FFFFFF"
-            animationDuration=".5s"
-          >
-          </p-progressSpinner>
-        </span>
       }
-      <!-- <i class="pi pi-bars a-items-center d-flex"></i> -->
-    </div>
+      <!-- SPINNER GENERICO DA ATTIVARE ALL'OCCORRENZA-->
+      <span *ngIf="toolBarService.loadingSpinner">
+        <p-progressSpinner
+          [style]="{ width: '2rem', height: '2rem', marginRight: '0.438rem' }"
+          strokeWidth="8"
+          fill="#FFFFFF"
+          animationDuration=".5s"
+        >
+        </p-progressSpinner>
+      </span>
+  </ng-template>
+  <ng-template #end>
     @if (mode === 'standard' || mode === 'intestazione-accessibilita') {
       <div class="d-flex toolbar-pec cerca-box">
         <!-- Ricerca -->
@@ -231,8 +253,9 @@
         </p-popover>
       </div>
     }
-  </div>
+  </ng-template>
 </p-toolbar>
+
 <p-confirmdialog
   #cd
   acceptLabel="Sì"
