@@ -1,7 +1,7 @@
 import { MailboxService } from "./../mailbox.service";
 import { Injectable } from "@angular/core";
 import { BehaviorSubject, Observable, Subscription } from "rxjs";
-import { Draft, Pec, Folder, Message, FolderType, Tag } from "@bds/internauta-model";
+import { Draft, Pec, Folder, Message, FolderType, Tag, ItemMenu } from "@bds/internauta-model";
 import { NewMailComponent } from "../new-mail/new-mail.component";
 import { MessageService, MenuItem } from "primeng/api";
 import { MessageEvent, ShpeckMessageService } from "src/app/services/shpeck-message.service";
@@ -33,6 +33,8 @@ export class ToolBarService {
   public isDialogOpen: boolean = false;
   public actualPecFolderTagSelected: PecFolder = null;
   public loadingSpinner: boolean = false;
+  public infoNonProtocollabile: string;
+  public aziendeProtocollabiliMenuItems: ItemMenu[] = [];
 
   public deleteLabel = new BehaviorSubject<string>("Elimina");
 
@@ -45,6 +47,7 @@ export class ToolBarService {
     ["moveActive", new BehaviorSubject<boolean>(false)],
     ["searchActive", new BehaviorSubject<boolean>(true)],
     ["archiveActive", new BehaviorSubject<boolean>(false)],
+    ["registrationActive", new BehaviorSubject<boolean>(false)],
   ]);
 
   constructor(
@@ -151,6 +154,18 @@ export class ToolBarService {
 
           const isDeleteActive = this.mailListService.isDeleteActive();
           this.buttonsObservables.get("deleteActive").next(isDeleteActive);
+
+          if (this.selectedMessages.length === 1) {
+            this.preparaBottoneProtocolla();
+            const isRegistrationActive = this.mailListService.isRegisterActive(this.selectedMessages[0]);
+            this.buttonsObservables.get("registrationActive").next(isRegistrationActive);
+            if (!isRegistrationActive) {
+              this.infoNonProtocollabile = this.mailListService.getInfoPercheNonRegistrabile(this.selectedMessages[0]);
+            }
+          } else {
+            this.buttonsObservables.get("registrationActive").next(false);
+          }
+
           if (
             isDeleteActive &&
             this.selectedFolder.type === FolderType.TRASH &&
@@ -185,6 +200,25 @@ export class ToolBarService {
         }
       })
     );
+  }
+
+  private preparaBottoneProtocolla() {
+    const items = this.mailListService.buildRegistrationBdsMenuItems(
+      this.selectedMessages[0],
+      this._selectedPec,
+      null, //this.doAction,
+      true
+    );
+
+    if (items.length === 1) {
+      items[0].descrizione = "Protocolla in " + items[0].descrizione;
+      this.aziendeProtocollabiliMenuItems = items;
+    } else {
+      const itemButton = new ItemMenu();
+      itemButton.descrizione = "Protocolla";
+      itemButton.children = items;
+      this.aziendeProtocollabiliMenuItems = [itemButton];
+    }
   }
 
   public buildMoveMenuItems() {

@@ -53,11 +53,11 @@ import {
 import { ContextMenu } from "primeng/contextmenu";
 
 @Component({
-    selector: "app-mail-list",
-    templateUrl: "./mail-list.component.html",
-    styleUrls: ["./mail-list.component.scss"],
-    providers: [ConfirmationService],
-    standalone: false
+  selector: "app-mail-list",
+  templateUrl: "./mail-list.component.html",
+  styleUrls: ["./mail-list.component.scss"],
+  providers: [ConfirmationService],
+  standalone: false,
 })
 export class MailListComponent implements OnInit, OnDestroy, AfterViewInit {
   @Output() public messageClicked = new EventEmitter<Message>();
@@ -1268,13 +1268,15 @@ export class MailListComponent implements OnInit, OnDestroy, AfterViewInit {
 
           // this.dt.scroller.setSize();
           // this.dt.scroller.setSpacerSize();
-
-          this.dt.scroller.setSize();
-          //this.dt.scroller.calculateOptions();
-          this.dt.scroller.setSpacerSize();
+          if (this.dt) {
+            this.dt.scroller.setSize();
+            //this.dt.scroller.calculateOptions();
+            this.dt.scroller.setSpacerSize();
+          }
           //this.dt.scroller.bindResizeListener();
-
-          this.storedLazyLoadEvent.forceUpdate();
+          if (this.storedLazyLoadEvent) {
+            this.storedLazyLoadEvent.forceUpdate();
+          }
 
           this.loading = false;
         }),
