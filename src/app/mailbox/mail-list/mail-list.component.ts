@@ -1274,7 +1274,7 @@ export class MailListComponent implements OnInit, OnDestroy, AfterViewInit {
             this.dt.scroller.setSpacerSize();
           }
           //this.dt.scroller.bindResizeListener();
-          if (this.storedLazyLoadEvent) {
+          if (this.storedLazyLoadEvent && this.storedLazyLoadEvent.forceUpdate) {
             this.storedLazyLoadEvent.forceUpdate();
           }
 
