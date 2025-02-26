@@ -1,4 +1,4 @@
-import { Component, OnDestroy, ViewChild, ElementRef, AfterViewInit } from "@angular/core";
+import { Component, OnDestroy, ViewChild, ElementRef, AfterViewInit, Input } from "@angular/core";
 import { ConfirmationService, MenuItem } from "primeng/api";
 import { Subscription, Observable } from "rxjs";
 import { TOOLBAR_ACTIONS } from "src/environments/app-constants";
@@ -15,11 +15,11 @@ import { DatePipe } from "@angular/common";
 import { CustomCalendarComponent } from "@bds/common-components";
 
 @Component({
-    selector: "app-toolbar",
-    templateUrl: "./toolbar.component.html",
-    providers: [ConfirmationService],
-    styleUrls: ["./toolbar.component.scss"],
-    standalone: false
+  selector: "app-toolbar",
+  templateUrl: "./toolbar.component.html",
+  providers: [ConfirmationService],
+  styleUrls: ["./toolbar.component.scss"],
+  standalone: false,
 })
 export class ToolbarComponent implements OnDestroy, AfterViewInit {
   private subscriptions: Subscription[] = [];
@@ -44,6 +44,8 @@ export class ToolbarComponent implements OnDestroy, AfterViewInit {
   // @Output("filtersEmitter") private filtersEmitter: EventEmitter<FilterDefinition[]> = new EventEmitter();
 
   public showErrorDialog: boolean = false;
+
+  @Input("mode") mode: string = "standard"; // altri valori: intestazione-accessibilita (mostra solo Nuovo Messsaggio) dentro-messaggio-accessibilita (mostra i vari bottoni tranne Nuovo messaggio)
 
   @ViewChild("closeDialog", {}) closeField: ElementRef;
   @ViewChild("search", {}) searchField: ElementRef;
