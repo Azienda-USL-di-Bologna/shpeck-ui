@@ -131,8 +131,8 @@
 
 ::ng-deep .root-tree-node-style-selected {
   font-size: 0.75rem !important;
-  color: black !important;
-  background-color: white;
+  //color: black !important;
+  //background-color: white;
   font-weight: bold;
 }
 
@@ -149,7 +149,7 @@
 }
 
 ::ng-deep .root-tree-node-style-selected .p-treenode-label {
-  background-color: #eaeaea !important;
+  //background-color: #eaeaea !important;
 }
 
 /* ::ng-deep .context-menu-mail-folders {

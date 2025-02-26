@@ -4,14 +4,12 @@ import { AccessibilitaMailboxComponent } from "./accessibilita-mailbox.component
 import { AccessibilitaRoutingModule } from "./accessibilita-routing.module";
 import { PrimengModule } from "src/app/primeng.module";
 import { AccessibilitaMailListComponent } from "./accessibilita-mail-list/accessibilita-mail-list.component";
-import { AppModule } from "src/app/app.module";
 import { ShpeckToolbarModule } from "../toolbar/shpeck-toolbar.module";
 import { MailFoldersModule } from "../mail-folders/mail-folders.module";
 import { AccessibilitaMailDetailComponent } from "./accessibilita-mail-detail/accessibilita-mail-detail.component";
-import { RouteReuseStrategy } from "@angular/router";
-import { CustomReuseStrategy } from "src/app/custom-reuse-strategy";
 import { MailDetailModule } from "../mail-detail/mail-detail.module";
 import { CommonComponentsModule } from "@bds/common-components";
+import { MailListService } from "../mail-list/mail-list.service";
 
 @NgModule({
   declarations: [AccessibilitaMailboxComponent, AccessibilitaMailListComponent, AccessibilitaMailDetailComponent],
@@ -24,6 +22,6 @@ import { CommonComponentsModule } from "@bds/common-components";
     MailDetailModule,
     CommonComponentsModule,
   ],
-  providers: [],
+  providers: [MailListService],
 })
 export class AccessibilitaMailboxModule {}
