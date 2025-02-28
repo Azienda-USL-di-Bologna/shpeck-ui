@@ -138,13 +138,13 @@
                 [ngTemplateOutletContext]="{ $implicit: getRegistrationStatus(message) }"
               >
               </ng-template>
-              <p-contextMenu
+              <p-contextmenu
                 appendTo="body"
                 (onShow)="tagsMenuStatus('registerMenuOpened')"
                 #registrationMenu
                 [model]="aziendeProtocollabiliSubCmItems"
               >
-              </p-contextMenu>
+              </p-contextmenu>
               <!-- questo è un menu alternativo usato per il 'protocolla ancora' -->
               <p-menu
                 appendTo="body"
@@ -249,12 +249,12 @@
                   (click)="!message['moved'] ? iconArchiveClicked($event, message, archivedstatus) : null"
                 >
                 </i>
-                <!-- <p-contextMenu 
+                <!-- <p-contextmenu 
                                     appendTo="body" 
                                     (onShow)="tagsMenuStatus('archiveMenuOpened')" 
                                     #archiviationMenu 
                                     [model]="aziendeFascicolabiliSubCmItems">
-                                </p-contextMenu> -->
+                                </p-contextmenu> -->
                 <p-menu
                   appendTo="body"
                   (onShow)="tagsMenuStatus('archiveMenuOpened')"
@@ -285,14 +285,14 @@
                   (click)="!message['moved'] ? iconTaggedClicked($event, message, taggedstatus) : null"
                 >
                 </i>
-                <p-contextMenu
+                <p-contextmenu
                   appendTo="body"
                   (onShow)="tagsMenuStatus('tagsMenuOpened')"
                   #tagMenu
                   [model]="tagMenuItems"
                   styleClass="message-labels-icon-action"
                 >
-                </p-contextMenu>
+                </p-contextmenu>
               </ng-template>
               <ng-template
                 [ngTemplateOutlet]="taggedTemplate"
@@ -522,11 +522,12 @@
 >
   _ loading _
 </div>
-<p-contextMenu
+<p-contextmenu
   #cm
   [model]="cmItems"
   class="context-menu-mail-list"
-></p-contextMenu>
+  baseZIndex="10000"
+></p-contextmenu>
 
 <!-- Questa serve per chiedere conferma all'utente sul dove vuole protocollare -->
 <p-confirmdialog
@@ -681,8 +682,9 @@ class="ui-button-raised ui-button-secondary button-styles custom-secondary-butto
 </button> -->
 
 <!-- DIALOG CHE MOSTRA IL DETTAGLIO DEL REINDIRIZZAMENTO -->
-<p-dialog [(visible)]="readdressDetail.displayReaddressDetail">
-  <p-header> Dettaglio reindirizzamenti </p-header>
+<p-dialog 
+  [(visible)]="readdressDetail.displayReaddressDetail" 
+  header="Dettaglio reindirizzamenti">
   <li
     *ngIf="readdressDetail.testo?.in"
     [innerHTML]="readdressDetail.testo.in"
@@ -691,23 +693,20 @@ class="ui-button-raised ui-button-secondary button-styles custom-secondary-butto
     *ngIf="readdressDetail.testo?.out"
     [innerHTML]="readdressDetail.testo.out"
   ></li>
-  <ng-template class="button-centopx">
-    <button
+  <ng-template #footer>
+    <p-button
       *ngIf="readdressDetail.buttonReaddress"
       type="button"
-      pButton
-      (click)="iconReaddressClicked($event, readdressDetail.message, 'READDRESSABLE')"
-      (click)="readdressDetail.displayReaddressDetail = false"
+      (click)="iconReaddressClicked($event, readdressDetail.message, 'READDRESSABLE'); readdressDetail.displayReaddressDetail = false"
       label="Aggiungi"
       class="ui-button-raised ui-button-secondary button-styles custom-secondary-button"
-    ></button>
-    <button
+    ></p-button>
+    <p-button
       type="button"
-      pButton
       (click)="readdressDetail.displayReaddressDetail = false"
       label="Ok"
       class="ui-button-raised ui-button-secondary button-styles custom-secondary-button"
-    ></button>
+    ></p-button>
   </ng-template>
 </p-dialog>
 
