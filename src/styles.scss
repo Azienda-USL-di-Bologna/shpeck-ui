@@ -3,6 +3,7 @@
 @use "../node_modules/@bds/common-components/assets/bds-styles/custom-classes.scss" as *;
 @use "../node_modules/@bds/common-components/assets/bds-styles/basic.scss" as *;
 @use "../node_modules/@bds/common-components/assets/bds-styles/primeng-customization.scss" as *;
+@use "tailwindcss" as *;
 
 app-mail-list .p-datatable-table.p-datatable-scrollable-table {
   table-layout: fixed;
