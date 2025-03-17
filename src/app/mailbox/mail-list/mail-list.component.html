@@ -768,12 +768,9 @@ class="ui-button-raised ui-button-secondary button-styles custom-secondary-butto
   [modal]="true"
   [style]="{ width: '26.25rem' }"
 >
-  <p-header>Nuova Etichetta</p-header>
+  <ng-template    #header><label>Nuova Etichetta</label></ng-template>
   <form [formGroup]="tagForm">
-    <span
-      class="p-float-label"
-      style="margin: 0.5rem 0 0.5rem 0rem"
-    >
+    <label for="float-input">Inserisci un nome per la nuova etichetta</label>
       <input
         #idtag
         id="float-input"
@@ -783,27 +780,25 @@ class="ui-button-raised ui-button-secondary button-styles custom-secondary-butto
         pInputText
         style="width: 100% !important"
       />
-      <label for="float-input">Inserisci un nome per la nuova etichetta</label>
-    </span>
-    <ng-template #footer>
-      <button
+    
+    <div class="footer" #footer>
+      <button 
+        class="footer-button"
         type="submit"
         [disabled]="tagForm.invalid"
-        class="confirm-buttons ui-button-raised ui-button-secondary custom-secondary-button"
         pButton
         icon="fas fa-check"
         (click)="onNewTag(tagForm.get('tagName')?.value)"
         label="Crea"
       ></button>
-      <button
+      <button 
+        class="footer-button"
         type="button"
-        class="confirm-buttons ui-button-raised ui-button-secondary custom-secondary-button"
         pButton
-        icon="fas fa-undo-alt"
         (click)="displayNewTagPopup = false"
         label="Annulla"
       ></button>
-    </ng-template>
+    </div>
   </form>
 </p-dialog>
 
