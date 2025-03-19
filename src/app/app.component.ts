@@ -13,9 +13,10 @@ import { DialogService } from "primeng/dynamicdialog";
 import { MailListService } from "./mailbox/mail-list/mail-list.service";
 
 @Component({
-  selector: "app-root",
-  templateUrl: "./app.component.html",
-  styleUrls: ["./app.component.scss"],
+    selector: "app-root",
+    templateUrl: "./app.component.html",
+    styleUrls: ["./app.component.scss"],
+    standalone: false
 })
 export class AppComponent implements OnInit {
   title = "shpeck-ui";

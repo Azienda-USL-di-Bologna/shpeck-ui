@@ -7,6 +7,10 @@
 
 .content {
   flex: 1 1 0;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
 }
 
 
@@ -17,16 +21,16 @@
 
 /* ------------TEMPLATE GENERALE---------------------- */
 /* --- RIGHE P-TABLE --- */
-::ng-deep body .p-dialog .p-dialog-titlebar,
+/* ::ng-deep body .p-dialog .p-dialog-titlebar,
 .titolo-popup,
 ::ng-deep body .p-dialog .p-dialog-header {
   background-color: #993366;
   color: white;
   height: 3rem;
   font-size: 0.875rem;
-}
+} */
 
-::ng-deep body .p-dialog .p-dialog-titlebar .p-dialog-titlebar-icon,
+/* ::ng-deep body .p-dialog .p-dialog-titlebar .p-dialog-titlebar-icon,
 ::ng-deep body .p-dialog .p-dialog-header .p-dialog-header-icon,
 ::ng-deep body .p-dialog .p-dialog-titlebar-close {
   color: white;
@@ -35,7 +39,7 @@
 ::ng-deep body .p-datatable .p-datatable-tbody>tr.p-highlight {
   background-color: #fcf9bf !important;
   color: black !important;
-}
+} */
 
 /* Vale per tutto gli autocomplete, la dropdown sarà largo quanto l'input */
 /* ::ng-deep .p-autocomplete-panel {
@@ -43,10 +47,10 @@
 } */
 
 /* tutti i footer  */
-::ng-deep p-footer {
+/* ::ng-deep p-footer {
   display: flex;
   justify-content: space-around;
-}
+} */
 
 /* @media only screen and (max-height: 50.063rem) {
   ::ng-deep .new-draft .p-dialog-content.p-widget-content {

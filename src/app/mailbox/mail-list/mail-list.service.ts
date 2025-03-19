@@ -35,7 +35,7 @@ import {
 import { MenuItem, MessageService } from "primeng/api";
 import { Utils } from "src/app/utils/utils";
 import { MessageFolderService } from "src/app/services/message-folder.service";
-import { Subscription, Observable, BehaviorSubject } from "rxjs";
+import { Subscription, Observable, BehaviorSubject, tap } from "rxjs";
 import { MailFoldersService, FoldersAndTags, PecFolderType, PecFolder } from "../mail-folders/mail-folders.service";
 import { JwtLoginService, UtenteUtilities } from "@bds/jwt-login";
 import {
@@ -1090,7 +1090,9 @@ export class MailListService {
     if (this.selectedMessages && this.selectedMessages.length === 1 && event && event.item && event.item) {
       const azienda: Azienda = this.loggedUser.getUtente().aziende.find((a) => a.codice === event.item.queryParams.codiceAzienda);
 
-      this.subscriptions.push(
+      const sottoscrizioniTemp: Subscription[] = [];
+
+      sottoscrizioniTemp.push(
         this.configurazioneService
           .getParametriAziende("usaGediInternauta", null, [azienda.id])
           .subscribe((parametriAziende: ParametroAziende[]) => {
@@ -1120,16 +1122,17 @@ export class MailListService {
               const encodeParams = false;
               const addRichiestaParam = true;
               const addPassToken = true;
-              this.loginService
-                .buildInterAppUrl(decodedUrl, encodeParams, addRichiestaParam, addPassToken, true)
-                .subscribe((url: string) => {
-                  console.log("urlAperto:", url);
-                });
+              sottoscrizioniTemp.push(
+                this.loginService
+                  .buildInterAppUrl(decodedUrl, encodeParams, addRichiestaParam, addPassToken, true)
+                  .subscribe((url: string) => {
+                    console.log("urlAperto:", url);
+                  })
+              );
             }
 
             // Tolgo subito queste due sottoscrizioni che mi disturbano quando per qualche motivo riscattano.
-            this.subscriptions.forEach((s) => s.unsubscribe());
-            this.subscriptions = [];
+            sottoscrizioniTemp.forEach((s) => s.unsubscribe());
           })
       );
 
@@ -1198,6 +1201,7 @@ export class MailListService {
     codiciAziende.forEach((codiceAzienda) => {
       const azienda = this.loggedUser.getUtente().aziende.find((a) => a.codice === codiceAzienda);
       let item = new ItemMenu();
+      item.id = azienda.id;
       item.commandType = CommandType.URL;
       item.descrizione = longDescriptionItem ? azienda.descrizione : azienda.nome;
       item.openCommand = codiceAzienda;

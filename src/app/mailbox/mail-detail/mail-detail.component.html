@@ -129,7 +129,7 @@
       </li>
     </div>
   </div>
-  <p-accordion
+  <p-accordion value="0"
     [multiple]="true"
     class="multi-accordion-eml-detail"
   >
@@ -294,7 +294,7 @@
   [style]="{ height: '25rem' }"
 >
   <app-recepits [recepits]="message?.idRelatedList"> </app-recepits>
-  <p-footer>
+  <ng-template #footer>
     <button
       pButton
       icon="pi pi-times"
@@ -302,5 +302,5 @@
       label="Chiudi"
       class="ui-button-secondary"
     ></button>
-  </p-footer>
+  </ng-template>
 </p-dialog>

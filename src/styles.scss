@@ -1,115 +1,26 @@
-/* You can add global styles to this file, and also import other style files */
-@import "../node_modules/primeng/resources/themes/nova/theme.css";
-@import "../node_modules/primeng/resources/primeng.min.css";
-@import "../node_modules/primeicons/primeicons.css";
-@import "../node_modules/primeflex/primeflex.css";
-@import "../node_modules/@bds/common-components/assets/bds-styles/primeng.scss";
-@import "../node_modules/@bds/common-components/assets/bds-styles/material-icons.scss";
-@import "../node_modules/@bds/common-components/assets/bds-styles/custom-classes.scss";
-@import "../node_modules/@bds/common-components/assets/bds-styles/basic.scss";
-
-html,
-body {
-  height: 100%;
-  margin: 0;
-}
-
-body,
-.p-component {
-  font-family: "Open Sans", "Helvetica Neue", sans-serif !important;
-}
+@use "../node_modules/primeicons/primeicons.css" as *;
+@use "../node_modules/@bds/common-components/assets/bds-styles/material-icons.scss" as *;
+@use "../node_modules/@bds/common-components/assets/bds-styles/custom-classes.scss" as *;
+@use "../node_modules/@bds/common-components/assets/bds-styles/basic.scss" as *;
+@use "../node_modules/@bds/common-components/assets/bds-styles/primeng-customization.scss" as *;
+@use "tailwindcss" as *;
 
 app-mail-list .p-datatable-table.p-datatable-scrollable-table {
   table-layout: fixed;
 }
 
-
-//body a {
-//color: deepskyblue;
-//}
-// CLASSI NOSTRE
-::ng-deep body .custom-primary-button {
-  border: 0.06rem solid #000000 !important;
-  background-color: #2e4a65 !important;
-}
-
-::ng-deep body .custom-primary-button:hover {
-  border-color: #2e4a65 !important;
-  background-color: #2e4a65 !important;
-  color: #ffffff !important;
-}
-
-::ng-deep body .custom-border,
-body .custom-secondary-button {
-  border: 0.06rem solid #a6a6a6 !important;
-  white-space: nowrap;
-  color: #f4f4f4 !important;
-  background-color: #f4f4f4 !important;
-}
-
-// Responsive
-@media screen and (max-width: 1600px) {
-  html {
-    font-size: 95%;
+p-paginator {
+  p-select {
+    width: initial !important;
   }
 }
 
-@media screen and (max-width: 1500px) {
-  html {
-    font-size: 90%;
-  }
+.p-contextmenu-submenu {
+  max-height: 20rem;
+  overflow-y: auto;
 }
 
-@media screen and (max-width: 1400px) {
-  html {
-    font-size: 85%;
-  }
-}
-
-@media screen and (max-width: 1300px) {
-  html {
-    font-size: 80%;
-  }
-}
-
-@media screen and (max-width: 1200px) {
-  html {
-    font-size: 75%;
-  }
-}
-
-@media screen and (max-width: 1100px) {
-  html {
-    font-size: 70%;
-  }
-}
-
-// -----------CUSTOM SCROLLBAR----------------- //
-// CHROME
-
-::-webkit-scrollbar {
-  width: 0.625rem;
-  height: 0.625rem;
-}
-
-::-webkit-scrollbar-track {
-  background: #f1f1f1;
-}
-
-::-webkit-scrollbar-thumb {
-  background: #88888857;
-}
-
-::-webkit-scrollbar-thumb:hover {
-  background: #8888889c;
-}
-
-// FIREFOX
-* {
-  scrollbar-color: #88888857 #f1f1f1;
-  scrollbar-width: thin;
-}
-
-*:hover {
-  scrollbar-color: #8888889c #f1f1f1;
+.p-menu-list {
+  max-height: 20rem;
+  overflow-y: auto;
 }

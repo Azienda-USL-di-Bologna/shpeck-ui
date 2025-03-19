@@ -101,14 +101,14 @@
         "serve": {
           "builder": "@angular-devkit/build-angular:dev-server",
           "options": {
-            "browserTarget": "shpeck-ui:build"
+            "buildTarget": "shpeck-ui:build"
           },
           "configurations": {
             "production": {
-              "browserTarget": "shpeck-ui:build:production"
+              "buildTarget": "shpeck-ui:build:production"
             },
             "development": {
-              "browserTarget": "shpeck-ui:build:development"
+              "buildTarget": "shpeck-ui:build:development"
             }
           },
           "defaultConfiguration": "development"
@@ -116,7 +116,7 @@
         "extract-i18n": {
           "builder": "@angular-devkit/build-angular:extract-i18n",
           "options": {
-            "browserTarget": "shpeck-ui:build"
+            "buildTarget": "shpeck-ui:build"
           }
         },
         "test": {

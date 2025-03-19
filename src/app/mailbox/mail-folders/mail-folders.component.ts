@@ -26,10 +26,11 @@ import { Tree } from "primeng/tree";
 import { OverlayPanel } from "primeng/overlaypanel";
 
 @Component({
-  selector: "app-mail-folders",
-  templateUrl: "./mail-folders.component.html",
-  styleUrls: ["./mail-folders.component.scss"],
-  encapsulation: ViewEncapsulation.Emulated,
+    selector: "app-mail-folders",
+    templateUrl: "./mail-folders.component.html",
+    styleUrls: ["./mail-folders.component.scss"],
+    encapsulation: ViewEncapsulation.Emulated,
+    standalone: false
 })
 export class MailFoldersComponent implements OnInit, OnDestroy {
   // export class MailFoldersComponent implements OnInit {

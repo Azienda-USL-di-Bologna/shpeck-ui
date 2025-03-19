@@ -15,9 +15,9 @@
   overflow-x: auto;
 }
 
-::ng-deep #pec-mail-list .p-datatable .p-datatable-tbody > tr:nth-child(even) {
+/* ::ng-deep #pec-mail-list .p-datatable .p-datatable-tbody>tr:nth-child(even) {
   background-color: #f9f9f9;
-}
+} */
 
 .column-checkbox {
   width: 2rem;
@@ -168,12 +168,12 @@
 }
 
 .icon-default-color {
-  color: #2e4a65;
+  //color: #2e4a65;
 }
 
 .mail-icon {
   padding-left: 0.3rem;
-  color: #2e4a65;
+  //color: #2e4a65;
 }
 
 .update-registration-info-icon {
@@ -563,4 +563,13 @@
 .highligth-actual-string-search {
   color: #936;
   font-weight: bold;
+}
+
+.footer {
+  margin-top: 1rem;
+  display: flex;
+  justify-content: end;
+  .footer-button {
+    margin-left: 0.5rem;
+  }
 }
