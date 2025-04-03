@@ -587,12 +587,22 @@ export class NewMailComponent implements OnInit, AfterViewInit, OnDestroy {
    * @param formField
    */
   public onKeyUpNew(e: Event, formField: string) {
-    // console.log("keyup")
+    if (this.inizioRicercaContatti) {
+      return;
+    }
+    //   http://localhost:4200/mailbox
+    console.log("onKeyUpNew, event: ", e);
+
     const event = e as KeyboardEvent;
     if (event.key === "Enter" || event.type === "blur") {
       const tokenInput = event.target as any;
+      //e.preventDefault();
+      //e.stopPropagation();
+
       tokenInput.value = tokenInput.value.trim();
+      //const inputValue = tokenInput.value.trim();
       if (tokenInput.value && tokenInput.value !== "" && this.emailRegex.test(tokenInput.value)) {
+        console.log("value email valido");
         const itemFilterContactMultiple = {
           tipo: "ESTEMPORANEO",
           descrizione: tokenInput.value,
@@ -600,8 +610,10 @@ export class NewMailComponent implements OnInit, AfterViewInit, OnDestroy {
         } as FilteredContactMultiple;
         this.onSelectOrOnEnter(itemFilterContactMultiple, formField);
         tokenInput.value = "";
-        this.filteredAddressMultiple.splice(0, this.filteredAddressMultiple.length);
+        this.filteredAddressMultiple = [];
+        console.log("splice effettuato, fine dell'elaborazione per quanto posso vedere");
       } else if (event.type === "blur" && tokenInput.value && !this.emailRegex.test(tokenInput.value)) {
+        console.log("blur e mail non valida");
         if (formField) {
           if (formField === "to") {
             this.isMailValid = false;
@@ -610,6 +622,7 @@ export class NewMailComponent implements OnInit, AfterViewInit, OnDestroy {
           }
         }
       } else if (event.type === "blur" && tokenInput.value === "") {
+        console.log("blur e value vuoto");
         if (formField) {
           if (formField === "to") {
             this.isMailValid = true;
@@ -628,6 +641,7 @@ export class NewMailComponent implements OnInit, AfterViewInit, OnDestroy {
    * @param formField
    */
   private onSelectOrOnEnter(item: FilteredContactMultiple, formField: string): void {
+    console.log("onSelectOrOnEnter");
     const form =
       formField === "to" ? (this.mailForm.get("to") as UntypedFormArray) : (this.mailForm.get("cc") as UntypedFormArray);
     const autocomplete = formField === "to" ? this.toAutoComplete : this.ccAutoComplete;
@@ -636,6 +650,7 @@ export class NewMailComponent implements OnInit, AfterViewInit, OnDestroy {
         item.descrizioneDettaglioContatto = item.descrizioneDettaglioContatto.trim();
         //item.descrizione = item.descrizione.trim();
         if (form.value.indexOf(item.descrizioneDettaglioContatto) === -1) {
+          console.log("item che sto inserendo: ", item);
           // INSERISCO L'ELEMENTO NEL FORM
           form.push(
             new UntypedFormControl(item.descrizioneDettaglioContatto, {
@@ -643,6 +658,7 @@ export class NewMailComponent implements OnInit, AfterViewInit, OnDestroy {
               updateOn: "blur",
             })
           );
+          autocomplete.clear();
           autocomplete.writeValue(form.value);
           if (formField === "cc" && form.value && form.value.length > 0) {
             const hideRecipients = this.mailForm.get("hideRecipients");
@@ -651,6 +667,7 @@ export class NewMailComponent implements OnInit, AfterViewInit, OnDestroy {
           if (this.mailForm.pristine) {
             this.mailForm.markAsDirty();
           }
+          console.log("item inserito");
         } else {
           // SE SONO QUI L'INDIRIZZO INSERITO è UN DOPPIONE
 
@@ -992,10 +1009,18 @@ export class NewMailComponent implements OnInit, AfterViewInit, OnDestroy {
   //   this.filteredAddressSingle = this.filterAddress(query, this.indirizziTest);
   // }
 
+  private inizioRicercaContatti = false;
+  private subscriptionsRicercaContatti: Subscription[] = [];
+
   public filterAddressMultiple(event: any): void {
+    this.subscriptionsRicercaContatti.forEach((subscription) => subscription.unsubscribe());
+    this.subscriptionsRicercaContatti = [];
+    this.inizioRicercaContatti = true;
+    this.filteredAddressMultiple = [];
+
+    console.log("event", event);
     const query = event.query;
     if (this.checkIfRubricaInternautaShouldBeEnabled()) {
-      this.filteredAddressMultiple.splice(0, this.filteredAddressMultiple.length);
       this.loadEmailsFromDettaglioContatto(query);
       this.loadGruppo(query);
     } else {
@@ -1020,7 +1045,7 @@ export class NewMailComponent implements OnInit, AfterViewInit, OnDestroy {
     filtersAndSorts.addFilter(new FilterDefinition("idContatto.tscol", FILTER_TYPES.not_string.equals, query));
 
     // filtersAndSorts.addFilter(new FilterDefinition("tscol", FILTER_TYPES.not_string.equals, query));
-    this.subscriptions.push(
+    this.subscriptionsRicercaContatti.push(
       this.dettaglioContattoService.getData(projection, filtersAndSorts).subscribe(
         (res) => {
           res.results.forEach((dettaglioContatto: DettaglioContatto) => {
@@ -1071,7 +1096,7 @@ export class NewMailComponent implements OnInit, AfterViewInit, OnDestroy {
     filtersAndSorts.addFilter(new FilterDefinition("categoria", FILTER_TYPES.not_string.equals, CategoriaContatto.GRUPPO));
     filtersAndSorts.addFilter(new FilterDefinition("eliminato", FILTER_TYPES.not_string.equals, false));
     filtersAndSorts.addFilter(new FilterDefinition("protocontatto", FILTER_TYPES.not_string.equals, false));
-    this.subscriptions.push(
+    this.subscriptionsRicercaContatti.push(
       this.contattoService.getData(projection, filtersAndSorts).subscribe(
         (res) => {
           if (res.results.length > 0) {
@@ -1086,6 +1111,7 @@ export class NewMailComponent implements OnInit, AfterViewInit, OnDestroy {
             //this.filteredAddressMultiple.push({descrizione: "ciao"} as FilteredContactMultiple);
             this.filteredAddressMultiple = [...this.filteredAddressMultiple];
           }
+          this.inizioRicercaContatti = false;
         },
         (err) => {
           console.log("error");

@@ -41,10 +41,9 @@
             placeholder="Seleziona contatti..."
             [minLength]="1"
             [multiple]="true"
+            emptyMessage="Indirizzo non trovato, premere invio per inserire un indirizzo estermporaneo"
           >
-            <ng-template #empty>
-              Indirizzo non trovato, premere invio per inserire un indirizzo estermporaneo
-            </ng-template>
+            
             <ng-template
               let-value
               #selectedItem
