@@ -155,7 +155,7 @@ export class ToolBarService {
           const isDeleteActive = this.mailListService.isDeleteActive();
           this.buttonsObservables.get("deleteActive").next(isDeleteActive);
 
-          if (this.selectedMessages.length === 1) {
+          if (this.selectedMessages?.length === 1) {
             this.preparaBottoneProtocolla();
             const isRegistrationActive = this.mailListService.isRegisterActive(this.selectedMessages[0]);
             this.buttonsObservables.get("registrationActive").next(isRegistrationActive);

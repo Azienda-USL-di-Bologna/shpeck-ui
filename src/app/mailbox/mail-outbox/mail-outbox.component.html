@@ -8,7 +8,7 @@
     [columns]="cols"
     [paginator]="false"
     [loading]="loading"
-    [autoLayout]="true"
+    
     [totalRecords]="totalRecords"
     [(selection)]="selectedOutboxMails"
     contextMenuSelectionMode="joint"
@@ -18,7 +18,7 @@
     [rows]="rowsNmber"
     [rowTrackBy]="trackByFn"
     [scrollable]="true"
-    [virtualRowHeight]="virtualRowHeight"
+    [virtualScrollItemSize]="virtualRowHeight"
     [virtualScroll]="true"
     [virtualScrollDelay]="150"
     (onRowSelect)="handleEvent('onRowSelect', $event)"

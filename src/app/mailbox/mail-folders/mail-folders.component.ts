@@ -20,17 +20,16 @@ import {
 import { FilterDefinition, FiltersAndSorts, FILTER_TYPES } from "@bds/next-sdr";
 import { OutboxLiteService } from "src/app/services/outbox-lite.service";
 import { DraftLiteService } from "src/app/services/draft-lite.service";
-import { filter } from "rxjs/operators";
 import { ContextMenu } from "primeng/contextmenu";
 import { Tree } from "primeng/tree";
-import { OverlayPanel } from "primeng/overlaypanel";
+import { Popover } from "primeng/popover";
 
 @Component({
-    selector: "app-mail-folders",
-    templateUrl: "./mail-folders.component.html",
-    styleUrls: ["./mail-folders.component.scss"],
-    encapsulation: ViewEncapsulation.Emulated,
-    standalone: false
+  selector: "app-mail-folders",
+  templateUrl: "./mail-folders.component.html",
+  styleUrls: ["./mail-folders.component.scss"],
+  encapsulation: ViewEncapsulation.Emulated,
+  standalone: false,
 })
 export class MailFoldersComponent implements OnInit, OnDestroy {
   // export class MailFoldersComponent implements OnInit {
@@ -43,7 +42,7 @@ export class MailFoldersComponent implements OnInit, OnDestroy {
 
   @ViewChild("cm", {}) public cm: ContextMenu;
   @ViewChild("tree", {}) public tree: Tree;
-  @ViewChild("op", {}) public op: OverlayPanel;
+  @ViewChild("op", {}) public op: Popover;
   // @ViewChildren("actualTarget", null) public actualTarget: ElementRef[];
   @ViewChildren("folderInput", {}) public folderInput: ElementRef[];
 
