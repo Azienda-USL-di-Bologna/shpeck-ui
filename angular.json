@@ -31,7 +31,6 @@
             "index": "src/index.html",
             "polyfills": ["src/polyfills.ts"],
             "tsConfig": "src/tsconfig.app.json",
-            "externalDependencies": ["ngx-extended-pdf-viewer"],
             "browser": "src/main.ts",
             "assets": ["src/favicon.ico", "src/assets", "src/app"],
             "styles": [
