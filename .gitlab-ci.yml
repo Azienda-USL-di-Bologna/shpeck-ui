@@ -17,7 +17,7 @@ variables:
 default:
   # It saves ~10 sec to pull image from project container registry
   # instead of the default docker.io registry
-  image: node:20.14
+  image: node:22.18
   tags:
     - babel
 
