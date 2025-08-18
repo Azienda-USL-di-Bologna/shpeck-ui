@@ -6,7 +6,6 @@ import { AccordionModule } from "primeng/accordion";
 import { ToolbarModule } from "primeng/toolbar";
 import { SplitButtonModule } from "primeng/splitbutton";
 import { DialogModule } from "primeng/dialog";
-import { InputSwitchModule } from "primeng/inputswitch";
 import { AutoCompleteModule } from "primeng/autocomplete";
 import { CheckboxModule } from "primeng/checkbox";
 import { InputTextModule } from "primeng/inputtext";
@@ -26,10 +25,10 @@ import { DynamicDialogModule } from "primeng/dynamicdialog";
 import { DatePickerModule } from "primeng/datepicker";
 import { TooltipModule } from "primeng/tooltip";
 import { SelectModule } from "primeng/select";
-import { OverlayPanelModule } from "primeng/overlaypanel";
 import { SplitterModule } from "primeng/splitter";
 import { PopoverModule } from "primeng/popover";
 import { ChipModule } from "primeng/chip";
+import { ToggleSwitchModule } from "primeng/toggleswitch";
 
 @NgModule({
   declarations: [],
@@ -45,8 +44,6 @@ import { ChipModule } from "primeng/chip";
     ToolbarModule,
     SplitButtonModule,
     DialogModule,
-    OverlayPanelModule,
-    InputSwitchModule,
     AutoCompleteModule,
     CheckboxModule,
     InputTextModule,
@@ -65,6 +62,7 @@ import { ChipModule } from "primeng/chip";
     SplitterModule,
     PopoverModule,
     ChipModule,
+    ToggleSwitchModule,
   ],
   exports: [
     DynamicDialogModule,
@@ -78,8 +76,6 @@ import { ChipModule } from "primeng/chip";
     ToolbarModule,
     SplitButtonModule,
     DialogModule,
-    OverlayPanelModule,
-    InputSwitchModule,
     AutoCompleteModule,
     CheckboxModule,
     InputTextModule,
@@ -98,6 +94,7 @@ import { ChipModule } from "primeng/chip";
     SplitterModule,
     PopoverModule,
     ChipModule,
+    ToggleSwitchModule,
   ],
 })
 export class PrimengModule {}

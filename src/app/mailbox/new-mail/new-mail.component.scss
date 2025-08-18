@@ -170,9 +170,9 @@ input:focus {
 }
 
 ::ng-deep p-editor>div {
-  height: 100%;
-  display: flex;
-  flex-flow: column;
+  /* height: 100%;
+  display: flex; */
+  //flex-flow: column;
 }
 
 /******* Close button *******/

@@ -28,8 +28,8 @@
   contextMenuSelectionMode="joint"
   [ngClass]="mailListService?.totalRecords > 0 ? '' : 'no-records-found'"
   ><!-- [paginator]="false" 
-  [totalRecords]="mailListService.totalRecords"  [autoLayout]="true"
-  [responsive]="true" -->
+  [totalRecords]="mailListService.totalRecords"  
+   -->
   <ng-template
     pTemplate="body"
     let-rowData
@@ -561,7 +561,7 @@
   [(visible)]="displayNote"
   [modal]="true"
   [closable]="false"
-  [responsive]="true"
+  
   [style]="{ width: '21.875rem', minWidth: '16.5rem' }"
   [minY]="60"
   [baseZIndex]="10000"
@@ -811,7 +811,7 @@ class="ui-button-raised ui-button-secondary button-styles custom-secondary-butto
   [contentStyle]="{ display: 'flex', 'flex-direction': 'column', 'align-items': 'center' }"
   appendTo="body"
   header="Fascicola PEC"
-  [responsive]="false"
+  
   [focusOnShow]="false"
 >
   <!-- [styleClass]="'p-sm-10 p-md-4'" -->
