@@ -1383,9 +1383,10 @@ export class MailListComponent implements OnInit, OnDestroy, AfterViewInit {
   }
 
   trackByFn(index: any, item: any) {
-    if (item) {
+    /*  if (item) {
       return item.id;
-    }
+    } */
+    return index;
   }
 
   public handleEvent(name: string, event: any) {

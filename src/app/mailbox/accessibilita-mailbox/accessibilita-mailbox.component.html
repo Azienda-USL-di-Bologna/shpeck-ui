@@ -7,37 +7,36 @@
         ? 'general-font-size-medium'
         : 'general-font-size-big'
   "
->
+  >
   <div>
     <app-toolbar mode="intestazione-accessibilita"></app-toolbar>
   </div>
-  <div
-    #mailContainer
-    class="mail-container"
-    *ngIf="true"
-  >
-    <!-- Left side -->
+  @if (true) {
     <div
-      #mailFolder
-      class="content-left"
-    >
-      <app-mail-folders></app-mail-folders>
+      #mailContainer
+      class="mail-container"
+      >
+      <!-- Left side -->
+      <div
+        #mailFolder
+        class="content-left"
+        >
+        <app-mail-folders></app-mail-folders>
+      </div>
+      <div
+        #leftSlider
+        class="slider text-center"
+        >
+        <div></div>
+      </div>
+      <div
+        #rightSide
+        class="content-right"
+        >
+        <router-outlet></router-outlet>
+      </div>
     </div>
-
-    <div
-      #leftSlider
-      class="slider text-center"
-    >
-      <div></div>
-    </div>
-
-    <div
-      #rightSide
-      class="content-right"
-    >
-      <router-outlet></router-outlet>
-    </div>
-  </div>
+  }
 </div>
 <p-toast
   key="c"
