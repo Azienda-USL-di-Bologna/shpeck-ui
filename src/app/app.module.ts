@@ -3,16 +3,13 @@ import { BrowserAnimationsModule } from "@angular/platform-browser/animations";
 import { NgModule } from "@angular/core";
 import { DatePipe } from "@angular/common";
 import { FormsModule, ReactiveFormsModule } from "@angular/forms";
-
 import { AppRoutingModule } from "./app-routing.module";
 import { AppComponent } from "./app.component";
 import { PrimengModule } from "./primeng.module";
 import { CommonComponentsModule, HeaderModule, HeaderFeaturesModule } from "@bds/common-components";
 import { RubrintModule } from "@bds/rubrint";
-
 import { MailboxComponent } from "./mailbox/mailbox.component";
 import { MailListComponent } from "./mailbox/mail-list/mail-list.component";
-
 import { ReaddressComponent } from "./mailbox/readdress/readdress.component";
 import { SearchContactComponent } from "./search-contact/search-contact.component";
 
@@ -42,22 +39,18 @@ import { MailDraftsComponent } from "./mailbox/mail-drafts/mail-drafts.component
 import { MailOutboxComponent } from "./mailbox/mail-outbox/mail-outbox.component";
 import { StripeHtmlPipe } from "./pipes/stripe-html.pipe";
 import { MailListService } from "./mailbox/mail-list/mail-list.service";
-
-// incon - font - styles
 import { MatIconModule } from "@angular/material/icon";
 import { RubricaContainerComponent } from "./rubrica/rubrica-container/rubrica-container.component";
-import { DialogService } from "primeng/dynamicdialog";
 import { MailFoldersModule } from "./mailbox/mail-folders/mail-folders.module";
-
-import { RouteReuseStrategy, RouterModule } from "@angular/router";
+import { RouteReuseStrategy } from "@angular/router";
 import { CustomReuseStrategy } from "./custom-reuse-strategy";
 import { MailDetailModule } from "./mailbox/mail-detail/mail-detail.module";
 import { LandingRoutingComponent } from "./landing-routing/landing-routing.component";
 import { MatMenuModule } from "@angular/material/menu";
 import { ShpeckToolbarModule } from "./mailbox/toolbar/shpeck-toolbar.module";
 import { NgIdleKeepaliveModule } from "@ng-idle/keepalive";
-
 import { appConfig } from "./app.config";
+import { DialogService } from "primeng/dynamicdialog";
 
 registerLocaleData(localeIt, "it-IT", localeItExtra);
 
