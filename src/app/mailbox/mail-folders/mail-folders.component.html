@@ -10,12 +10,12 @@
   (selectionChange)="handleNodeSelect('selectionChange', $event)"
   [contextMenu]="cm"
   class="tree-folder"
->
+  >
   <!-- temaplate del singolo nodo -->
   <ng-template
     let-node
     pTemplate="default"
-  >
+    >
     <!-- Versione nodo in modalità editing -->
     <input
       #folderInput
@@ -32,49 +32,50 @@
       (keydown.esc)="onEscPressed($event)"
       [attr.disabled]="node.editable ? null : ''"
       (keydown)="$event.stopPropagation()"
-    />
+      />
 
-    <!-- Versione nodo in modalità sola lettura -->
-    @if (!node.editable) {
-      <div
-        #actualTarget
-        aria-label="cartella"
-        [ngStyle]="{ 'font-style': node.data.type === 'pec' && !node.data.data.attiva ? 'italic' : 'normal' }"
-        pTooltip="{{ buildTooltipForNode(node) }}"
-        tooltipPosition="top"
-      >
-        {{ node.label + (node.unreadMessages > 0 ? " (" + node.unreadMessages + ")" : "") }}
-        {{ node.data.type === "pec" && !node.data.data.attiva ? "- disattivata" : "" }}
-      </div>
-    }
-
-    <!-- Pannello del cambia colore a icona -->
-    <p-popover
-      #op
-      appendTo="body"
-      (onHide)="pickerOverlayHiding()"
-    >
-      <div class="restore-color">
-        Ripristina
-        <!-- <span style="height: 0.5em; width: 0.5em;"> -->
-        <i
-          type="button"
-          class="button-restore"
-          (click)="ripristinaColor()"
+      <!-- Versione nodo in modalità sola lettura -->
+      @if (!node.editable) {
+        <div
+          #actualTarget
+          aria-label="cartella"
+          [ngStyle]="{ 'font-style': node.data.type === 'pec' && !node.data.data.attiva ? 'italic' : 'normal' }"
+          pTooltip="{{ buildTooltipForNode(node) }}"
           tooltipPosition="top"
-          pTooltip="Ripristina il colore di default"
+          >
+          {{ node.label + (node.unreadMessages > 0 ? " (" + node.unreadMessages + ")" : "") }}
+          {{ node.data.type === "pec" && !node.data.data.attiva ? "- disattivata" : "" }}
+        </div>
+      }
+
+      <!-- Pannello del cambia colore a icona -->
+      <p-popover
+        #op
+        appendTo="body"
+        (onHide)="pickerOverlayHiding()"
         >
-        </i>
+        <div class="restore-color">
+          Ripristina
+          <!-- <span style="height: 0.5em; width: 0.5em;"> -->
+          <i
+            type="button"
+            class="button-restore"
+            (click)="ripristinaColor()"
+            tooltipPosition="top"
+            pTooltip="Ripristina il colore di default"
+            >
+          </i>
         <!-- </span> -->
       </div>
       <div>
-        <p-colorPicker
-          [(ngModel)]="color"
-          *ngIf="pickershow"
-          [inline]="true"
-          appendTo="body"
-          (onChange)="nodeColorIsActuallyChanging()"
-        ></p-colorPicker>
+        @if (pickershow) {
+          <p-colorPicker
+            [(ngModel)]="color"
+            [inline]="true"
+            appendTo="body"
+            (onChange)="nodeColorIsActuallyChanging()"
+          ></p-colorPicker>
+        }
       </div>
       <div class="buttons-color-picker">
         <button
