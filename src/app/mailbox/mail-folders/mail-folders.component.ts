@@ -1347,19 +1347,19 @@ export class MailFoldersComponent implements OnInit, OnDestroy {
       const folder = this.selectedNode.data.data as Folder;
       let a: any = {};
       if (folder.additionalData) {
-        a = JSON.parse(folder.additionalData);
+        a = folder.additionalData; //JSON.parse(folder.additionalData);
       }
       a.color = this.color;
-      folder.additionalData = JSON.stringify(a);
+      folder.additionalData = a; //JSON.stringify(a);
       this.updateFolder(folder);
     } else if (nodeType === PecFolderType.TAG) {
       const tag = this.selectedNode.data.data as Tag;
       let a: any = {};
       if (tag.additionalData) {
-        a = JSON.parse(tag.additionalData);
+        a = tag.additionalData; //JSON.parse(tag.additionalData);
       }
       a.color = this.color;
-      tag.additionalData = JSON.stringify(a);
+      tag.additionalData = a; //JSON.stringify(a);
       this.updateTag(tag);
     }
     this.initialColor = this.color;
