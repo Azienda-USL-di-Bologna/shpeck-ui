@@ -5,12 +5,14 @@
   #dt
   id="pec-mail-list"
   [value]="messages"
+
   dataKey="id"
   [metaKeySelection]="true"
   selectionMode="multiple"
   [(selection)]="mailListService.selectedMessages"
   (onRowSelect)="handleEvent('onRowSelect', $event)"
   (onRowUnselect)="handleEvent('onRowUnselect', $event)"
+  
   [columns]="cols"
   [rows]="rowsNumber"
   [contextMenu]="cm"
