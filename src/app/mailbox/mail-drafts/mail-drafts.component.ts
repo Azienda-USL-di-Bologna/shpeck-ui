@@ -22,10 +22,10 @@ import {
 } from "@bds/common-tools";
 
 @Component({
-    selector: "app-mail-drafts",
-    templateUrl: "./mail-drafts.component.html",
-    styleUrls: ["./mail-drafts.component.scss"],
-    standalone: false
+  selector: "app-mail-drafts",
+  templateUrl: "./mail-drafts.component.html",
+  styleUrls: ["./mail-drafts.component.scss"],
+  standalone: false,
 })
 export class MailDraftsComponent implements OnInit, OnDestroy {
   public _selectedPecId: number;
@@ -323,7 +323,7 @@ export class MailDraftsComponent implements OnInit, OnDestroy {
   }
 
   public trackByFn(index: any, item: any) {
-    return item.id;
+    return item?.id;
   }
 
   public deletingConfirmation() {

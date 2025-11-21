@@ -22,10 +22,10 @@ import {
 } from "@bds/common-tools";
 
 @Component({
-    selector: "app-mail-outbox",
-    templateUrl: "./mail-outbox.component.html",
-    styleUrls: ["./mail-outbox.component.scss"],
-    standalone: false
+  selector: "app-mail-outbox",
+  templateUrl: "./mail-outbox.component.html",
+  styleUrls: ["./mail-outbox.component.scss"],
+  standalone: false,
 })
 export class MailOutboxComponent implements OnInit, OnDestroy {
   public _selectedPecId: number;
@@ -446,7 +446,7 @@ export class MailOutboxComponent implements OnInit, OnDestroy {
   }
 
   trackByFn(index: any, item: any) {
-    return item.id;
+    return item?.id;
   }
 
   ngOnDestroy() {
