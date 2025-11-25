@@ -1,7 +1,7 @@
 import { Component, OnInit } from "@angular/core";
 import { JwtLoginService, UtenteUtilities } from "@bds/jwt-login";
 import { Router } from "@angular/router";
-import { ACCESSIBLE_MAILBOX_ROUTE, MAILBOX_ROUTE } from "src/environments/app-constants";
+import { ACCESSIBLE_MAILBOX_ROUTE, MAILBOX_ROUTE } from "@bds/shpeck";
 
 @Component({
     selector: "app-landing-routing",

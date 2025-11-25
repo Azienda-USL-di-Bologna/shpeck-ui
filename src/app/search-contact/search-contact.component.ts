@@ -1,6 +1,6 @@
 import { Component, OnInit, ViewChild, ElementRef, Output, EventEmitter } from "@angular/core";
 import { HttpClient } from "@angular/common/http";
-import { RubricaService } from "../services/rubrica.service";
+import { RubricaService } from "@bds/shpeck";
 import { UntypedFormGroup, Validators, UntypedFormControl } from "@angular/forms";
 import { AutoComplete } from "primeng/autocomplete";
 import { MessageService } from "primeng/api";

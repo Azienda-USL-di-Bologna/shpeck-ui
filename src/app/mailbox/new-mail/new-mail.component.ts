@@ -23,8 +23,7 @@ import {
   Email,
 } from "@bds/internauta-model";
 import { Editor } from "primeng/editor";
-import { TOOLBAR_ACTIONS, MAX_FILE_SIZE_UPLOAD } from "src/environments/app-constants";
-import { DraftService } from "src/app/services/draft.service";
+import { TOOLBAR_ACTIONS, MAX_FILE_SIZE_UPLOAD, DraftService } from "@bds/shpeck";
 import {
   FiltersAndSorts,
   FilterDefinition,

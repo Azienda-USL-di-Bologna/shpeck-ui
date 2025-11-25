@@ -6,8 +6,7 @@ import { Outbox, ENTITIES_STRUCTURE } from "@bds/internauta-model";
 import { DatePipe } from "@angular/common";
 import { HttpClient } from "@angular/common/http";
 import { MessageService } from "primeng/api";
-import { getInternautaUrl, BaseUrlType, CUSTOM_SERVER_METHODS, EMLSOURCE } from "src/environments/app-constants";
-import { EmlData } from "../classes/eml-data";
+import { getInternautaUrl, BaseUrlType, CUSTOM_SERVER_METHODS, EMLSOURCE, EmlData } from "@bds/shpeck";
 
 /**
  * Descrive l'evento che viene notificato dalla funzione manageOutboxEvent

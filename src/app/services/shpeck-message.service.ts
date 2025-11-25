@@ -2,11 +2,9 @@ import { Injectable } from "@angular/core";
 import { NextSDREntityProvider } from "@bds/next-sdr";
 import { HttpClient } from "@angular/common/http";
 import { DatePipe } from "@angular/common";
-import { getInternautaUrl, BaseUrlType, CUSTOM_SERVER_METHODS, EMLSOURCE } from "src/environments/app-constants";
+import { getInternautaUrl, BaseUrlType, CUSTOM_SERVER_METHODS, EMLSOURCE, EmlAttachment, EmlData } from "@bds/shpeck";
 import { ENTITIES_STRUCTURE, Message, Draft, Outbox, ArchivioDetailView } from "@bds/internauta-model";
 import { Observable, BehaviorSubject } from "rxjs";
-import { EmlAttachment } from "../classes/eml-attachment";
-import { EmlData } from "../classes/eml-data";
 
 @Injectable({
   providedIn: "root",

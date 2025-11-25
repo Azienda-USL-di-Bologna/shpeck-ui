@@ -1,14 +1,8 @@
 import { Component, ElementRef, OnDestroy, OnInit, ViewChild } from "@angular/core";
 import { JwtLoginService, UtenteUtilities } from "@bds/jwt-login";
 import { Subscription } from "rxjs";
-import { SettingsService } from "src/app/services/settings.service";
-import { ShpeckMessageService, MessageEvent } from "src/app/services/shpeck-message.service";
-import { MailFoldersService, PecFolder, PecFolderType } from "../../mail-folders/mail-folders.service";
-import { MailListService } from "../../mail-list/mail-list.service";
-import { ToolBarService, UserFilters } from "../../toolbar/toolbar.service";
+import { SettingsService, ShpeckMessageService, MessageEvent, MailFoldersService, PecFolder, PecFolderType, MailListService, ToolBarService, UserFilters, BaseUrls, BaseUrlType, EMLSOURCE, FONTSIZE, TOOLBAR_ACTIONS, MailboxService, Sorting } from "@bds/shpeck";
 import { AppCustomization } from "src/environments/app-customization";
-import { BaseUrls, BaseUrlType, EMLSOURCE, FONTSIZE, TOOLBAR_ACTIONS } from "src/environments/app-constants";
-import { MailboxService, Sorting } from "../../mailbox.service";
 import { Table } from "primeng/table";
 import {
   IntimusClientService,
@@ -40,7 +34,7 @@ import { Utils } from "src/app/utils/utils";
 import { NoteService } from "src/app/services/note.service";
 import { Router, ActivatedRoute, NavigationStart, NavigationEnd } from "@angular/router";
 import { CustomReuseStrategy } from "src/app/custom-reuse-strategy";
-import { COMMON_MENU_ITEMS } from "src/app/classes/common-menu-items";
+import { COMMON_MENU_ITEMS } from "@bds/shpeck";
 
 @Component({
   selector: "accessibilita-mail-list",

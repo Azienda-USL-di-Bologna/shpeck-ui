@@ -1,5 +1,5 @@
 import { Component, OnInit, ViewChild } from "@angular/core";
-import { FONTSIZE } from "src/environments/app-constants";
+import { FONTSIZE } from "@bds/shpeck";
 import { RouterOutlet, ActivationStart, Router } from "@angular/router";
 
 @Component({

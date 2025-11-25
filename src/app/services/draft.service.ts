@@ -3,9 +3,8 @@ import { NextSDREntityProvider, BatchOperation, BatchOperationTypes } from "@bds
 import { DatePipe } from "@angular/common";
 import { HttpClient } from "@angular/common/http";
 import { ENTITIES_STRUCTURE, Draft } from "@bds/internauta-model";
-import { getInternautaUrl, BaseUrlType, CUSTOM_SERVER_METHODS, EMLSOURCE, BaseUrls } from "src/environments/app-constants";
+import { getInternautaUrl, BaseUrlType, CUSTOM_SERVER_METHODS, EMLSOURCE, BaseUrls, EmlData } from "@bds/shpeck";
 import { BehaviorSubject, Observable } from "rxjs";
-import { EmlData } from "../classes/eml-data";
 import { MessageService } from "primeng/api";
 import { FullMessage } from "./shpeck-message.service";
 

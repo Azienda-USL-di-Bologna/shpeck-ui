@@ -1,14 +1,9 @@
 import { Component, OnInit, ViewEncapsulation, OnDestroy, ViewChild, ElementRef, ViewChildren } from "@angular/core";
 import { Pec, Folder, FolderType, Tag, TagType, Utente } from "@bds/internauta-model";
-import { PecService } from "src/app/services/pec.service";
+import { PecService, MailFoldersService, PecFolder, PecFolderType, FolderService, TagService, MailListService, ShpeckMessageService, OutboxLiteService, DraftLiteService } from "@bds/shpeck";
 import { TreeNode, MenuItem, MessageService } from "primeng/api";
-import { MailFoldersService, PecFolder, PecFolderType } from "./mail-folders.service";
 import { Subscription } from "rxjs";
-import { FolderService } from "src/app/services/folder.service";
-import { TagService } from "src/app/services/tag.service";
-import { MailListService } from "../mail-list/mail-list.service";
 import { UtenteUtilities, JwtLoginService } from "@bds/jwt-login";
-import { ShpeckMessageService } from "src/app/services/shpeck-message.service";
 import {
   IntimusClientService,
   IntimusCommand,
@@ -18,8 +13,6 @@ import {
   RefreshMailsParamsEntities,
 } from "@bds/common-tools";
 import { FilterDefinition, FiltersAndSorts, FILTER_TYPES } from "@bds/next-sdr";
-import { OutboxLiteService } from "src/app/services/outbox-lite.service";
-import { DraftLiteService } from "src/app/services/draft-lite.service";
 import { ContextMenu } from "primeng/contextmenu";
 import { Tree } from "primeng/tree";
 import { Popover } from "primeng/popover";

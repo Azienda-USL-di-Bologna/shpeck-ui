@@ -1,15 +1,8 @@
-import { MailboxService } from "./../mailbox.service";
+import { MailboxService, NewMailComponent, MessageEvent, ShpeckMessageService, DraftService, DraftEvent, TOOLBAR_ACTIONS, PecFolderType, MailFoldersService, PecFolder, FoldersAndTags, PecService, MailListService } from "@bds/shpeck";
 import { Injectable } from "@angular/core";
 import { BehaviorSubject, Observable, Subscription } from "rxjs";
 import { Draft, Pec, Folder, Message, FolderType, Tag, ItemMenu } from "@bds/internauta-model";
-import { NewMailComponent } from "../new-mail/new-mail.component";
 import { MessageService, MenuItem } from "primeng/api";
-import { MessageEvent, ShpeckMessageService } from "src/app/services/shpeck-message.service";
-import { DraftService, DraftEvent } from "src/app/services/draft.service";
-import { TOOLBAR_ACTIONS } from "src/environments/app-constants";
-import { PecFolderType, MailFoldersService, PecFolder, FoldersAndTags } from "../mail-folders/mail-folders.service";
-import { PecService } from "src/app/services/pec.service";
-import { MailListService } from "../mail-list/mail-list.service";
 import { UtenteUtilities, JwtLoginService } from "@bds/jwt-login";
 import { DialogService } from "primeng/dynamicdialog";
 

@@ -1,14 +1,12 @@
 import { Component, OnInit, OnDestroy } from "@angular/core";
 import { UntypedFormGroup, UntypedFormControl, Validators } from "@angular/forms";
-import { ShpeckMessageService } from "src/app/services/shpeck-message.service";
+import { ShpeckMessageService, PecService, CUSTOM_SERVER_METHODS, BaseUrlType, getInternautaUrl } from "@bds/shpeck";
 import { DialogService, DynamicDialogConfig, DynamicDialogRef } from "primeng/dynamicdialog";
 import { Subscription } from "rxjs";
-import { PecService } from "src/app/services/pec.service";
 import { Pec, ENTITIES_STRUCTURE, Tag, Message, MessageTag } from "@bds/internauta-model";
 import { FiltersAndSorts, SortDefinition, SORT_MODES, FilterDefinition, FILTER_TYPES, PagingConf } from "@bds/next-sdr";
 import { JwtLoginService, UtenteUtilities } from "@bds/jwt-login";
 import { HttpClient } from "@angular/common/http";
-import { CUSTOM_SERVER_METHODS, BaseUrlType, getInternautaUrl } from "src/environments/app-constants";
 
 @Component({
     selector: "app-readdress",

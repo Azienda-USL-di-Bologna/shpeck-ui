@@ -1,8 +1,7 @@
 import { Component, OnInit, OnDestroy } from "@angular/core";
 import { JwtLoginService, UtenteUtilities } from "@bds/jwt-login";
-import { SettingsService } from "src/app/services/settings.service";
+import { SettingsService, FONTSIZE } from "@bds/shpeck";
 import { Subscription } from "rxjs";
-import { FONTSIZE } from "src/environments/app-constants";
 import { DynamicDialogRef } from "primeng/dynamicdialog";
 
 @Component({

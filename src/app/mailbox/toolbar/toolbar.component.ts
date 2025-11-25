@@ -1,13 +1,9 @@
 import { Component, OnDestroy, ViewChild, ElementRef, AfterViewInit, Input } from "@angular/core";
 import { ConfirmationService, MenuItem } from "primeng/api";
 import { Subscription, Observable } from "rxjs";
-import { TOOLBAR_ACTIONS } from "src/environments/app-constants";
+import { TOOLBAR_ACTIONS, PecService, ToolBarService, UserFilters, RicercaAvanzataFilters, MailFoldersService, PecFolderType, MailListService } from "@bds/shpeck";
 import { Pec, Folder, FolderType, Tag, ItemMenu } from "@bds/internauta-model";
-import { PecService } from "src/app/services/pec.service";
 import { FilterDefinition, FILTER_TYPES, SORT_MODES } from "@bds/next-sdr";
-import { RicercaAvanzataFilters, ToolBarService, UserFilters } from "./toolbar.service";
-import { MailFoldersService, PecFolderType } from "../mail-folders/mail-folders.service";
-import { MailListService } from "../mail-list/mail-list.service";
 import { Menu } from "primeng/menu";
 import { DialogService } from "primeng/dynamicdialog";
 import { MailboxService, Sorting } from "../mailbox.service";

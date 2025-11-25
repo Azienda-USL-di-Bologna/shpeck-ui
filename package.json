@@ -31,6 +31,7 @@
     "@bds/next-sdr": "20.0.1",
     "@bds/primeng-plugin": "20.0.0",
     "@bds/rubrint": "20.1.5",
+    "@bds/shpeck": "file:../bds-libs/dist/bds/shpeck",
     "@ng-idle/core": "16.0.0",
     "@ng-idle/keepalive": "16.0.0",
     "@primeng/themes": "20.0.1",

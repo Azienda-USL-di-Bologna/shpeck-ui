@@ -4,14 +4,10 @@ import { FILTER_TYPES, FilterDefinition, PagingConf, FiltersAndSorts, SortDefini
 import { LazyLoadEvent, FilterMetadata, ConfirmationService } from "primeng/api";
 import { DatePipe } from "@angular/common";
 import { buildLazyEventFiltersAndSorts } from "@bds/primeng-plugin";
-import { DraftService } from "src/app/services/draft.service";
+import { DraftService, SettingsService, DraftLiteService, MailboxService, Sorting, TotalMessageNumberDescriptor, PecFolder, MailFoldersService, PecFolderType } from "@bds/shpeck";
 import { Observable, Subscription } from "rxjs";
-import { SettingsService } from "src/app/services/settings.service";
-import { DraftLiteService } from "src/app/services/draft-lite.service";
 import { AppCustomization } from "src/environments/app-customization";
-import { MailboxService, Sorting, TotalMessageNumberDescriptor } from "../mailbox.service";
 import { Table } from "primeng/table";
-import { PecFolder, MailFoldersService, PecFolderType } from "../mail-folders/mail-folders.service";
 import {
   IntimusClientService,
   IntimusCommand,

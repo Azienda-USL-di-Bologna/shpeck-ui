@@ -1,11 +1,9 @@
 import { Component, OnInit, ViewChild } from "@angular/core";
 import { Router, ActivatedRoute } from "@angular/router";
 import { CustomReuseStrategy } from "src/app/custom-reuse-strategy";
-import { ShpeckMessageService, MessageEvent } from "src/app/services/shpeck-message.service";
+import { ShpeckMessageService, MessageEvent, MailListService, MailFoldersService, PecFolder, PecFolderType } from "@bds/shpeck";
 import { ItemMenu, Message, Pec } from "@bds/internauta-model";
 import { JwtLoginService } from "@bds/jwt-login";
-import { MailListService } from "../../mail-list/mail-list.service";
-import { MailFoldersService, PecFolder, PecFolderType } from "../../mail-folders/mail-folders.service";
 import { Menu } from "primeng/menu";
 
 @Component({

@@ -22,25 +22,17 @@ import {
   Pec,
   Tag,
 } from "@bds/internauta-model";
-import { MessageEvent, ShpeckMessageService } from "src/app/services/shpeck-message.service";
+import { MessageEvent, ShpeckMessageService, TagService, NoteService, SettingsService, MailFoldersService, PecFolder, PecFolderType, ToolBarService, UserFilters, MailListService, MailboxService, Sorting, BaseUrls, BaseUrlType, EMLSOURCE, FONTSIZE, TOOLBAR_ACTIONS } from "@bds/shpeck";
 import { BatchOperation, BatchOperationTypes, FILTER_TYPES, FilterDefinition, FiltersAndSorts, PagingConf } from "@bds/next-sdr";
-import { TagService } from "src/app/services/tag.service";
 import { Observable, Subscription } from "rxjs";
 import { DatePipe } from "@angular/common";
 import { Table } from "primeng/table";
-import { BaseUrls, BaseUrlType, EMLSOURCE, FONTSIZE, TOOLBAR_ACTIONS } from "src/environments/app-constants";
 import { ConfirmationService, FilterMetadata, LazyLoadEvent, MenuItem, MessageService } from "primeng/api";
 import { Utils } from "src/app/utils/utils";
-import { MailFoldersService, PecFolder, PecFolderType } from "../mail-folders/mail-folders.service";
-import { ToolBarService, UserFilters } from "../toolbar/toolbar.service";
-import { MailListService } from "./mail-list.service";
-import { NoteService } from "src/app/services/note.service";
 import { JwtLoginService, UtenteUtilities } from "@bds/jwt-login";
 import { Menu } from "primeng/menu";
 import { AppCustomization } from "src/environments/app-customization";
-import { SettingsService } from "src/app/services/settings.service";
 import { UntypedFormControl, UntypedFormGroup, Validators } from "@angular/forms";
-import { MailboxService, Sorting } from "../mailbox.service";
 import {
   ColonnaBds,
   IntimusClientService,

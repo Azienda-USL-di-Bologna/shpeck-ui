@@ -1,15 +1,12 @@
 import { Component, Input, ViewChild, ElementRef, OnInit, OnDestroy } from "@angular/core";
-import { ShpeckMessageService, MessageEvent, FullMessage } from "src/app/services/shpeck-message.service";
+import { ShpeckMessageService, MessageEvent, FullMessage, DraftService, DraftEvent, OutboxService, OutboxEvent } from "@bds/shpeck";
 import { Message, InOut, ENTITIES_STRUCTURE, MessageType, RecepitType, KrintFilterOptions } from "@bds/internauta-model";
 import { ContentTypeList } from "src/app/utils/styles-constants";
-import { EmlData } from "src/app/classes/eml-data";
-import { EmlAttachment } from "src/app/classes/eml-attachment";
+import { EmlData, EmlAttachment } from "@bds/shpeck";
 import { HttpClient } from "@angular/common/http";
 import { Subscription } from "rxjs";
 import { FiltersAndSorts, FilterDefinition, FILTER_TYPES, SortDefinition, SORT_MODES, PagingConf } from "@bds/next-sdr";
 import { Utils } from "src/app/utils/utils";
-import { DraftService, DraftEvent } from "src/app/services/draft.service";
-import { OutboxService, OutboxEvent } from "src/app/services/outbox.service";
 
 @Component({
     selector: "app-mail-detail",

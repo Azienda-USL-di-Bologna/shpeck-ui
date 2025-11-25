@@ -10,16 +10,12 @@ import {
   OnDestroy,
 } from "@angular/core";
 import { Subscription } from "rxjs";
-import { SettingsService } from "../services/settings.service";
+import { SettingsService, MailFoldersService, PecFolder, PecFolderType, MailboxService, Sorting, TotalMessageNumberDescriptor, FONTSIZE, ToolBarService } from "@bds/shpeck";
 import { AppCustomization } from "src/environments/app-customization";
 import { Folder, Message, FolderType, Tag, Pec, Menu } from "@bds/internauta-model";
 import { FilterDefinition, SORT_MODES } from "@bds/next-sdr";
-import { MailFoldersService, PecFolder, PecFolderType } from "./mail-folders/mail-folders.service";
 import { MenuItem } from "primeng/api";
-import { MailboxService, Sorting, TotalMessageNumberDescriptor } from "./mailbox.service";
-import { FONTSIZE } from "src/environments/app-constants";
 import { JwtLoginService, UtenteUtilities } from "@bds/jwt-login";
-import { ToolBarService } from "./toolbar/toolbar.service";
 
 @Component({
     selector: "app-mailbox",

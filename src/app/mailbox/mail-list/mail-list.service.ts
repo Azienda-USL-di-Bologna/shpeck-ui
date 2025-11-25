@@ -34,9 +34,8 @@ import {
 } from "@bds/internauta-model";
 import { MenuItem, MessageService } from "primeng/api";
 import { Utils } from "src/app/utils/utils";
-import { MessageFolderService } from "src/app/services/message-folder.service";
+import { MessageFolderService, MailFoldersService, FoldersAndTags, PecFolderType, PecFolder, CUSTOM_SERVER_METHODS, MessageEvent, ShpeckMessageService, ReaddressComponent, TagService, MailboxService, TotalMessageNumberDescriptor, Sorting } from "@bds/shpeck";
 import { Subscription, Observable, BehaviorSubject, tap } from "rxjs";
-import { MailFoldersService, FoldersAndTags, PecFolderType, PecFolder } from "../mail-folders/mail-folders.service";
 import { JwtLoginService, UtenteUtilities } from "@bds/jwt-login";
 import {
   BatchOperation,
@@ -50,11 +49,6 @@ import {
   NextSDREntityProvider,
   PagingConf,
 } from "@bds/next-sdr";
-import { CUSTOM_SERVER_METHODS } from "src/environments/app-constants";
-import { MessageEvent, ShpeckMessageService } from "src/app/services/shpeck-message.service";
-import { ReaddressComponent } from "../readdress/readdress.component";
-import { TagService } from "src/app/services/tag.service";
-import { MailboxService, TotalMessageNumberDescriptor, Sorting } from "../mailbox.service";
 import { HttpClient } from "@angular/common/http";
 import { DialogService } from "primeng/dynamicdialog";
 import { UserFilters } from "../toolbar/toolbar.service";
