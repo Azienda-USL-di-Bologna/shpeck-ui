@@ -9,20 +9,15 @@ import { loginModuleConfig } from "./config/module-config";
 
 // add support to italian language in application when using pipeDate
 import { LOCALE_ID } from "@angular/core";
-import { registerLocaleData } from "@angular/common";
+import { DatePipe, registerLocaleData } from "@angular/common";
 import localeIt from "@angular/common/locales/it";
 import localeItExtra from "@angular/common/locales/extra/it";
-
-// Shpeck Module
-import { ShpeckModule } from "@bds/shpeck";
 
 import { appConfig } from "./app.config";
 import { HeaderFeaturesModule, HeaderModule } from "@bds/common-components";
 import { RouterModule } from "@angular/router";
-import { AppRoutingModule } from "./app-routing.module";
 import { routes } from "./app.routes";
-
-
+import { NgIdleKeepaliveModule } from "@ng-idle/keepalive";
 
 registerLocaleData(localeIt, "it-IT", localeItExtra);
 
@@ -32,18 +27,19 @@ registerLocaleData(localeIt, "it-IT", localeItExtra);
   ],
   imports: [
     JwtLoginModule.forRoot(loginModuleConfig),
-    AppRoutingModule,
-    RouterModule.forRoot(routes, { useHash: false }),
     BrowserModule,
     BrowserAnimationsModule,
-    //AppRoutingModule,
-    ShpeckModule,
+    //ShpeckModule,
+    //ShpeckRoutingModule, // Importa le route di shpeck dalla libreria
+    RouterModule.forRoot(routes, { useHash: false }),
     HeaderModule,
     HeaderFeaturesModule,
+    NgIdleKeepaliveModule.forRoot(),
   ],
   providers: [
     { provide: LOCALE_ID, useValue: "it-IT" },
     ...appConfig.providers,
+    DatePipe,
   ],
   bootstrap: [AppComponent],
   exports: [],
