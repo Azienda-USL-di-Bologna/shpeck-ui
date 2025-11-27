@@ -1,16 +1,16 @@
 import { Component, OnInit } from "@angular/core";
 import { MenuItem } from "primeng/api";
 import { JwtLoginService, UtenteUtilities, UtilityFunctions } from "@bds/jwt-login";
-import { MAILBOX_ROUTE, LOGIN_ROUTE, APPLICATION } from "src/environments/app-constants";
+import { MAILBOX_ROUTE, LOGIN_ROUTE, APPLICATION } from "@bds/shpeck";
 import { IntimusClientService } from "@bds/common-tools";
 import { PopupMessaggiService, HeaderFeaturesConfig } from "@bds/common-components";
 
-import { SettingsComponent } from "./settings/settings.component";
+import { SettingsComponent } from "@bds/shpeck";
 import { ActivatedRoute, Router, Params } from "@angular/router";
 import { getInternautaUrl, BaseUrlType } from "@bds/internauta-model";
 import Quill from "quill";
 import { DialogService } from "primeng/dynamicdialog";
-import { MailListService } from "./mailbox/mail-list/mail-list.service";
+import { MailListService } from "@bds/shpeck";
 
 @Component({
     selector: "app-root",
