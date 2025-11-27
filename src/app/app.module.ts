@@ -39,7 +39,7 @@ registerLocaleData(localeIt, "it-IT", localeItExtra);
   providers: [
     { provide: LOCALE_ID, useValue: "it-IT" },
     ...appConfig.providers,
-    DatePipe,
+    DatePipe
   ],
   bootstrap: [AppComponent],
   exports: [],
