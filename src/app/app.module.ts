@@ -1,111 +1,45 @@
 import { BrowserModule } from "@angular/platform-browser";
 import { BrowserAnimationsModule } from "@angular/platform-browser/animations";
 import { NgModule } from "@angular/core";
-import { DatePipe } from "@angular/common";
-import { FormsModule, ReactiveFormsModule } from "@angular/forms";
-import { AppRoutingModule } from "./app-routing.module";
 import { AppComponent } from "./app.component";
-import { PrimengModule } from "./primeng.module";
-import { CommonComponentsModule, HeaderModule, HeaderFeaturesModule } from "@bds/common-components";
-import { RubrintModule } from "@bds/rubrint";
-import { MailboxComponent } from "./mailbox/mailbox.component";
-import { MailListComponent } from "./mailbox/mail-list/mail-list.component";
-import { ReaddressComponent } from "./mailbox/readdress/readdress.component";
-import { SearchContactComponent } from "./search-contact/search-contact.component";
 
 /* Login */
 import { JwtLoginModule } from "@bds/jwt-login";
 import { loginModuleConfig } from "./config/module-config";
 
-import { PrimengPluginModule } from "@bds/primeng-plugin";
-import { ConfirmationService, MessageService } from "primeng/api";
-import { SettingsComponent } from "./settings/settings.component";
-import { NewMailComponent } from "./mailbox/new-mail/new-mail.component";
-import { TagService } from "./services/tag.service";
-import { PecService } from "./services/pec.service";
-import { FolderService } from "./services/folder.service";
-import { ShpeckMessageService } from "./services/shpeck-message.service";
-import { MessageFolderService } from "./services/message-folder.service";
-import { DraftService } from "./services/draft.service";
-import { OutboxService } from "./services/outbox.service";
-import { NextSdrModule } from "@bds/next-sdr";
-
 // add support to italian language in application when using pipeDate
 import { LOCALE_ID } from "@angular/core";
-import { registerLocaleData } from "@angular/common";
+import { DatePipe, registerLocaleData } from "@angular/common";
 import localeIt from "@angular/common/locales/it";
 import localeItExtra from "@angular/common/locales/extra/it";
-import { MailDraftsComponent } from "./mailbox/mail-drafts/mail-drafts.component";
-import { MailOutboxComponent } from "./mailbox/mail-outbox/mail-outbox.component";
-import { StripeHtmlPipe } from "./pipes/stripe-html.pipe";
-import { MailListService } from "./mailbox/mail-list/mail-list.service";
-import { MatIconModule } from "@angular/material/icon";
-import { RubricaContainerComponent } from "./rubrica/rubrica-container/rubrica-container.component";
-import { MailFoldersModule } from "./mailbox/mail-folders/mail-folders.module";
-import { RouteReuseStrategy } from "@angular/router";
-import { CustomReuseStrategy } from "./custom-reuse-strategy";
-import { MailDetailModule } from "./mailbox/mail-detail/mail-detail.module";
-import { LandingRoutingComponent } from "./landing-routing/landing-routing.component";
-import { MatMenuModule } from "@angular/material/menu";
-import { ShpeckToolbarModule } from "./mailbox/toolbar/shpeck-toolbar.module";
-import { NgIdleKeepaliveModule } from "@ng-idle/keepalive";
+
 import { appConfig } from "./app.config";
-import { DialogService } from "primeng/dynamicdialog";
+import { HeaderFeaturesModule, HeaderModule } from "@bds/common-components";
+import { RouterModule } from "@angular/router";
+import { routes } from "./app.routes";
+import { NgIdleKeepaliveModule } from "@ng-idle/keepalive";
 
 registerLocaleData(localeIt, "it-IT", localeItExtra);
 
 @NgModule({
   declarations: [
     AppComponent,
-    MailboxComponent,
-    MailListComponent,
-    SettingsComponent,
-    NewMailComponent,
-    MailDraftsComponent,
-    StripeHtmlPipe,
-    ReaddressComponent,
-    SearchContactComponent,
-    MailOutboxComponent,
-    RubricaContainerComponent,
-    LandingRoutingComponent,
   ],
   imports: [
     JwtLoginModule.forRoot(loginModuleConfig),
     BrowserModule,
     BrowserAnimationsModule,
-    FormsModule,
-    ReactiveFormsModule,
-    AppRoutingModule,
-    MatIconModule,
-    MatMenuModule,
-    PrimengModule,
-    NextSdrModule,
-    PrimengPluginModule,
-    CommonComponentsModule,
+    //ShpeckModule,
+    //ShpeckRoutingModule, // Importa le route di shpeck dalla libreria
+    RouterModule.forRoot(routes, { useHash: false }),
     HeaderModule,
     HeaderFeaturesModule,
-    RubrintModule,
-    ShpeckToolbarModule,
-    MailFoldersModule,
-    MailDetailModule,
     NgIdleKeepaliveModule.forRoot(),
   ],
   providers: [
     { provide: LOCALE_ID, useValue: "it-IT" },
-    { provide: RouteReuseStrategy, useClass: CustomReuseStrategy },
     ...appConfig.providers,
-    DialogService,
-    DatePipe,
-    PecService,
-    TagService,
-    DraftService,
-    OutboxService,
-    FolderService,
-    MessageService,
-    ShpeckMessageService,
-    MessageFolderService,
-    MailListService,
-    ConfirmationService,
+    DatePipe
   ],
   bootstrap: [AppComponent],
   exports: [],
