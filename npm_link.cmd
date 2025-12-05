@@ -18,3 +18,6 @@ call npm link "@bds/next-sdr"
 
 echo faccio @bds/rubrint
 call npm link "@bds/rubrint"
+
+echo faccio @bds/shpeck
+call npm link "@bds/shpeck"
