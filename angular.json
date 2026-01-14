@@ -29,7 +29,7 @@
             "preserveSymlinks": true,
             "outputPath": { "base": "dist/shpeck-ui", "browser": "" },
             "index": "src/index.html",
-            "polyfills": ["src/polyfills.ts"],
+            "polyfills": ["zone.js"],
             "tsConfig": "src/tsconfig.app.json",
             "browser": "src/main.ts",
             "assets": ["src/favicon.ico", "src/assets", "src/app"],
@@ -37,8 +37,7 @@
               "src/styles.scss",
               "node_modules/@fortawesome/fontawesome-free/css/all.css",
               "node_modules/quill/dist/quill.core.css",
-              "node_modules/quill/dist/quill.snow.css",
-              "./node_modules/@angular/material/prebuilt-themes/pink-bluegrey.css"
+              "node_modules/quill/dist/quill.snow.css"
             ],
             "scripts": ["node_modules/quill/dist/quill.js", "src/assets/primus.js"]
           },
@@ -81,21 +80,20 @@
                 "vendor": true,
                 "hidden": false
               },
-              "namedChunks": true
+              "namedChunks": true,
+              "aot": false,
+              "outputHashing": "none"
             },
             "stage": {
-              "optimization": false,
+              "outputHashing": "all",
               "extractLicenses": false,
-              "sourceMap": {
-                "scripts": true,
-                "styles": true,
-                "vendor": false,
-                "hidden": false
-              },
               "namedChunks": true,
+              "optimization": true,
+              "sourceMap": true,
+              "aot": true
             }
           },
-          "defaultConfiguration": "production"
+          "defaultConfiguration": "development"
         },
         "serve": {
           "builder": "@angular/build:dev-server",
