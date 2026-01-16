@@ -6,7 +6,7 @@ import Aura from "@primeuix/themes/aura";
 import Lara from "@primeuix/themes/lara";
 import Nora from "@primeuix/themes/nora";
 import Material from "@primeuix/themes/material";
-import { BabelBlueDefault } from "@bds/common-components";
+import { BabelBlueDefault } from "@bds/bds-theme";
 
 const BabelPreset2 = definePreset(Nora, BabelBlueDefault);
 
