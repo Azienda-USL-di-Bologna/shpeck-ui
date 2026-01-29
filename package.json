@@ -29,7 +29,7 @@
     "@bds/jwt-login": "21.0.0",
     "@bds/next-sdr": "21.0.0",
     "@bds/primeng-plugin": "21.0.0",
-    "@bds/common-components": "21.0.2",
+    "@bds/common-components": "21.0.3",
     "@bds/shpeck": "21.0.1",
     "@bds/rubrint": "21.0.0",
     "@ng-idle/core": "16.0.0",
