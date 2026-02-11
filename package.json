@@ -27,7 +27,7 @@
     "@bds/common-tools": "21.0.0",
     "@bds/internauta-model": "21.0.2",
     "@bds/jwt-login": "21.0.0",
-    "@bds/next-sdr": "21.0.0",
+    "@bds/next-sdr": "21.0.1",
     "@bds/primeng-plugin": "21.0.0",
     "@bds/common-components": "21.0.3",
     "@bds/shpeck": "21.0.1",
