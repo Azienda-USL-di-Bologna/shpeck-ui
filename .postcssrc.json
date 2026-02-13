@@ -60,7 +60,10 @@
         "gap-2", "gap-3", "w-full","pt-4","pb-2",
         "fadein", "fadeout",
         "drag-handle", "mr-2", "text-gray-400", "cursor-move", "pr-2", "list-disc", "pl-5", "m-0", "gap-4", "gap-8",
-        "absolute", "top-0", "left-0", "relative", "p-1", "hover:underline", "underline"
+        "absolute", "top-0", "left-0", "relative", "p-1", "hover:underline", "underline",
+        "h-full", "w-full", "gap-2",
+        "flex", "flex-row", "items-center", "gap-1", "border-1", "border-gray-300", "rounded-md",
+        "self-center"
       ]
     },
     "autoprefixer": {}
