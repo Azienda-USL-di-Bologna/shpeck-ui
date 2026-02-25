@@ -15,3 +15,9 @@ call npm link "@bds/primeng-plugin"
 
 echo faccio @bds/next-sdr
 call npm link "@bds/next-sdr"
+
+echo faccio @bds/rubrint
+call npm link "@bds/rubrint"
+
+echo faccio @bds/shpeck
+call npm link "@bds/shpeck"

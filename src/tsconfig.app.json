@@ -4,5 +4,16 @@
     "outDir": "../out-tsc/app",
     "types": []
   },
-  "exclude": ["test.ts", "**/*.spec.ts"]
+  "exclude": [
+    "test.ts",
+    "**/*.spec.ts",
+    "app/mailbox/**/*.ts",
+    "app/settings/**/*.ts",
+    "app/search-contact/**/*.ts",
+    "app/landing-routing/**/*.ts",
+    "app/rubrica/**/*.ts",
+    "app/services/**/*.ts",
+    "app/pipes/**/*.ts",
+    "app/utils/**/*.ts"
+  ]
 }
